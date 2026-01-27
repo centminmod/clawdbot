@@ -1,0 +1,134 @@
+# Commands + troubleshooting (quick reference)
+
+## Table of contents (Explain Clawdbot)
+
+- [Home (README)](../README.md)
+- Plain English
+  - [What is Clawdbot?](../01-plain-english/what-is-clawdbot.md)
+  - [Glossary](../01-plain-english/glossary.md)
+- Technical
+  - [Architecture](../02-technical/architecture.md)
+  - [Repo map](../02-technical/repo-map.md)
+- Privacy + safety
+  - [Threat model](../04-privacy-safety/threat-model.md)
+  - [Hardening checklist](../04-privacy-safety/hardening-checklist.md)
+- Deployment
+  - [Standalone Mac mini](../03-deploy/standalone-mac-mini.md)
+  - [Isolated VPS](../03-deploy/isolated-vps.md)
+- Reference
+  - [Commands + troubleshooting](./commands-and-troubleshooting.md)
+
+---
+
+This is a copy/paste oriented page. For deeper explanations, use the official docs linked below.
+
+---
+
+## Install + onboard
+
+```bash
+curl -fsSL https://clawd.bot/install.sh | bash
+clawdbot onboard --install-daemon
+```
+
+Docs: https://docs.clawd.bot/install and https://docs.clawd.bot/start/wizard
+
+---
+
+## Start/stop the Gateway
+
+Foreground:
+
+```bash
+clawdbot gateway
+# alias:
+clawdbot gateway run
+```
+
+Service lifecycle:
+
+```bash
+clawdbot gateway status
+clawdbot gateway restart
+clawdbot gateway stop
+clawdbot gateway start
+```
+
+Docs: https://docs.clawd.bot/gateway and https://docs.clawd.bot/cli/gateway
+
+---
+
+## Health and status
+
+```bash
+clawdbot status
+clawdbot status --all
+clawdbot health
+```
+
+---
+
+## Security audit
+
+```bash
+clawdbot security audit
+clawdbot security audit --deep
+clawdbot security audit --fix
+```
+
+Docs: https://docs.clawd.bot/gateway/security
+
+---
+
+## Pairing (DM approvals)
+
+```bash
+clawdbot pairing list telegram
+clawdbot pairing approve telegram <CODE>
+```
+
+Docs: https://docs.clawd.bot/start/pairing
+
+---
+
+## Remote access (SSH tunnel)
+
+```bash
+ssh -N -L 18789:127.0.0.1:18789 user@gateway-host
+```
+
+Docs: https://docs.clawd.bot/gateway/remote
+
+---
+
+## Common problems
+
+### Control UI says unauthorized
+- Run `clawdbot dashboard` and open the printed tokenized URL.
+- Ensure you are connecting to the correct Gateway instance/profile.
+
+Docs: https://docs.clawd.bot/help/faq
+
+### Port already in use (18789)
+- Stop the supervised service (`clawdbot gateway stop`) or choose another port.
+- Foreground reclaim: `clawdbot gateway --force`.
+
+Docs: https://docs.clawd.bot/help/faq
+
+### Nothing responds in Telegram/WhatsApp
+- Check channel status and logs.
+- Confirm pairing/allowlists aren’t blocking.
+- Confirm model auth is present on the **gateway host**.
+
+Docs: https://docs.clawd.bot/help/faq and https://docs.clawd.bot/channels/troubleshooting
+
+---
+
+## High-signal official docs
+
+- Getting started: https://docs.clawd.bot/start/getting-started
+- Gateway runbook: https://docs.clawd.bot/gateway
+- Security: https://docs.clawd.bot/gateway/security
+- Remote: https://docs.clawd.bot/gateway/remote
+- Help/FAQ: https://docs.clawd.bot/help/faq
+- Troubleshooting: https://docs.clawd.bot/gateway/troubleshooting
