@@ -365,6 +365,8 @@ The maintainer ([steipete](https://github.com/steipete)) reviewed and [confirmed
 
 The issue was closed after review.
 
+> **Post-merge note:** Webhook signature validation was further hardened with `crypto.timingSafeEqual()` (`3b8792e`), and file serving gained `O_NOFOLLOW` + inode verification (`5eee991`).
+
 ### Practical takeaways
 
 If you are hardening a deployment, the automated scanner report is not a useful starting point. Instead:
@@ -399,7 +401,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 - **Claim 3 (logs.tail traversal):** Copilot GPT-5.2 calls it "partially accurate" and Gemini 3.0 Pro lists it as a "Data Risk." Code review confirms the `LogsTailParamsSchema` (`src/gateway/protocol/schema/logs-chat.ts:5-12`) has `additionalProperties: false` with only `cursor`/`limit`/`maxBytes` parameters -- there is no file path parameter at all. The file path comes from `getResolvedLoggerSettings().file` (config-derived). Verdict: **false**, not partially accurate.
 
-- **Claim 5 (auth bypass / self-approving agent):** Gemini 3.0 Pro states "Agents can self-approve dangerous commands (missing role check)." Code review confirms `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:91-107`) enforces role checks on every call and agents are blocked from approval methods. Verdict: **false**.
+- **Claim 5 (auth bypass / self-approving agent):** Gemini 3.0 Pro states "Agents can self-approve dangerous commands (missing role check)." Code review confirms `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-109`) enforces role checks on every call and agents are blocked from approval methods. Verdict: **false**.
 
 - **GLM 4.7 claim set mismatch:** GLM analyzed claims like "CVE-2024-44946 Directory Traversal" and "OS Command Injection via Filename" that do not appear in the Medium article. The article's actual 8 claims are about config injection, nodes outPath, logs.tail, DNS rebinding, RBAC, token format, regex validation, and env vars. This is a factual error in the analysis, not a disagreement about interpretation.
 
@@ -411,10 +413,10 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks path validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway. |
 | 3 | Log traversal via `logs.tail` | **False** | Schema has `additionalProperties: false`, accepts only `cursor`/`limit`/`maxBytes` (`src/gateway/protocol/schema/logs-chat.ts:5-12`). File path from config, not request. |
 | 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:112-164`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:116-138`). |
-| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:91-107`). Agents blocked from approval methods. |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:93-109`). Agents blocked from approval methods. |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format exists (`src/gateway/device-auth.ts:13-30`) but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` validates executable *names*, not commands (`src/infra/exec-safety.ts:1-24`). Strict allowlist: `/^[A-Za-z0-9._+-]+$/`. |
-| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:869-870`). Node-host has blocklist (`src/node-host/runner.ts:153-162`). Requires human approval + localhost. |
+| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:869-870`). Node-host has blocklist (`src/node-host/runner.ts:158-167`). Requires human approval + localhost. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 
@@ -442,6 +444,18 @@ Three defense-in-depth items were identified (not exploitable as described, but 
 1. **Gateway-side env var blocklist:** The node-host blocks `LD_*`/`DYLD_*`/`NODE_OPTIONS`, but the gateway-side env merge lacks this symmetric blocklist.
 2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 3. **outPath validation in screen_record:** Accepts arbitrary paths without validation. Writes are confined to the paired node device, but path validation would add depth.
+
+### Post-merge hardening (PR #1, 129 upstream commits)
+
+Three commits directly strengthened controls referenced by both audits:
+
+- **Docker PATH injection fix** (`771f23d`): `setupCommand` PATH handling moved from shell string interpolation to a container env var, closing a command injection vector inside the sandbox (Audit 2 Claim 1).
+- **Per-sender tool policies** (`3b0c80c`): RBAC now extends to per-user tool policies in group chats, deepening the access control that already prevented agent self-approval (Audit 2 Claim 5).
+- **Webhook timing-safe comparison** (`3b8792e`): LINE webhook signature validation switched from `===` to `crypto.timingSafeEqual()`, eliminating a theoretical timing side-channel (Audit 1 Claim 7).
+
+Additional security improvements: hardened file serving via `O_NOFOLLOW` + inode verification (`5eee991`), and browser JS execution gated behind `evaluateEnabled` config flag (`78f0bc3`).
+
+All three legitimate defense-in-depth gaps (gateway env blocklist, pipe-delimited token format, outPath validation) remain open as of this merge.
 
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 

@@ -190,7 +190,7 @@ await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
 
 However, the article omits critical context:
 - **Execution is inside a Docker container**, not on the host. The container runs with `no-new-privileges` and restricted capabilities.
-- **Modifying config requires gateway authentication.** The `config.patch` server method is gated behind `authorizeGatewayMethod()` which requires the `operator` role (`src/gateway/server-methods.ts:91-107`).
+- **Modifying config requires gateway authentication.** The `config.patch` server method is gated behind `authorizeGatewayMethod()` which requires the `operator` role (`src/gateway/server-methods.ts:93-109`).
 - **Agent runtime schemas validate config** via Zod (`src/agents/zod-schema.agent-runtime.ts`).
 
 **What the article missed:** Container isolation is the primary security boundary for agent execution. RCE inside a container is not equivalent to RCE on the host. Real risk is Medium (CVSS 6-7), not Critical (10.0).
@@ -259,10 +259,10 @@ The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-
 
 **Verdict: False.**
 
-The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:91-107`) enforces role-based access control on every server method:
+The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:93-109`) enforces role-based access control on every server method:
 - Agents connect with `role: "node"` and are restricted to `NODE_ROLE_METHODS` only
 - Any non-node method call from a node role returns `unauthorized role: node`
-- Approval methods require `operator.approvals` scope (line 106-107)
+- Approval methods require `operator.approvals` scope (line 108-109)
 - The approval flow requires a separate operator connection (human in the loop)
 
 **What the article missed:** RBAC enforcement exists and is applied to every gateway method call. Agents cannot call approval methods.
@@ -311,7 +311,7 @@ const baseEnv = coerceEnv(process.env);
 const mergedEnv = params.env ? { ...baseEnv, ...params.env } : baseEnv;
 ```
 
-On the node host, there is an explicit blocklist (`src/node-host/runner.ts:153-162`):
+On the node host, there is an explicit blocklist (`src/node-host/runner.ts:158-167`):
 ```
 const blockedEnvKeys = new Set(["NODE_OPTIONS", "PYTHONHOME", "PYTHONPATH", "PERL5LIB", "PERL5OPT", "RUBYOPT"]);
 const blockedEnvPrefixes = ["DYLD_", "LD_"];
@@ -367,6 +367,20 @@ While none of the 8 claims are exploitable as described, three defense-in-depth 
 2. **Pipe-delimited token format (Claim 6):** The token construction uses pipe delimiters without input sanitization. RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 
 3. **outPath validation in screen_record (Claim 2):** The `outPath` parameter accepts arbitrary paths without validation. Writes are confined to the paired node device (not the gateway), but path validation would add defense in depth.
+
+### Post-Merge Hardening (PR #1)
+
+Three upstream commits (merged via PR #1, 129 commits from `moltbot/main`) directly strengthened controls analyzed above:
+
+- **Claim 1 (setupCommand RCE):** Commit `771f23d36` fixes PATH injection in the Docker sandbox. Previously, `params.env.PATH` was interpolated into a shell string; now it is passed as a container environment variable (`CLAWDBOT_PREPEND_PATH`), preventing command injection within the sandbox. Test added in `src/agents/bash-tools.test.ts`.
+- **Claim 5 (RBAC):** Commit `3b0c80ce2` adds per-sender group tool policies with precedence logic (`src/config/group-policy.ts`), extending RBAC from method-level authorization to per-user tool-level policies in group chats.
+- **Claim 7 (shell injection) / Audit 1 Claim 7 (webhook signature):** Commit `3b8792ee2` replaces string equality (`===`) with `crypto.timingSafeEqual()` for LINE webhook signature validation, eliminating a theoretical timing side-channel.
+
+Additional security work in this merge:
+- `5eee99191`: New `src/infra/fs-safe.ts` — hardened file serving with `O_NOFOLLOW`, inode/device verification, and root confinement
+- `78f0bc3ec`: `browser.evaluateEnabled` config flag (default `false`) gates `act:evaluate` and `wait --fn`
+
+**All three legitimate gaps remain open** (gateway env blocklist, pipe-delimited token format, outPath validation).
 
 ---
 
