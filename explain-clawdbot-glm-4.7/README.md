@@ -93,6 +93,30 @@ clawdbot agent --message "Hello, Clawdbot!"
 | Subscription required | Use your own API keys |
 | Limited control | Fully customizable |
 
+## Security Audit
+
+A comprehensive security audit was conducted in January 2026 and reported in [GitHub Issue #1796](https://github.com/clawdbot/clawdbot/issues/1796). The audit identified 512 findings across multiple categories. Here's an honest assessment:
+
+### What the audit found
+
+| Category | Audit Finding | Reality |
+|----------|---------------|----------|
+| OAuth CSRF | Critical vulnerability in state validation | **False positive** — the report misidentified code. Device OAuth flows use PKCE, not state parameters |
+| Credential storage | Tokens stored in plaintext without encryption | **Accurate, but by design** — uses `0o600` file permissions; relies on OS-level security (encrypted disk) |
+| Webhook bypass | Signature verification can be disabled | **Accurate** — a dev-only flag exists; defaults to secure but verify production configs |
+
+### What this means for you
+
+Clawdbot's security model is **trust-based**: it assumes you control your machine and your operating system provides basic security (file permissions, disk encryption).
+
+- **If you run on a personal Mac Mini with FileVault**: Current security is appropriate
+- **If you run on a shared server**: Review your threat model and consider additional isolation
+- **If you use the voice-call plugin**: Verify `skipSignatureVerification` is not enabled in production
+
+### Trust but verify
+
+The audit report contains both accurate findings and false positives. The project maintainers have reviewed and responded to the report on the issue. For complete security guidance, see [Privacy and Security](./privacy-security.md).
+
 ## Need help?
 
 - **Official docs:** https://docs.clawd.bot

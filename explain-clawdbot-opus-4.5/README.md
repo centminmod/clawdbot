@@ -27,6 +27,7 @@ A comprehensive guide for understanding, installing, and securely deploying Claw
 | [08 - Mac Mini Deployment](./08-mac-mini-deployment.md) | Standalone Mac Mini setup guide |
 | [09 - VPS Deployment](./09-vps-deployment.md) | Isolated VPS server deployment |
 | [10 - Commands Reference](./10-commands-reference.md) | Essential CLI commands |
+| [11 - Security Audit Analysis](./11-security-audit-analysis.md) | Code-verified analysis of automated audit claims (Issue #1796) |
 
 ---
 
@@ -71,6 +72,56 @@ This guide focuses on two privacy-conscious deployment scenarios:
 1. **Mac Mini Standalone** - Personal AI assistant on dedicated home hardware with local-only access and optional Ollama for fully local AI processing
 
 2. **Isolated VPS** - Cloud server deployment with strict isolation, firewall rules, and Tailscale for secure remote access
+
+---
+
+## Security Audit Analysis (Issue [#1796](https://github.com/clawdbot/clawdbot/issues/1796))
+
+In January 2026, the Argus Security Platform (v1.0.15) ran an automated 6-phase scan combining Semgrep, Trivy, Gitleaks, TruffleHog, and Claude Sonnet 4.5 AI analysis against the Clawdbot repository. The report claimed **512 total findings including 8 CRITICAL**. This section provides a code-verified analysis of those claims.
+
+### Critical Claims Assessment
+
+All 8 CRITICAL findings were manually verified against the source code:
+
+| # | Claim | Verdict | Explanation |
+|---|-------|---------|-------------|
+| 1 | Plaintext OAuth token storage | **True, by design** | Tokens stored as JSON files with `0o600` permissions, set on every write (`src/infra/json-file.ts:20`). Standard practice for CLI tools (cf. `gh`, `gcloud`). No keychain integration, but filesystem permissions enforced. |
+| 2 | Missing CSRF in OAuth state validation | **False** | The `?? expectedState` is a parsing fallback, not a bypass. Actual CSRF validation performs strict `state !== verifier` comparison before token exchange (`extensions/google-gemini-cli-auth/oauth.ts:538-539`). |
+| 3 | Hardcoded OAuth client secret | **True, standard practice** | Per [RFC 8252 Sections 8.4-8.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.4), desktop/CLI apps are "public clients" that cannot maintain secret confidentiality. Google's own CLI tools follow the same pattern. Base64 encoding is cosmetic only. |
+| 4 | Token refresh race condition | **False** | Uses `proper-lockfile` with exponential backoff (config: `src/agents/auth-profiles/constants.ts:11-20`). Lock held throughout the entire refresh-and-save cycle (`src/agents/auth-profiles/oauth.ts:33-35`). Errors propagate to callers. |
+| 5 | Insufficient file permission checks | **True, by design** | Permissions set to `0o600` on every write (secure default). Audit/fix tooling exists via `clawdbot security audit` and `clawdbot security fix`. No pre-load validation, but files stay correct unless manually changed externally. |
+| 6 | Path traversal in agent directories | **False** | Paths go through `resolveUserPath()` (`src/agents/agent-paths.ts:10,12`) which calls `path.resolve()` (`src/utils.ts:209`), normalizing traversal. Agent IDs come from environment/config, not user input. |
+| 7 | Webhook signature bypass | **True, properly gated** | `skipVerification` parameter exists in `extensions/voice-call/src/webhook-security.ts` but requires explicit parameter passing. Dev-only flag, not enabled by default, no evidence of production exposure. |
+| 8 | Insufficient token expiry validation | **False** | Every token use path checks `Date.now() < cred.expires` before returning credentials. On refresh failure, re-reads the store and re-checks expiry. No stale token fallback (`src/agents/auth-profiles/oauth.ts:138-179`). |
+
+**Result: 0 of 8 CRITICAL claims are actual security vulnerabilities.**
+
+- 3 are true observations about intentional design decisions (not vulnerabilities)
+- 1 is true but properly gated behind a dev-only flag (low risk)
+- 4 are factually incorrect (the code already handles these correctly)
+
+### Bulk Scanner Context
+
+The remaining 504 findings break down as:
+
+| Scanner | Count | Assessment |
+|---------|-------|------------|
+| Gitleaks | 255 | "Generic API key" pattern matches on test fixtures, UUIDs, and base64 strings. Overwhelmingly false positives. |
+| Semgrep | 190 | Flagged `ws://` localhost connections (safe for local gateway), CHANGELOG text matches, and standard patterns without context. |
+| Trivy | 20 | Dependency CVEs. Valid to track as maintenance items but standard for any Node.js project, not code vulnerabilities. |
+| TruffleHog | 8 | Unverified secret patterns. No confirmed credential leaks found. |
+
+Automated scanners without codebase context produce high false-positive rates. The 512-finding headline reflects scanner noise, not 512 security problems.
+
+### Maintainer Response
+
+The maintainer ([steipete](https://github.com/steipete)) reviewed and [confirmed](https://github.com/clawdbot/clawdbot/issues/1796):
+
+> Some items are accurate but by design (public OAuth client secret; plaintext credential stores with 0600 perms). Other items are incorrect or overstated (OAuth state; token-refresh lock "race"). Webhook signatures are verified by default and only bypassed via an explicit dev-only config flag.
+
+### Existing Security Controls
+
+For the actual security architecture, access controls, credential handling, and privacy model, see [07 - Security & Privacy](./07-security-privacy.md). Key controls include allowlist-based access, local-only data storage, `0o600` file permissions, and configurable security audit/fix tooling.
 
 ---
 

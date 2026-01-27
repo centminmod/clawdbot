@@ -40,6 +40,19 @@ It is written for someone new to “agent frameworks” and focuses on:
 - [Useful commands (copy/paste)](./99-reference/commands.md)
 - [Where Clawdbot stores state on disk](./99-reference/state-on-disk.md)
 
+## Security note (Issue #1796)
+
+The automated security report in **GitHub Issue #1796** is a mix of real risks, “true but by design” tradeoffs, and some overstated items.
+This guide’s practical takeaway is: treat your **state dir** as sensitive, keep the gateway **least-privilege / loopback-first**, and use the built-in security tooling.
+
+- Issue: https://github.com/clawdbot/clawdbot/issues/1796
+- **Accurate (risk depends on threat model):** some credentials/tokens are stored on disk as JSON with restrictive permissions (e.g. `0o600`) but **without encryption at rest** (see e.g. `src/infra/device-auth-store.ts`, `src/agents/auth-profiles/*`). If your machine or backups are compromised, those tokens can be exfiltrated.
+- **Mostly mitigated / overstated:** OAuth `state` handling is validated in the local callback path for Gemini CLI (state mismatch rejects the callback), and Qwen uses a device + PKCE flow rather than a browser redirect callback.
+- **Config-footgun (but off by default):** the voice-call extension can skip webhook signature verification only when explicitly enabled in config (`skipSignatureVerification`, default `false`); docs also label this as dev-only.
+- **“Hardcoded client secret” context:** `extensions/google-antigravity-auth` includes an OAuth client secret encoded in source; for public/native OAuth clients this is commonly treated as **non-secret** (still: rotate if you suspect it was meant to be private).
+
+If you’re hardening a deployment, start with the official security docs and run `clawdbot security audit` / `clawdbot security fix`.
+
 ## Official docs (recommended)
 
 - Getting started: https://docs.clawd.bot/start/getting-started
