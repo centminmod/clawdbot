@@ -27,7 +27,7 @@ A comprehensive guide for understanding, installing, and securely deploying Claw
 | [08 - Mac Mini Deployment](./08-mac-mini-deployment.md) | Standalone Mac Mini setup guide |
 | [09 - VPS Deployment](./09-vps-deployment.md) | Isolated VPS server deployment |
 | [10 - Commands Reference](./10-commands-reference.md) | Essential CLI commands |
-| [11 - Security Audit Analysis](./11-security-audit-analysis.md) | Code-verified analysis of automated audit claims (Issue #1796) |
+| [11 - Security Audit Analysis](./11-security-audit-analysis.md) | Code-verified analysis of security audit claims (Issue #1796 + Medium article) |
 
 ---
 
@@ -122,6 +122,39 @@ The maintainer ([steipete](https://github.com/steipete)) reviewed and [confirmed
 ### Existing Security Controls
 
 For the actual security architecture, access controls, credential handling, and privacy model, see [07 - Security & Privacy](./07-security-privacy.md). Key controls include allowlist-based access, local-only data storage, `0o600` file permissions, and configurable security audit/fix tooling.
+
+---
+
+## Second Security Audit (Medium Article)
+
+In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad Idea: Critical Zero-days Found in My Audit"* claimed **8 critical zero-day vulnerabilities** (CVSS 7.5-10.0) based on a self-described "Complete White Box Penetration Test." All 8 claims were verified against the source code.
+
+| # | Claim | Verdict | Explanation |
+|---|-------|---------|-------------|
+| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container (not host). Config changes require gateway auth. Container has `no-new-privileges`. Real risk: Medium. |
+| 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway host. Requires node pairing approval. Real risk: Low-Medium. |
+| 3 | Log traversal via `logs.tail` | **False** | `LogsTailParamsSchema` has `additionalProperties: false` with only `cursor`, `limit`, `maxBytes`. File path from `getResolvedLoggerSettings().file` (config), not user input. |
+| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:112-164`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:116-138`). |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:91-107`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. |
+| 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-30`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
+| 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:1-24`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
+| 8 | Environment variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:869-870`). Node-host has blocklist (`src/node-host/runner.ts:153-162`). Requires human approval + localhost + no sandbox. |
+
+**Result: 0 of 8 claims are exploitable as described.**
+
+- 5 are factually incorrect (claims 3, 4, 5, 6, 7)
+- 2 are partially true but heavily overstated (claims 1, 8)
+- 1 is a true observation with misleading risk framing (claim 2)
+
+### Legitimate Gaps Noted
+
+Three defense-in-depth items were identified (not exploitable as described, but worth hardening):
+
+1. **Gateway-side env var blocklist:** The node-host blocks `LD_*`/`DYLD_*`/`NODE_OPTIONS`, but the gateway-side env merge lacks this blocklist.
+2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust.
+3. **outPath validation:** `screen_record` outPath accepts arbitrary paths. Writes are confined to the paired node device, but path validation would add depth.
+
+For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
 

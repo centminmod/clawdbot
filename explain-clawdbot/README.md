@@ -12,6 +12,7 @@
 - [Deployment: Isolated VPS](./03-deploy/isolated-vps.md)
 - [Commands + troubleshooting](./99-reference/commands-and-troubleshooting.md)
 - [Security audit analysis (Issue #1796)](#security-audit-analysis-issue-1796) *(inline below)*
+- [Second security audit (Medium article)](#second-security-audit-medium-article) *(inline below)*
 
 ---
 
@@ -378,6 +379,73 @@ For the full security architecture, threat model, and hardening checklist:
 - [Threat model](./04-privacy-safety/threat-model.md)
 - [Hardening checklist](./04-privacy-safety/hardening-checklist.md)
 - Official security docs: https://docs.clawd.bot/gateway/security
+
+---
+
+## Second security audit (Medium article)
+
+In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad Idea: Critical Zero-days Found in My Audit"* claimed **8 critical zero-day vulnerabilities** (CVSS 7.5-10.0) based on a self-described "Complete White Box Penetration Test." This section provides a source-code-verified analysis.
+
+### How each model covered it
+
+| Model | Coverage | Accuracy |
+|-------|----------|----------|
+| [Opus 4.5](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026) | Most thorough: full 8-claim analysis with code file/line references, CVSS comparison, 3 legitimate gaps identified | All verdicts match source code review |
+| [Copilot GPT-5.2](../explain-clawdbot-copilot-gpt-5.2/README.md#security-note-medium-audit-article-jan-2026) | Covers all 8 claims individually with code references and nuanced "attacker needs admin access" framing | High accuracy; minor error on claim 3 (logs.tail called "partially accurate" when schema fully blocks arbitrary paths) |
+| [GLM 4.7](../explain-clawdbot-glm-4.7/README.md#audit-2-medium-article-why-clawdbot-is-a-bad-idea-saad-khalid) | 5-row table, but the claims analyzed do not match the article's actual findings | **Inaccurate** -- appears to have hallucinated or confused the article's claims with a different report (e.g., lists "CVE-2024-44946 Directory Traversal" and "Insecure Dependencies" which the article does not mention) |
+| [Gemini 3.0 Pro](../explain-clawdbot-gemini-3.0-pro/README.md) | Brief bullet-point summary; correctly notes DNS rebinding is mitigated | **Mostly inaccurate** -- accepted auth bypass (#5), arbitrary read (#3), and RCE (#1) claims at face value without verifying against RBAC, schema validation, or Docker isolation |
+
+**Key disagreements resolved:**
+
+- **Claim 3 (logs.tail traversal):** Copilot GPT-5.2 calls it "partially accurate" and Gemini 3.0 Pro lists it as a "Data Risk." Code review confirms the `LogsTailParamsSchema` (`src/gateway/protocol/schema/logs-chat.ts:5-12`) has `additionalProperties: false` with only `cursor`/`limit`/`maxBytes` parameters -- there is no file path parameter at all. The file path comes from `getResolvedLoggerSettings().file` (config-derived). Verdict: **false**, not partially accurate.
+
+- **Claim 5 (auth bypass / self-approving agent):** Gemini 3.0 Pro states "Agents can self-approve dangerous commands (missing role check)." Code review confirms `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:91-107`) enforces role checks on every call and agents are blocked from approval methods. Verdict: **false**.
+
+- **GLM 4.7 claim set mismatch:** GLM analyzed claims like "CVE-2024-44946 Directory Traversal" and "OS Command Injection via Filename" that do not appear in the Medium article. The article's actual 8 claims are about config injection, nodes outPath, logs.tail, DNS rebinding, RBAC, token format, regex validation, and env vars. This is a factual error in the analysis, not a disagreement about interpretation.
+
+### Synthesized verdict (all 8 claims)
+
+| # | Claim | Verdict | Source code evidence |
+|---|-------|---------|---------------------|
+| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container, not host (`src/agents/sandbox/docker.ts:205-207`). Config changes require gateway auth. |
+| 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks path validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway. |
+| 3 | Log traversal via `logs.tail` | **False** | Schema has `additionalProperties: false`, accepts only `cursor`/`limit`/`maxBytes` (`src/gateway/protocol/schema/logs-chat.ts:5-12`). File path from config, not request. |
+| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:112-164`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:116-138`). |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:91-107`). Agents blocked from approval methods. |
+| 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format exists (`src/gateway/device-auth.ts:13-30`) but tokens are RSA-signed. Modified payload fails signature verification. |
+| 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` validates executable *names*, not commands (`src/infra/exec-safety.ts:1-24`). Strict allowlist: `/^[A-Za-z0-9._+-]+$/`. |
+| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:869-870`). Node-host has blocklist (`src/node-host/runner.ts:153-162`). Requires human approval + localhost. |
+
+**Result: 0 of 8 claims are exploitable as described.**
+
+- 5 are factually incorrect (claims 3, 4, 5, 6, 7)
+- 2 are partially true but heavily overstated (claims 1, 8)
+- 1 is a true observation with misleading risk framing (claim 2)
+
+### Methodology concerns
+
+The article claims a "Complete White Box Penetration Test" but demonstrates a pattern consistent with static code reading without architectural context. Key security controls (Docker sandboxing, DNS pinning, RBAC enforcement, RSA signing, human approval flow) were either not tested or not acknowledged. This mirrors the first audit's weakness: analyzing code patterns in isolation without tracing the full execution path through layered defenses.
+
+### Comparison to first audit
+
+| Aspect | Argus (Issue #1796) | Medium Article (Saad Khalid) |
+|--------|-------------------|------------------------------|
+| Methodology | Automated scanners + AI | Claims manual pentest |
+| Findings | 512 total, 8 critical | 8 critical |
+| Exploitable as described | 0 of 8 | 0 of 8 |
+| Core weakness | Pattern matching without context | Code reading without architectural context |
+
+### Legitimate gaps noted
+
+Three defense-in-depth items were identified (not exploitable as described, but worth hardening):
+
+1. **Gateway-side env var blocklist:** The node-host blocks `LD_*`/`DYLD_*`/`NODE_OPTIONS`, but the gateway-side env merge lacks this symmetric blocklist.
+2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
+3. **outPath validation in screen_record:** Accepts arbitrary paths without validation. Writes are confined to the paired node device, but path validation would add depth.
+
+For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
+
+Article: [Why Clawdbot is a Bad Idea (Medium)](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f)
 
 ---
 

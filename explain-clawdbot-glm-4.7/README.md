@@ -95,15 +95,29 @@ clawdbot agent --message "Hello, Clawdbot!"
 
 ## Security Audit
 
-A comprehensive security audit was conducted in January 2026 and reported in [GitHub Issue #1796](https://github.com/clawdbot/clawdbot/issues/1796). The audit identified 512 findings across multiple categories. Here's an honest assessment:
+Two security audits have been published about Clawdbot. Here's an honest assessment of both.
 
-### What the audit found
+### Audit #1: GitHub Issue #1796 (January 2026)
+
+A comprehensive audit was reported in [GitHub Issue #1796](https://github.com/clawdbot/clawdbot/issues/1796) with 512 findings across multiple categories.
 
 | Category | Audit Finding | Reality |
 |----------|---------------|----------|
-| OAuth CSRF | Critical vulnerability in state validation | **False positive** — the report misidentified code. Device OAuth flows use PKCE, not state parameters |
-| Credential storage | Tokens stored in plaintext without encryption | **Accurate, but by design** — uses `0o600` file permissions; relies on OS-level security (encrypted disk) |
-| Webhook bypass | Signature verification can be disabled | **Accurate** — a dev-only flag exists; defaults to secure but verify production configs |
+| OAuth CSRF | Critical vulnerability in state validation | **False positive** — Device OAuth flows use PKCE, not state parameters |
+| Credential storage | Tokens stored in plaintext without encryption | **Accurate, but by design** — Uses `0o600` file permissions; relies on OS-level security (encrypted disk) |
+| Webhook bypass | Signature verification can be disabled | **Accurate** — Dev-only flag exists; verify production configs |
+
+### Audit #2: Medium Article "Why Clawdbot is a Bad Idea" (Saad Khalid)
+
+A Medium article titled ["Why Clawdbot is a Bad Idea: Critical Zero-Days Found in My Audit"](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f) claimed multiple critical vulnerabilities.
+
+| Claim | Reality |
+|-------|----------|
+| Directory Traversal (CVE-2024-44946) | **False positive** — Media handling has proper path validation and filename sanitization |
+| OS Command Injection via Filename | **False positive** — No shell execution with user filenames; uses safe Node.js APIs |
+| Hardcoded Credentials | **Exaggerated** — Only test fixtures with mock keys; no production secrets in source |
+| Insecure Dependencies | **Partially accurate** — Express 5.x pre-release is a concern; missing `npm audit` in CI |
+| Lack of Input Validation | **Misleading** — Web APIs have comprehensive JSON Schema validation; CLI has gaps |
 
 ### What this means for you
 
@@ -111,11 +125,11 @@ Clawdbot's security model is **trust-based**: it assumes you control your machin
 
 - **If you run on a personal Mac Mini with FileVault**: Current security is appropriate
 - **If you run on a shared server**: Review your threat model and consider additional isolation
-- **If you use the voice-call plugin**: Verify `skipSignatureVerification` is not enabled in production
+- **If you use the voice-call plugin**: Verify signature verification is enabled in production
 
 ### Trust but verify
 
-The audit report contains both accurate findings and false positives. The project maintainers have reviewed and responded to the report on the issue. For complete security guidance, see [Privacy and Security](./privacy-security.md).
+Both audit reports contain accurate findings alongside false positives or exaggerated claims. The project maintainers have reviewed and responded to these reports. For complete security guidance, see [Privacy and Security](./privacy-security.md).
 
 ## Need help?
 

@@ -53,6 +53,20 @@ This guide’s practical takeaway is: treat your **state dir** as sensitive, kee
 
 If you’re hardening a deployment, start with the official security docs and run `clawdbot security audit` / `clawdbot security fix`.
 
+## Security note (Medium audit article, Jan 2026)
+
+A third-party Medium post claims eight “critical zero-days”. I extracted the saved article and spot-checked each claim against the **current** codebase; the main pattern is that several items assume an attacker already has **operator/admin** gateway access (in which case they can already execute arbitrary tools), while one major SSRF claim appears **outdated** versus Clawdbot’s pinned-DNS dispatcher.
+
+- Article: https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f
+- **(1) “RCE via config.patch → sandbox.docker.setupCommand”**: `config.patch` is real (`src/gateway/server-methods/config.ts`) and `setupCommand` does execute as `sh -lc` inside the sandbox container (`src/agents/sandbox/docker.ts`). The missing nuance is that `config.*` methods are **admin-scoped** at the gateway layer (`src/gateway/server-methods.ts`), so this is primarily a *“if admin is compromised, attacker can persist config”* finding (still worth hardening by keeping admin tokens tight and sandbox scope minimal).
+- **(2) “Arbitrary write via nodes:screen_record outPath”**: accurate — `nodes` accepts a user-provided `outPath` and writes decoded bytes there (`src/agents/tools/nodes-tool.ts` → `src/cli/nodes-screen.ts`). Default behavior writes to a temp path, but if you allow `outPath` from untrusted prompts/users, it becomes a write primitive.
+- **(3) “Arbitrary read via logs.tail traversal”**: partially accurate, but threat model is narrower. `resolveLogFile()` does `stat(file)` and returns the provided path if it exists (`src/gateway/server-methods/logs.ts`), however `logs.tail` reads **the configured log file** (`getResolvedLoggerSettings().file`), not an arbitrary request-supplied path; to turn it into arbitrary read you’d need to first change `logging.file` in config (again, admin-scoped).
+- **(4) “SSRF via DNS rebinding in web-fetch”**: not accurate for current code. `web-fetch` resolves and then uses an Undici dispatcher with a **pinned DNS lookup** (`src/infra/net/ssrf.ts`, used by `src/agents/tools/web-fetch.ts`), which is specifically intended to close the DNS-rebinding TOCTOU gap.
+- **(5) “Approval bypass: exec.approval.resolve has no RBAC”**: not accurate as written; gateway methods are scope-checked, and `exec.approval.*` requires `operator.approvals` (or `operator.admin`) (`src/gateway/server-methods.ts`). If you give the agent an admin/operator token, it can approve its own actions — that’s a deployment decision, not a hidden bypass.
+- **(6) “Field shifting attack on device auth token format”**: not supported by current implementation. The “pipe-delimited payload” (`src/gateway/device-auth.ts`) is not parsed by splitting; instead the server *rebuilds the payload* and verifies a device signature over it (`src/gateway/server/ws-connection/message-handler.ts`).
+- **(7) “Regex blacklist → shell injection”**: the referenced blacklist exists (`src/infra/exec-safety.ts`) but it is used to validate *executable names/paths in config*, not to “sanitize arbitrary shell”. The actual `exec` tool uses a separate approvals/allowlist pipeline, and should be treated as dangerous-by-design unless locked down.
+- **(8) “RCE via env var injection (LD_PRELOAD, etc.)”**: nuance required. The `exec` tool merges user-provided env into the process env (`src/agents/bash-tools.exec.ts`), which is powerful; however the node-host path explicitly blocks `LD_*`/`DYLD_*` and `NODE_OPTIONS` (`sanitizeEnv` in `src/node-host/runner.ts`). If you allow host exec for untrusted callers, you should assume env overrides are part of the attack surface.
+
 ## Official docs (recommended)
 
 - Getting started: https://docs.clawd.bot/start/getting-started
