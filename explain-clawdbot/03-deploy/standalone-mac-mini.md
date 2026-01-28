@@ -1,5 +1,7 @@
 # Deployment runbook: Standalone Mac mini (local-first, high privacy)
 
+> **Note:** This guide is for Moltbot (formerly Clawdbot). The CLI command remains `clawdbot`.
+
 ## Table of contents (Explain Clawdbot)
 
 - [Home (README)](../README.md)
@@ -45,11 +47,21 @@ Related official docs:
 ## Step-by-step setup
 
 ### 1) Create a dedicated user (optional but recommended)
-If you treat this Mac mini as an “assistant appliance”, create a dedicated macOS user (e.g. `clawdbot`) and run the service under that user.
+If you treat this Mac mini as an "assistant appliance", create a dedicated macOS user (e.g. `moltbot`) and run the service under that user. This reduces accidental data leakage into your main user's home directory.
 
-This reduces accidental data leakage into your main user’s home directory.
+Create the user via System Settings, or use `dscl` for scripted setup:
 
-### 2) Install Clawdbot
+```bash
+sudo dscl . -create /Users/moltbot
+sudo dscl . -create /Users/moltbot UserShell /bin/zsh
+sudo dscl . -create /Users/moltbot UniqueID 550
+sudo dscl . -create /Users/moltbot PrimaryGroupID 20
+sudo dscl . -create /Users/moltbot NFSHomeDirectory /Users/moltbot
+sudo mkdir -p /Users/moltbot
+sudo chown moltbot:staff /Users/moltbot
+```
+
+### 2) Install Moltbot
 
 ```bash
 curl -fsSL https://clawd.bot/install.sh | bash
@@ -59,6 +71,12 @@ Or:
 
 ```bash
 npm install -g clawdbot@latest
+```
+
+Verify Node.js version (22.12.0+ recommended for security patches):
+
+```bash
+node --version  # Should be v22.12.0 or later
 ```
 
 ### 3) Onboard and install the background service
@@ -145,11 +163,54 @@ Docs: https://docs.clawd.bot/gateway/tailscale
 
 ## Host hardening checklist (Mac mini)
 
-- Enable FileVault
-- Keep the OS updated
-- Avoid installing random global npm packages
-- Treat `~/.clawdbot/` as secret material
-- Don’t store tokens in shell history; prefer env vars or the wizard’s credential handling
+Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide) and code review.
+
+### Operating System
+- [ ] Enable FileVault (full disk encryption)
+- [ ] Keep macOS updated: `softwareupdate -ia`
+- [ ] Enable firewall: System Settings → Network → Firewall → Turn On
+
+### User Isolation
+- [ ] Create a dedicated user (see Step 1 above)
+- [ ] Run the gateway service under that user
+
+### Node.js Version
+Ensure Node.js 22.12.0+ (includes critical security patches):
+
+```bash
+node --version  # Should be v22.12.0 or later
+```
+
+### Gateway Security
+Set a gateway auth token for production:
+
+```bash
+export GATEWAY_AUTH_TOKEN="$(openssl rand -hex 32)"
+# Add to ~/.zprofile or pass via config
+```
+
+### Credential Protection
+- [ ] Treat `~/.clawdbot/` as secret material (mode 0700)
+- [ ] Avoid installing random global npm packages
+
+Protect shell history from credential leakage:
+
+```bash
+# Add to ~/.zshrc or ~/.zprofile
+export HISTCONTROL=ignoreboth
+export HISTFILESIZE=0
+```
+
+### Sandbox Configuration
+Enable Docker sandbox for code execution tools:
+
+```bash
+# In clawdbot.json
+# "agents.defaults.sandbox": "docker"
+# "agents.defaults.sandboxNetwork": "none"
+```
+
+This isolates any successful prompt injection to the container environment.
 
 ---
 

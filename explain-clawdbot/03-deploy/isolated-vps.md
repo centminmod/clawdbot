@@ -1,5 +1,7 @@
 # Deployment runbook: Isolated VPS (remote + locked down)
 
+> **Note:** This guide is for Moltbot (formerly Clawdbot). The CLI command remains `clawdbot`.
+
 ## Table of contents (Explain Clawdbot)
 
 - [Home (README)](../README.md)
@@ -49,21 +51,59 @@ Related official docs:
 
 ## 1) Provision the VPS (baseline hardening)
 
-- Create a VPS in a reputable region/provider.
-- Enable automatic security updates if you can.
-- Create a dedicated user (e.g. `clawdbot`) and disable password SSH login.
-- Configure a firewall:
-  - allow SSH (22 or your chosen port)
-  - do **not** open 18789 to the public internet
+Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide).
+
+### Choose a Provider
+- AWS EC2: t3.small, Ubuntu 24.04 LTS
+- DigitalOcean: Basic $6/month Droplet, Ubuntu 24.04
+- Linode: Nanode 1GB, Ubuntu 24.04
+- Hetzner: CX11, Ubuntu 24.04
+
+### Initial Setup
+
+```bash
+# Connect to your VPS
+ssh -i your-key.pem ubuntu@YOUR_SERVER_IP
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Create dedicated user
+sudo adduser moltbot
+sudo usermod -aG sudo moltbot
+```
+
+### Firewall Configuration (Critical)
+
+Only allow SSH from your IP. **Never allow `0.0.0.0/0` (anywhere) access.**
+
+```bash
+# Enable UFW
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow ssh
+sudo ufw enable
+
+# Verify
+sudo ufw status
+```
+
+**Cloud firewall**: Also configure your provider's firewall (Security Groups on AWS, etc.) to only allow SSH from your IP. Do **not** open 18789 to the public internet.
 
 ---
 
-## 2) Install Clawdbot
+## 2) Install Moltbot
 
 On the VPS:
 
 ```bash
 curl -fsSL https://clawd.bot/install.sh | bash
+```
+
+Verify Node.js version (22.12.0+ recommended for security patches):
+
+```bash
+node --version  # Should be v22.12.0 or later
 ```
 
 Then onboard:
@@ -72,7 +112,14 @@ Then onboard:
 clawdbot onboard --install-daemon
 ```
 
-If you’re headless and need OAuth-style auth, do the auth step on a trusted machine first and copy the required credential files as documented.
+Set a gateway auth token for production:
+
+```bash
+export GATEWAY_AUTH_TOKEN="$(openssl rand -hex 32)"
+echo "export GATEWAY_AUTH_TOKEN='$GATEWAY_AUTH_TOKEN'" >> ~/.profile
+```
+
+If you're headless and need OAuth-style auth, do the auth step on a trusted machine first and copy the required credential files as documented.
 
 Docs: https://docs.clawd.bot/start/getting-started
 
@@ -155,6 +202,104 @@ Docs: https://docs.clawd.bot/help/faq
 - Use separate messaging accounts for the bot.
 - Treat browser control endpoints as admin APIs.
 - Rotate tokens and API keys if you suspect exposure.
-- Keep `~/.clawdbot/` permissions tight.
+- Keep `~/.clawdbot/` permissions tight (`chmod 700 ~/.clawdbot`).
+
+Protect shell history from credential leakage:
+
+```bash
+# Add to ~/.profile or ~/.bashrc
+export HISTCONTROL=ignoreboth
+export HISTFILESIZE=0
+```
 
 Docs: https://docs.clawd.bot/gateway/security
+
+---
+
+## 8) Automatic Security Updates
+
+Keep your system patched automatically:
+
+```bash
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure unattended-upgrades
+```
+
+This ensures critical security patches are applied without manual intervention.
+
+---
+
+## 9) SSH Hardening with Fail2ban
+
+Protect against SSH brute force attacks:
+
+```bash
+sudo apt install fail2ban
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+```
+
+Check status:
+
+```bash
+sudo fail2ban-client status sshd
+```
+
+---
+
+## 10) Systemd Resource Limits
+
+Add resource limits to your Moltbot service file (`/etc/systemd/system/moltbot.service`):
+
+```ini
+[Service]
+MemoryMax=1G
+CPUQuota=80%
+```
+
+Then reload:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart moltbot
+```
+
+This prevents runaway processes from consuming all system resources.
+
+---
+
+## Security Checklist (VPS)
+
+Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide).
+
+### Network
+- [ ] Security group inbound is SSH only from your IP
+- [ ] Gateway port 18789 is NOT public
+- [ ] Host firewall (UFW) is enabled
+- [ ] Fail2ban is active for SSH protection
+
+### Authentication & Access
+- [ ] Gateway auth token is set
+- [ ] DM policy is `allowlist` or `pairing`
+- [ ] Only approved user IDs can trigger actions
+
+### Execution Safety
+- [ ] Docker sandbox enabled for execution tools
+- [ ] Sandbox has `network: none` or strict isolation
+- [ ] Dangerous command patterns blocked (`rm -rf`, `curl | bash`, etc.)
+- [ ] Tools restricted to minimum needed
+
+### Secrets
+- [ ] Secrets stored in env vars (not in shell history)
+- [ ] Sensitive files set to `chmod 600`
+- [ ] Shell history protected (`HISTCONTROL=ignoreboth`)
+
+### System Maintenance
+- [ ] Automatic security updates enabled
+- [ ] Node.js 22.12.0+ installed
+- [ ] Systemd resource limits configured
+
+### Observability
+- [ ] Session logging enabled
+- [ ] Log rotation active (`/var/log/moltbot/`)
+- [ ] Weekly review habit

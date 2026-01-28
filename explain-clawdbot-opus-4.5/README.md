@@ -1,4 +1,4 @@
-# Clawdbot Beginner's Guide
+# Moltbot (formerly Clawdbot) Beginner's Guide
 
 A comprehensive guide for understanding, installing, and securely deploying Clawdbot - the self-hosted AI assistant platform.
 
@@ -123,6 +123,17 @@ The maintainer ([steipete](https://github.com/steipete)) reviewed and [confirmed
 
 For the actual security architecture, access controls, credential handling, and privacy model, see [07 - Security & Privacy](./07-security-privacy.md). Key controls include allowlist-based access, local-only data storage, `0o600` file permissions, and configurable security audit/fix tooling.
 
+### Recommended Hardening
+
+For production deployments, implement defense in depth:
+- Enable Docker sandbox with `network: none` for execution isolation
+- Wrap untrusted content in `<untrusted>` tags with a system prompt rule to ignore instructions inside
+- Block dangerous command patterns (`rm -rf`, `curl | bash`, `git push --force`)
+- Protect shell history: `export HISTCONTROL=ignoreboth`
+- Set a gateway auth token and bind to localhost only
+
+See [11 - Security Audit Analysis](./11-security-audit-analysis.md#recommended-hardening-measures) and [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide) for details.
+
 ---
 
 ## Second Security Audit (Medium Article)
@@ -135,7 +146,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway host. Requires node pairing approval. Real risk: Low-Medium. |
 | 3 | Log traversal via `logs.tail` | **False** | `LogsTailParamsSchema` has `additionalProperties: false` with only `cursor`, `limit`, `maxBytes`. File path from `getResolvedLoggerSettings().file` (config), not user input. |
 | 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:112-164`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:116-138`). |
-| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-109`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-146`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-30`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:1-24`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
 | 8 | Environment variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:869-870`). Node-host has blocklist (`src/node-host/runner.ts:158-167`). Requires human approval + localhost + no sandbox. |
@@ -156,7 +167,13 @@ Three defense-in-depth items were identified (not exploitable as described, but 
 
 ### Post-Merge Hardening (PR #1)
 
-Three upstream commits strengthened controls analyzed above: Docker PATH injection fix (`771f23d` — Claim 1), per-sender group tool policies (`3b0c80c` — Claim 5), and webhook timing-safe comparison (`3b8792e` — Audit 1 Claim 7). Additional hardening: `fs-safe.ts` file serving (`5eee991`) and browser evaluate gating (`78f0bc3`). All three legitimate gaps remain open.
+Three upstream commits strengthened controls analyzed above: Docker PATH injection fix (`771f23d` — Claim 1), per-sender group tool policies (`3b0c80c` — Claim 5), and webhook timing-safe comparison (`3b8792e` — Audit 1 Claim 7). Additional hardening: `fs-safe.ts` file serving (`5eee991`) and browser evaluate gating (`78f0bc3`).
+
+### Post-Merge Hardening (PR #2)
+
+Five security-relevant changes: transient network error handling prevents gateway crashes (`3b879fe`), per-account session isolation prevents cross-account leakage (`d499b14`), Discord username resolution gating (`7958ead`), Telegram session fragmentation fix (`9154971`), and formal TLA+ security models (`3bf768a`).
+
+All three legitimate gaps remain open (gateway env blocklist, pipe-delimited token format, outPath validation).
 
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
