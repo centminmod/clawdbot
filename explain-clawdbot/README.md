@@ -57,6 +57,7 @@ Official docs starting point:
 
 2) **Isolated VPS server (remote, locked down)**
 - The Gateway runs on a small Linux VPS.
+- **Fastest path:** [DigitalOcean 1-Click Deploy](./03-deploy/isolated-vps.md#digitalocean-1-click-deploy) pre-configures security hardening automatically.
 - Default best practice: keep it **loopback-only** and access it via **SSH tunnel** or **tailnet**.
 - Harden the host like any admin system (dedicated user, firewall, patching, log hygiene).
 
@@ -85,6 +86,7 @@ Official docs starting point:
 ### 4) Deployment runbooks
 - [Standalone Mac mini (local-first)](./03-deploy/standalone-mac-mini.md)
 - [Isolated VPS (remote + locked down)](./03-deploy/isolated-vps.md)
+  - [DigitalOcean 1-Click Deploy](./03-deploy/isolated-vps.md#digitalocean-1-click-deploy) *(recommended)*
 - [Cloudflare Moltworker (serverless)](./03-deploy/cloudflare-moltworker.md)
 
 ### 5) Reference
@@ -178,7 +180,7 @@ This FAQ is intentionally long and practical; it’s the “things you’ll actu
 
 #### Q: What should I install this on: my laptop, a Mac mini, a VPS, or Cloudflare?
 - **Mac mini (recommended for most privacy-first users):** always-on, easy local access, no cloud exposure by default.
-- **VPS (recommended for always-on + remote access):** great uptime, but higher security responsibility.
+- **VPS (recommended for always-on + remote access):** great uptime, but higher security responsibility. [DigitalOcean 1-Click](./03-deploy/isolated-vps.md#digitalocean-1-click-deploy) handles hardening automatically.
 - **Cloudflare Moltworker (low-maintenance serverless):** no hardware to manage, pay-as-you-go, but proof-of-concept status.
 - **Laptop (okay for learning/dev):** simplest to start, but sleeps often and you may be tempted to expose it.
 
@@ -213,6 +215,7 @@ This repo’s positioning is local-first control. Still, your chosen **model pro
 - Don’t enable powerful tools until you understand the blast radius.
 
 Use the wizard:
+
 ```bash
 clawdbot onboard --install-daemon
 ```
@@ -250,7 +253,7 @@ See: https://docs.clawd.bot/help/faq
 #### Q: What port does Clawdbot use?
 `gateway.port` controls the single multiplexed port for WebSocket + HTTP. Precedence is:
 
-```
+```text
 --port > CLAWDBOT_GATEWAY_PORT > gateway.port > default 18789
 ```
 
@@ -280,6 +283,7 @@ See: https://docs.clawd.bot/gateway/multiple-gateways
 
 #### Q: How do I see what Clawdbot is doing?
 Use:
+
 ```bash
 clawdbot status --all
 clawdbot logs --follow

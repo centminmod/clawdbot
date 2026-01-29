@@ -17,6 +17,7 @@
 - Deployment
   - [Standalone Mac mini](./standalone-mac-mini.md)
   - [Isolated VPS](./isolated-vps.md)
+    - [DigitalOcean 1-Click Deploy](#digitalocean-1-click-deploy)
   - [Cloudflare Moltworker](./cloudflare-moltworker.md)
 - Reference
   - [Commands + troubleshooting](../99-reference/commands-and-troubleshooting.md)
@@ -266,6 +267,140 @@ sudo systemctl restart moltbot
 ```
 
 This prevents runaway processes from consuming all system resources.
+
+---
+
+## 11) DigitalOcean 1-Click Deploy
+
+> **Fastest path to a hardened VPS.** The DigitalOcean Marketplace app pre-configures security best practices automatically.
+
+Official resources:
+- Marketplace: https://marketplace.digitalocean.com/apps/moltbot
+- Tutorial: https://www.digitalocean.com/community/tutorials/how-to-run-moltbot
+
+### What 1-Click handles for you
+
+The 1-Click deployment configures these security controls out of the box:
+
+| Control | Description |
+|---------|-------------|
+| Authenticated gateway token | Auto-generated; protects against unauthorized access |
+| Hardened firewall rules | Rate-limiting on Moltbot ports to prevent DoS |
+| Non-root execution | Moltbot runs as a non-root user, limiting attack surface |
+| Docker container isolation | Sandboxed execution environment |
+| Private DM pairing | Enabled by default; prevents unauthorized messaging |
+
+### System requirements
+
+| Usage Level | RAM | CPU | Recommended For |
+|-------------|-----|-----|-----------------|
+| Personal (1-5 users) | 4GB | 2 | Individual use, few channels |
+| Small Team (5-20) | 8GB | 4 | Multiple channels |
+| Medium Team (20-50) | 16GB | 8 | Heavy usage |
+| Large Team (50+) | 32GB | 16 | High-volume deployment |
+
+### Step 1: Create the Droplet
+
+**Via DigitalOcean Console:**
+1. Sign in to DigitalOcean -> **Create Droplet**
+2. Under **Choose an Image** -> **Marketplace** tab
+3. Search for "Moltbot" and select it
+4. Choose at least **4GB RAM** (s-2vcpu-4gb or higher)
+5. Add your SSH key under **Authentication**
+6. Set a hostname (e.g., `moltbot-server`)
+7. Click **Create Droplet**
+
+**Via API:**
+
+```bash
+curl -X POST -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer '$TOKEN'' -d \
+  '{"name":"moltbot-server","region":"nyc3","size":"s-2vcpu-4gb","image":"moltbot"}' \
+  "https://api.digitalocean.com/v2/droplets"
+```
+
+### Step 2: Connect and configure
+
+Wait for the Droplet to finish provisioning (the dashboard may say "ready" before SSH is available-retry after 60 seconds if needed).
+
+```bash
+ssh root@your_droplet_ip
+```
+
+The welcome message displays your **Dashboard URL**-save it for browser access.
+
+**Interactive setup:**
+1. Choose LLM Provider: Anthropic (recommended), Gradient, or OpenAI (coming soon)
+2. Paste your API key when prompted
+3. The clawdbot service restarts automatically
+
+### Step 3: Access Moltbot
+
+**Terminal UI (TUI):**
+
+```bash
+/opt/clawdbot-tui.sh
+```
+
+**Web Dashboard:**
+
+Open the Dashboard URL from the welcome message in your browser. The URL includes a gateway token for authentication.
+
+### Step 4: Add messaging channels
+
+**WhatsApp:**
+
+```bash
+/opt/clawdbot-cli.sh channels add
+# Select WhatsApp -> scan the QR code with your phone
+```
+
+**Telegram:**
+1. Run `/opt/clawdbot-cli.sh channels add` and select Telegram
+2. Open Telegram -> chat with @BotFather -> send `/newbot`
+3. Follow prompts to create your bot and get a token
+4. Paste the bot token back into the CLI
+5. Open the Dashboard URL and add your Telegram user ID to the allowlist
+6. Start chatting with your bot
+
+### Manual configuration
+
+Edit `/opt/clawdbot.env` for provider, gateway, and channel settings:
+
+```bash
+nano /opt/clawdbot.env
+systemctl restart clawdbot
+```
+
+### Troubleshooting commands
+
+| Task | Command |
+|------|---------|
+| Check service status | `systemctl status clawdbot` |
+| View live logs | `journalctl -u clawdbot -f` |
+| Edit environment | `nano /opt/clawdbot.env` |
+| Start TUI | `/opt/clawdbot-tui.sh` |
+
+### What's different from manual VPS setup
+
+The 1-Click handles sections 1-3 of this guide automatically:
+- VPS provisioning with Ubuntu 24.04 + Node.js 22 + Docker
+- Moltbot installation and service setup
+- Gateway configuration with auth token
+
+You still need to:
+- Configure messaging channels (Step 4 above)
+- Optionally add SSH tunnel or Tailscale for remote access (see [section 4](#4-access-it-remotely-recommended))
+- Review the [Security Checklist](#security-checklist-vps) below
+
+### Resources
+
+- **Moltbot Documentation:** https://docs.molt.bot/
+- **Gateway Configuration:** https://docs.molt.bot/gateway/configuration
+- **Channel Setup:** https://docs.molt.bot/channels
+- **Security Guide:** https://docs.molt.bot/gateway/security
+- **Discord Community:** https://discord.gg/molt
+- **GitHub:** https://github.com/moltbot/moltbot
 
 ---
 
