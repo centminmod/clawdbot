@@ -145,7 +145,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container (not host). Config changes require gateway auth. Container has `no-new-privileges`. Real risk: Medium. |
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway host. Requires node pairing approval. Real risk: Low-Medium. |
 | 3 | Log traversal via `logs.tail` | **False** | `LogsTailParamsSchema` has `additionalProperties: false` with only `cursor`, `limit`, `maxBytes`. File path from `getResolvedLoggerSettings().file` (config), not user input. |
-| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:112-164`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:116-138`). |
+| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:112-164`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:121-143`). |
 | 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-146`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-30`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:1-24`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
@@ -174,6 +174,12 @@ Three upstream commits strengthened controls analyzed above: Docker PATH injecti
 Five security-relevant changes: transient network error handling prevents gateway crashes (`3b879fe`), per-account session isolation prevents cross-account leakage (`d499b14`), Discord username resolution gating (`7958ead`), Telegram session fragmentation fix (`9154971`), and formal TLA+ security models (`3bf768a`).
 
 All three legitimate gaps remain open (gateway env blocklist, pipe-delimited token format, outPath validation).
+
+### Post-Merge Hardening (PR #3)
+
+One security-relevant commit: XML attribute injection prevention in media text attachments (`b71772427` — #3700): escapes `<`, `>`, `"`, `'`, `&` in file names and MIME types, adds UTF-16/BOM detection, MIME override logging for auditability.
+
+All three legitimate gaps remain open.
 
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 

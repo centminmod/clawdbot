@@ -427,7 +427,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container, not host (`src/agents/sandbox/docker.ts:205-207`). Config changes require gateway auth. |
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks path validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway. |
 | 3 | Log traversal via `logs.tail` | **False** | Schema has `additionalProperties: false`, accepts only `cursor`/`limit`/`maxBytes` (`src/gateway/protocol/schema/logs-chat.ts:5-12`). File path from config, not request. |
-| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:112-164`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:116-138`). |
+| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:112-164`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:121-143`). |
 | 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:93-146`). Agents blocked from approval methods. |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format exists (`src/gateway/device-auth.ts:13-30`) but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` validates executable *names*, not commands (`src/infra/exec-safety.ts:1-24`). Strict allowlist: `/^[A-Za-z0-9._+-]+$/`. |
@@ -487,6 +487,13 @@ Five security-relevant changes were introduced:
 - **Formal security models** (`3bf768a`): New TLA+ machine-checked models document security invariants for pairing, ingress gating, and routing/session-key isolation (`docs/security/formal-verification.md`).
 
 All three legitimate defense-in-depth gaps from PR #1 remain open (gateway env blocklist, pipe-delimited token format, outPath validation).
+
+### Post-Merge Hardening (PR #3 — 4 commits)
+
+One security-relevant commit:
+- **`b71772427`** — XML attribute injection prevention in media text attachments (#3700): escapes special characters (`<`, `>`, `"`, `'`, `&`) in file names and MIME types, adds UTF-16/BOM detection, MIME override logging for auditability
+
+**All three legitimate gaps remain open.**
 
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 

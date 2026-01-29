@@ -247,7 +247,7 @@ const dispatcher = createPinnedDispatcher(pinned);
 
 The `resolvePinnedHostname()` function (`src/infra/net/ssrf.ts:112-164`) resolves the hostname once, validates the resolved IP addresses against private/internal ranges, and returns a pinned lookup. The `createPinnedDispatcher()` creates a custom HTTP dispatcher that forces all connections to use the pre-resolved IP, preventing DNS rebinding.
 
-The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-fetch.ssrf.test.ts:116-138`):
+The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-fetch.ssrf.test.ts:121-143`):
 - A redirect from a public host to `http://127.0.0.1/secret` is blocked
 - The test verifies the initial fetch occurs but the redirect is rejected
 
@@ -397,6 +397,14 @@ Forty upstream commits (merged via PR #2 from `moltbot/main`) introduced five se
 - **Formal security models** (`3bf768ab0`): TLA+ machine-checked proofs for pairing, routing, and isolation invariants (`docs/security/formal-verification.md`).
 
 All three legitimate defense-in-depth gaps remain open as of PR #2.
+
+### Post-Merge Hardening (PR #3)
+
+Four upstream commits (merged via PR #3 from `moltbot/main`) introduced one security-relevant change:
+
+- **XML attribute injection prevention** (`b71772427` — #3700): Media text attachment handling now escapes special characters (`<`, `>`, `"`, `'`, `&`) in file names and MIME types, preventing XML/HTML attribute injection. Adds UTF-16/BOM detection and MIME override logging for auditability. Comprehensive test coverage added.
+
+All three legitimate defense-in-depth gaps remain open as of PR #3 (gateway env blocklist, pipe-delimited token format, outPath validation).
 
 ---
 
