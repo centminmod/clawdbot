@@ -17,7 +17,7 @@
 - Deployment
   - [Standalone Mac mini](./standalone-mac-mini.md)
   - [Isolated VPS](./isolated-vps.md)
-    - [DigitalOcean 1-Click Deploy](#digitalocean-1-click-deploy)
+    - [DigitalOcean 1-Click Deploy](#11-digitalocean-1-click-deploy)
   - [Cloudflare Moltworker](./cloudflare-moltworker.md)
 - Reference
   - [Commands + troubleshooting](../99-reference/commands-and-troubleshooting.md)
