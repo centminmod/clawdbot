@@ -14,6 +14,7 @@
 - [Commands + troubleshooting](./99-reference/commands-and-troubleshooting.md)
 - [Security audit analysis (Issue #1796)](#security-audit-analysis-issue-1796) *(inline below)*
 - [Second security audit (Medium article)](#second-security-audit-medium-article) *(inline below)*
+- [AI model analysis comparison](#ai-model-analysis-comparison) *(inline below)*
 
 ---
 
@@ -26,6 +27,7 @@ It **synthesizes** and reconciles the following AI-generated summaries:
 - [Google Gemini 3.0 Pro](../explain-clawdbot-gemini-3.0-pro/)
 - [Z.AI GLM 4.7](../explain-clawdbot-glm-4.7/)
 - [Claude Code Opus 4.5](../explain-clawdbot-opus-4.5/)
+- [Kimi K2.5 (via Kilo Code)](../explain-clawdbot-kilocode-kimi-k2.5/)
 
 …while **verifying key claims** against the repo’s canonical docs (`../docs/**`) and code (`../src/**`). When something conflicts, assume:
 
@@ -334,8 +336,11 @@ All four AI-generated summaries in this project covered the report. This section
 | [Copilot GPT-5.2](../explain-clawdbot-copilot-gpt-5.2/README.md#security-note-issue-1796) | Practical and nuanced: "accurate but by design" / "mitigated" / "config-footgun" framing, actionable hardening advice | Accurate; correctly identifies the Gemini CLI state validation and PKCE distinction |
 | [GLM 4.7](../explain-clawdbot-glm-4.7/README.md#security-audit) | Good summary table contrasting "audit finding" vs "reality", practical "what this means for you" deployment guidance | Mostly accurate; correctly identifies OAuth CSRF as false positive |
 | [Gemini 3.0 Pro](../explain-clawdbot-gemini-3.0-pro/README.md) | Brief index entry only; lists "race conditions" as a key risk | **Inaccurate on race conditions** -- code uses `proper-lockfile` with exponential backoff; no race exists |
+| [Kimi K2.5](../explain-clawdbot-kilocode-kimi-k2.5/security-analysis.md#github-issue-1796-argus-security-audit) | Detailed 8-claim breakdown with code snippets, scanner statistics, remediation advice | **Inaccurate** -- accepts all 8 CRITICAL claims at face value; does not verify against source code; presents "plaintext storage" and "hardcoded secrets" as vulnerabilities rather than standard CLI practice per RFC 8252 |
 
 **Key disagreement resolved:** Gemini 3.0 Pro accepted the race condition claim at face value. Code review (`src/agents/auth-profiles/oauth.ts:33-35`, config in `constants.ts:11-20`) confirms locking is correctly implemented. The other three models correctly identified this as a false positive.
+
+**Additional disagreement (Kimi K2.5):** Kimi K2.5 presents all 8 CRITICAL findings as actual vulnerabilities requiring remediation, including recommending keychain integration for token storage and disabling `config.patch` entirely. Code review confirms: (1) token storage with `0o600` permissions is standard CLI practice per RFC 8252, (2) `config.patch` executes inside Docker containers with `no-new-privileges`, (3) DNS pinning (`src/infra/net/ssrf.ts:112-164`) prevents the SSRF chain Kimi K2.5 describes, and (4) RBAC (`src/gateway/server-methods.ts:93-146`) prevents agent self-approval. The remediation advice in Kimi K2.5 is well-intentioned but addresses non-existent vulnerabilities.
 
 ### Synthesized verdict (all 8 CRITICAL claims)
 
@@ -421,6 +426,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | [Copilot GPT-5.2](../explain-clawdbot-copilot-gpt-5.2/README.md#security-note-medium-audit-article-jan-2026) | Covers all 8 claims individually with code references and nuanced "attacker needs admin access" framing | High accuracy; minor error on claim 3 (logs.tail called "partially accurate" when schema fully blocks arbitrary paths) |
 | [GLM 4.7](../explain-clawdbot-glm-4.7/README.md#audit-2-medium-article-why-clawdbot-is-a-bad-idea-saad-khalid) | 5-row table, but the claims analyzed do not match the article's actual findings | **Inaccurate** -- appears to have hallucinated or confused the article's claims with a different report (e.g., lists "CVE-2024-44946 Directory Traversal" and "Insecure Dependencies" which the article does not mention) |
 | [Gemini 3.0 Pro](../explain-clawdbot-gemini-3.0-pro/README.md) | Brief bullet-point summary; correctly notes DNS rebinding is mitigated | **Mostly inaccurate** -- accepted auth bypass (#5), arbitrary read (#3), and RCE (#1) claims at face value without verifying against RBAC, schema validation, or Docker isolation |
+| [Kimi K2.5](../explain-clawdbot-kilocode-kimi-k2.5/security-analysis.md#saad-khalids-security-audit) | Detailed coverage of all claims with CVSS scores, attack scenarios, "Auditor's Verdict" quote | **Inaccurate** -- accepts SSRF/DNS rebinding, logic bombs, self-approval bypass, and LD_PRELOAD claims at face value; does not verify against DNS pinning (`ssrf.ts`), Docker isolation, RBAC enforcement, or human approval flow; quotes auditor's "Do Not Deploy" verdict without challenge |
 
 **Key disagreements resolved:**
 
@@ -429,6 +435,8 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 - **Claim 5 (auth bypass / self-approving agent):** Gemini 3.0 Pro states "Agents can self-approve dangerous commands (missing role check)." Code review confirms `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-146`) enforces role checks on every call and agents are blocked from approval methods. Verdict: **false**.
 
 - **GLM 4.7 claim set mismatch:** GLM analyzed claims like "CVE-2024-44946 Directory Traversal" and "OS Command Injection via Filename" that do not appear in the Medium article. The article's actual 8 claims are about config injection, nodes outPath, logs.tail, DNS rebinding, RBAC, token format, regex validation, and env vars. This is a factual error in the analysis, not a disagreement about interpretation.
+
+**Kimi K2.5 disagreement:** Kimi K2.5 quotes the auditor's "Do Not Deploy" recommendation without verification. The security analysis presents attack chains (e.g., "SSRF steals AWS credentials -> Environment injection achieves RCE -> Persistent backdoor via config.patch") that require bypassing multiple layered controls: DNS pinning, Docker sandboxing, human approval flow, and RSA-signed tokens. Each link in these chains is independently blocked by existing code.
 
 ### Synthesized verdict (all 8 claims)
 
@@ -508,6 +516,55 @@ One security-relevant commit:
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 
 Article: [Why Clawdbot is a Bad Idea (Medium)](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f)
+
+---
+
+## AI Model Analysis Comparison
+
+This table summarizes how each AI model performed across the documentation task, helping readers assess source reliability.
+
+### Coverage Comparison
+
+| Topic | Opus 4.5 | Copilot GPT-5.2 | GLM 4.7 | Gemini 3.0 Pro | Kimi K2.5 |
+|-------|----------|-----------------|---------|----------------|-----------|
+| **Plain English intro** | Excellent | Excellent | Good | Good | Excellent |
+| **Technical architecture** | Detailed diagrams | Good diagrams | Basic | Basic | Good diagrams |
+| **Installation guide** | Complete | Complete | Complete | Brief | Complete |
+| **Mac mini deployment** | Detailed runbook | Detailed runbook | Good | Brief | Good |
+| **VPS deployment** | Detailed runbook | Detailed runbook | Good | Brief | Good |
+| **Cloudflare Moltworker** | Referenced | Referenced | Referenced | Referenced | Good AI Gateway/D1/KV coverage but **missing Sandbox SDK + Access** |
+| **Security/privacy** | Thorough | Thorough | Good | Brief | Detailed but flawed |
+| **Configuration reference** | Good | Good | Complete | Partial | Complete |
+| **Issue #1796 analysis** | Code-verified | Code-verified | Accurate | Inaccurate | Not verified |
+| **Medium article analysis** | Code-verified | Mostly accurate | Hallucinated | Mostly inaccurate | Not verified |
+
+### Security Analysis Accuracy
+
+| Model | Issue #1796 Verdict | Medium Article Verdict | Methodology |
+|-------|---------------------|----------------------|-------------|
+| **Opus 4.5** | 0/8 exploitable | 0/8 exploitable | Source code verification with file/line references |
+| **Copilot GPT-5.2** | 0/8 exploitable | 0/8 exploitable (minor error on claim 3) | Source code verification |
+| **GLM 4.7** | 0/8 exploitable | N/A (analyzed wrong claims) | Source code verification |
+| **Gemini 3.0 Pro** | Race condition claim accepted | 3 claims accepted at face value | No verification apparent |
+| **Kimi K2.5** | 8/8 presented as vulnerabilities | 8/8 presented as vulnerabilities | No verification; accepted audits at face value |
+
+### Unique Strengths
+
+| Model | Primary Strength |
+|-------|------------------|
+| **Opus 4.5** | Most rigorous security verification with code citations |
+| **Copilot GPT-5.2** | Best "attacker needs X access" contextual framing |
+| **GLM 4.7** | Clear "audit claim vs reality" side-by-side tables |
+| **Gemini 3.0 Pro** | Concise summaries (when accurate) |
+| **Kimi K2.5** | Best beginner analogies ("think of it as..."); detailed D1/KV/Queues coverage (but missing Sandbox SDK) |
+
+### Recommendation for Readers
+
+- **For security assessment:** Use Opus 4.5 or Copilot GPT-5.2 (code-verified)
+- **For Cloudflare deployment:** Use existing `explain-clawdbot/03-deploy/cloudflare-moltworker.md` (covers Sandbox SDK); Kimi K2.5 supplements D1/KV/Queues
+- **For quick overview:** Use Gemini 3.0 Pro (verify claims against other sources)
+- **For deployment checklists:** Use any model except Gemini 3.0 Pro
+- **For beginner concepts:** Kimi K2.5 has excellent plain English analogies
 
 ---
 
