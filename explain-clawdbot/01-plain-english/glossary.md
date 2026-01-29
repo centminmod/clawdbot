@@ -15,6 +15,7 @@
 - Deployment
   - [Standalone Mac mini](../03-deploy/standalone-mac-mini.md)
   - [Isolated VPS](../03-deploy/isolated-vps.md)
+  - [Cloudflare Moltworker](../03-deploy/cloudflare-moltworker.md)
 - Reference
   - [Commands + troubleshooting](../99-reference/commands-and-troubleshooting.md)
 

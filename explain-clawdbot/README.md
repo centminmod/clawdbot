@@ -10,6 +10,7 @@
 - [Repo map](./02-technical/repo-map.md)
 - [Deployment: Standalone Mac mini](./03-deploy/standalone-mac-mini.md)
 - [Deployment: Isolated VPS](./03-deploy/isolated-vps.md)
+- [Deployment: Cloudflare Moltworker](./03-deploy/cloudflare-moltworker.md)
 - [Commands + troubleshooting](./99-reference/commands-and-troubleshooting.md)
 - [Security audit analysis (Issue #1796)](#security-audit-analysis-issue-1796) *(inline below)*
 - [Second security audit (Medium article)](#second-security-audit-medium-article) *(inline below)*
@@ -45,7 +46,7 @@ Official docs starting point:
 
 ---
 
-## The two deployment scenarios this guide focuses on
+## The three deployment scenarios this guide focuses on
 
 1) **Standalone Mac mini (local-first, high privacy)**
 - The Gateway runs on a Mac mini you own.
@@ -56,6 +57,12 @@ Official docs starting point:
 - The Gateway runs on a small Linux VPS.
 - Default best practice: keep it **loopback-only** and access it via **SSH tunnel** or **tailnet**.
 - Harden the host like any admin system (dedicated user, firewall, patching, log hygiene).
+
+3) **Cloudflare Moltworker (serverless, managed infrastructure)**
+- The Gateway runs inside Cloudflare's Sandbox SDK container on their global edge network.
+- No hardware to manage; automatic scaling and isolation.
+- Uses R2 for persistence, AI Gateway for model routing, Browser Rendering for web automation.
+- Proof-of-concept; requires Cloudflare Workers paid plan ($5/month minimum).
 
 ---
 
@@ -76,6 +83,7 @@ Official docs starting point:
 ### 4) Deployment runbooks
 - [Standalone Mac mini (local-first)](./03-deploy/standalone-mac-mini.md)
 - [Isolated VPS (remote + locked down)](./03-deploy/isolated-vps.md)
+- [Cloudflare Moltworker (serverless)](./03-deploy/cloudflare-moltworker.md)
 
 ### 5) Reference
 - [Commands + troubleshooting quick reference](./99-reference/commands-and-troubleshooting.md)
@@ -166,14 +174,16 @@ This FAQ is intentionally long and practical; it’s the “things you’ll actu
 
 ### Beginner FAQ
 
-#### Q: What should I install this on: my laptop, a Mac mini, or a VPS?
+#### Q: What should I install this on: my laptop, a Mac mini, a VPS, or Cloudflare?
 - **Mac mini (recommended for most privacy-first users):** always-on, easy local access, no cloud exposure by default.
 - **VPS (recommended for always-on + remote access):** great uptime, but higher security responsibility.
+- **Cloudflare Moltworker (low-maintenance serverless):** no hardware to manage, pay-as-you-go, but proof-of-concept status.
 - **Laptop (okay for learning/dev):** simplest to start, but sleeps often and you may be tempted to expose it.
 
 See runbooks:
 - [Mac mini](./03-deploy/standalone-mac-mini.md)
 - [VPS](./03-deploy/isolated-vps.md)
+- [Cloudflare Moltworker](./03-deploy/cloudflare-moltworker.md)
 
 #### Q: Is Clawdbot “an AI model” like ChatGPT?
 No. Clawdbot is a **self-hosted assistant platform** that *talks to* models (Anthropic/OpenAI/etc.) and *wraps them* with routing, sessions, tools, and chat integrations.
