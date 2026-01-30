@@ -1,8 +1,8 @@
-# Explain Moltbot (formerly Clawdbot) - Integrated Beginner + Technical Guide
+# Explain OpenClaw (formerly Moltbot/Clawdbot) - Integrated Beginner + Technical Guide
 
 ## Table of contents
 
-- [What is Moltbot? (plain English)](./01-plain-english/what-is-clawdbot.md)
+- [What is OpenClaw? (plain English)](./01-plain-english/what-is-clawdbot.md)
 - [Glossary](./01-plain-english/glossary.md)
 - [Threat model](./04-privacy-safety/threat-model.md)
 - [Hardening checklist](./04-privacy-safety/hardening-checklist.md)
@@ -18,7 +18,7 @@
 
 ---
 
-This folder is an **ultra in-depth** guide to the Moltbot framework, written for someone who is new to agent frameworks and wants both:
+This folder is an **ultra in-depth** guide to the OpenClaw framework, written for someone who is new to agent frameworks and wants both:
 - **Plain-English understanding** (what it is, what it does, what can go wrong)
 - **Technical understanding** (how the Gateway, channels, agents, sessions, tools, nodes, and plugins fit together)
 
@@ -35,9 +35,9 @@ It **synthesizes** and reconciles the following AI-generated summaries:
 
 ---
 
-## What is Moltbot? (30-second version)
+## What is OpenClaw? (30-second version)
 
-Moltbot is a **self-hosted AI assistant platform**. You run an always-on process called the **Gateway** on a machine you control (a Mac mini at home or an isolated VPS). The Gateway connects to messaging apps (WhatsApp/Telegram/Discord/iMessage/… via built-in channels + plugins), receives messages, runs an agent turn (the “brain”), optionally invokes tools/devices, and sends responses back.
+OpenClaw is a **self-hosted AI assistant platform**. You run an always-on process called the **Gateway** on a machine you control (a Mac mini at home or an isolated VPS). The Gateway connects to messaging apps (WhatsApp/Telegram/Discord/iMessage/… via built-in channels + plugins), receives messages, runs an agent turn (the “brain”), optionally invokes tools/devices, and sends responses back.
 
 **Key idea:** your **Gateway host** is the trust boundary. If it’s compromised (or configured too openly), your assistant can be turned into a data-exfil / automation engine.
 
@@ -72,7 +72,7 @@ Official docs starting point:
 ## Start here (recommended reading order)
 
 ### 1) Plain English
-- [What is Moltbot?](./01-plain-english/what-is-clawdbot.md)
+- [What is OpenClaw?](./01-plain-english/what-is-clawdbot.md)
 - [Glossary](./01-plain-english/glossary.md)
 
 ### 2) Privacy + safety first (highly recommended)
@@ -140,9 +140,9 @@ clawdbot security audit --fix
 
 ---
 
-## How to think about Moltbot (beginner mental model)
+## How to think about OpenClaw (beginner mental model)
 
-Moltbot is easiest to understand as 6 layers:
+OpenClaw is easiest to understand as 6 layers:
 
 1. **Gateway (control plane)** — one long-running process that owns:
    - message ingress/egress
@@ -189,8 +189,8 @@ See runbooks:
 - [VPS](./03-deploy/isolated-vps.md)
 - [Cloudflare Moltworker](./03-deploy/cloudflare-moltworker.md)
 
-#### Q: Is Moltbot "an AI model" like ChatGPT?
-No. Moltbot is a **self-hosted assistant platform** that *talks to* models (Anthropic/OpenAI/etc.) and *wraps them* with routing, sessions, tools, and chat integrations.
+#### Q: Is OpenClaw "an AI model" like ChatGPT?
+No. OpenClaw is a **self-hosted assistant platform** that *talks to* models (Anthropic/OpenAI/etc.) and *wraps them* with routing, sessions, tools, and chat integrations.
 
 #### Q: What runs on my machine?
 The main always-on process is the **Gateway** (default port **18789**) which multiplexes:
@@ -201,11 +201,11 @@ The main always-on process is the **Gateway** (default port **18789**) which mul
 See: https://docs.clawd.bot/gateway
 
 #### Q: Where is my data stored?
-By default, Moltbot stores state under `~/.clawdbot/` (or `~/.clawdbot-<profile>/` for profiles). This includes config, credentials, and session transcripts.
+By default, OpenClaw stores state under `~/.clawdbot/` (or `~/.clawdbot-<profile>/` for profiles). This includes config, credentials, and session transcripts.
 
 See: https://docs.clawd.bot/gateway/security ("Credential storage map")
 
-#### Q: Does Moltbot have telemetry?
+#### Q: Does OpenClaw have telemetry?
 This repo's positioning is local-first control. Still, your chosen **model provider** will receive whatever text/media is sent to it for inference, unless you run a local model.
 
 #### Q: What’s the safest first setup?
@@ -250,7 +250,7 @@ See: https://docs.clawd.bot/start/pairing
 
 See: https://docs.clawd.bot/help/faq
 
-#### Q: What port does Moltbot use?
+#### Q: What port does OpenClaw use?
 `gateway.port` controls the single multiplexed port for WebSocket + HTTP. Precedence is:
 
 ```text
@@ -281,7 +281,7 @@ If you do, you must isolate:
 
 See: https://docs.clawd.bot/gateway/multiple-gateways
 
-#### Q: How do I see what Moltbot is doing?
+#### Q: How do I see what OpenClaw is doing?
 Use:
 
 ```bash
@@ -330,7 +330,7 @@ See: https://docs.clawd.bot/gateway/security ("DM session isolation") and https:
 
 In January 2026, the Argus Security Platform (v1.0.15) filed an automated scan report claiming **512 findings including 8 CRITICAL** against the Clawdbot repository. The scan combined Semgrep, Trivy, Gitleaks, TruffleHog, and Claude Sonnet 4.5 AI analysis.
 
-All four AI-generated summaries in this project covered the report. The following table reflects findings specific to the Moltbot codebase. This section synthesizes their analyses, reconciles disagreements, and grounds the verdict in source code.
+All four AI-generated summaries in this project covered the report. The following table reflects findings specific to the OpenClaw codebase. This section synthesizes their analyses, reconciles disagreements, and grounds the verdict in source code.
 
 ### How each model covered it
 
@@ -414,7 +414,7 @@ For the full security architecture, threat model, and hardening checklist:
 - [Threat model](./04-privacy-safety/threat-model.md)
 - [Hardening checklist](./04-privacy-safety/hardening-checklist.md)
 - Official security docs: https://docs.clawd.bot/gateway/security
-- External guide: [Moltbot Security Setup Guide (VibeProof)](https://vibeproof.dev/blog/moltbot-security-setup-guide)
+- External guide: [OpenClaw Security Setup Guide (VibeProof)](https://vibeproof.dev/blog/moltbot-security-setup-guide)
 
 ---
 

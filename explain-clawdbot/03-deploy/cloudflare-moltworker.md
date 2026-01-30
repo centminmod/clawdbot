@@ -1,14 +1,14 @@
 # Deployment runbook: Cloudflare Moltworker (serverless)
 
-> **Note:** This guide is for Moltbot (formerly Clawdbot). Moltworker is a proof-of-concept serverless deployment — not an official Cloudflare product.
+> **Note:** This guide is for OpenClaw (formerly Moltbot/Clawdbot). Moltworker is a proof-of-concept serverless deployment — not an official Cloudflare product.
 
 > **Supplementary resource:** [Kimi K2.5 Cloudflare Guide](../../explain-clawdbot-kilocode-kimi-k2.5/cloudflare-moltworker.md) provides additional explanations for D1 Database, KV, and Queues with beginner-friendly analogies. Note: it does not cover Sandbox SDK (the core runtime) and its security analysis contains inaccuracies -- use this guide for actual deployment.
 
-## Table of contents (Explain Moltbot)
+## Table of contents (Explain OpenClaw)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is OpenClaw?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)
@@ -115,7 +115,7 @@ This section explains each Cloudflare service that Moltworker uses, with both pl
 ### Sandbox SDK (Beta)
 
 **Plain English:**
-Think of Sandbox as a full Linux computer running in the cloud that spins up on-demand. When someone sends a message to Moltbot, Cloudflare creates a fresh, isolated container just for that request. It's like having your own private server that appears instantly, runs your code, then goes to sleep when idle. You don't manage servers, patching, or scaling — Cloudflare handles all of that.
+Think of Sandbox as a full Linux computer running in the cloud that spins up on-demand. When someone sends a message to OpenClaw, Cloudflare creates a fresh, isolated container just for that request. It's like having your own private server that appears instantly, runs your code, then goes to sleep when idle. You don't manage servers, patching, or scaling — Cloudflare handles all of that.
 
 **Technical Details:**
 
@@ -633,7 +633,7 @@ Moltworker is experimental. It demonstrates that the Gateway can run serverlessl
 - Not all tools work identically (no local filesystem, no persistent browser sessions)
 - Long-running operations may hit Worker CPU limits
 - Webhook delivery for some channels may require additional configuration
-- Not yet covered by Moltbot's stability guarantees
+- Not yet covered by OpenClaw's stability guarantees
 - Subject to change without notice
 
 ### Development constraints

@@ -1,10 +1,10 @@
 # Hardening checklist (high privacy)
 
-## Table of contents (Explain Moltbot)
+## Table of contents (Explain OpenClaw)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is OpenClaw?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)

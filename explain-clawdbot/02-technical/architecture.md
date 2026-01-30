@@ -1,10 +1,10 @@
 # Architecture (technical, tied to this repo)
 
-## Table of contents (Explain Moltbot)
+## Table of contents (Explain OpenClaw)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is OpenClaw?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](./architecture.md)
@@ -21,7 +21,7 @@
 
 ---
 
-This page explains how the Moltbot codebase is organized and how a message becomes a response.
+This page explains how the OpenClaw codebase is organized and how a message becomes a response.
 
 Sources verified against:
 - `../docs/index.md` (high-level)
@@ -52,7 +52,7 @@ AI provider(s) (Anthropic/OpenAI/etc.) OR local model endpoint
 Back to the channel
 ```
 
-Moltbot is **Gateway-centric**. Most things you do (status, logs, pairing, sending, agent runs) talk to the Gateway via its WebSocket RPC.
+OpenClaw is **Gateway-centric**. Most things you do (status, logs, pairing, sending, agent runs) talk to the Gateway via its WebSocket RPC.
 
 ---
 

@@ -1,12 +1,12 @@
 # Deployment runbook: Isolated VPS (remote + locked down)
 
-> **Note:** This guide is for Moltbot (formerly Clawdbot). The CLI command remains `clawdbot`.
+> **Note:** This guide is for OpenClaw (formerly Moltbot/Clawdbot). The CLI command remains `clawdbot`.
 
-## Table of contents (Explain Moltbot)
+## Table of contents (Explain OpenClaw)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is OpenClaw?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)
@@ -53,7 +53,7 @@ Related official docs:
 
 ## 1) Provision the VPS (baseline hardening)
 
-Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide).
+Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide) (uses legacy "Moltbot" name).
 
 ### Choose a Provider
 - AWS EC2: t3.small, Ubuntu 24.04 LTS
@@ -94,7 +94,7 @@ sudo ufw status
 
 ---
 
-## 2) Install Moltbot
+## 2) Install OpenClaw
 
 On the VPS:
 
@@ -251,7 +251,7 @@ sudo fail2ban-client status sshd
 
 ## 10) Systemd Resource Limits
 
-Add resource limits to your Moltbot service file (`/etc/systemd/system/moltbot.service`):
+Add resource limits to your OpenClaw service file (`/etc/systemd/system/moltbot.service`):
 
 ```ini
 [Service]
@@ -285,8 +285,8 @@ The 1-Click deployment configures these security controls out of the box:
 | Control | Description |
 |---------|-------------|
 | Authenticated gateway token | Auto-generated; protects against unauthorized access |
-| Hardened firewall rules | Rate-limiting on Moltbot ports to prevent DoS |
-| Non-root execution | Moltbot runs as a non-root user, limiting attack surface |
+| Hardened firewall rules | Rate-limiting on OpenClaw ports to prevent DoS |
+| Non-root execution | OpenClaw runs as a non-root user, limiting attack surface |
 | Docker container isolation | Sandboxed execution environment |
 | Private DM pairing | Enabled by default; prevents unauthorized messaging |
 
@@ -304,7 +304,7 @@ The 1-Click deployment configures these security controls out of the box:
 **Via DigitalOcean Console:**
 1. Sign in to DigitalOcean -> **Create Droplet**
 2. Under **Choose an Image** -> **Marketplace** tab
-3. Search for "Moltbot" and select it
+3. Search for "OpenClaw" and select it
 4. Choose at least **4GB RAM** (s-2vcpu-4gb or higher)
 5. Add your SSH key under **Authentication**
 6. Set a hostname (e.g., `moltbot-server`)
@@ -334,7 +334,7 @@ The welcome message displays your **Dashboard URL**-save it for browser access.
 2. Paste your API key when prompted
 3. The clawdbot service restarts automatically
 
-### Step 3: Access Moltbot
+### Step 3: Access OpenClaw
 
 **Terminal UI (TUI):**
 
@@ -385,7 +385,7 @@ systemctl restart clawdbot
 
 The 1-Click handles sections 1-3 of this guide automatically:
 - VPS provisioning with Ubuntu 24.04 + Node.js 22 + Docker
-- Moltbot installation and service setup
+- OpenClaw installation and service setup
 - Gateway configuration with auth token
 
 You still need to:
@@ -395,7 +395,7 @@ You still need to:
 
 ### Resources
 
-- **Moltbot Documentation:** https://docs.molt.bot/
+- **OpenClaw Documentation:** https://docs.molt.bot/
 - **Gateway Configuration:** https://docs.molt.bot/gateway/configuration
 - **Channel Setup:** https://docs.molt.bot/channels
 - **Security Guide:** https://docs.molt.bot/gateway/security
@@ -406,7 +406,7 @@ You still need to:
 
 ## Security Checklist (VPS)
 
-Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide).
+Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide) (uses legacy "Moltbot" name).
 
 ### Network
 - [ ] Security group inbound is SSH only from your IP

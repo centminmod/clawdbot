@@ -1,12 +1,12 @@
 # Deployment runbook: Standalone Mac mini (local-first, high privacy)
 
-> **Note:** This guide is for Moltbot (formerly Clawdbot). The CLI command remains `clawdbot`.
+> **Note:** This guide is for OpenClaw (formerly Moltbot/Clawdbot). The CLI command remains `clawdbot`.
 
-## Table of contents (Explain Moltbot)
+## Table of contents (Explain OpenClaw)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is OpenClaw?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)
@@ -23,7 +23,7 @@
 
 ---
 
-Goal: run Moltbot on a dedicated Mac mini at home with **minimal network exposure**.
+Goal: run OpenClaw on a dedicated Mac mini at home with **minimal network exposure**.
 
 If you can, this is the safest default deployment: you control the hardware, disk encryption is easy, and “remote exposure” can be optional.
 
@@ -62,7 +62,7 @@ sudo mkdir -p /Users/moltbot
 sudo chown moltbot:staff /Users/moltbot
 ```
 
-### 2) Install Moltbot
+### 2) Install OpenClaw
 
 ```bash
 curl -fsSL https://clawd.bot/install.sh | bash
@@ -118,7 +118,7 @@ clawdbot dashboard
 
 ## Connecting messaging channels (high-level guidance)
 
-Moltbot supports many channels; two common ones:
+OpenClaw supports many channels; two common ones:
 
 ### WhatsApp
 - Uses WhatsApp Web / Baileys.
@@ -164,7 +164,7 @@ Docs: https://docs.clawd.bot/gateway/tailscale
 
 ## Host hardening checklist (Mac mini)
 
-Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide) and code review.
+Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-setup-guide) (uses legacy "Moltbot" name) and code review.
 
 ### Operating System
 - [ ] Enable FileVault (full disk encryption)
