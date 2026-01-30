@@ -1,10 +1,10 @@
-# What is Clawdbot? (plain English, beginner-first)
+# What is Moltbot? (plain English, beginner-first)
 
-## Table of contents (Explain Clawdbot)
+## Table of contents (Explain Moltbot)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Clawdbot?](./what-is-clawdbot.md)
+  - [What is Moltbot?](./what-is-clawdbot.md)
   - [Glossary](./glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)
@@ -21,13 +21,13 @@
 
 ---
 
-Clawdbot is a framework for running a **personal AI assistant** on hardware you control.
+Moltbot is a framework for running a **personal AI assistant** on hardware you control.
 
-If you’ve only used ChatGPT/Claude/Gemini in a browser:
+If you've only used ChatGPT/Claude/Gemini in a browser:
 - those products are *apps* hosted by someone else
-- Clawdbot is the *platform* you run yourself, and you plug your chosen model/provider into it
+- Moltbot is the *platform* you run yourself, and you plug your chosen model/provider into it
 
-Clawdbot’s superpower is not “a smarter model.” It’s that it can:
+Moltbot's superpower is not "a smarter model." It's that it can:
 - live **where you already talk** (WhatsApp, Telegram, Discord, iMessage, …)
 - stay **always-on** (Gateway service)
 - keep **state** (sessions, memory, policies)
@@ -39,7 +39,7 @@ Official overview (good high-level read): https://docs.clawd.bot
 
 ## The one-sentence mental model
 
-> **Clawdbot is a self-hosted Gateway that connects chat apps to an agent that can reason and (optionally) act.**
+> **Moltbot is a self-hosted Gateway that connects chat apps to an agent that can reason and (optionally) act.**
 
 ---
 
@@ -60,8 +60,8 @@ Think of it as:
 
 Docs: https://docs.clawd.bot/gateway
 
-### 2) Channels = “phone lines” into the assistant
-A **channel** is how Clawdbot connects to a messaging platform.
+### 2) Channels = "phone lines" into the assistant
+A **channel** is how Moltbot connects to a messaging platform.
 
 Examples:
 - WhatsApp (via WhatsApp Web / Baileys)
@@ -84,10 +84,10 @@ Sessions live on disk under your state directory (usually `~/.clawdbot/`).
 
 Docs: https://docs.clawd.bot/concepts/session
 
-### 4) The agent = “the brain (model + rules + tool policy)”
+### 4) The agent = "the brain (model + rules + tool policy)"
 The agent is where your AI model (Claude/GPT/etc.) is actually called.
 
-Clawdbot supplies:
+Moltbot supplies:
 - system prompt templates
 - history/context
 - safety wrappers
@@ -121,7 +121,7 @@ Docs: https://docs.clawd.bot/nodes
 
 ---
 
-## What Clawdbot is great for
+## What Moltbot is great for
 
 ### Personal / small-team assistant in chat
 - “Summarize the last 200 messages in this group.”
@@ -139,17 +139,17 @@ A VPS or home server can keep the Gateway running even if your laptop sleeps.
 
 ---
 
-## What Clawdbot is *not*
+## What Moltbot is *not*
 
 ### Not automatically safe for public bots
-If you open inbound DMs/groups to the public *and* enable tools, you’ve basically built a remote-controlled automation engine.
+If you open inbound DMs/groups to the public *and* enable tools, you've basically built a remote-controlled automation engine.
 
-Clawdbot ships safety features (pairing, allowlists, audits), but you must use them.
+Moltbot ships safety features (pairing, allowlists, audits), but you must use them.
 
 Docs: https://docs.clawd.bot/gateway/security
 
-### Not “privacy magic”
-Clawdbot keeps state locally, but your chosen model provider still receives the prompts you send for inference unless you run a local model.
+### Not "privacy magic"
+Moltbot keeps state locally, but your chosen model provider still receives the prompts you send for inference unless you run a local model.
 
 ---
 

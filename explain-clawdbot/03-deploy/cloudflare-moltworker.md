@@ -4,11 +4,11 @@
 
 > **Supplementary resource:** [Kimi K2.5 Cloudflare Guide](../../explain-clawdbot-kilocode-kimi-k2.5/cloudflare-moltworker.md) provides additional explanations for D1 Database, KV, and Queues with beginner-friendly analogies. Note: it does not cover Sandbox SDK (the core runtime) and its security analysis contains inaccuracies -- use this guide for actual deployment.
 
-## Table of contents (Explain Clawdbot)
+## Table of contents (Explain Moltbot)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Clawdbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)

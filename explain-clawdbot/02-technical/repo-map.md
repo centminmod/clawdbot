@@ -1,10 +1,10 @@
 # Repo map (where to look in code)
 
-## Table of contents (Explain Clawdbot)
+## Table of contents (Explain Moltbot)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Clawdbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](./architecture.md)

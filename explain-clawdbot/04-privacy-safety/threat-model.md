@@ -1,10 +1,10 @@
 # Threat model (beginner-friendly)
 
-## Table of contents (Explain Clawdbot)
+## Table of contents (Explain Moltbot)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Clawdbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)
@@ -21,7 +21,7 @@
 
 ---
 
-This page explains *why* privacy and safety configuration matters for Clawdbot.
+This page explains *why* privacy and safety configuration matters for Moltbot.
 
 If you only take one idea from this:
 
@@ -29,9 +29,9 @@ If you only take one idea from this:
 
 ---
 
-## Why Clawdbot is “different-risk” than a normal chat bot
+## Why Moltbot is "different-risk" than a normal chat bot
 
-Clawdbot can be configured to do much more than respond with text.
+Moltbot can be configured to do much more than respond with text.
 
 Depending on what you enable, it can:
 - send outbound messages on real messaging accounts
@@ -86,7 +86,7 @@ Mitigations:
 - be careful with reverse proxies; configure trusted proxies
 
 ### 4) Local disk + secrets
-Clawdbot stores transcripts and credentials on disk under `~/.clawdbot/`.
+Moltbot stores transcripts and credentials on disk under `~/.clawdbot/`.
 If another user/process on the host can read that directory, privacy is gone.
 
 Mitigations:
@@ -119,7 +119,7 @@ Ask: “who could realistically cause trouble?”
 
 ## Core principle: access control before intelligence
 
-Clawdbot’s docs emphasize an ordering that works in practice:
+Moltbot's docs emphasize an ordering that works in practice:
 
 1) **Identity first** — who is allowed to trigger the bot (pairing/allowlists)
 2) **Scope next** — what the bot is allowed to do (tool policy/sandboxing/nodes)
@@ -127,7 +127,7 @@ Clawdbot’s docs emphasize an ordering that works in practice:
 
 ---
 
-## What “high privacy” means in Clawdbot terms
+## What "high privacy" means in Moltbot terms
 
 High privacy usually implies:
 - Gateway host is locked down

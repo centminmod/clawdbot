@@ -1,10 +1,10 @@
 # Glossary (plain English)
 
-## Table of contents (Explain Clawdbot)
+## Table of contents (Explain Moltbot)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Clawdbot?](./what-is-clawdbot.md)
+  - [What is Moltbot?](./what-is-clawdbot.md)
   - [Glossary](./glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)

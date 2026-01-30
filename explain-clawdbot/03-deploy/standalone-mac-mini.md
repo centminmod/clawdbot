@@ -2,11 +2,11 @@
 
 > **Note:** This guide is for Moltbot (formerly Clawdbot). The CLI command remains `clawdbot`.
 
-## Table of contents (Explain Clawdbot)
+## Table of contents (Explain Moltbot)
 
 - [Home (README)](../README.md)
 - Plain English
-  - [What is Clawdbot?](../01-plain-english/what-is-clawdbot.md)
+  - [What is Moltbot?](../01-plain-english/what-is-clawdbot.md)
   - [Glossary](../01-plain-english/glossary.md)
 - Technical
   - [Architecture](../02-technical/architecture.md)
@@ -23,7 +23,7 @@
 
 ---
 
-Goal: run Clawdbot on a dedicated Mac mini at home with **minimal network exposure**.
+Goal: run Moltbot on a dedicated Mac mini at home with **minimal network exposure**.
 
 If you can, this is the safest default deployment: you control the hardware, disk encryption is easy, and “remote exposure” can be optional.
 
@@ -118,7 +118,7 @@ clawdbot dashboard
 
 ## Connecting messaging channels (high-level guidance)
 
-Clawdbot supports many channels; two common ones:
+Moltbot supports many channels; two common ones:
 
 ### WhatsApp
 - Uses WhatsApp Web / Baileys.
