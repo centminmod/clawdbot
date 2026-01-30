@@ -524,6 +524,15 @@ One security-relevant commit:
 
 **All three legitimate gaps remain open.**
 
+### Post-Merge Hardening (PR #6 — 34 commits)
+
+One security-relevant commit:
+- **`201d7fa95`** — Gateway token undefined fix (#4873): prevents `String(undefined)` from producing the literal `"undefined"` string as a gateway token. Ensures empty/undefined input falls through to `randomToken()` (thanks @Hisleren)
+
+Additionally, `SECURITY.md` was updated (`2cdfecdde`) to clarify: no bug bounty program, and public internet exposure is out of scope—reinforcing the existing threat model.
+
+**All three legitimate gaps remain open.**
+
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 
 Article: [Why Clawdbot is a Bad Idea (Medium)](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f)

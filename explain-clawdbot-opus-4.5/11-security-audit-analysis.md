@@ -414,6 +414,16 @@ Twenty-five upstream commits (merged via PR #5 from `openclaw/main`) introduced 
 
 All three legitimate defense-in-depth gaps remain open as of PR #5 (gateway env blocklist, pipe-delimited token format, outPath validation).
 
+### Post-Merge Hardening (PR #6)
+
+Thirty-four upstream commits (merged via PR #6 from `openclaw/main`) introduced one security-relevant change:
+
+- **Gateway token undefined fix** (`201d7fa9561` — #4873): When prompting for gateway token input, `String(undefined)` would produce the literal string `"undefined"` instead of falling through to `randomToken()`. Fixed by checking truthy input before string conversion (`src/commands/configure.gateway.ts`, `src/wizard/onboarding.gateway-config.ts`). Prevents predictable/weak tokens when users skip token configuration. (thanks @Hisleren)
+
+Additionally, `SECURITY.md` was updated (`2cdfecdde`) to clarify: no bug bounty program, and public internet exposure is out of scope—reinforcing the existing threat model.
+
+All three legitimate defense-in-depth gaps remain open as of PR #6 (gateway env blocklist, pipe-delimited token format, outPath validation).
+
 ---
 
 ## Recommended Hardening Measures

@@ -187,6 +187,14 @@ One security-relevant commit: Telegram skill command scoping (`c6ddc95fc` — #4
 
 All three legitimate gaps remain open.
 
+### Post-Merge Hardening (PR #6)
+
+One security-relevant commit: Gateway token undefined fix (`201d7fa95` — #4873): prevents `String(undefined)` from producing the literal `"undefined"` string as gateway token, ensuring fallback to random token generation (thanks @Hisleren).
+
+Additionally, `SECURITY.md` was updated (`2cdfecdde`) to clarify: no bug bounty program, and public internet exposure is out of scope.
+
+All three legitimate gaps remain open.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
