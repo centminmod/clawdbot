@@ -28,10 +28,10 @@ Goal: run OpenClaw on a dedicated Mac mini at home with **minimal network exposu
 If you can, this is the safest default deployment: you control the hardware, disk encryption is easy, and “remote exposure” can be optional.
 
 Related official docs:
-- https://docs.clawd.bot/start/getting-started
-- https://docs.clawd.bot/gateway/security
-- https://docs.clawd.bot/gateway/remote
-- https://docs.clawd.bot/gateway/tailscale
+- https://docs.openclaw.ai/start/getting-started
+- https://docs.openclaw.ai/gateway/security
+- https://docs.openclaw.ai/gateway/remote
+- https://docs.openclaw.ai/gateway/tailscale
 
 ---
 
@@ -65,7 +65,7 @@ sudo chown moltbot:staff /Users/moltbot
 ### 2) Install OpenClaw
 
 ```bash
-curl -fsSL https://clawd.bot/install.sh | bash
+curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
 Or:
@@ -128,7 +128,7 @@ OpenClaw supports many channels; two common ones:
 clawdbot channels login
 ```
 
-Docs: https://docs.clawd.bot/channels/whatsapp
+Docs: https://docs.openclaw.ai/channels/whatsapp
 
 ### Telegram
 - Uses a bot token created via @BotFather.
@@ -139,7 +139,7 @@ clawdbot pairing list telegram
 clawdbot pairing approve telegram <CODE>
 ```
 
-Docs: https://docs.clawd.bot/channels/telegram
+Docs: https://docs.openclaw.ai/channels/telegram
 
 ---
 
@@ -158,7 +158,7 @@ Then open:
 ### Option B (best UX): Tailscale Serve
 Keep `gateway.bind: "loopback"` and use Tailscale Serve to publish the Control UI to your tailnet over HTTPS.
 
-Docs: https://docs.clawd.bot/gateway/tailscale
+Docs: https://docs.openclaw.ai/gateway/tailscale
 
 ---
 
@@ -226,4 +226,4 @@ Consider backing up:
 Avoid backing up:
 - session transcripts (unless you explicitly need them)
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security

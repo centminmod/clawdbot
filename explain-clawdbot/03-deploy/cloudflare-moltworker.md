@@ -646,7 +646,7 @@ Moltworker is experimental. It demonstrates that the Gateway can run serverlessl
 
 Moltworker is an experimental deployment pattern. For issues:
 
-- Gateway/agent issues: [moltbot/moltbot](https://github.com/moltbot/moltbot/issues)
+- Gateway/agent issues: [openclaw/openclaw](https://github.com/openclaw/openclaw/issues)
 - Moltworker-specific issues: [cloudflare/moltworker](https://github.com/cloudflare/moltworker/issues)
 - Cloudflare Workers issues: [Cloudflare Community](https://community.cloudflare.com/)
 
@@ -749,4 +749,4 @@ After deployment:
 3. **Test tools** — Verify web fetch, browser rendering work as expected
 4. **Monitor usage** — Check Cloudflare dashboard for requests and costs
 
-For channel setup, see: [Pairing Guide](https://docs.clawd.bot/start/pairing)
+For channel setup, see: [Pairing Guide](https://docs.openclaw.ai/start/pairing)

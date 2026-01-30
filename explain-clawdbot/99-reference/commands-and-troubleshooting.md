@@ -28,11 +28,11 @@ This is a copy/paste oriented page. For deeper explanations, use the official do
 ## Install + onboard
 
 ```bash
-curl -fsSL https://clawd.bot/install.sh | bash
+curl -fsSL https://openclaw.ai/install.sh | bash
 clawdbot onboard --install-daemon
 ```
 
-Docs: https://docs.clawd.bot/install and https://docs.clawd.bot/start/wizard
+Docs: https://docs.openclaw.ai/install and https://docs.openclaw.ai/start/wizard
 
 ---
 
@@ -55,7 +55,7 @@ clawdbot gateway stop
 clawdbot gateway start
 ```
 
-Docs: https://docs.clawd.bot/gateway and https://docs.clawd.bot/cli/gateway
+Docs: https://docs.openclaw.ai/gateway and https://docs.openclaw.ai/cli/gateway
 
 ---
 
@@ -77,7 +77,7 @@ clawdbot security audit --deep
 clawdbot security audit --fix
 ```
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -88,7 +88,7 @@ clawdbot pairing list telegram
 clawdbot pairing approve telegram <CODE>
 ```
 
-Docs: https://docs.clawd.bot/start/pairing
+Docs: https://docs.openclaw.ai/start/pairing
 
 ---
 
@@ -98,7 +98,7 @@ Docs: https://docs.clawd.bot/start/pairing
 ssh -N -L 18789:127.0.0.1:18789 user@gateway-host
 ```
 
-Docs: https://docs.clawd.bot/gateway/remote
+Docs: https://docs.openclaw.ai/gateway/remote
 
 ---
 
@@ -108,28 +108,28 @@ Docs: https://docs.clawd.bot/gateway/remote
 - Run `clawdbot dashboard` and open the printed tokenized URL.
 - Ensure you are connecting to the correct Gateway instance/profile.
 
-Docs: https://docs.clawd.bot/help/faq
+Docs: https://docs.openclaw.ai/help/faq
 
 ### Port already in use (18789)
 - Stop the supervised service (`clawdbot gateway stop`) or choose another port.
 - Foreground reclaim: `clawdbot gateway --force`.
 
-Docs: https://docs.clawd.bot/help/faq
+Docs: https://docs.openclaw.ai/help/faq
 
 ### Nothing responds in Telegram/WhatsApp
 - Check channel status and logs.
 - Confirm pairing/allowlists aren’t blocking.
 - Confirm model auth is present on the **gateway host**.
 
-Docs: https://docs.clawd.bot/help/faq and https://docs.clawd.bot/channels/troubleshooting
+Docs: https://docs.openclaw.ai/help/faq and https://docs.openclaw.ai/channels/troubleshooting
 
 ---
 
 ## High-signal official docs
 
-- Getting started: https://docs.clawd.bot/start/getting-started
-- Gateway runbook: https://docs.clawd.bot/gateway
-- Security: https://docs.clawd.bot/gateway/security
-- Remote: https://docs.clawd.bot/gateway/remote
-- Help/FAQ: https://docs.clawd.bot/help/faq
-- Troubleshooting: https://docs.clawd.bot/gateway/troubleshooting
+- Getting started: https://docs.openclaw.ai/start/getting-started
+- Gateway runbook: https://docs.openclaw.ai/gateway
+- Security: https://docs.openclaw.ai/gateway/security
+- Remote: https://docs.openclaw.ai/gateway/remote
+- Help/FAQ: https://docs.openclaw.ai/help/faq
+- Troubleshooting: https://docs.openclaw.ai/gateway/troubleshooting

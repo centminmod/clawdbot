@@ -30,14 +30,14 @@ The “brain” that turns an incoming message + context into a response. In pra
 - tool availability rules
 - session/memory behavior
 
-Docs: https://docs.clawd.bot/concepts/agent
+Docs: https://docs.openclaw.ai/concepts/agent
 
 ## Allowlist
 A list of identities allowed to trigger the bot (DMs) or allowed to interact in groups.
 
 Security note: allowlists are often the *real* security boundary in messaging bots.
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ## Bind (gateway.bind)
 Where the Gateway listens:
@@ -45,17 +45,17 @@ Where the Gateway listens:
 - `lan` = your LAN interfaces (requires auth)
 - `tailnet` = bind only to Tailscale IP (requires Tailscale)
 
-Docs: https://docs.clawd.bot/gateway/remote and https://docs.clawd.bot/gateway/tailscale
+Docs: https://docs.openclaw.ai/gateway/remote and https://docs.openclaw.ai/gateway/tailscale
 
 ## Channel
 A connector for a messaging surface: WhatsApp/Telegram/Discord/iMessage/etc.
 
-Docs: https://docs.clawd.bot/channels
+Docs: https://docs.openclaw.ai/channels
 
 ## Control UI / Dashboard
 The web interface served by the Gateway (on the same port as the WebSocket).
 
-Docs: https://docs.clawd.bot/web/dashboard
+Docs: https://docs.openclaw.ai/web/dashboard
 
 ## Gateway
 The long-running process that owns:
@@ -66,7 +66,7 @@ The long-running process that owns:
 - tool execution policy
 - node/device pairing
 
-Docs: https://docs.clawd.bot/gateway
+Docs: https://docs.openclaw.ai/gateway
 
 ## Pairing
 Explicit owner approval.
@@ -75,26 +75,26 @@ Used for:
 - DM pairing (who may DM the bot)
 - device pairing (which nodes may connect)
 
-Docs: https://docs.clawd.bot/start/pairing
+Docs: https://docs.openclaw.ai/start/pairing
 
 ## Plugin / extension
 Extra code that runs **in-process** with the Gateway to add channels/tools/features.
 
 Treat it like installing code into your assistant.
 
-Docs: https://docs.clawd.bot/plugin and https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/plugin and https://docs.openclaw.ai/gateway/security
 
 ## Session
 A stored conversation thread (history + metadata). By default sessions are stored on disk as JSONL.
 
-Docs: https://docs.clawd.bot/concepts/session
+Docs: https://docs.openclaw.ai/concepts/session
 
 ## Tool
 A capability the model can invoke (web fetch/search, browser automation, cron, exec, node calls).
 
-Docs: https://docs.clawd.bot/tools
+Docs: https://docs.openclaw.ai/tools
 
 ## Node / device
 A companion device connected to the Gateway (iOS/Android/macOS/headless nodes).
 
-Docs: https://docs.clawd.bot/nodes
+Docs: https://docs.openclaw.ai/nodes

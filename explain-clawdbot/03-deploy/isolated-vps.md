@@ -34,10 +34,10 @@ This is a great setup when:
 But the security bar is higher: a VPS is an internet-connected machine.
 
 Related official docs:
-- https://docs.clawd.bot/gateway/remote
-- https://docs.clawd.bot/gateway/security
-- https://docs.clawd.bot/platforms/linux
-- https://docs.clawd.bot/help/faq
+- https://docs.openclaw.ai/gateway/remote
+- https://docs.openclaw.ai/gateway/security
+- https://docs.openclaw.ai/platforms/linux
+- https://docs.openclaw.ai/help/faq
 
 ---
 
@@ -99,7 +99,7 @@ sudo ufw status
 On the VPS:
 
 ```bash
-curl -fsSL https://clawd.bot/install.sh | bash
+curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
 Verify Node.js version (22.12.0+ recommended for security patches):
@@ -123,7 +123,7 @@ echo "export GATEWAY_AUTH_TOKEN='$GATEWAY_AUTH_TOKEN'" >> ~/.profile
 
 If you're headless and need OAuth-style auth, do the auth step on a trusted machine first and copy the required credential files as documented.
 
-Docs: https://docs.clawd.bot/start/getting-started
+Docs: https://docs.openclaw.ai/start/getting-started
 
 ---
 
@@ -150,7 +150,7 @@ Now your local browser can open:
 
 …and your local CLI can talk to the Gateway at the forwarded URL.
 
-Docs: https://docs.clawd.bot/gateway/remote
+Docs: https://docs.openclaw.ai/gateway/remote
 
 ### Option B: Tailnet (Tailscale)
 
@@ -158,7 +158,7 @@ If you use Tailscale:
 - you can either bind directly to tailnet IP (`gateway.bind: "tailnet"`), or
 - keep loopback-only and publish the dashboard via Serve (HTTPS)
 
-Docs: https://docs.clawd.bot/gateway/tailscale
+Docs: https://docs.openclaw.ai/gateway/tailscale
 
 ---
 
@@ -194,7 +194,7 @@ If the service appears running but the probe fails:
 - you may have a profile/config mismatch
 - or the process is alive but not listening
 
-Docs: https://docs.clawd.bot/help/faq
+Docs: https://docs.openclaw.ai/help/faq
 
 ---
 
@@ -214,7 +214,7 @@ export HISTCONTROL=ignoreboth
 export HISTFILESIZE=0
 ```
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -395,12 +395,12 @@ You still need to:
 
 ### Resources
 
-- **OpenClaw Documentation:** https://docs.molt.bot/
-- **Gateway Configuration:** https://docs.molt.bot/gateway/configuration
-- **Channel Setup:** https://docs.molt.bot/channels
-- **Security Guide:** https://docs.molt.bot/gateway/security
+- **OpenClaw Documentation:** https://docs.openclaw.ai/
+- **Gateway Configuration:** https://docs.openclaw.ai/gateway/configuration
+- **Channel Setup:** https://docs.openclaw.ai/channels
+- **Security Guide:** https://docs.openclaw.ai/gateway/security
 - **Discord Community:** https://discord.gg/molt
-- **GitHub:** https://github.com/moltbot/moltbot
+- **GitHub:** https://github.com/openclaw/openclaw
 
 ---
 

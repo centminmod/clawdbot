@@ -96,8 +96,8 @@ From repo root:
 
 ## Docs you should keep open while reading code
 
-- https://docs.clawd.bot/start/getting-started
-- https://docs.clawd.bot/gateway
-- https://docs.clawd.bot/gateway/security
-- https://docs.clawd.bot/gateway/configuration
-- https://docs.clawd.bot/help/faq
+- https://docs.openclaw.ai/start/getting-started
+- https://docs.openclaw.ai/gateway
+- https://docs.openclaw.ai/gateway/security
+- https://docs.openclaw.ai/gateway/configuration
+- https://docs.openclaw.ai/help/faq

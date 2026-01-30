@@ -42,9 +42,9 @@ OpenClaw is a **self-hosted AI assistant platform**. You run an always-on proces
 **Key idea:** your **Gateway host** is the trust boundary. If it’s compromised (or configured too openly), your assistant can be turned into a data-exfil / automation engine.
 
 Official docs starting point:
-- https://docs.clawd.bot/start/getting-started
-- https://docs.clawd.bot/gateway
-- https://docs.clawd.bot/gateway/security
+- https://docs.openclaw.ai/start/getting-started
+- https://docs.openclaw.ai/gateway
+- https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -106,7 +106,7 @@ The repo strongly recommends using the onboarding wizard; it sets up:
 Recommended installer:
 
 ```bash
-curl -fsSL https://clawd.bot/install.sh | bash
+curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
 Alternative:
@@ -136,7 +136,7 @@ If you only do one security thing, do this:
 clawdbot security audit --fix
 ```
 
-(Security audit docs: https://docs.clawd.bot/gateway/security)
+(Security audit docs: https://docs.openclaw.ai/gateway/security)
 
 ---
 
@@ -198,12 +198,12 @@ The main always-on process is the **Gateway** (default port **18789**) which mul
 - the dashboard/control UI (HTTP)
 - optional HTTP endpoints (OpenAI-compatible APIs)
 
-See: https://docs.clawd.bot/gateway
+See: https://docs.openclaw.ai/gateway
 
 #### Q: Where is my data stored?
 By default, OpenClaw stores state under `~/.clawdbot/` (or `~/.clawdbot-<profile>/` for profiles). This includes config, credentials, and session transcripts.
 
-See: https://docs.clawd.bot/gateway/security ("Credential storage map")
+See: https://docs.openclaw.ai/gateway/security ("Credential storage map")
 
 #### Q: Does OpenClaw have telemetry?
 This repo's positioning is local-first control. Still, your chosen **model provider** will receive whatever text/media is sent to it for inference, unless you run a local model.
@@ -231,14 +231,14 @@ Fast fixes:
   ```
   then open `http://127.0.0.1:18789/?token=...`.
 
-See: https://docs.clawd.bot/help/faq (Control UI unauthorized)
+See: https://docs.openclaw.ai/help/faq (Control UI unauthorized)
 
 #### Q: What does “pairing” mean?
 Pairing is owner approval for:
 - **DM pairing** (who can message the bot)
 - **device/node pairing** (which devices can connect)
 
-See: https://docs.clawd.bot/start/pairing
+See: https://docs.openclaw.ai/start/pairing
 
 ---
 
@@ -248,7 +248,7 @@ See: https://docs.clawd.bot/start/pairing
 - `clawdbot gateway` runs the Gateway in the **foreground** in your terminal.
 - `clawdbot gateway restart` restarts the **background service** (launchd/systemd).
 
-See: https://docs.clawd.bot/help/faq
+See: https://docs.openclaw.ai/help/faq
 
 #### Q: What port does OpenClaw use?
 `gateway.port` controls the single multiplexed port for WebSocket + HTTP. Precedence is:
@@ -257,7 +257,7 @@ See: https://docs.clawd.bot/help/faq
 --port > CLAWDBOT_GATEWAY_PORT > gateway.port > default 18789
 ```
 
-See: https://docs.clawd.bot/help/faq
+See: https://docs.openclaw.ai/help/faq
 
 #### Q: I want remote access. Should I set `gateway.bind: "lan"`?
 Usually no.
@@ -268,7 +268,7 @@ Preferred patterns:
 
 Only bind to LAN/tailnet when you understand the auth requirements.
 
-See: https://docs.clawd.bot/gateway/remote and https://docs.clawd.bot/gateway/tailscale
+See: https://docs.openclaw.ai/gateway/remote and https://docs.openclaw.ai/gateway/tailscale
 
 #### Q: Can I run multiple Gateways on one host?
 Yes, but it’s usually unnecessary; one Gateway can run multiple channels and agents.
@@ -279,7 +279,7 @@ If you do, you must isolate:
 - workspace (`agents.defaults.workspace`)
 - port (`gateway.port`)
 
-See: https://docs.clawd.bot/gateway/multiple-gateways
+See: https://docs.openclaw.ai/gateway/multiple-gateways
 
 #### Q: How do I see what OpenClaw is doing?
 Use:
@@ -289,7 +289,7 @@ clawdbot status --all
 clawdbot logs --follow
 ```
 
-See: https://docs.clawd.bot/help/faq (log locations)
+See: https://docs.openclaw.ai/help/faq (log locations)
 
 ---
 
@@ -302,7 +302,7 @@ All three matter, but the practical order is:
 3) **Network exposure** (bind modes, proxies, auth)
 4) **Host compromise** (OS hardening, keys, patching)
 
-See: https://docs.clawd.bot/gateway/security
+See: https://docs.openclaw.ai/gateway/security
 
 #### Q: How do plugins/extensions affect my threat model?
 Plugins run **in-process** with the Gateway. Treat them like installing arbitrary code.
@@ -312,17 +312,17 @@ Recommendation:
 - prefer pinned versions
 - keep an explicit allowlist if supported
 
-See: https://docs.clawd.bot/gateway/security ("Plugins/extensions")
+See: https://docs.openclaw.ai/gateway/security ("Plugins/extensions")
 
 #### Q: If I want “maximum privacy”, do I need a local model?
 A local model is the strongest privacy posture because it avoids sending content to a third-party provider. However, it changes the safety profile: smaller/weak local models can be easier to prompt-inject and may handle tool policies worse.
 
-See: https://docs.clawd.bot/gateway/local-models
+See: https://docs.openclaw.ai/gateway/local-models
 
 #### Q: How do I make sure different people’s DMs don’t leak context to each other?
 Consider DM session isolation (multi-user mode) so each peer gets an isolated DM session, and use identity linking only where appropriate.
 
-See: https://docs.clawd.bot/gateway/security ("DM session isolation") and https://docs.clawd.bot/concepts/session
+See: https://docs.openclaw.ai/gateway/security ("DM session isolation") and https://docs.openclaw.ai/concepts/session
 
 ---
 
@@ -413,7 +413,7 @@ If you are hardening a deployment, the automated scanner report is not a useful 
 For the full security architecture, threat model, and hardening checklist:
 - [Threat model](./04-privacy-safety/threat-model.md)
 - [Hardening checklist](./04-privacy-safety/hardening-checklist.md)
-- Official security docs: https://docs.clawd.bot/gateway/security
+- Official security docs: https://docs.openclaw.ai/gateway/security
 - External guide: [OpenClaw Security Setup Guide (VibeProof)](https://vibeproof.dev/blog/moltbot-security-setup-guide)
 
 ---
@@ -581,13 +581,13 @@ This table summarizes how each AI model performed across the documentation task,
 
 ## Official docs (high-signal links)
 
-- Getting started: https://docs.clawd.bot/start/getting-started
-- Install: https://docs.clawd.bot/install
-- Gateway (runbook): https://docs.clawd.bot/gateway
-- Gateway security: https://docs.clawd.bot/gateway/security
-- Remote access: https://docs.clawd.bot/gateway/remote
-- Tailscale: https://docs.clawd.bot/gateway/tailscale
-- Pairing: https://docs.clawd.bot/start/pairing
-- Help / FAQ: https://docs.clawd.bot/help/faq
-- Troubleshooting: https://docs.clawd.bot/gateway/troubleshooting
+- Getting started: https://docs.openclaw.ai/start/getting-started
+- Install: https://docs.openclaw.ai/install
+- Gateway (runbook): https://docs.openclaw.ai/gateway
+- Gateway security: https://docs.openclaw.ai/gateway/security
+- Remote access: https://docs.openclaw.ai/gateway/remote
+- Tailscale: https://docs.openclaw.ai/gateway/tailscale
+- Pairing: https://docs.openclaw.ai/start/pairing
+- Help / FAQ: https://docs.openclaw.ai/help/faq
+- Troubleshooting: https://docs.openclaw.ai/gateway/troubleshooting
 - External security guide: https://vibeproof.dev/blog/moltbot-security-setup-guide

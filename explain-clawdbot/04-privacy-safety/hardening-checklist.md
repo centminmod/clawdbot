@@ -24,10 +24,10 @@
 This is an actionable checklist to get to a strong “high privacy / low exposure” posture.
 
 Source of truth:
-- https://docs.clawd.bot/gateway/security
-- https://docs.clawd.bot/gateway/remote
-- https://docs.clawd.bot/gateway/tailscale
-- https://docs.clawd.bot/start/pairing
+- https://docs.openclaw.ai/gateway/security
+- https://docs.openclaw.ai/gateway/remote
+- https://docs.openclaw.ai/gateway/tailscale
+- https://docs.openclaw.ai/start/pairing
 
 ---
 
@@ -52,7 +52,7 @@ clawdbot pairing list telegram
 clawdbot pairing approve telegram <CODE>
 ```
 
-Docs: https://docs.clawd.bot/start/pairing
+Docs: https://docs.openclaw.ai/start/pairing
 
 ---
 
@@ -64,8 +64,8 @@ Common group-safe defaults:
 - restrict who can trigger commands in groups
 
 Docs:
-- https://docs.clawd.bot/concepts/groups
-- https://docs.clawd.bot/gateway/security
+- https://docs.openclaw.ai/concepts/groups
+- https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -84,7 +84,7 @@ ssh -N -L 18789:127.0.0.1:18789 user@gateway-host
 ### Tailscale Serve (best UX; tailnet-only)
 Keep Gateway on loopback and expose the UI via HTTPS Serve.
 
-Docs: https://docs.clawd.bot/gateway/tailscale
+Docs: https://docs.openclaw.ai/gateway/tailscale
 
 ---
 
@@ -109,7 +109,7 @@ clawdbot security audit --fix
 
 `--fix` tightens common footguns (group policy, redaction, file perms).
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -120,7 +120,7 @@ If you enable browser control remotely:
 - token auth required
 - avoid Funnel unless you *explicitly* want public exposure
 
-Docs: https://docs.clawd.bot/gateway/security and https://docs.clawd.bot/gateway/tailscale
+Docs: https://docs.openclaw.ai/gateway/security and https://docs.openclaw.ai/gateway/tailscale
 
 ---
 
@@ -132,8 +132,8 @@ Practical guidance:
 - Prefer sandboxing for non-main sessions.
 
 Docs:
-- https://docs.clawd.bot/tools
-- https://docs.clawd.bot/gateway/sandboxing
+- https://docs.openclaw.ai/tools
+- https://docs.openclaw.ai/gateway/sandboxing
 
 ---
 
@@ -143,7 +143,7 @@ Docs:
 - Don’t sync it to iCloud/Dropbox/etc.
 - Ensure permissions are tight (audit can fix).
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -156,4 +156,4 @@ Recommendations:
 - pin versions
 - inspect code on disk
 
-Docs: https://docs.clawd.bot/plugin and https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/plugin and https://docs.openclaw.ai/gateway/security

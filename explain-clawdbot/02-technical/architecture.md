@@ -74,7 +74,7 @@ In `src/gateway/server.impl.ts`, the Gateway:
 
 This is intentional: unknown keys and malformed values are treated as unsafe.
 
-Docs: https://docs.clawd.bot/gateway/configuration
+Docs: https://docs.openclaw.ai/gateway/configuration
 
 ---
 
@@ -149,8 +149,8 @@ On that port:
 Related derived ports may exist (browser control, canvas host), depending on configuration.
 
 Docs:
-- https://docs.clawd.bot/gateway (service runbook)
-- https://docs.clawd.bot/help/faq (port precedence)
+- https://docs.openclaw.ai/gateway (service runbook)
+- https://docs.openclaw.ai/help/faq (port precedence)
 
 ---
 
@@ -165,7 +165,7 @@ Common paths (see official “credential storage map”):
 - model auth profiles: `~/.clawdbot/agents/<agentId>/agent/auth-profiles.json`
 - transcripts: `~/.clawdbot/agents/<agentId>/sessions/*.jsonl`
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ---
 
@@ -179,4 +179,4 @@ Most security failures are not exotic. They are:
 
 That’s why `clawdbot security audit` exists and why config validation is strict.
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security

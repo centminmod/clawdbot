@@ -33,7 +33,7 @@ OpenClaw's superpower is not "a smarter model." It's that it can:
 - keep **state** (sessions, memory, policies)
 - optionally **take actions** (tools, device nodes)
 
-Official overview (good high-level read): https://docs.clawd.bot
+Official overview (good high-level read): https://docs.openclaw.ai
 
 ---
 
@@ -58,7 +58,7 @@ It:
 Think of it as:
 - a router + scheduler + policy engine for your assistant
 
-Docs: https://docs.clawd.bot/gateway
+Docs: https://docs.openclaw.ai/gateway
 
 ### 2) Channels = "phone lines" into the assistant
 A **channel** is how OpenClaw connects to a messaging platform.
@@ -72,7 +72,7 @@ Examples:
 
 Channels normalize “incoming message events” into a common internal shape.
 
-Docs: https://docs.clawd.bot/channels
+Docs: https://docs.openclaw.ai/channels
 
 ### 3) Sessions = “conversation memory (by default) on disk”
 A **session** is a conversation thread with state:
@@ -82,7 +82,7 @@ A **session** is a conversation thread with state:
 
 Sessions live on disk under your state directory (usually `~/.clawdbot/`).
 
-Docs: https://docs.clawd.bot/concepts/session
+Docs: https://docs.openclaw.ai/concepts/session
 
 ### 4) The agent = "the brain (model + rules + tool policy)"
 The agent is where your AI model (Claude/GPT/etc.) is actually called.
@@ -93,7 +93,7 @@ OpenClaw supplies:
 - safety wrappers
 - tool availability rules
 
-Docs: https://docs.clawd.bot/concepts/agent
+Docs: https://docs.openclaw.ai/concepts/agent
 
 ### 5) Tools = “hands” (powerful; risky)
 Tools let the model do more than output text.
@@ -106,7 +106,7 @@ Depending on what you enable, tools can include:
 
 Tools are where most real-world risk comes from.
 
-Docs: https://docs.clawd.bot/tools
+Docs: https://docs.openclaw.ai/tools
 
 ### 6) Nodes/devices = “peripherals”
 Nodes are devices (macOS/iOS/Android) that can connect to the Gateway and offer device-local capabilities.
@@ -117,7 +117,7 @@ Examples:
 - canvas/webviews
 - (on macOS) remote execution with approvals
 
-Docs: https://docs.clawd.bot/nodes
+Docs: https://docs.openclaw.ai/nodes
 
 ---
 
@@ -146,7 +146,7 @@ If you open inbound DMs/groups to the public *and* enable tools, you've basicall
 
 OpenClaw ships safety features (pairing, allowlists, audits), but you must use them.
 
-Docs: https://docs.clawd.bot/gateway/security
+Docs: https://docs.openclaw.ai/gateway/security
 
 ### Not "privacy magic"
 OpenClaw keeps state locally, but your chosen model provider still receives the prompts you send for inference unless you run a local model.
@@ -163,7 +163,7 @@ If you want high privacy and low risk:
 4) Run `clawdbot security audit --deep` and fix findings
 
 See:
-- https://docs.clawd.bot/gateway/security
-- https://docs.clawd.bot/start/pairing
+- https://docs.openclaw.ai/gateway/security
+- https://docs.openclaw.ai/start/pairing
 
 Next: [Glossary](./glossary.md)

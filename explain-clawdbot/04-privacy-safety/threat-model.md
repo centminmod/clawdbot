@@ -48,7 +48,7 @@ Often they just need to:
 
 This is the practical form of **prompt injection**.
 
-Official security doc (source of truth): https://docs.clawd.bot/gateway/security
+Official security doc (source of truth): https://docs.openclaw.ai/gateway/security
 
 ---
 
