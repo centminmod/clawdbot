@@ -181,6 +181,12 @@ One security-relevant commit: XML attribute injection prevention in media text a
 
 All three legitimate gaps remain open.
 
+### Post-Merge Hardening (PR #5)
+
+One security-relevant commit: Telegram skill command scoping (`c6ddc95fc` — #4360): scopes skill commands to bound agent per bot, preventing cross-agent command registration (thanks @robhparker).
+
+All three legitimate gaps remain open.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---

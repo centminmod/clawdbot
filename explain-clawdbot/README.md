@@ -517,6 +517,13 @@ One security-relevant commit:
 
 **All three legitimate gaps remain open.**
 
+### Post-Merge Hardening (PR #5 — 25 commits)
+
+One security-relevant commit:
+- **`c6ddc95fc`** — Telegram skill command scoping (#4360): scopes skill commands to bound agent per bot, preventing cross-agent command registration (thanks @robhparker)
+
+**All three legitimate gaps remain open.**
+
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 
 Article: [Why Clawdbot is a Bad Idea (Medium)](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f)

@@ -406,6 +406,14 @@ Four upstream commits (merged via PR #3 from `moltbot/main`) introduced one secu
 
 All three legitimate defense-in-depth gaps remain open as of PR #3 (gateway env blocklist, pipe-delimited token format, outPath validation).
 
+### Post-Merge Hardening (PR #5)
+
+Twenty-five upstream commits (merged via PR #5 from `openclaw/main`) introduced one security-relevant change:
+
+- **Telegram skill command scoping** (`c6ddc95fc` — #4360): `registerTelegramNativeCommands()` now passes `agentIds` to `listSkillCommandsForAgents()`, scoping skill commands to the bound agent per bot. Previously, ALL agents' skill commands were registered on EVERY Telegram bot. This fix tightens authorization boundaries. (thanks @robhparker)
+
+All three legitimate defense-in-depth gaps remain open as of PR #5 (gateway env blocklist, pipe-delimited token format, outPath validation).
+
 ---
 
 ## Recommended Hardening Measures
