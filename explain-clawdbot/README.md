@@ -16,6 +16,15 @@
 - [Second security audit (Medium article)](#second-security-audit-medium-article) *(inline below)*
 - [AI model analysis comparison](#ai-model-analysis-comparison) *(inline below)*
 
+### 05 – Worst-Case Security Scenarios
+- [Overview: Attack Surface by Deployment](./05-worst-case-security/README.md)
+- [Mac Mini: Local-First Risks](./05-worst-case-security/mac-mini-risks.md)
+- [VPS/1-Click: Shared Hosting Risks](./05-worst-case-security/vps-risks.md)
+- [Moltworker: Serverless Edge Risks](./05-worst-case-security/moltworker-risks.md)
+- [Cross-Cutting Vulnerabilities](./05-worst-case-security/cross-cutting.md)
+- [Prompt Injection Attacks](./05-worst-case-security/prompt-injection-attacks.md) *(20 attack examples)*
+- [Misconfiguration Hall of Shame](./05-worst-case-security/misconfiguration-examples.md)
+
 ---
 
 This folder is an **ultra in-depth** guide to the OpenClaw framework, written for someone who is new to agent frameworks and wants both:
@@ -536,6 +545,52 @@ Additionally, `SECURITY.md` was updated (`2cdfecdde`) to clarify: no bug bounty 
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 
 Article: [Why Clawdbot is a Bad Idea (Medium)](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f)
+
+---
+
+## Worst-Case Security Scenarios
+
+> **Purpose:** This section documents what can go wrong in the worst possible misconfiguration or compromise scenarios for each deployment type.
+>
+> **Read this if:** You're evaluating OpenClaw for sensitive use cases, want to understand the blast radius of potential failures, or need to build a threat model for your organization.
+
+See the detailed breakdown in [05-worst-case-security/](./05-worst-case-security/).
+
+### Quick Reference: Deployment Risk Profiles
+
+| Deployment | Trust Boundary | Biggest Risk | Recovery Complexity |
+|------------|----------------|--------------|---------------------|
+| **Mac Mini** | Your hardware | Physical access, cloud sync | Medium (rotate keys) |
+| **VPS/1-Click** | Shared infra | Internet exposure, root compromise | High (rebuild VPS) |
+| **Moltworker** | Cloudflare | No egress filtering, R2 breach | Very High (no local control) |
+
+### Key Findings from Code Analysis
+
+Based on source code review of:
+- `src/gateway/net.ts` - Network binding with fallback chains
+- `src/gateway/auth.ts` - Authentication mechanisms
+- `src/agents/bash-tools.exec.ts` - Shell execution
+- `src/pairing/pairing-store.ts` - Credential storage
+- `src/security/audit.ts` - Security audit checks
+
+**Critical vulnerabilities if misconfigured:**
+
+1. **Silent binding fallback** - Loopback failure → 0.0.0.0 exposure (`src/gateway/net.ts:98-102`)
+2. **Dangerous auth flags** - `dangerouslyDisableDeviceAuth` bypasses device verification (`src/config/types.gateway.ts:69-72`)
+3. **No encryption at rest** - Credentials protected only by file permissions (0o600/0o700)
+4. **Egress-free Moltworker** - Sandbox can exfiltrate to any server
+
+### Scenario Documentation
+
+| Document | Coverage |
+|----------|----------|
+| [Overview](./05-worst-case-security/README.md) | Attack surface comparison, decision guide, severity levels |
+| [Mac Mini Risks](./05-worst-case-security/mac-mini-risks.md) | Physical access, cloud sync trap, silent network exposure |
+| [VPS Risks](./05-worst-case-security/vps-risks.md) | Internet exposure, multi-tenant risks, credential storage |
+| [Moltworker Risks](./05-worst-case-security/moltworker-risks.md) | Trust boundaries, egress filtering, R2 single point of failure |
+| [Cross-Cutting](./05-worst-case-security/cross-cutting.md) | Prompt injection, tool execution, channel tokens, supply chain |
+| [Prompt Injection Attacks](./05-worst-case-security/prompt-injection-attacks.md) | 20 attack examples with data exfiltration scenarios |
+| [Misconfiguration Examples](./05-worst-case-security/misconfiguration-examples.md) | 10 real mistakes with step-by-step fixes |
 
 ---
 
