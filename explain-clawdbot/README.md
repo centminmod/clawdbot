@@ -15,15 +15,14 @@
 - [Security audit analysis (Issue #1796)](#security-audit-analysis-issue-1796) *(inline below)*
 - [Second security audit (Medium article)](#second-security-audit-medium-article) *(inline below)*
 - [AI model analysis comparison](#ai-model-analysis-comparison) *(inline below)*
-
-### 05 – Worst-Case Security Scenarios
-- [Overview: Attack Surface by Deployment](./05-worst-case-security/README.md)
-- [Mac Mini: Local-First Risks](./05-worst-case-security/mac-mini-risks.md)
-- [VPS/1-Click: Shared Hosting Risks](./05-worst-case-security/vps-risks.md)
-- [Moltworker: Serverless Edge Risks](./05-worst-case-security/moltworker-risks.md)
-- [Cross-Cutting Vulnerabilities](./05-worst-case-security/cross-cutting.md)
-- [Prompt Injection Attacks](./05-worst-case-security/prompt-injection-attacks.md) *(20 attack examples)*
-- [Misconfiguration Hall of Shame](./05-worst-case-security/misconfiguration-examples.md)
+- **Worst-case security scenarios:**
+  - [Overview](./05-worst-case-security/README.md)
+  - [Mac Mini risks](./05-worst-case-security/mac-mini-risks.md)
+  - [VPS risks](./05-worst-case-security/vps-risks.md)
+  - [Moltworker risks](./05-worst-case-security/moltworker-risks.md)
+  - [Cross-cutting vulnerabilities](./05-worst-case-security/cross-cutting.md)
+  - [Prompt injection attacks](./05-worst-case-security/prompt-injection-attacks.md) *(20 examples)*
+  - [Misconfiguration examples](./05-worst-case-security/misconfiguration-examples.md)
 
 ---
 
