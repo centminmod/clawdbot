@@ -352,7 +352,7 @@ All four AI-generated summaries in this project covered the report. The followin
 
 **Key disagreement resolved:** Gemini 3.0 Pro accepted the race condition claim at face value. Code review (`src/agents/auth-profiles/oauth.ts:33-35`, config in `constants.ts:11-20`) confirms locking is correctly implemented. The other three models correctly identified this as a false positive.
 
-**Additional disagreement (Kimi K2.5):** Kimi K2.5 presents all 8 CRITICAL findings as actual vulnerabilities requiring remediation, including recommending keychain integration for token storage and disabling `config.patch` entirely. Code review confirms: (1) token storage with `0o600` permissions is standard CLI practice per RFC 8252, (2) `config.patch` executes inside Docker containers with `no-new-privileges`, (3) DNS pinning (`src/infra/net/ssrf.ts:112-164`) prevents the SSRF chain Kimi K2.5 describes, and (4) RBAC (`src/gateway/server-methods.ts:93-146`) prevents agent self-approval. The remediation advice in Kimi K2.5 is well-intentioned but addresses non-existent vulnerabilities.
+**Additional disagreement (Kimi K2.5):** Kimi K2.5 presents all 8 CRITICAL findings as actual vulnerabilities requiring remediation, including recommending keychain integration for token storage and disabling `config.patch` entirely. Code review confirms: (1) token storage with `0o600` permissions is standard CLI practice per RFC 8252, (2) `config.patch` executes inside Docker containers with `no-new-privileges`, (3) DNS pinning (`src/infra/net/ssrf.ts:209-247`) prevents the SSRF chain Kimi K2.5 describes, and (4) RBAC (`src/gateway/server-methods.ts:93-160`) prevents agent self-approval. The remediation advice in Kimi K2.5 is well-intentioned but addresses non-existent vulnerabilities.
 
 ### Synthesized verdict (all 8 CRITICAL claims)
 
@@ -454,14 +454,14 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 | # | Claim | Verdict | Source code evidence |
 |---|-------|---------|---------------------|
-| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container, not host (`src/agents/sandbox/docker.ts:205-207`). Config changes require gateway auth. |
+| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container, not host (`src/agents/sandbox/docker.ts:243-244`). Config changes require gateway auth. |
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks path validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway. |
 | 3 | Log traversal via `logs.tail` | **False** | Schema has `additionalProperties: false`, accepts only `cursor`/`limit`/`maxBytes` (`src/gateway/protocol/schema/logs-chat.ts:5-12`). File path from config, not request. |
-| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:112-164`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:121-143`). |
-| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:93-146`). Agents blocked from approval methods. |
-| 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format exists (`src/gateway/device-auth.ts:13-30`) but tokens are RSA-signed. Modified payload fails signature verification. |
-| 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` validates executable *names*, not commands (`src/infra/exec-safety.ts:1-24`). Strict allowlist: `/^[A-Za-z0-9._+-]+$/`. |
-| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:869-870`). Node-host has blocklist (`src/node-host/runner.ts:158-167`). Requires human approval + localhost. |
+| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:209-247`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:121-143`). |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:93-160`). Agents blocked from approval methods. |
+| 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format exists (`src/gateway/device-auth.ts:13-31`) but tokens are RSA-signed. Modified payload fails signature verification. |
+| 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` validates executable *names*, not commands (`src/infra/exec-safety.ts:16-44`). Strict allowlist: `/^[A-Za-z0-9._+-]+$/`. |
+| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:920`). Node-host has blocklist (`src/node-host/runner.ts:158-167`). Requires human approval + localhost. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 
@@ -540,6 +540,13 @@ One security-relevant commit:
 Additionally, `SECURITY.md` was updated (`2cdfecdde`) to clarify: no bug bounty program, and public internet exposure is out of scope—reinforcing the existing threat model.
 
 **All three legitimate gaps remain open.**
+
+### Post-Merge Hardening (PR #7)
+
+One security-relevant commit:
+- **`c67df653b`** — Restricts local path extraction in media parser to prevent LFI (#4880): hardens `src/media/parse.ts` against local file inclusion attacks via path extraction, adds test coverage in `src/media/parse.test.ts`
+
+This is new security hardening unrelated to existing audit claims. **All three legitimate gaps remain open.**
 
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 

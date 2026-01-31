@@ -183,7 +183,7 @@ All 8 claims were verified against the source code. None are exploitable as desc
 
 **Verdict: Partially true, heavily overstated.**
 
-The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:205-207`):
+The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:243-244`):
 ```
 await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
 ```
@@ -245,7 +245,7 @@ const pinned = await resolvePinnedHostname(parsedUrl.hostname);
 const dispatcher = createPinnedDispatcher(pinned);
 ```
 
-The `resolvePinnedHostname()` function (`src/infra/net/ssrf.ts:112-164`) resolves the hostname once, validates the resolved IP addresses against private/internal ranges, and returns a pinned lookup. The `createPinnedDispatcher()` creates a custom HTTP dispatcher that forces all connections to use the pre-resolved IP, preventing DNS rebinding.
+The `resolvePinnedHostname()` function (`src/infra/net/ssrf.ts:209-247`) resolves the hostname once, validates the resolved IP addresses against private/internal ranges, and returns a pinned lookup. The `createPinnedDispatcher()` creates a custom HTTP dispatcher that forces all connections to use the pre-resolved IP, preventing DNS rebinding.
 
 The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-fetch.ssrf.test.ts:121-143`):
 - A redirect from a public host to `http://127.0.0.1/secret` is blocked
@@ -259,7 +259,7 @@ The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-
 
 **Verdict: False.**
 
-The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:93-146`) enforces role-based access control on every server method:
+The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:93-160`) enforces role-based access control on every server method:
 - Agents connect with `role: "node"` and are restricted to `NODE_ROLE_METHODS` only
 - Any non-node method call from a node role returns `unauthorized role: node`
 - Approval methods require `operator.approvals` scope (line 108-109)
@@ -273,7 +273,7 @@ The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:93-146`)
 
 **Verdict: Misleading.**
 
-The token format does use pipe delimiters without input sanitization (`src/gateway/device-auth.ts:13-30`):
+The token format does use pipe delimiters without input sanitization (`src/gateway/device-auth.ts:13-31`):
 ```
 return base.join("|");
 ```
@@ -288,7 +288,7 @@ This is a true observation about the token construction. However, the article ig
 
 **Verdict: False.**
 
-The `isSafeExecutableValue()` function (`src/infra/exec-safety.ts:1-24`) is **config validation for executable names** (e.g., `/bin/bash`, `python3`), not a command-line argument sanitizer. The article conflates these two purposes.
+The `isSafeExecutableValue()` function (`src/infra/exec-safety.ts:16-44`) is **config validation for executable names** (e.g., `/bin/bash`, `python3`), not a command-line argument sanitizer. The article conflates these two purposes.
 
 The function:
 1. Rejects null bytes, control characters, shell metacharacters (`;&|` `` ` `` `$<>`), and quotes
@@ -305,7 +305,7 @@ This validates the name of an executable to run, not arguments passed to it. Arg
 
 **Verdict: Partially true, but overstated.**
 
-On the gateway host, `params.env` is merged without sanitization (`src/agents/bash-tools.exec.ts:869-870`):
+On the gateway host, `params.env` is merged without sanitization (`src/agents/bash-tools.exec.ts:920`):
 ```
 const baseEnv = coerceEnv(process.env);
 const mergedEnv = params.env ? { ...baseEnv, ...params.env } : baseEnv;
@@ -423,6 +423,14 @@ Thirty-four upstream commits (merged via PR #6 from `openclaw/main`) introduced 
 Additionally, `SECURITY.md` was updated (`2cdfecdde`) to clarify: no bug bounty program, and public internet exposure is out of scope—reinforcing the existing threat model.
 
 All three legitimate defense-in-depth gaps remain open as of PR #6 (gateway env blocklist, pipe-delimited token format, outPath validation).
+
+### Post-Merge Hardening (PR #7)
+
+Twenty upstream commits (merged via PR #7 from `openclaw/main`) introduced one security-relevant change:
+
+- **Local file inclusion prevention** (`c67df653b` — #4880): Restricts local path extraction in media parser to prevent LFI attacks. The `src/media/parse.ts` file now validates extracted paths more strictly, with test coverage added in `src/media/parse.test.ts`. This is new security hardening unrelated to the existing audit claims.
+
+All three legitimate defense-in-depth gaps remain open as of PR #7 (gateway env blocklist, pipe-delimited token format, outPath validation).
 
 ---
 
