@@ -350,7 +350,7 @@ All four AI-generated summaries in this project covered the report. The followin
 | [Gemini 3.0 Pro](../explain-clawdbot-gemini-3.0-pro/README.md) | Brief index entry only; lists "race conditions" as a key risk | **Inaccurate on race conditions** -- code uses `proper-lockfile` with exponential backoff; no race exists |
 | [Kimi K2.5](../explain-clawdbot-kilocode-kimi-k2.5/security-analysis.md#github-issue-1796-argus-security-audit) | Detailed 8-claim breakdown with code snippets, scanner statistics, remediation advice | **Inaccurate** -- accepts all 8 CRITICAL claims at face value; does not verify against source code; presents "plaintext storage" and "hardcoded secrets" as vulnerabilities rather than standard CLI practice per RFC 8252 |
 
-**Key disagreement resolved:** Gemini 3.0 Pro accepted the race condition claim at face value. Code review (`src/agents/auth-profiles/oauth.ts:33-35`, config in `constants.ts:11-20`) confirms locking is correctly implemented. The other three models correctly identified this as a false positive.
+**Key disagreement resolved:** Gemini 3.0 Pro accepted the race condition claim at face value. Code review (`src/agents/auth-profiles/oauth.ts:32-34`, config in `constants.ts:11-20`) confirms locking is correctly implemented. The other three models correctly identified this as a false positive.
 
 **Additional disagreement (Kimi K2.5):** Kimi K2.5 presents all 8 CRITICAL findings as actual vulnerabilities requiring remediation, including recommending keychain integration for token storage and disabling `config.patch` entirely. Code review confirms: (1) token storage with `0o600` permissions is standard CLI practice per RFC 8252, (2) `config.patch` executes inside Docker containers with `no-new-privileges`, (3) DNS pinning (`src/infra/net/ssrf.ts:209-247`) prevents the SSRF chain Kimi K2.5 describes, and (4) RBAC (`src/gateway/server-methods.ts:93-160`) prevents agent self-approval. The remediation advice in Kimi K2.5 is well-intentioned but addresses non-existent vulnerabilities.
 
@@ -361,7 +361,7 @@ All four AI-generated summaries in this project covered the report. The followin
 | 1 | Plaintext OAuth token storage | **True, by design** | `src/infra/json-file.ts:20` sets `0o600` on every write. Standard for CLI tools (`gh`, `gcloud`). |
 | 2 | Missing CSRF in OAuth state | **False** | `extensions/google-gemini-cli-auth/oauth.ts:538-539` performs strict `state !== verifier` check. |
 | 3 | Hardcoded OAuth client secret | **True, standard practice** | [RFC 8252 Sections 8.4-8.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.4): CLI apps are "public clients." |
-| 4 | Token refresh race condition | **False** | `proper-lockfile` with exponential backoff (config: `src/agents/auth-profiles/constants.ts:11-20`), lock held throughout refresh+save (`src/agents/auth-profiles/oauth.ts:33-35`). |
+| 4 | Token refresh race condition | **False** | `proper-lockfile` with exponential backoff (config: `src/agents/auth-profiles/constants.ts:11-20`), lock held throughout refresh+save (`src/agents/auth-profiles/oauth.ts:32-34`). |
 | 5 | Insufficient file permission checks | **True, by design** | `0o600` on every write + `clawdbot security audit`/`fix` tooling. |
 | 6 | Path traversal in agent dirs | **False** | Paths go through `resolveUserPath()` (`src/agents/agent-paths.ts:10,12`) which calls `path.resolve()` (`src/utils.ts:209`), normalizing traversal. IDs from env/config, not user input. |
 | 7 | Webhook signature bypass | **True, properly gated** | `skipVerification` in `extensions/voice-call/src/webhook-security.ts` requires explicit param; dev-only, off by default. |
@@ -442,7 +442,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 **Key disagreements resolved:**
 
-- **Claim 3 (logs.tail traversal):** Copilot GPT-5.2 calls it "partially accurate" and Gemini 3.0 Pro lists it as a "Data Risk." Code review confirms the `LogsTailParamsSchema` (`src/gateway/protocol/schema/logs-chat.ts:5-12`) has `additionalProperties: false` with only `cursor`/`limit`/`maxBytes` parameters -- there is no file path parameter at all. The file path comes from `getResolvedLoggerSettings().file` (config-derived). Verdict: **false**, not partially accurate.
+- **Claim 3 (logs.tail traversal):** Copilot GPT-5.2 calls it "partially accurate" and Gemini 3.0 Pro lists it as a "Data Risk." Code review confirms the `LogsTailParamsSchema` (`src/gateway/protocol/schema/logs-chat.ts:4-11`) has `additionalProperties: false` with only `cursor`/`limit`/`maxBytes` parameters -- there is no file path parameter at all. The file path comes from `getResolvedLoggerSettings().file` (config-derived). Verdict: **false**, not partially accurate.
 
 - **Claim 5 (auth bypass / self-approving agent):** Gemini 3.0 Pro states "Agents can self-approve dangerous commands (missing role check)." Code review confirms `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-146`) enforces role checks on every call and agents are blocked from approval methods. Verdict: **false**.
 
@@ -454,14 +454,14 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 | # | Claim | Verdict | Source code evidence |
 |---|-------|---------|---------------------|
-| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container, not host (`src/agents/sandbox/docker.ts:243-244`). Config changes require gateway auth. |
-| 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks path validation (`src/agents/tools/nodes-tool.ts:342-345`), but writes to paired node device, not gateway. |
-| 3 | Log traversal via `logs.tail` | **False** | Schema has `additionalProperties: false`, accepts only `cursor`/`limit`/`maxBytes` (`src/gateway/protocol/schema/logs-chat.ts:5-12`). File path from config, not request. |
-| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:209-247`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:121-143`). |
+| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container, not host (`src/agents/sandbox/docker.ts:242-243`). Config changes require gateway auth. |
+| 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks path validation (`src/agents/tools/nodes-tool.ts:341-343`), but writes to paired node device, not gateway. |
+| 3 | Log traversal via `logs.tail` | **False** | Schema has `additionalProperties: false`, accepts only `cursor`/`limit`/`maxBytes` (`src/gateway/protocol/schema/logs-chat.ts:4-11`). File path from config, not request. |
+| 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` pins DNS (`src/infra/net/ssrf.ts:209-247`). Redirect-to-private-IP tested and blocked (`web-fetch.ssrf.test.ts:120-142`). |
 | 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` enforces role checks on every call (`src/gateway/server-methods.ts:93-160`). Agents blocked from approval methods. |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format exists (`src/gateway/device-auth.ts:13-31`) but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` validates executable *names*, not commands (`src/infra/exec-safety.ts:16-44`). Strict allowlist: `/^[A-Za-z0-9._+-]+$/`. |
-| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:920`). Node-host has blocklist (`src/node-host/runner.ts:158-167`). Requires human approval + localhost. |
+| 8 | Env variable injection (LD_PRELOAD) | **Partially true** | Gateway merges `params.env` without blocklist (`src/agents/bash-tools.exec.ts:919`). Node-host has blocklist (`src/node-host/runner.ts:156-165`). Requires human approval + localhost. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 

@@ -53,7 +53,7 @@ The token refresh implementation uses `proper-lockfile` with:
 - 30-second stale lock timeout
 - Lock held throughout the entire refresh-and-save cycle
 
-See `src/agents/auth-profiles/oauth.ts:33-35` for lock acquisition and `src/agents/auth-profiles/constants.ts:11-20` for the retry/backoff configuration. Errors propagate to callers rather than silently failing. The locking mechanism prevents the race condition the scanner described.
+See `src/agents/auth-profiles/oauth.ts:32-34` for lock acquisition and `src/agents/auth-profiles/constants.ts:11-20` for the retry/backoff configuration. Errors propagate to callers rather than silently failing. The locking mechanism prevents the race condition the scanner described.
 
 ### 5. Insufficient File Permission Checks
 
@@ -183,7 +183,7 @@ All 8 claims were verified against the source code. None are exploitable as desc
 
 **Verdict: Partially true, heavily overstated.**
 
-The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:243-244`):
+The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:242-243`):
 ```
 await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
 ```
@@ -201,7 +201,7 @@ However, the article omits critical context:
 
 **Verdict: True observation, but overstated scope.**
 
-The code path exists (`src/agents/tools/nodes-tool.ts:342-345`):
+The code path exists (`src/agents/tools/nodes-tool.ts:341-343`):
 ```
 const filePath =
   typeof params.outPath === "string" && params.outPath.trim()
@@ -222,14 +222,14 @@ No path validation is applied to `outPath`. However:
 
 **Verdict: False.**
 
-The `LogsTailParamsSchema` (`src/gateway/protocol/schema/logs-chat.ts:5-12`) accepts only three parameters:
+The `LogsTailParamsSchema` (`src/gateway/protocol/schema/logs-chat.ts:4-11`) accepts only three parameters:
 - `cursor` (integer)
 - `limit` (integer)
 - `maxBytes` (integer)
 
 The schema is declared with `additionalProperties: false`, rejecting any extra fields. There is no file path parameter.
 
-The log file path comes from `getResolvedLoggerSettings().file` (`src/gateway/server-methods/logs.ts:159-161`), which reads from the gateway's internal configuration, not from the request.
+The log file path comes from `getResolvedLoggerSettings().file` (`src/gateway/server-methods/logs.ts:165`), which reads from the gateway's internal configuration, not from the request.
 
 **What the article missed:** The schema rejects user-supplied file paths entirely. The file path is configuration-derived, not request-controlled.
 
@@ -247,7 +247,7 @@ const dispatcher = createPinnedDispatcher(pinned);
 
 The `resolvePinnedHostname()` function (`src/infra/net/ssrf.ts:209-247`) resolves the hostname once, validates the resolved IP addresses against private/internal ranges, and returns a pinned lookup. The `createPinnedDispatcher()` creates a custom HTTP dispatcher that forces all connections to use the pre-resolved IP, preventing DNS rebinding.
 
-The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-fetch.ssrf.test.ts:121-143`):
+The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-fetch.ssrf.test.ts:120-142`):
 - A redirect from a public host to `http://127.0.0.1/secret` is blocked
 - The test verifies the initial fetch occurs but the redirect is rejected
 
@@ -305,13 +305,13 @@ This validates the name of an executable to run, not arguments passed to it. Arg
 
 **Verdict: Partially true, but overstated.**
 
-On the gateway host, `params.env` is merged without sanitization (`src/agents/bash-tools.exec.ts:920`):
+On the gateway host, `params.env` is merged without sanitization (`src/agents/bash-tools.exec.ts:919`):
 ```
 const baseEnv = coerceEnv(process.env);
 const mergedEnv = params.env ? { ...baseEnv, ...params.env } : baseEnv;
 ```
 
-On the node host, there is an explicit blocklist (`src/node-host/runner.ts:158-167`):
+On the node host, there is an explicit blocklist (`src/node-host/runner.ts:156-165`):
 ```
 const blockedEnvKeys = new Set(["NODE_OPTIONS", "PYTHONHOME", "PYTHONPATH", "PERL5LIB", "PERL5OPT", "RUBYOPT"]);
 const blockedEnvPrefixes = ["DYLD_", "LD_"];
