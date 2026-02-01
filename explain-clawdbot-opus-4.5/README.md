@@ -202,6 +202,20 @@ One security-relevant commit:
 
 This is new security hardening unrelated to existing audit claims. **All three legitimate gaps remain open.**
 
+### Post-Merge Hardening (PR #9 — 50 commits)
+
+Two critical security fixes:
+
+- **`1295b6705`** — GHSA-4mhr-g7xj-cg8j: Block arbitrary exec via lobsterPath/cwd (#5335): Lobster extension now validates `lobsterPath` against plugin config, blocking arbitrary command execution via tool-provided paths.
+
+- **`34e2425b4`** — LFI prevention: Restrict MEDIA path extraction (#4930): `src/auto-reply/reply/stage-sandbox-media.ts` restricts inbound media staging to media directory only, preventing path traversal attacks.
+
+Additional hardening:
+- **`7a6c40872`** — System prompt safety guardrails (#5445)
+- **`baf9505bf`** — Formal models conformance check (CI)
+
+**All three legitimate gaps remain open** (gateway env blocklist, pipe-delimited token format, outPath validation).
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---

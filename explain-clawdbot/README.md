@@ -548,6 +548,20 @@ One security-relevant commit:
 
 This is new security hardening unrelated to existing audit claims. **All three legitimate gaps remain open.**
 
+### Post-Merge Hardening (PR #9 — 50 commits)
+
+Two critical security fixes:
+
+- **`1295b6705`** — GHSA-4mhr-g7xj-cg8j: Block arbitrary exec via lobsterPath/cwd (#5335): The Lobster extension now validates and restricts `lobsterPath` to plugin config, blocking tool-provided paths that could enable arbitrary command execution. Comprehensive tests added.
+
+- **`34e2425b4`** — LFI prevention: Restrict MEDIA path extraction (#4930): The `src/auto-reply/reply/stage-sandbox-media.ts` now restricts inbound media staging to the media directory only, preventing local file inclusion attacks via path traversal.
+
+Additional security hardening:
+- **`7a6c40872`** — System prompt safety guardrails (#5445): Adds runtime guardrails to agent system prompts.
+- **`baf9505bf`** — Formal models conformance check (CI): Adds informational TLA+ conformance verification to CI.
+
+**All three legitimate gaps remain open** (gateway env blocklist, pipe-delimited token format, outPath validation).
+
 For full detailed analysis: [Opus 4.5 Security Audit Analysis](../explain-clawdbot-opus-4.5/11-security-audit-analysis.md#second-security-audit-medium-article-january-2026)
 
 Article: [Why Clawdbot is a Bad Idea (Medium)](https://saadkhalidhere.medium.com/why-clawdbot-is-a-bad-idea-critical-zero-days-found-in-my-audit-full-report-634602cb053f)

@@ -432,6 +432,20 @@ Twenty upstream commits (merged via PR #7 from `openclaw/main`) introduced one s
 
 All three legitimate defense-in-depth gaps remain open as of PR #7 (gateway env blocklist, pipe-delimited token format, outPath validation).
 
+### Post-Merge Hardening (PR #9)
+
+Fifty upstream commits (merged via PR #9 from `openclaw/main`) introduced two critical security fixes:
+
+- **GHSA-4mhr-g7xj-cg8j: Block arbitrary exec via lobsterPath/cwd** (`1295b6705` — #5335): The Lobster extension now validates and restricts `lobsterPath` to plugin config, blocking tool-provided paths that could enable arbitrary command execution. This is a critical security fix preventing a reported vulnerability where malicious tool input could control the execution path. Comprehensive tests added to verify the fix.
+
+- **LFI prevention: Restrict MEDIA path extraction** (`34e2425b4` — #4930): The `src/auto-reply/reply/stage-sandbox-media.ts` now restricts inbound media staging to the media directory only, preventing local file inclusion attacks via path traversal. This complements the earlier media parser hardening in PR #7.
+
+Additional security hardening:
+- **System prompt safety guardrails** (`7a6c40872` — #5445): Adds runtime guardrails to agent system prompts, providing an additional layer of prompt injection prevention.
+- **Formal models conformance check** (`baf9505bf` — CI): Adds informational TLA+ conformance verification to CI, enabling formal verification of protocol properties.
+
+All three legitimate defense-in-depth gaps remain open as of PR #9 (gateway env blocklist, pipe-delimited token format, outPath validation).
+
 ---
 
 ## Recommended Hardening Measures
