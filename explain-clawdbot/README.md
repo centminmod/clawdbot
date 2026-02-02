@@ -6,6 +6,7 @@
 
 - [What is OpenClaw? (plain English)](./01-plain-english/what-is-clawdbot.md)
 - [Glossary](./01-plain-english/glossary.md)
+- [What is Moltbook?](./07-moltbook/what-is-moltbook.md)
 - [Threat model](./04-privacy-safety/threat-model.md)
 - [Hardening checklist](./04-privacy-safety/hardening-checklist.md)
 - [Architecture (technical)](./02-technical/architecture.md)
@@ -94,6 +95,7 @@ Official docs starting point:
 
 ### 1) Plain English
 - [What is OpenClaw?](./01-plain-english/what-is-clawdbot.md)
+- [What is Moltbook?](./07-moltbook/what-is-moltbook.md)
 - [Glossary](./01-plain-english/glossary.md)
 
 ### 2) Privacy + safety first (highly recommended)
