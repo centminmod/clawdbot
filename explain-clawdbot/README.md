@@ -813,12 +813,13 @@ Four security-relevant commits:
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 04-02-2026
+> **Last checked:** 05-02-2026
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
 | [#3277](https://github.com/openclaw/openclaw/issues/3277) | HIGH | Path validation bypass via `startsWith` prefix | `src/infra/archive.ts:81,89` - zip/tar extraction |
 | [#5052](https://github.com/openclaw/openclaw/issues/5052) | HIGH | Config validation fail-open returns `{}` | `src/config/io.ts:315-316` - security settings reset |
+| [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH | Browser file upload arbitrary read | `src/browser/pw-tools-core.interactions.ts:531` |
 | [#5995](https://github.com/openclaw/openclaw/issues/5995) | HIGH | Secrets exposed in session transcripts | By design - `config.get` returns resolved values |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | MEDIUM | web_fetch hidden text prompt injection | `src/agents/tools/web-fetch-utils.ts:31-34` |
 | [#8054](https://github.com/openclaw/openclaw/issues/8054) | HIGH | Type coercion `"undefined"` credentials | `src/wizard/onboarding.gateway-config.ts:206` |
@@ -836,6 +837,12 @@ Four security-relevant commits:
 **Vulnerability:** When config validation fails, the entire config including `dmPolicy`, `allowFrom`, and all security settings are silently reset to `{}`. The bot will respond to ANY sender.
 
 **Affected code:** `src/config/io.ts:315-316`
+
+### #5255: Browser File Upload Arbitrary Read
+
+**Vulnerability:** The `setInputFilesViaPlaywright` function accepts user-controlled file paths and passes them directly to Playwright without validation. Attackers with browser control access can read arbitrary files readable by the OpenClaw process.
+
+**Affected code:** `src/browser/pw-tools-core.interactions.ts:531` - `opts.paths` passed directly to `setInputFiles()` without path validation.
 
 ### #5995: Secrets in Session Transcripts
 
