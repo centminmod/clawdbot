@@ -10,10 +10,12 @@ Docs: https://docs.openclaw.ai
 - Cron: `cron run` defaults to force execution; use `--due` to restrict to due-only. (#10776) Thanks @tyler6204.
 - Models: support Anthropic Opus 4.6 and OpenAI Codex gpt-5.3-codex (forward-compat fallbacks). (#9853, #10720, #9995) Thanks @TinyTb, @calvin-hpnet, @tyler6204.
 - Providers: add xAI (Grok) support. (#9885) Thanks @grp06.
+- Providers: add Baidu Qianfan support. (#8868) Thanks @ide-rea.
 - Web UI: add token usage dashboard. (#10072) Thanks @Takhoffman.
 - Memory: native Voyage AI support. (#7078) Thanks @mcinteerj.
 - Sessions: cap sessions_history payloads to reduce context overflow. (#10000) Thanks @gut-puncture.
 - CLI: sort commands alphabetically in help output. (#8068) Thanks @deepsoumya617.
+- CI: optimize pipeline throughput (macOS consolidation, Windows perf, workflow concurrency). (#10784) Thanks @mcaxtr.
 - Agents: bump pi-mono to 0.52.7; add embedded forward-compat fallback for Opus 4.6 model ids.
 
 ### Added
@@ -26,6 +28,7 @@ Docs: https://docs.openclaw.ai
 
 - Cron: scheduler reliability (timer drift, restart catch-up, lock contention, stale running markers). (#10776) Thanks @tyler6204.
 - Cron: store migration hardening (legacy field migration, parse error handling, explicit delivery mode persistence). (#10776) Thanks @tyler6204.
+- Memory: set Voyage embeddings `input_type` for improved retrieval. (#10818) Thanks @mcinteerj.
 - Telegram: auto-inject DM topic threadId in message tool + subagent announce. (#7235) Thanks @Lukavyi.
 - Security: require auth for Gateway canvas host and A2UI assets. (#9518) Thanks @coygeek.
 - Cron: fix scheduling and reminder delivery regressions; harden next-run recompute + timer re-arming + legacy schedule fields. (#9733, #9823, #9948, #9932) Thanks @tyler6204, @pycckuu, @j2h4u, @fujiwara-tofu-shop.
