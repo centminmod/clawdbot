@@ -1124,7 +1124,7 @@ One security-adjacent commit (reliability/hardening focus, continues cron race c
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 08-02-2026 (07:06 AEST)
+> **Last checked:** 09-02-2026 (00:13 AEST)
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
@@ -1178,6 +1178,8 @@ One security-adjacent commit (reliability/hardening focus, continues cron race c
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | HIGH | Weak UUID: Math.random() fallback + tool call IDs | `ui/src/ui/uuid.ts:23-33` (fallback), `src/auto-reply/reply/get-reply-inline-actions.ts:191` (toolCallId) |
 | [#7139](https://github.com/openclaw/openclaw/issues/7139) | MEDIUM | Default config: sandbox off, plaintext creds | `src/agents/sandbox/config.ts:147` (mode="off"), gateway loopback is safe; creds 0o600 |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM | Orphaned tool_use blocks from backgrounded exec | `src/agents/session-transcript-repair.ts:166-318` (reactive repair, not proactive) |
+| [#11900](https://github.com/openclaw/openclaw/issues/11900) | MEDIUM | Context files (USER.md, SOUL.md) loaded for all senders | `src/agents/bootstrap-files.ts:43-60` — no `senderIsOwner` check; `attempt.ts:192` calls unconditionally |
+| [#11832](https://github.com/openclaw/openclaw/issues/11832) | MEDIUM | Per-agent tools.exec config not applied | `src/auto-reply/reply/get-reply-directives.ts:66-81` — `resolveExecOverrides()` ignores `agentCfg` |
 | [#6304](https://github.com/openclaw/openclaw/issues/6304) | LOW | Matrix plugin transitive dep vuln (request pkg) | `extensions/matrix/package.json` — transitive via `@vector-im/matrix-bot-sdk` (CVE-2023-28155) |
 | [#4807](https://github.com/openclaw/openclaw/issues/4807) | LOW | Sandbox setup script missing from npm package | `package.json` files array excludes `scripts/`; `scripts/sandbox-common-setup.sh` not shipped |
 | [#3359](https://github.com/openclaw/openclaw/issues/3359) | ~~MEDIUM~~ MITIGATED | npm audit vulns in tar/hono | `package.json` pnpm.overrides: tar@7.5.7, hono@4.11.8 (above vuln thresholds) |
@@ -1192,6 +1194,7 @@ One security-adjacent commit (reliability/hardening focus, continues cron race c
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH | Sandbox browser bridge started without auth token | `src/agents/sandbox/browser.ts:192` — no `authToken` passed; relates to #6609 |
 | [#10659](https://github.com/openclaw/openclaw/issues/10659) | ENHANCEMENT | Feature: Masked secrets to prevent agent reading raw API keys | Enhancement request; relates to #10033 (secrets management) |
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | NOT APPLICABLE | Skill removal without notification | ClawHub platform moderation issue, not a codebase vulnerability |
+| [#11879](https://github.com/openclaw/openclaw/issues/11879) | NOT APPLICABLE | Malicious ClawHub skill exfiltrating to Feishu | Ecosystem/marketplace issue; 13,981 installs; relates to #10890 (Skill Security Framework) |
 
 ### #10646: Weak UUID / Math.random() in Tool Call IDs
 
@@ -1759,6 +1762,30 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - Phase 3: Runtime sandboxing, tool allowlists per skill, anomaly detection
 
 **Relevance:** Directly addresses the attack surface documented in #9512 (skill archive path traversal) and the ClawHavoc campaign. Proposes Deno-style deny-by-default permissions for the skill system. Not a vulnerability report; comprehensive RFC for skill ecosystem security.
+
+### #11900: Context Files Loaded for All Senders Regardless of IsOwner
+
+**Vulnerability:** Bootstrap context files (USER.md, SOUL.md, etc.) are loaded for every sender, including non-owners on public channels. The `resolveBootstrapContextForRun()` function has no `senderIsOwner` parameter.
+**CWE:** CWE-200 (Exposure of Sensitive Information)
+
+**Affected code:**
+- `src/agents/bootstrap-files.ts:43-60` — `resolveBootstrapContextForRun()` loads all bootstrap files unconditionally
+- `src/agents/pi-embedded-runner/run/attempt.ts:192` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
+- `src/agents/pi-embedded-runner/run/attempt.ts:229` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
+
+**Impact:** Non-owner senders on public channels receive responses shaped by the owner's personal context files (personality, preferences, private notes). The content is not directly exposed but indirectly leaks through response behavior. Tool access is correctly gated by `senderIsOwner`, but context/personality files are not.
+
+### #11832: Per-Agent tools.exec Config Not Applied
+
+**Vulnerability:** Per-agent `tools.exec` configuration (host, security, ask, node) is silently ignored. Agents run with global exec defaults regardless of per-agent settings.
+**CWE:** CWE-269 (Improper Privilege Management)
+
+**Affected code:**
+- `src/auto-reply/reply/get-reply-directives.ts:66-81` — `resolveExecOverrides()` reads from `directives` (inline `!exec=docker`) and `sessionEntry` only
+- `src/auto-reply/reply/get-reply-directives.ts:93` — `agentCfg: AgentDefaults` is in scope but not consulted for exec settings
+- `src/agents/pi-embedded-runner/run/attempt.ts:211-215` — `execOverrides` passed to tool creation, but populated only from directives/session
+
+**Impact:** If an operator configures per-agent exec restrictions (e.g., `agents.mybot.tools.exec.host = "docker"` for sandboxed execution), those restrictions are silently ignored. The agent runs with global exec defaults. Global config still applies; only per-agent overrides are lost.
 
 ### Notable Non-Core Issues
 
