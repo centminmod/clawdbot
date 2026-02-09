@@ -12,7 +12,7 @@ This audit was independently evaluated using the [`/consult-codex` dual-AI consu
 |-----------|------|------------|
 | **Opus 4.6** (this document's author) | Primary evaluation with source code verification | 0/34 exploitable; CRITICAL rating not justified; all extraction claims match public code |
 | **Codex GPT-5.3** (OpenAI, second opinion) | Independent evaluation via `/consult-codex` | CRITICAL rating not justified; "low as a security audit"; scope misalignment confirmed |
-| **Code-Searcher** (Claude Opus 4.6 subagent) | Deep codebase verification | Mapped complete external content defense pipeline; confirmed no defenses were tested |
+| [**Code-Searcher**](https://github.com/centminmod/my-claude-code-setup/blob/master/.claude/agents/code-searcher.md) (Claude Opus 4.6 subagent; default model changed from Sonnet to Opus) | Deep codebase verification | Mapped complete external content defense pipeline; confirmed no defenses were tested |
 
 **Agreement level: High.** All three evaluators independently reached the same conclusions on all major findings. Full evaluation with comparison table: `.private/zeroleeks-security-audit-eval.md` (not committed to git).
 

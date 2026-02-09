@@ -38,7 +38,7 @@ The [ZeroLeeks AI Red Team audit](https://zeroleaks.ai/reports/openclaw-analysis
 |-----------|------|-------------------|
 | **Opus 4.6** | Primary evaluator (this repo) | 0/34 exploitable; CRITICAL rating not justified |
 | **Codex GPT-5.3** (OpenAI) | Second opinion via `/consult-codex` | CRITICAL rating not justified; "low as a security audit" |
-| **Code-Searcher** (Claude Opus 4.6) | Deep codebase verification | Confirmed no defenses were tested; mapped external content pipeline |
+| [**Code-Searcher**](https://github.com/centminmod/my-claude-code-setup/blob/master/.claude/agents/code-searcher.md) (Claude Opus 4.6; default model changed from Sonnet to Opus) | Deep codebase verification | Confirmed no defenses were tested; mapped external content pipeline |
 
 All three evaluators agreed with **High confidence** on all major conclusions. See [ZeroLeeks Audit](./zeroleeks-audit.md) for full details.
 
