@@ -32,7 +32,7 @@ This table summarizes how each AI model performed across the documentation task,
 
 ### ZeroLeeks Audit Evaluation (Third Audit)
 
-The [ZeroLeeks AI Red Team audit](https://zeroleaks.ai/reports/openclaw-analysis.pdf) (Jan 2026) was published after the original five documentation models completed their analyses, so none of them covered it. It was independently evaluated using the `/consult-codex` dual-AI consultation skill:
+The [ZeroLeeks AI Red Team audit](https://zeroleaks.ai/reports/openclaw-analysis.pdf) (Jan 2026) was published after the original five documentation models completed their analyses, so none of them covered it. It was independently evaluated using the [`/consult-codex` dual-AI consultation skill](https://github.com/centminmod/my-claude-code-setup/blob/master/.claude/skills/consult-codex/SKILL.md):
 
 | Evaluator | Role | ZeroLeeks Verdict |
 |-----------|------|-------------------|

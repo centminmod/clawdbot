@@ -10,7 +10,7 @@ The original five documentation models (Opus 4.5, Copilot GPT-5.2, GLM 4.7, Gemi
 
 ### Our evaluation of this audit
 
-This audit was independently evaluated using the `/consult-codex` dual-AI consultation skill:
+This audit was independently evaluated using the [`/consult-codex` dual-AI consultation skill](https://github.com/centminmod/my-claude-code-setup/blob/master/.claude/skills/consult-codex/SKILL.md):
 
 | Evaluator | Role | Conclusion |
 |-----------|------|------------|
