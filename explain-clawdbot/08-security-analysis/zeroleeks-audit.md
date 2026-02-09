@@ -4,10 +4,6 @@
 
 In January 2026, the [ZeroLeeks AI Red Team](https://zeroleeks.ai/) published an automated security assessment ([full report](https://zeroleaks.ai/reports/openclaw-analysis.pdf), Assessment ID: jn7aey02g9b76t71yrzq5mtedx8088s5) testing **system prompt extraction** (11/13 succeeded, 84.6%) and **prompt injection** (21/23 succeeded, 91.3%). They rated OpenClaw **CRITICAL RISK** (ZLSS Score 10/10, Security Score 2/100). This section provides a source-code-verified analysis.
 
-### How each model covered it
-
-The original five documentation models (Opus 4.5, Copilot GPT-5.2, GLM 4.7, Gemini 3.0 Pro, Kimi K2.5) did not cover this audit -- it was published after their documentation rounds.
-
 ### Our evaluation of this audit
 
 This audit was independently evaluated using the [`/consult-codex` dual-AI consultation skill](https://github.com/centminmod/my-claude-code-setup/blob/master/.claude/skills/consult-codex/SKILL.md):
