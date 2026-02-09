@@ -1,4 +1,4 @@
-> **Navigation:** [Main Guide](../README.md) | [Security Audit Reference](./security-audit-command-reference.md) | [CVEs/GHSAs](./official-security-advisories.md) | [Issue #1796](./issue-1796-argus-audit.md) | [Medium Article](./medium-article-audit.md) | [Post-merge Hardening](./post-merge-hardening.md) | [Open Issues](./open-upstream-issues.md) | [Ecosystem Threats](./ecosystem-security-threats.md) | [Model Comparison](./ai-model-analysis-comparison.md)
+> **Navigation:** [Main Guide](../README.md) | [Security Audit Reference](./security-audit-command-reference.md) | [CVEs/GHSAs](./official-security-advisories.md) | [Issue #1796](./issue-1796-argus-audit.md) | [Medium Article](./medium-article-audit.md) | [ZeroLeeks](./zeroleeks-audit.md) | [Post-merge Hardening](./post-merge-hardening.md) | [Open Issues](./open-upstream-issues.md) | [Ecosystem Threats](./ecosystem-security-threats.md) | [Model Comparison](./ai-model-analysis-comparison.md)
 
 ## AI Model Analysis Comparison
 
@@ -18,6 +18,7 @@ This table summarizes how each AI model performed across the documentation task,
 | **Configuration reference** | Good | Good | Complete | Partial | Complete |
 | **Issue #1796 analysis** | Code-verified | Code-verified | Accurate | Inaccurate | Not verified |
 | **Medium article analysis** | Code-verified | Mostly accurate | Hallucinated | Mostly inaccurate | Not verified |
+| **ZeroLeeks analysis** | N/A | N/A | N/A | N/A | N/A |
 
 ### Security Analysis Accuracy
 
@@ -28,6 +29,17 @@ This table summarizes how each AI model performed across the documentation task,
 | **GLM 4.7** | 0/8 exploitable | N/A (analyzed wrong claims) | Source code verification |
 | **Gemini 3.0 Pro** | Race condition claim accepted | 3 claims accepted at face value | No verification apparent |
 | **Kimi K2.5** | 8/8 presented as vulnerabilities | 8/8 presented as vulnerabilities | No verification; accepted audits at face value |
+
+### ZeroLeeks Audit Evaluation (Third Audit)
+
+The [ZeroLeeks AI Red Team audit](https://zeroleaks.ai/reports/openclaw-analysis.pdf) (Jan 2026) was evaluated by two AI models in a dual-AI consultation:
+
+| Model | ZeroLeeks Verdict | Methodology |
+|-------|-------------------|-------------|
+| **Opus 4.6** | 0/34 exploitable; CRITICAL rating not justified | Source code verification with file/line refs across 11+ files; complete defense pipeline mapping |
+| **Codex GPT-5.3** | CRITICAL rating not justified; "low as a security audit" | Independent evaluation; scope and threat model analysis |
+
+Both models agreed with **High confidence** on all major conclusions. See [ZeroLeeks Audit](./zeroleeks-audit.md) for full details.
 
 ### Unique Strengths
 
