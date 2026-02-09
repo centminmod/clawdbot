@@ -6,12 +6,19 @@ In January 2026, the [ZeroLeeks AI Red Team](https://zeroleeks.ai/) published an
 
 ### How each model covered it
 
-| Model | Coverage | Accuracy |
-|-------|----------|----------|
-| [Opus 4.6](../../.private/zeroleeks-security-audit-eval.md) | Full 34-finding analysis with code file/line references, cross-reference to existing documentation, defense mapping | All verdicts verified against source code |
-| Codex GPT-5.3 | Independent evaluation confirming scope misalignment and expected-behavior classification | Matches Opus 4.6 conclusions on all major findings |
+The original five documentation models (Opus 4.5, Copilot GPT-5.2, GLM 4.7, Gemini 3.0 Pro, Kimi K2.5) did not cover this audit -- it was published after their documentation rounds.
 
-**Key agreement:** Both models independently concluded that the CRITICAL rating is not justified, system prompt extraction is meaningless for open-source software, and tests 1-10 represent expected user instruction-following behavior.
+### Our evaluation of this audit
+
+This audit was independently evaluated using the `/consult-codex` dual-AI consultation skill:
+
+| Evaluator | Role | Conclusion |
+|-----------|------|------------|
+| **Opus 4.6** (this document's author) | Primary evaluation with source code verification | 0/34 exploitable; CRITICAL rating not justified; all extraction claims match public code |
+| **Codex GPT-5.3** (OpenAI, second opinion) | Independent evaluation via `/consult-codex` | CRITICAL rating not justified; "low as a security audit"; scope misalignment confirmed |
+| **Code-Searcher** (Claude Opus 4.6 subagent) | Deep codebase verification | Mapped complete external content defense pipeline; confirmed no defenses were tested |
+
+**Agreement level: High.** All three evaluators independently reached the same conclusions on all major findings. Full evaluation with comparison table: `.private/zeroleeks-security-audit-eval.md` (not committed to git).
 
 ### Synthesized verdict (all 34 findings)
 

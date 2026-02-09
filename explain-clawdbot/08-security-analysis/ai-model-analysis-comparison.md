@@ -32,14 +32,15 @@ This table summarizes how each AI model performed across the documentation task,
 
 ### ZeroLeeks Audit Evaluation (Third Audit)
 
-The [ZeroLeeks AI Red Team audit](https://zeroleaks.ai/reports/openclaw-analysis.pdf) (Jan 2026) was evaluated by two AI models in a dual-AI consultation:
+The [ZeroLeeks AI Red Team audit](https://zeroleaks.ai/reports/openclaw-analysis.pdf) (Jan 2026) was published after the original five documentation models completed their analyses, so none of them covered it. It was independently evaluated using the `/consult-codex` dual-AI consultation skill:
 
-| Model | ZeroLeeks Verdict | Methodology |
-|-------|-------------------|-------------|
-| **Opus 4.6** | 0/34 exploitable; CRITICAL rating not justified | Source code verification with file/line refs across 11+ files; complete defense pipeline mapping |
-| **Codex GPT-5.3** | CRITICAL rating not justified; "low as a security audit" | Independent evaluation; scope and threat model analysis |
+| Evaluator | Role | ZeroLeeks Verdict |
+|-----------|------|-------------------|
+| **Opus 4.6** | Primary evaluator (this repo) | 0/34 exploitable; CRITICAL rating not justified |
+| **Codex GPT-5.3** (OpenAI) | Second opinion via `/consult-codex` | CRITICAL rating not justified; "low as a security audit" |
+| **Code-Searcher** (Claude Opus 4.6) | Deep codebase verification | Confirmed no defenses were tested; mapped external content pipeline |
 
-Both models agreed with **High confidence** on all major conclusions. See [ZeroLeeks Audit](./zeroleeks-audit.md) for full details.
+All three evaluators agreed with **High confidence** on all major conclusions. See [ZeroLeeks Audit](./zeroleeks-audit.md) for full details.
 
 ### Unique Strengths
 
