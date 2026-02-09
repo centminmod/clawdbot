@@ -2,6 +2,8 @@
 
 ## Third security audit (ZeroLeeks AI Red Team)
 
+> **Plain English summary:** ZeroLeeks rated OpenClaw "CRITICAL" with a security score of 2 out of 100. We had three independent AI evaluators check their work — Opus 4.6 (primary, with source code verification), OpenAI's Codex GPT-5.3 (second opinion), and a Code-Searcher deep-dive agent. All three agreed: the CRITICAL rating is not justified. The "extracted secrets" are just the open-source code anyone can read on GitHub. The "successful injections" are mostly a user telling their own bot to change behaviour — which is how the software is designed to work. The audit never tested the actual defence layer that protects against real attacks (malicious content arriving from websites, emails, or documents). This is the third external audit we have evaluated, and the third time the result is the same: **zero demonstrated exploitable vulnerabilities**.
+
 In January 2026, the [ZeroLeeks AI Red Team](https://zeroleeks.ai/) published an automated security assessment ([full report](https://zeroleaks.ai/reports/openclaw-analysis.pdf), Assessment ID: jn7aey02g9b76t71yrzq5mtedx8088s5) testing **system prompt extraction** (11/13 succeeded, 84.6%) and **prompt injection** (21/23 succeeded, 91.3%). They rated OpenClaw **CRITICAL RISK** (ZLSS Score 10/10, Security Score 2/100). This section provides a source-code-verified analysis.
 
 **Bottom line:** This is the third external security audit evaluated. Like the prior two (Issue #1796 Argus: 0/8 exploitable, Medium article: 0/8 exploitable), it finds **0 demonstrated exploitable vulnerabilities**.
