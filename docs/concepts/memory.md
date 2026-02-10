@@ -85,6 +85,8 @@ Defaults:
 
 - Enabled by default.
 - Watches memory files for changes (debounced).
+- Configure memory search under `agents.defaults.memorySearch` (not top-level
+  `memorySearch`).
 - Uses remote embeddings by default. If `memorySearch.provider` is not set, OpenClaw auto-selects:
   1. `local` if a `memorySearch.local.modelPath` is configured and the file exists.
   2. `openai` if an OpenAI key can be resolved.
@@ -132,10 +134,13 @@ out to QMD for retrieval. Key points:
   (plus default workspace memory files), then `qmd update` + `qmd embed` run
   on boot and on a configurable interval (`memory.qmd.update.interval`,
   default 5 m).
+- The gateway now initializes the QMD manager on startup, so periodic update
+  timers are armed even before the first `memory_search` call.
 - Boot refresh now runs in the background by default so chat startup is not
   blocked; set `memory.qmd.update.waitForBootSync = true` to keep the previous
   blocking behavior.
-- Searches run via `qmd query --json`. If QMD fails or the binary is missing,
+- Searches run via `qmd query --json`, scoped to OpenClaw-managed collections.
+  If QMD fails or the binary is missing,
   OpenClaw automatically falls back to the builtin SQLite manager so memory tools
   keep working.
 - OpenClaw does not expose QMD embed batch-size tuning today; batch behavior is
