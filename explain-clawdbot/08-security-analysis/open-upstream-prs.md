@@ -83,7 +83,7 @@
 | [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:446-447` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
-| [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:92-126` wraps canvas/A2UI endpoints |
+| [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:96-130` wraps canvas/A2UI endpoints |
 | [#9529](https://github.com/openclaw/openclaw/pull/9529) | [#3277](https://github.com/openclaw/openclaw/issues/3277) (HIGH) | HIGH | OPEN | Validates archive entries against Zip Slip path traversal |
 | [#9513](https://github.com/openclaw/openclaw/pull/9513) | [#9512](https://github.com/openclaw/openclaw/issues/9512) (HIGH) | HIGH | OPEN | Adds path traversal checks to skill download archive extraction |
 | [#11054](https://github.com/openclaw/openclaw/pull/11054) | [#6609](https://github.com/openclaw/openclaw/issues/6609) (HIGH) | HIGH | OPEN | Adds auth token to sandbox browser bridge |
@@ -170,7 +170,7 @@
 
 **Changes:**
 - `src/gateway/hooks.ts` — `extractHookToken()` no longer reads `url.searchParams` for token
-- `src/gateway/server-http.ts:150-157` — returns HTTP 400 when `?token=` query parameter is present
+- `src/gateway/server-http.ts:154-161` — returns HTTP 400 when `?token=` query parameter is present
 - `src/commands/dashboard.ts` — no longer constructs `?token=` URLs
 - `src/commands/onboard-helpers.ts` — no longer passes token in URL
 
@@ -183,9 +183,9 @@
 **Closes:** [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH — canvas host auth bypass)
 
 **Changes:**
-- `src/gateway/server-http.ts:92-126` — new `authorizeCanvasRequest()` function
-- `src/gateway/server-http.ts:356-376` — canvas HTTP handler now auth-wrapped
-- `src/gateway/server-http.ts:425` — canvas WebSocket upgrade now auth-wrapped
+- `src/gateway/server-http.ts:96-130` — new `authorizeCanvasRequest()` function
+- `src/gateway/server-http.ts:374-394` — canvas HTTP handler now auth-wrapped
+- `src/gateway/server-http.ts:443` — canvas WebSocket upgrade now auth-wrapped
 
 **Local Impact:** SYNC NEEDED — local canvas endpoints may still be unauthenticated
 

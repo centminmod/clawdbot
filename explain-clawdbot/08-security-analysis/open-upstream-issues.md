@@ -27,7 +27,7 @@
 | [#8776](https://github.com/openclaw/openclaw/issues/8776) | HIGH | soul-evil hook silently hijacks agent | `src/hooks/soul-evil.ts:217-280` |
 | [#9435](https://github.com/openclaw/openclaw/issues/9435) | ~~HIGH~~ FIXED | Gateway auth token exposed in URL query params | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token acceptance removed from `src/gateway/hooks.ts`, dashboard URL no longer passes `?token=` |
 | [#9512](https://github.com/openclaw/openclaw/issues/9512) | HIGH | Skill download archive path traversal | `src/agents/skills-install.ts:267,274` |
-| [#9517](https://github.com/openclaw/openclaw/issues/9517) | ~~HIGH~~ FIXED | Gateway canvas host auth bypass | Fixed in PR [#9518](https://github.com/openclaw/openclaw/pull/9518) — new `authorizeCanvasRequest()` at `src/gateway/server-http.ts:92-126` |
+| [#9517](https://github.com/openclaw/openclaw/issues/9517) | ~~HIGH~~ FIXED | Gateway canvas host auth bypass | Fixed in PR [#9518](https://github.com/openclaw/openclaw/pull/9518) — new `authorizeCanvasRequest()` at `src/gateway/server-http.ts:96-130` |
 | [#9627](https://github.com/openclaw/openclaw/issues/9627) | HIGH | Config secrets exposed in JSON after update/doctor | `src/config/io.ts:482-539` — partially mitigated by `redactConfigSnapshot()` (PR #9858) |
 | [#9813](https://github.com/openclaw/openclaw/issues/9813) | HIGH (DUPLICATE #9627) | Gateway expands ${ENV_VAR} on meta writeback | `src/config/io.ts:498` — partially mitigated by `redactConfigSnapshot()` (PR #9858) |
 | [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUPLICATE #9627) | Config write paths resolve ${VAR} to cleartext | Same as #9627/#9813 — `src/config/io.ts:482-539`; partially mitigated by `redactConfigSnapshot()` (PR #9858) |
@@ -37,10 +37,10 @@
 | [#9667](https://github.com/openclaw/openclaw/issues/9667) | INVALID | JWT verification in nonexistent file | `src/auth/jwt.ts` (does not exist) |
 | [#4940](https://github.com/openclaw/openclaw/issues/4940) | MEDIUM | commands.restart bypass via exec tool | `src/agents/bash-tools.exec.ts` (no commands.restart check) |
 | [#5120](https://github.com/openclaw/openclaw/issues/5120) | ~~MEDIUM~~ FIXED | Webhook token accepted via query parameters | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token extraction removed from `src/gateway/hooks.ts` (note: upstream issue still OPEN) |
-| [#5122](https://github.com/openclaw/openclaw/issues/5122) | MEDIUM | readJsonBody() Slowloris DoS (no read timeout) | `src/gateway/hooks.ts:65-111` |
+| [#5122](https://github.com/openclaw/openclaw/issues/5122) | MEDIUM | readJsonBody() Slowloris DoS (no read timeout) | `src/gateway/hooks.ts:111-157` |
 | [#5123](https://github.com/openclaw/openclaw/issues/5123) | MEDIUM | ReDoS in session filter regex | `src/infra/exec-approval-forwarder.ts:70-77` |
 | [#5124](https://github.com/openclaw/openclaw/issues/5124) | MEDIUM | ReDoS in log redaction patterns | `src/logging/redact.ts:47-61` |
-| [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM | Timing attack in non-gateway token comparisons | `src/gateway/server-http.ts:160`, `src/infra/node-pairing.ts:277` |
+| [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM | Timing attack in non-gateway token comparisons | `src/gateway/server-http.ts:164`, `src/infra/node-pairing.ts:277` |
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 | `src/auto-reply/reply/session.ts:87` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | MEDIUM | web_fetch hidden text prompt injection | `src/agents/tools/web-fetch-utils.ts:31-34` |
 | [#8592](https://github.com/openclaw/openclaw/issues/8592) | MEDIUM | No detection of encoded/obfuscated commands | `src/infra/exec-safety.ts:1-44` |
@@ -50,7 +50,7 @@
 | [#8594](https://github.com/openclaw/openclaw/issues/8594) | MEDIUM | No rate limiting on gateway endpoints | `src/gateway/server-constants.ts` (no rate limit controls) |
 | [#9007](https://github.com/openclaw/openclaw/issues/9007) | LOW | Google Places URL path interpolation (skill, not core) | `skills/local-places/src/local_places/google_places.py:238` |
 | [#9065](https://github.com/openclaw/openclaw/issues/9065) | LOW | ~/.openclaw group-writable after sudo install | Operational - code uses `0o700` but sudo bypasses |
-| [#10324](https://github.com/openclaw/openclaw/issues/10324) | MEDIUM | Memory index multi-write lacks transactions | `src/memory/manager.ts:2257-2354` (DELETEs+INSERTs without BEGIN/COMMIT) |
+| [#10324](https://github.com/openclaw/openclaw/issues/10324) | MEDIUM | Memory index multi-write lacks transactions | `src/memory/manager.ts:2198-2301` (DELETEs+INSERTs without BEGIN/COMMIT) |
 | [#10326](https://github.com/openclaw/openclaw/issues/10326) | MEDIUM | Child process stop() lacks SIGKILL escalation | `src/imessage/client.ts:110-131`, `src/signal/daemon.ts:96-100` |
 | [#10330](https://github.com/openclaw/openclaw/issues/10330) | MEDIUM | TOCTOU race in device auth token storage | `src/infra/device-auth-store.ts:92-119` (read+write with no lock) |
 | [#10331](https://github.com/openclaw/openclaw/issues/10331) | MEDIUM | Session store stale cache inside write lock | `src/config/sessions/store.ts:667,729` (partially fixed — `updateSessionStore()` at :575 now uses `skipCache: true`; two callers remain unfixed) |
@@ -152,7 +152,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Verification:**
 - No imports for `authorizeGatewayConnect` or `resolvedAuth` validation in the file
 - Other endpoints (OpenAI, tools-invoke, open-responses) DO call `authorizeGatewayConnect`
-- Plugin HTTP dispatch at `server-http.ts:332` occurs without auth check
+- Plugin HTTP dispatch at `server-http.ts:350` occurs without auth check
 
 ### #6609: Browser Bridge Server Optional Authentication
 
@@ -208,8 +208,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Gateway HTTP server serves Canvas host and A2UI endpoints without enforcing gateway auth, allowing unauthenticated access to canvas files.
 
 **Affected code:**
-- `src/gateway/server-http.ts:356-376` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `:92-126`, PR #9518)
-- `src/gateway/server-http.ts:418-440` - WebSocket upgrade for canvas (now auth-wrapped via `authorizeCanvasRequest()` at `:425`, PR #9518)
+- `src/gateway/server-http.ts:374-394` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `:96-130`, PR #9518)
+- `src/gateway/server-http.ts:436-458` - WebSocket upgrade for canvas (now auth-wrapped via `authorizeCanvasRequest()` at `:443`, PR #9518)
 
 **Verification:**
 - No `authorizeGatewayConnect` call before `canvasHost.handleHttpRequest(req, res)`
@@ -224,7 +224,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** Webhook endpoint accepted authentication tokens via URL query parameters, causing credential leakage through logs, browser history, and Referer headers.
 
-**Fix:** Query token extraction removed entirely from `src/gateway/hooks.ts`. `extractHookToken()` now only accepts `Authorization: Bearer` header and `X-OpenClaw-Token` header. Server returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:150-157`).
+**Fix:** Query token extraction removed entirely from `src/gateway/hooks.ts`. `extractHookToken()` now only accepts `Authorization: Bearer` header and `X-OpenClaw-Token` header. Server returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:154-161`).
 
 ### #4949: Browser Control Server DNS Rebinding
 
@@ -268,7 +268,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** `readJsonBody()` has a body size limit but no read timeout. An attacker can hold connections open indefinitely by sending data one byte at a time (Slowloris attack).
 
-**Affected code:** `src/gateway/hooks.ts:65-111` - size limit present, timeout absent.
+**Affected code:** `src/gateway/hooks.ts:111-157` - size limit present, timeout absent.
 
 ### #5123: ReDoS in Session Filter Regex
 
@@ -299,7 +299,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/gateway/auth.ts:40-45` - `safeEqual` uses `timingSafeEqual` (correct)
-- `src/gateway/server-http.ts:160` - hook token uses direct `!==` (vulnerable)
+- `src/gateway/server-http.ts:164` - hook token uses direct `!==` (vulnerable)
 - `src/infra/node-pairing.ts:277` - node token uses direct `===` (vulnerable)
 - `src/infra/device-pairing.ts:434` - device token uses direct `!==` (vulnerable)
 
@@ -435,7 +435,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** Gateway authentication tokens were passed via URL query parameters (`?token=...`) in dashboard and onboarding flows, exposing credentials through logs, browser history, and Referer headers.
 
-**Fix:** Query token acceptance completely removed. `extractHookToken()` in `src/gateway/hooks.ts:46-63` no longer reads `url.searchParams`. `src/commands/dashboard.ts` no longer constructs `?token=` URLs. `src/commands/onboard-helpers.ts` no longer passes token in URL. Server now returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:150-157`).
+**Fix:** Query token acceptance completely removed. `extractHookToken()` in `src/gateway/hooks.ts:92-109` no longer reads `url.searchParams`. `src/commands/dashboard.ts` no longer constructs `?token=` URLs. `src/commands/onboard-helpers.ts` no longer passes token in URL. Server now returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:154-161`).
 
 ### #9627: Config Secrets Exposed in JSON After Update/Doctor
 
@@ -572,8 +572,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** The `indexFile()` method performs multiple DELETE + INSERT operations across chunks, vector, FTS, and files tables without wrapping them in a database transaction. A crash or concurrent write mid-operation leaves the memory index in an inconsistent state (orphaned vectors, missing chunks, stale file records).
 
 **Affected code:**
-- `src/memory/manager.ts:2257-2354` — `indexFile()` performs 5+ SQL operations (DELETE vector :2273, DELETE FTS :2281, DELETE chunks :2287, INSERT loop :2290-2343, UPSERT files :2344-2353) with **no BEGIN/COMMIT**
-- Contrast: `src/memory/manager.ts:740,752` correctly uses `BEGIN`/`COMMIT` for similar batch operations
+- `src/memory/manager.ts:2198-2301` — `indexFile()` performs 5+ SQL operations (DELETE vector :2222, DELETE FTS :2230, DELETE chunks :2234, INSERT loop :2237-2289, UPSERT files :2291-2300) with **no BEGIN/COMMIT**
+- Contrast: `src/memory/manager.ts:745,757` correctly uses `BEGIN`/`COMMIT` for similar batch operations
 
 ### #10326: Child Process stop() Lacks SIGKILL Escalation
 
