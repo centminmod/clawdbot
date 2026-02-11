@@ -4,7 +4,7 @@
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 11-02-2026 (08:34 AEST)
+> **Last checked:** 11-02-2026 (20:03 AEST)
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
@@ -75,6 +75,9 @@
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH | Sandbox browser bridge started without auth token | `src/agents/sandbox/browser.ts:192` — no `authToken` passed; relates to #6609 |
 | [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH | config.patch bypasses commands.restart restriction | `src/gateway/server-methods/config.ts:330` — `scheduleGatewaySigusr1Restart()` with no `commands.restart` check; contrast `gateway-tool.ts:78` |
 | [#13683](https://github.com/openclaw/openclaw/issues/13683) | HIGH | CLI `config get` returns unredacted secrets to sandboxed agents | `src/cli/config-cli.ts:269-270` — reads `snapshot.config` without `redactConfigObject()`; gateway RPC at `server-methods/config.ts:108` correctly redacts |
+| [#13786](https://github.com/openclaw/openclaw/issues/13786) | HIGH | BlueBubbles webhook auth bypass via loopback proxy trust | `extensions/bluebubbles/src/monitor.ts:1537` — loopback remoteAddress bypasses shared-secret check; relates to #8512 |
+| [#13718](https://github.com/openclaw/openclaw/issues/13718) | HIGH | Unauthenticated Nostr profile API allows remote config tampering | `extensions/nostr/src/nostr-profile-http.ts:322-331` — GET/PUT/POST with no auth; relates to #8512 |
+| [#13937](https://github.com/openclaw/openclaw/issues/13937) | MEDIUM | HTML not escaped in Control UI webchat (XSS) | `ui/` webchat renders raw HTML in messages instead of escaping |
 | [#10659](https://github.com/openclaw/openclaw/issues/10659) | ENHANCEMENT | Feature: Masked secrets to prevent agent reading raw API keys | Enhancement request; relates to #10033 (secrets management) |
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | NOT APPLICABLE | Skill removal without notification | ClawHub platform moderation issue, not a codebase vulnerability |
 | [#11879](https://github.com/openclaw/openclaw/issues/11879) | NOT APPLICABLE | Malicious ClawHub skill exfiltrating to Feishu | Ecosystem/marketplace issue; 13,981 installs; relates to #10890 (Skill Security Framework) |
@@ -732,6 +735,61 @@ All changes take effect immediately via automatic restart.
 - #8591: Env vars via `env`/`printenv` (related: alternate exfiltration path via `process.env`)
 
 **Fix:** Apply `redactConfigObject()` to the value before output in CLI `config get`, or use `redactConfigSnapshot()` on the entire snapshot and read from the redacted copy.
+
+### #13786: BlueBubbles Webhook Auth Bypass via Loopback Proxy Trust
+
+**Severity:** HIGH (CVSS 8.6)
+**CWE:** CWE-288 (Authentication Bypass Using an Alternate Path or Channel)
+
+**Vulnerability:** The BlueBubbles webhook handler unconditionally trusts loopback remote addresses, bypassing the shared-secret check. In same-host reverse-proxy deployments (the documented pattern in `docs/install/exe-dev.md:84`), all external traffic arrives as `127.0.0.1`, so attackers can inject webhook events without knowing the BlueBubbles password.
+
+**Affected code:**
+- `extensions/bluebubbles/src/monitor.ts:1536-1539` — loopback remoteAddress check returns `true` without validating shared secret:
+  ```
+  const remote = req.socket?.remoteAddress ?? "";
+  if (remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1") {
+    return true;
+  }
+  ```
+
+**Root cause overlap:** Same plugin auth gap as #8512 — plugin HTTP handlers dispatched at `src/gateway/server-http.ts:350` without `authorizeGatewayConnect`. However, #13786's loopback trust bypass is an additional BlueBubbles-specific issue that would persist even if global plugin auth were fixed.
+
+**Impact:** Attacker can forge inbound iMessage events (messages, reactions, typing indicators) to trigger agent actions, impersonate senders, and inject commands via forged webhook payloads.
+
+### #13718: Unauthenticated Nostr Profile API Allows Remote Config Tampering
+
+**Severity:** HIGH (CVSS 8.6)
+**CWE:** CWE-306 (Missing Authentication for Critical Function)
+
+**Vulnerability:** The Nostr plugin registers HTTP endpoints for profile management (GET/PUT/POST on `/api/channels/nostr/:accountId/profile`) that accept unauthenticated requests. The PUT path writes attacker-controlled profile data directly to the gateway config file and triggers relay publish operations. No `authorizeGatewayConnect` or any auth check exists in the handler.
+
+**Affected code:**
+- `extensions/nostr/src/nostr-profile-http.ts:322-331` — handlers dispatch without auth:
+  ```
+  if (req.method === "GET" && !isImport) {
+    return await handleGetProfile(accountId, ctx, res);
+  }
+  if (req.method === "PUT" && !isImport) {
+    return await handleUpdateProfile(accountId, ctx, req, res);
+  }
+  ```
+
+**Verification:** Grep for `authorizeGateway` in `nostr-profile-http.ts` returned zero matches.
+
+**Root cause overlap:** Same plugin auth gap as #8512 — concrete config-mutation exploit specific to the Nostr extension.
+
+**Impact:** Remote attacker can read and mutate Nostr channel profile state, persist unauthorized changes to `openclaw.json`, and trigger signed profile publishes to Nostr relays.
+
+### #13937: HTML Not Escaped in Control UI Webchat (XSS)
+
+**Severity:** MEDIUM
+**CWE:** CWE-79 (Cross-Site Scripting)
+
+**Vulnerability:** When HTML content is posted as a message in the Control UI webchat, it is rendered as live HTML rather than escaped as plain text. User-confirmed with screenshot showing rendered `<h1>`, `<p>` tags from a pasted HTML error page.
+
+**Affected code:** The webchat markdown rendering pipeline in `ui/` passes raw HTML through without sanitization (per CommonMark spec, which allows inline HTML). No explicit `innerHTML`/`dangerouslySetInnerHTML` usage found outside test files — the issue is in the markdown-to-HTML rendering configuration.
+
+**Impact:** Stored XSS if messages containing HTML are persisted and displayed to other gateway users. Exploitability is reduced because sending messages typically requires gateway authentication.
 
 ### Notable Non-Core Issues
 
