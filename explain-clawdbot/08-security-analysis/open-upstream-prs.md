@@ -227,8 +227,8 @@
 
 **Changes:**
 - `src/gateway/server-http.ts:96-130` — new `authorizeCanvasRequest()` function
-- `src/gateway/server-http.ts:374-394` — canvas HTTP handler now auth-wrapped
-- `src/gateway/server-http.ts:443` — canvas WebSocket upgrade now auth-wrapped
+- `src/gateway/server-http.ts:393-412` — canvas HTTP handler now auth-wrapped
+- `src/gateway/server-http.ts:461` — canvas WebSocket upgrade now auth-wrapped
 
 **Local Impact:** SYNC NEEDED — local canvas endpoints may still be unauthenticated
 

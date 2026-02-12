@@ -24,7 +24,7 @@
 | [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH | Env vars exposed via shell commands | `src/agents/bash-tools.exec.ts:972,976-980` |
 | [#8590](https://github.com/openclaw/openclaw/issues/8590) | HIGH | Status endpoint exposes sensitive internal info | `src/gateway/server-methods/health.ts:28-31` |
 | [#8696](https://github.com/openclaw/openclaw/issues/8696) | HIGH | Playwright download path traversal | `src/browser/pw-tools-core.downloads.ts:20-24` |
-| [#8776](https://github.com/openclaw/openclaw/issues/8776) | HIGH | soul-evil hook silently hijacks agent | `src/hooks/soul-evil.ts:217-280` |
+| [#8776](https://github.com/openclaw/openclaw/issues/8776) | ~~HIGH~~ FIXED | soul-evil hook silently hijacks agent | Fixed in PR [#14757](https://github.com/openclaw/openclaw/pull/14757) — soul-evil hook completely removed |
 | [#9435](https://github.com/openclaw/openclaw/issues/9435) | ~~HIGH~~ FIXED | Gateway auth token exposed in URL query params | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token acceptance removed from `src/gateway/hooks.ts`, dashboard URL no longer passes `?token=` |
 | [#9512](https://github.com/openclaw/openclaw/issues/9512) | HIGH | Skill download archive path traversal | `src/agents/skills-install.ts:267,274` |
 | [#9517](https://github.com/openclaw/openclaw/issues/9517) | ~~HIGH~~ FIXED | Gateway canvas host auth bypass | Fixed in PR [#9518](https://github.com/openclaw/openclaw/pull/9518) — new `authorizeCanvasRequest()` at `src/gateway/server-http.ts:96-130` |
@@ -71,12 +71,12 @@
 | [#10890](https://github.com/openclaw/openclaw/issues/10890) | ENHANCEMENT | RFC: Skill Security Framework (manifests, signing, sandboxing) | Comprehensive proposal for phased skill security; relates to #9512 (skill path traversal) |
 | [#11437](https://github.com/openclaw/openclaw/issues/11437) | CRITICAL | CWD .env → config path override → plugin code exec via jiti | `src/infra/dotenv.ts:10`, `src/config/paths.ts:87-105`, `src/plugins/config-state.ts:73,194` |
 | [#11434](https://github.com/openclaw/openclaw/issues/11434) | CRITICAL | CWD .env → arbitrary dynamic import via OPENCLAW_BROWSER_CONTROL_MODULE | `src/gateway/server-browser.ts:13-14` — raw `await import(override)` |
-| [#11431](https://github.com/openclaw/openclaw/issues/11431) | CRITICAL | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | `src/hooks/install.ts:237`, `src/plugins/install.ts:281` |
+| [#11431](https://github.com/openclaw/openclaw/issues/11431) | ~~CRITICAL~~ FIXED | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | Fixed in PRs: `92702af7a` (plugins+hooks, Feb 12 sync 1) + [#14659](https://github.com/openclaw/openclaw/pull/14659) (skills, Feb 13 sync 1) — `--ignore-scripts` added to all install commands |
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH | Sandbox browser bridge started without auth token | `src/agents/sandbox/browser.ts:192` — no `authToken` passed; relates to #6609 |
 | [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH | config.patch bypasses commands.restart restriction | `src/gateway/server-methods/config.ts:330` — `scheduleGatewaySigusr1Restart()` with no `commands.restart` check; contrast `gateway-tool.ts:78` |
 | [#13683](https://github.com/openclaw/openclaw/issues/13683) | HIGH | CLI `config get` returns unredacted secrets to sandboxed agents | `src/cli/config-cli.ts:269-270` — reads `snapshot.config` without `redactConfigObject()`; gateway RPC at `server-methods/config.ts:108` correctly redacts |
-| [#13786](https://github.com/openclaw/openclaw/issues/13786) | HIGH | BlueBubbles webhook auth bypass via loopback proxy trust | `extensions/bluebubbles/src/monitor.ts:1537` — loopback remoteAddress bypasses shared-secret check; relates to #8512 |
-| [#13718](https://github.com/openclaw/openclaw/issues/13718) | HIGH | Unauthenticated Nostr profile API allows remote config tampering | `extensions/nostr/src/nostr-profile-http.ts:322-331` — GET/PUT/POST with no auth; relates to #8512 |
+| [#13786](https://github.com/openclaw/openclaw/issues/13786) | ~~HIGH~~ FIXED | BlueBubbles webhook auth bypass via loopback proxy trust | Fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) — loopback bypass removed; all requests require password auth |
+| [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:351-367`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | HIGH | Gateway auth has no rate limiting (CWE-307) | `src/gateway/auth.ts` — no brute-force protection; ~645 attempts/sec; fix PR [#13680](https://github.com/openclaw/openclaw/pull/13680) pending; relates to #8594 |
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | MEDIUM | Session isolation & message attribution failure | Cross-session message leakage between main + remote sessions; raw cron output exposed; relates to #12571 |
@@ -157,7 +157,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Verification:**
 - No imports for `authorizeGatewayConnect` or `resolvedAuth` validation in the file
 - Other endpoints (OpenAI, tools-invoke, open-responses) DO call `authorizeGatewayConnect`
-- Plugin HTTP dispatch at `server-http.ts:350` occurs without auth check
+- Plugin HTTP dispatch at `server-http.ts:368` (now gateway-auth protected for `/api/channels/` routes at `:351-367`, PR #13719)
 
 ### #6609: Browser Bridge Server Optional Authentication
 
@@ -213,8 +213,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Gateway HTTP server serves Canvas host and A2UI endpoints without enforcing gateway auth, allowing unauthenticated access to canvas files.
 
 **Affected code:**
-- `src/gateway/server-http.ts:374-394` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `:96-130`, PR #9518)
-- `src/gateway/server-http.ts:436-458` - WebSocket upgrade for canvas (now auth-wrapped via `authorizeCanvasRequest()` at `:443`, PR #9518)
+- `src/gateway/server-http.ts:393-412` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `:96-130`, PR #9518)
+- `src/gateway/server-http.ts:454-476` - WebSocket upgrade for canvas (now auth-wrapped via `authorizeCanvasRequest()` at `:461`, PR #9518)
 
 **Verification:**
 - No `authorizeGatewayConnect` call before `canvasHost.handleHttpRequest(req, res)`
@@ -399,17 +399,14 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #8776: soul-evil Hook Silently Hijacks Agent
 
-**Severity:** HIGH
+**Status: FIXED** — closed via PR [#14757](https://github.com/openclaw/openclaw/pull/14757) (Feb 13 sync 1)
+
+**Severity:** ~~HIGH~~ FIXED
 **CWE:** CWE-506 (Embedded Malicious Code)
 
-**Vulnerability:** The `soul-evil` hook ships bundled with OpenClaw and can silently replace the agent's SOUL.md (system prompt) content. When activated, it overrides the agent's personality and behavior without explicit user notification.
+**Vulnerability:** The `soul-evil` hook shipped bundled with OpenClaw and could silently replace the agent's SOUL.md (system prompt) content. When activated, it overrode the agent's personality and behavior without explicit user notification.
 
-**Affected code:**
-- `src/hooks/bundled/soul-evil/handler.ts:8-49` - bundled hook handler
-- `src/hooks/soul-evil.ts:217-280` - `applySoulEvilOverride` swaps SOUL.md content
-- `src/hooks/soul-evil.ts:187-216` - `decideSoulEvil` activation logic
-
-**Note:** May be an intentional Easter egg feature, but the security impact (silent system prompt replacement) is real.
+**Fix:** Complete removal of soul-evil hook. Deleted `src/hooks/soul-evil.ts` (280 lines), `src/hooks/soul-evil.test.ts` (252 lines), bundled handler directory (`src/hooks/bundled/soul-evil/`), documentation (`docs/hooks/soul-evil.md`), and package.json references (-981 lines total). Thanks @Imccccc.
 
 ### #9007: Google Places URL Path Interpolation (Skill, Not Core)
 
@@ -729,7 +726,7 @@ All changes take effect immediately via automatic restart.
 
 **Correct implementation (for comparison):**
 - `src/gateway/server-methods/config.ts:107-108` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
-- `src/config/redact-snapshot.ts:48-50` — `redactConfigObject()` is exported and available for use in CLI
+- `src/config/redact-snapshot.ts:67-69` — `redactConfigObject()` is exported and available for use in CLI
 
 **Relationship to existing issues:**
 - #9627: Config *write-back* destroys `${VAR}` references (different attack: disk persistence)
@@ -740,47 +737,25 @@ All changes take effect immediately via automatic restart.
 
 ### #13786: BlueBubbles Webhook Auth Bypass via Loopback Proxy Trust
 
-**Severity:** HIGH (CVSS 8.6)
+**Status: FIXED** — fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) (Feb 13 sync 1)
+
+**Severity:** ~~HIGH~~ FIXED (was CVSS 8.6)
 **CWE:** CWE-288 (Authentication Bypass Using an Alternate Path or Channel)
 
-**Vulnerability:** The BlueBubbles webhook handler unconditionally trusts loopback remote addresses, bypassing the shared-secret check. In same-host reverse-proxy deployments (the documented pattern in `docs/install/exe-dev.md:84`), all external traffic arrives as `127.0.0.1`, so attackers can inject webhook events without knowing the BlueBubbles password.
+**Vulnerability:** The BlueBubbles webhook handler unconditionally trusted loopback remote addresses, bypassing the shared-secret check. In same-host reverse-proxy deployments, all external traffic arrived as `127.0.0.1`, so attackers could inject webhook events without knowing the BlueBubbles password.
 
-**Affected code:**
-- `extensions/bluebubbles/src/monitor.ts:1536-1539` — loopback remoteAddress check returns `true` without validating shared secret:
-  ```
-  const remote = req.socket?.remoteAddress ?? "";
-  if (remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1") {
-    return true;
-  }
-  ```
-
-**Root cause overlap:** Same plugin auth gap as #8512 — plugin HTTP handlers dispatched at `src/gateway/server-http.ts:350` without `authorizeGatewayConnect`. However, #13786's loopback trust bypass is an additional BlueBubbles-specific issue that would persist even if global plugin auth were fixed.
-
-**Impact:** Attacker can forge inbound iMessage events (messages, reactions, typing indicators) to trigger agent actions, impersonate senders, and inject commands via forged webhook payloads.
+**Fix:** Removed the loopback remoteAddress bypass from `extensions/bluebubbles/src/monitor.ts`. All requests now require password authentication regardless of source IP. Test fixtures updated to require authenticated webhooks.
 
 ### #13718: Unauthenticated Nostr Profile API Allows Remote Config Tampering
 
-**Severity:** HIGH (CVSS 8.6)
+**Status: FIXED** — fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) (Feb 13 sync 1)
+
+**Severity:** ~~HIGH~~ FIXED (was CVSS 8.6)
 **CWE:** CWE-306 (Missing Authentication for Critical Function)
 
-**Vulnerability:** The Nostr plugin registers HTTP endpoints for profile management (GET/PUT/POST on `/api/channels/nostr/:accountId/profile`) that accept unauthenticated requests. The PUT path writes attacker-controlled profile data directly to the gateway config file and triggers relay publish operations. No `authorizeGatewayConnect` or any auth check exists in the handler.
+**Vulnerability:** The Nostr plugin registered HTTP endpoints for profile management (GET/PUT/POST on `/api/channels/nostr/:accountId/profile`) that accepted unauthenticated requests. The PUT path wrote attacker-controlled profile data directly to the gateway config file and triggered relay publish operations.
 
-**Affected code:**
-- `extensions/nostr/src/nostr-profile-http.ts:322-331` — handlers dispatch without auth:
-  ```
-  if (req.method === "GET" && !isImport) {
-    return await handleGetProfile(accountId, ctx, res);
-  }
-  if (req.method === "PUT" && !isImport) {
-    return await handleUpdateProfile(accountId, ctx, req, res);
-  }
-  ```
-
-**Verification:** Grep for `authorizeGateway` in `nostr-profile-http.ts` returned zero matches.
-
-**Root cause overlap:** Same plugin auth gap as #8512 — concrete config-mutation exploit specific to the Nostr extension.
-
-**Impact:** Remote attacker can read and mutate Nostr channel profile state, persist unauthorized changes to `openclaw.json`, and trigger signed profile publishes to Nostr relays.
+**Fix:** Gateway now requires `authorizeGatewayConnect` for all `/api/channels/` plugin HTTP routes (`src/gateway/server-http.ts:351-367`). Channel plugin endpoints are gateway-auth protected by default; non-channel plugin routes remain plugin-owned. New `server.plugin-http-auth.test.ts` (174 lines). Also adds UI-side Nostr profile management in `ui/src/ui/app-channels.ts` (+23 lines).
 
 ### #13937: HTML Not Escaped in Control UI Webchat (XSS)
 
