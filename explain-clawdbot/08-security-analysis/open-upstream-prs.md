@@ -4,7 +4,7 @@
 
 > **Status:** These PRs in upstream openclaw/openclaw fix or harden security-related code. Monitor merge status and sync locally when merged.
 >
-> **Last checked:** 12-02-2026 (04:36 AEST)
+> **Last checked:** 12-02-2026 (10:48 AEST)
 
 ### OPEN/DRAFT PRs (monitor for merge)
 
@@ -45,6 +45,8 @@
 | [#14098](https://github.com/openclaw/openclaw/pull/14098) | OPEN | hardening | Sanitize JSON tool-call payload text to prevent leak via Ollama/local providers | — | OPEN/PENDING |
 | [#14061](https://github.com/openclaw/openclaw/pull/14061) | OPEN | security-fix | Docker gateway auth bypass via Host header spoofing — verify client IP matches Docker gateway | — | OPEN/PENDING |
 | [#14029](https://github.com/openclaw/openclaw/pull/14029) | OPEN | security-fix | Pass Twilio stream auth token via `<Parameter>` instead of query string | — | OPEN/PENDING |
+| [#14350](https://github.com/openclaw/openclaw/pull/14350) | OPEN | hardening | Add `--harden` CLI flag for security-hardened gateway mode (loopback bind, token auth, no Tailscale) | — | OPEN/PENDING |
+| [#14318](https://github.com/openclaw/openclaw/pull/14318) | OPEN | hardening | Enforce outbound allowlist on Discord send functions (blocks agent writes to non-allowed channels) | — | OPEN/PENDING |
 | [#14224](https://github.com/openclaw/openclaw/pull/14224) | OPEN | hardening | Telegram member-info action exposes chat administrators (admin enumeration) | — | OPEN/PENDING |
 | [#13894](https://github.com/openclaw/openclaw/pull/13894) | OPEN | hardening | Add manifest scanner for SKILL.md trust analysis (8 threat categories) | — | OPEN/PENDING |
 | [#13876](https://github.com/openclaw/openclaw/pull/13876) | OPEN | hardening | Auth & security enhancements — CLI sync, guard models, config protection | [#13196](https://github.com/openclaw/openclaw/issues/13196), [#13236](https://github.com/openclaw/openclaw/issues/13236) | OPEN/PENDING |
@@ -88,7 +90,7 @@
 | [#11093](https://github.com/openclaw/openclaw/pull/11093) | MERGED | security-fix | Add `sanitizeFilename()` to BlueBubbles attachments | [#10333](https://github.com/openclaw/openclaw/issues/10333) | SYNC NEEDED |
 | [#13182](https://github.com/openclaw/openclaw/pull/13182) | MERGED | hardening | Split oversized security audit files using dot-naming convention | — | ALREADY SYNCED |
 
-**Total:** 72 tracked PRs (11 merged, 59 open, 2 draft)
+**Total:** 74 tracked PRs (11 merged, 61 open, 2 draft)
 
 ### Cross-Reference: PRs and Tracked Issues
 
@@ -127,6 +129,8 @@
 | [#14061](https://github.com/openclaw/openclaw/pull/14061) | (Docker auth bypass) | HIGH | OPEN | Container on same Docker network can spoof `Host: localhost` to bypass `isLocalDirectRequest()` — adds `readDockerGatewayIp()` client IP verification |
 | [#14218](https://github.com/openclaw/openclaw/pull/14218) | [#13765](https://github.com/openclaw/openclaw/issues/13765) | LOW | OPEN | Thinking block sanitization bypass via orphaned user-message repair path in `attempt.ts` |
 | [#14098](https://github.com/openclaw/openclaw/pull/14098) | (tool-call JSON leak) | LOW | OPEN | `stripJsonToolCallText()` prevents Ollama/local providers from leaking raw tool-call JSON to user surfaces |
+| [#14350](https://github.com/openclaw/openclaw/pull/14350) | (security hardening CLI) | MEDIUM | OPEN | `--harden` flag forces loopback bind + token auth + no Tailscale; no equivalent exists locally |
+| [#14318](https://github.com/openclaw/openclaw/pull/14318) | (outbound channel control) | MEDIUM | OPEN | `enforceOutboundAllowlist()` blocks Discord sends to non-allowed channels; local `send.outbound.ts` has zero guards |
 | [#14224](https://github.com/openclaw/openclaw/pull/14224) | (admin enumeration) | LOW | OPEN | Telegram `getChatAdministrators` action — gate inconsistency may default to enabled |
 
 ### #1795: Prevent Auth Bypass Behind Unconfigured Reverse Proxy
