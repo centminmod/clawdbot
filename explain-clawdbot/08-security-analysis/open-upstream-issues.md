@@ -4,7 +4,7 @@
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 12-02-2026 (22:19 AEST)
+> **Last checked:** 13-02-2026 (04:10 AEST)
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
@@ -80,6 +80,7 @@
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | HIGH | Gateway auth has no rate limiting (CWE-307) | `src/gateway/auth.ts` — no brute-force protection; ~645 attempts/sec; fix PR [#13680](https://github.com/openclaw/openclaw/pull/13680) pending; relates to #8594 |
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | MEDIUM | Session isolation & message attribution failure | Cross-session message leakage between main + remote sessions; raw cron output exposed; relates to #12571 |
+| [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (DUPLICATE #9627) | apiKey resolved to plaintext in models.json cache | `src/agents/models-config.ts:126-142` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#10659](https://github.com/openclaw/openclaw/issues/10659) | ENHANCEMENT | Feature: Masked secrets to prevent agent reading raw API keys | Enhancement request; relates to #10033 (secrets management) |
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | NOT APPLICABLE | Skill removal without notification | ClawHub platform moderation issue, not a codebase vulnerability |
 | [#11879](https://github.com/openclaw/openclaw/issues/11879) | NOT APPLICABLE | Malicious ClawHub skill exfiltrating to Feishu | Ecosystem/marketplace issue; 13,981 installs; relates to #10890 (Skill Security Framework) |
@@ -803,6 +804,27 @@ All changes take effect immediately via automatic restart.
 **Impact:** Private conversations in the main session are visible in remote sessions. Agents may respond to "user" messages that the user never sent, creating both privacy and integrity failures.
 
 **Relationship:** Related to #12571 (session isolation leak in cron jobs after ~24h) — different manifestation. #12571 is cron-specific after extended runtime; #14117 is cross-session routing between main and remote sessions. May share root cause in session routing/isolation code.
+
+### #14808: apiKey Resolved to Plaintext in models.json Cache File
+
+**Severity:** MEDIUM (DUPLICATE of #9627/#13683 family)
+**CWE:** CWE-312 (Cleartext Storage of Sensitive Information)
+
+**Vulnerability:** When using `${VAR}` syntax for `apiKey` in `openclaw.json`, OpenClaw resolves the environment variable to plaintext at runtime and writes the resolved value to the agent's `models.json` cache file (`~/.openclaw/agents/main/agent/models.json`). A sandboxed agent with file read access can extract any API key configured via env var substitution.
+
+**Affected code:**
+- `src/agents/models-config.ts:126-130` — `normalizeProviders()` returns provider objects including resolved `apiKey` fields; `JSON.stringify({ providers: normalizedProviders })` serializes them to disk
+- `src/agents/models-config.ts:142` — file written with `mode: 0o600` (correct permissions, owner-only)
+
+**Mitigation:** File has 0o600 permissions (only owner-readable), so external users cannot read it. However, the agent process itself can read the file, and a sandboxed agent with exec access can `cat` the file to extract all provider API keys.
+
+**Relationship to existing issues:**
+- #9627: Config *writeback* destroys `${VAR}` references in `openclaw.json` (same root cause, different file)
+- #13683: CLI `config get` returns unredacted secrets (different path: CLI stdout)
+- #5995: Secrets in session *transcripts* (different path: `.jsonl` files)
+- #8591: Env vars via `env`/`printenv` (different path: `process.env`)
+
+**Proposed fix (from issue):** Strip `apiKey` from provider objects before writing to `models.json`. Resolve credentials at HTTP request time instead of at cache write time.
 
 ### Notable Non-Core Issues
 
