@@ -54,6 +54,7 @@
   - [Skills.sh risks](./05-worst-case-security/skills-sh-risks.md) *(supply chain)*
   - [Prompt injection attacks](./05-worst-case-security/prompt-injection-attacks.md) *(27 examples)*
   - [Misconfiguration examples](./05-worst-case-security/misconfiguration-examples.md)
+  - [Operational gotchas](./05-worst-case-security/operational-gotchas.md) *(Real-world usage patterns)*
   - [AI self-misconfiguration](./05-worst-case-security/ai-self-misconfiguration.md)
 - **Social media coverage:**
   - [Overview](./09-social-media-coverage/README.md)

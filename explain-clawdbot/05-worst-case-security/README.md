@@ -204,4 +204,5 @@ Choose your deployment type and continue to the detailed guide:
 - **[AI Self-Misconfiguration](./ai-self-misconfiguration.md)** - When AI modifies its own security config
 - **[Prompt Injection Attacks](./prompt-injection-attacks.md)** - 30 attack examples with data exfiltration
 - **[Misconfiguration Examples](./misconfiguration-examples.md)** - Real mistakes and how to fix them
+- **[Operational Gotchas](./operational-gotchas.md)** - Real-world usage patterns that go wrong (from external articles)
 - **[Incident Response Playbook](./incident-response.md)** - What to do when things go wrong
