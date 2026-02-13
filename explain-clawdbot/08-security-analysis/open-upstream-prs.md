@@ -149,7 +149,7 @@
 | [#13182](https://github.com/openclaw/openclaw/pull/13182) | (refactor) | LOW | MERGED | Barrel re-export at `src/security/audit-extra.ts` → `.sync.ts` + `.async.ts` |
 | [#13680](https://github.com/openclaw/openclaw/pull/13680) | (CWE-307 brute force) | MEDIUM | CLOSED | Superseded by #15035 (MERGED); rate limiter at `src/gateway/auth-rate-limit.ts` ALREADY SYNCED |
 | [#13521](https://github.com/openclaw/openclaw/pull/13521) | [#13116](https://github.com/openclaw/openclaw/issues/13116) (HIGH) | HIGH | OPEN | Fail-close webhook secret enforcement; related to #13170 and #13117 |
-| [#13474](https://github.com/openclaw/openclaw/pull/13474) | [#13466](https://github.com/openclaw/openclaw/issues/13466) (LOW) | LOW | MERGED | Split `hooks:` → `hooks.webhooks:` + `hooks.internal:` at `audit-extra.sync.ts:294-317`; merged 2026-02-13; ALREADY SYNCED |
+| [#13474](https://github.com/openclaw/openclaw/pull/13474) | [#13466](https://github.com/openclaw/openclaw/issues/13466) (LOW) | LOW | MERGED | Split `hooks:` → `hooks.webhooks:` + `hooks.internal:` at `audit-extra.sync.ts:389-391`; merged 2026-02-13; ALREADY SYNCED |
 | [#8718](https://github.com/openclaw/openclaw/pull/8718) | [#8696](https://github.com/openclaw/openclaw/issues/8696) (HIGH) | HIGH | OPEN | Sanitizes download filenames to prevent path traversal (CWE-22) |
 | [#13787](https://github.com/openclaw/openclaw/pull/13787) | [#13786](https://github.com/openclaw/openclaw/issues/13786) (HIGH) | HIGH | MERGED | Loopback bypass in BlueBubbles webhook auth (CVSS 8.6); related to #11742; merged 2026-02-12 |
 | [#13777](https://github.com/openclaw/openclaw/pull/13777) | [#13683](https://github.com/openclaw/openclaw/issues/13683) (HIGH) | HIGH | OPEN | Sandboxed agent credential exfil via `openclaw config get` — no redaction in CLI path |
@@ -246,8 +246,8 @@
 
 **Changes:**
 - `src/security/audit-extra.ts` — converted to barrel re-export (31 lines)
-- `src/security/audit-extra.sync.ts` — config-only checks (559 lines)
-- `src/security/audit-extra.async.ts` — I/O-based checks (668 lines)
+- `src/security/audit-extra.sync.ts` — config-only checks (884 lines)
+- `src/security/audit-extra.async.ts` — I/O-based checks (933 lines)
 
 **Local Impact:** ALREADY SYNCED — barrel re-export at `src/security/audit-extra.ts:1-31`
 
@@ -335,7 +335,7 @@
 - `src/security/audit-extra.sync.ts` — splits `hooks:` summary into `hooks.webhooks:` and `hooks.internal:` in attack surface output
 - `src/security/audit-extra.sync.test.ts` — updated test coverage
 
-**Local Impact:** ALREADY SYNCED — `hooks.webhooks:` at `src/security/audit-extra.sync.ts:315` and `hooks.internal:` at line 317 already present in local code
+**Local Impact:** ALREADY SYNCED — `hooks.webhooks:` at `src/security/audit-extra.sync.ts:389` and `hooks.internal:` at line 391 already present in local code
 
 ### #15390: OC-02 Block sessions_spawn via HTTP Gateway + Fix ACP Auto-Approval
 
@@ -374,7 +374,7 @@
 **Note:** This PR was closed without merge. The same vulnerability is still addressed by [#8186](https://github.com/openclaw/openclaw/pull/8186) which remains OPEN.
 
 **Local Validation:**
-- `src/agents/sandbox/docker.ts:248-249` — `cfg.setupCommand` passed directly to `["exec", "-i", name, "sh", "-lc", cfg.setupCommand]` with only `?.trim()` check
+- `src/agents/sandbox/docker.ts:338-339` — `cfg.setupCommand` passed directly to `["exec", "-i", name, "sh", "-lc", cfg.setupCommand]` with only `?.trim()` check
 - No `validateSetupCommand` function exists locally
 
 **Local Impact:** NOT AFFECTED (PR closed) — vulnerability remains; monitor #8186 for fix.
@@ -493,9 +493,9 @@
 - `foldMarkerText()` regex expanded to match all new Unicode ranges
 
 **Local Validation:**
-- `src/security/external-content.ts:91-106` — `foldMarkerChar()` only handles fullwidth ASCII and fullwidth angle brackets (FF1C/FF1E)
-- No `ANGLE_BRACKET_MAP` lookup table exists locally
-- `foldMarkerText()` regex at line 109 only matches `[\uFF21-\uFF3A\uFF41-\uFF5A\uFF1C\uFF1E]`
+- `src/security/external-content.ts:89-125` — `foldMarkerChar()` now handles fullwidth ASCII and 12 Unicode angle bracket homoglyphs via `ANGLE_BRACKET_MAP`
+- `ANGLE_BRACKET_MAP` lookup table at lines 90-103 covers FF1C/FF1E, 2329/232A, 3008/3009, 2039/203A, 27E8/27E9, FE64/FE65
+- `foldMarkerText()` regex at line 122 matches `[\uFF21-\uFF3A\uFF41-\uFF5A\uFF1C\uFF1E\u2329\u232A\u3008\u3009\u2039\u203A\u27E8\u27E9\uFE64\uFE65]`
 
 **Local Impact:** SYNC NEEDED — local code only handles fullwidth homoglyphs; 10 additional Unicode angle bracket variants can bypass sanitization
 

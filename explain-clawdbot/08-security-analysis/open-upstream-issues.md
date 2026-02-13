@@ -20,8 +20,8 @@
 | [#6609](https://github.com/openclaw/openclaw/issues/6609) | HIGH | Browser bridge server optional authentication | `src/browser/bridge-server.ts:33-42` |
 | [#8054](https://github.com/openclaw/openclaw/issues/8054) | ~~HIGH~~ FIXED | Type coercion `"undefined"` credentials | Fixed upstream (COMPLETED 2026-02-13); `src/wizard/onboarding.gateway-config.ts:206` |
 | [#8516](https://github.com/openclaw/openclaw/issues/8516) | HIGH | Browser download/trace endpoints arbitrary file write | `src/browser/routes/agent.act.ts:447-480` |
-| [#8586](https://github.com/openclaw/openclaw/issues/8586) | HIGH | Configurable bypass allows unrestricted command exec | `src/agents/bash-tools.exec.ts:938-947,1278` |
-| [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH (WONTFIX) | Env vars exposed via shell commands | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/bash-tools.exec.ts:972,976-980` |
+| [#8586](https://github.com/openclaw/openclaw/issues/8586) | HIGH | Configurable bypass allows unrestricted command exec | `src/agents/bash-tools.exec.ts:955-962,1288` |
+| [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH (WONTFIX) | Env vars exposed via shell commands | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/bash-tools.exec.ts:982,987-991` |
 | [#8590](https://github.com/openclaw/openclaw/issues/8590) | HIGH | Status endpoint exposes sensitive internal info | `src/gateway/server-methods/health.ts:28-31` |
 | [#8696](https://github.com/openclaw/openclaw/issues/8696) | HIGH | Playwright download path traversal | `src/browser/pw-tools-core.downloads.ts:20-24` |
 | [#8776](https://github.com/openclaw/openclaw/issues/8776) | ~~HIGH~~ FIXED | soul-evil hook silently hijacks agent | Fixed in PR [#14757](https://github.com/openclaw/openclaw/pull/14757) — soul-evil hook completely removed |
@@ -32,8 +32,8 @@
 | [#9813](https://github.com/openclaw/openclaw/issues/9813) | HIGH (DUPLICATE #9627) | Gateway expands ${ENV_VAR} on meta writeback | `src/config/io.ts:498` — partially mitigated by `redactConfigSnapshot()` (PR #9858) |
 | [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:482-539` |
 | [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:96-106` |
-| [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID | validateHostEnv skips baseEnv (by design) | `src/agents/bash-tools.exec.ts:972-980` |
-| [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID | Fullwidth marker bypass (fold is length-preserving) | `src/security/external-content.ts:112-150` |
+| [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID | validateHostEnv skips baseEnv (by design) | `src/agents/bash-tools.exec.ts:982-991` |
+| [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID | Fullwidth marker bypass (fold is length-preserving) | `src/security/external-content.ts:127-167` |
 | [#9667](https://github.com/openclaw/openclaw/issues/9667) | INVALID | JWT verification in nonexistent file | `src/auth/jwt.ts` (does not exist) |
 | [#4940](https://github.com/openclaw/openclaw/issues/4940) | MEDIUM | commands.restart bypass via exec tool | `src/agents/bash-tools.exec.ts` (no commands.restart check) |
 | [#5120](https://github.com/openclaw/openclaw/issues/5120) | ~~MEDIUM~~ FIXED | Webhook token accepted via query parameters | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token extraction removed from `src/gateway/hooks.ts` (note: upstream issue still OPEN) |
@@ -65,9 +65,9 @@
 | [#4807](https://github.com/openclaw/openclaw/issues/4807) | LOW | Sandbox setup script missing from npm package | `package.json` files array excludes `scripts/`; `scripts/sandbox-common-setup.sh` not shipped |
 | [#3359](https://github.com/openclaw/openclaw/issues/3359) | ~~MEDIUM~~ MITIGATED | npm audit vulns in tar/hono | `package.json` pnpm.overrides: tar@7.5.7, hono@4.11.8 (above vuln thresholds) |
 | [#3086](https://github.com/openclaw/openclaw/issues/3086) | ~~LOW~~ FIXED | Windows ACL false flag as mode=666 | `src/security/audit-fs.ts:86-116` + `src/security/windows-acl.ts` — icacls-based ACL checks implemented |
-| [#10521](https://github.com/openclaw/openclaw/issues/10521) | INVALID | Security audit flags claude-opus-4-6 as below 4.5 | `src/security/audit-extra.sync.ts:167-172` (`isClaude45OrHigher` regex) correctly matches `claude-opus-4-6` in current code (2026.2.6) |
+| [#10521](https://github.com/openclaw/openclaw/issues/10521) | INVALID | Security audit flags claude-opus-4-6 as below 4.5 | `src/security/audit-extra.sync.ts:177` (`isClaude45OrHigher` regex) correctly matches `claude-opus-4-6` in current code (2026.2.6) |
 | [#10033](https://github.com/openclaw/openclaw/issues/10033) | ENHANCEMENT (WONTFIX) | Feature: secrets management integration | Closed upstream as NOT_PLANNED (2026-02-13); current state: plaintext creds with 0o600 perms |
-| [#10927](https://github.com/openclaw/openclaw/issues/10927) | ENHANCEMENT | Random IDs for external content wrapper tags | `src/security/external-content.ts:47-48` — static tags; `replaceMarkers()` at `:112-152` already sanitizes injected markers |
+| [#10927](https://github.com/openclaw/openclaw/issues/10927) | ENHANCEMENT | Random IDs for external content wrapper tags | `src/security/external-content.ts:47-48` — static tags; `replaceMarkers()` at `:127-167` already sanitizes injected markers |
 | [#10890](https://github.com/openclaw/openclaw/issues/10890) | ENHANCEMENT | RFC: Skill Security Framework (manifests, signing, sandboxing) | Comprehensive proposal for phased skill security; relates to #9512 (skill path traversal) |
 | [#11437](https://github.com/openclaw/openclaw/issues/11437) | CRITICAL | CWD .env → config path override → plugin code exec via jiti | `src/infra/dotenv.ts:10`, `src/config/paths.ts:87-105`, `src/plugins/config-state.ts:73,194` |
 | [#11434](https://github.com/openclaw/openclaw/issues/11434) | CRITICAL | CWD .env → arbitrary dynamic import via OPENCLAW_BROWSER_CONTROL_MODULE | `src/gateway/server-browser.ts:13-14` — raw `await import(override)` |
@@ -372,8 +372,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** When `elevatedMode=full` is configured, all security controls on command execution are bypassed. The `bypassApprovals` flag skips `resolveExecApprovals` entirely, allowing any command without user confirmation.
 
 **Affected code:**
-- `src/agents/bash-tools.exec.ts:938-940,945-947,951-953` - `elevatedMode=full` sets security to "full", ask to "off"
-- `src/agents/bash-tools.exec.ts:1278` - `bypassApprovals` skips all approval checks
+- `src/agents/bash-tools.exec.ts:955-957,961-963,967-969` - `elevatedMode=full` sets security to "full", ask to "off"
+- `src/agents/bash-tools.exec.ts:1288` - `bypassApprovals` skips all approval checks
 
 ### #8590: Status Endpoint Exposes Sensitive Internal Info
 
@@ -396,7 +396,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Full `process.env` is passed as the base environment to child processes. An agent can run `env` or `printenv` to dump all environment variables, including API keys and secrets.
 
 **Affected code:**
-- `src/agents/bash-tools.exec.ts:972,976-980` - full `process.env` passed to child spawn
+- `src/agents/bash-tools.exec.ts:982,987-991` - full `process.env` passed to child spawn
 - `src/agents/bash-tools.exec.ts:61-78` - `DANGEROUS_HOST_ENV_VARS` blocks injection INTO env, but doesn't filter what children can READ
 
 ### #8592: No Detection of Encoded/Obfuscated Commands
@@ -503,7 +503,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability claimed:** `validateHostEnv` only validates agent-supplied `params.env` but not the host's own `baseEnv`, potentially allowing dangerous environment variables.
 
 **Affected code:**
-- `src/agents/bash-tools.exec.ts:972-980` - validation scoped to `params.env` only
+- `src/agents/bash-tools.exec.ts:982-991` - validation scoped to `params.env` only
 
 **Our analysis:** `baseEnv = coerceEnv(process.env)` is the **host's own environment**, not untrusted input. The code comment at line 969 states: "We validate BEFORE merging to prevent any dangerous vars from entering the stream." Validating `baseEnv` would **break the gateway** — the host always has `PATH` set, which `validateHostEnv` explicitly rejects (it's designed to block agents from injecting `PATH` overrides). The validation boundary is intentionally scoped to untrusted agent-supplied variables. This is a Qodo AI automated finding.
 
@@ -515,7 +515,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability claimed:** Fullwidth Unicode characters (e.g., `＜` U+FF1C) could bypass marker detection in `replaceMarkers`, causing index misalignment when mapping between folded and original strings.
 
 **Affected code:**
-- `src/security/external-content.ts:112-150` - `replaceMarkers` and `foldMarkerChar`
+- `src/security/external-content.ts:127-167` - `replaceMarkers` and `foldMarkerChar`
 
 **Our analysis:** `foldMarkerChar` maps each fullwidth character to a single ASCII character (`\uFF21`→`A`, `\uFF1C`→`<`, etc.). Both fullwidth characters and their ASCII replacements are **single BMP UTF-16 code units**, so the fold is **length-preserving**. Indices from `pattern.regex.exec(folded)` map correctly back to `content.slice()` positions on the original string. The reporter suggests "perform all operations on folded string" — this would **lose original content** between markers, which is the opposite of correct behavior. This is a Qodo AI automated finding.
 
@@ -654,7 +654,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Proposal:** Add random 16-char IDs to external content wrapper tags (`<<<EXTERNAL_UNTRUSTED_CONTENT id="a7f3b2c1...">>>`) to prevent tag spoofing by malicious content.
 
-**Current defense:** `replaceMarkers()` at `src/security/external-content.ts:112-152` already sanitizes injected `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` tags (case-insensitive, including fullwidth Unicode variants) to `[[MARKER_SANITIZED]]`. The existing defense is functional; random IDs would add defense-in-depth and improve content correlation for debugging.
+**Current defense:** `replaceMarkers()` at `src/security/external-content.ts:127-167` already sanitizes injected `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` tags (case-insensitive, including fullwidth Unicode variants) to `[[MARKER_SANITIZED]]`. The existing defense is functional; random IDs would add defense-in-depth and improve content correlation for debugging.
 
 **Related:** #8027 (web_fetch hidden text prompt injection)
 
@@ -750,7 +750,7 @@ All changes take effect immediately via automatic restart.
 
 **Correct implementation (for comparison):**
 - `src/gateway/server-methods/config.ts:107-108` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
-- `src/config/redact-snapshot.ts:67-69` — `redactConfigObject()` is exported and available for use in CLI
+- `src/config/redact-snapshot.ts:273-275` — `redactConfigObject()` is exported and available for use in CLI
 
 **Relationship to existing issues:**
 - #9627: Config *write-back* destroys `${VAR}` references (different attack: disk persistence)
