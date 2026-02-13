@@ -4,7 +4,7 @@
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 14-02-2026 (01:31 AEST)
+> **Last checked:** 14-02-2026 (03:10 AEST)
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
@@ -83,6 +83,7 @@
 | [#11738](https://github.com/openclaw/openclaw/issues/11738) | HIGH | Canvas authorization IP co-tenancy bypass | `src/gateway/server-http.ts:100-105` — `hasAuthorizedWsClientForIp()` trusts any request from same IP as authenticated WS client; bypasses auth in NAT/proxy environments |
 | [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH | HTTP API session keys lack ownership validation | `src/gateway/http-utils.ts:71-73` — `x-openclaw-session-key` header accepted as-is with no ownership check; cross-user session access in multi-user deployments |
 | [#11024](https://github.com/openclaw/openclaw/issues/11024) | HIGH | Gmail push endpoint embeds auth token in URL query string | `src/hooks/gmail-setup-utils.ts:315` — push endpoint constructed as `?token=<secret>`; same CWE-598 as fixed #9435/#5120 but Gmail-specific path |
+| [#11811](https://github.com/openclaw/openclaw/issues/11811) | HIGH | MSTeams attachment fetch follows redirects before allowlist checks (SSRF) | `extensions/msteams/src/attachments/download.ts:93` — `fetchFn(params.url)` with default redirect behavior; allowlist checked on initial URL only |
 | [#14875](https://github.com/openclaw/openclaw/issues/14875) | ~~HIGH~~ FIXED | Feishu channel hardcodes CommandAuthorized bypassing access groups | Fixed upstream (COMPLETED 2026-02-13); `extensions/feishu/src/bot.ts:818,906` |
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | MEDIUM | Session isolation & message attribution failure | Cross-session message leakage between main + remote sessions; raw cron output exposed; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:126-142` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
@@ -919,6 +920,26 @@ All changes take effect immediately via automatic restart.
 **Affected code:**
 - `src/hooks/gmail-setup-utils.ts:315` — URL constructed with `?token=<secret>` parameter
 - Same vulnerability class as previously fixed #9435 (gateway auth in URL) and #5120 (webhook query token), but in Gmail-specific code path that was missed
+
+### #11811: MSTeams Attachment Fetch Follows Redirects Before Allowlist Checks (SSRF)
+
+**Severity:** HIGH
+**CWE:** CWE-918 (Server-Side Request Forgery)
+
+**Vulnerability:** The MSTeams attachment downloader's `fetchWithAuthFallback()` performs the initial fetch with default redirect behavior (follows redirects automatically). If an allowed URL redirects to an internal/disallowed host, the HTTP client follows the redirect and returns the response without checking the redirect target against the allowlist.
+
+**Affected code:**
+- `extensions/msteams/src/attachments/download.ts:93` — `await fetchFn(params.url)` with default redirect behavior (no `redirect: "manual"`)
+- Line 94-95: if `firstAttempt.ok`, returns immediately — redirect target URL was never validated
+- Line 111-113: the authenticated retry correctly uses `redirect: "manual"`, but line 93 (unauthenticated first attempt) does not
+- `extensions/msteams/src/attachments/shared.ts` — `isUrlAllowed()` only applied to initial URL at download.ts:237, not redirect targets
+
+**Verification:**
+- Line 237 calls `isUrlAllowed(candidate.url, allowHosts)` before `fetchWithAuthFallback` — initial URL is validated
+- But `fetch()` at line 93 follows 30x redirects automatically — redirect target is not validated
+- Contrast with line 111-113: authenticated path correctly uses `redirect: "manual"` and validates redirect at line 119
+
+**Note:** Requires MSTeams channel to be enabled AND a compromised or attacker-controlled host in the `allowHosts` configuration. Relates to tracked #13274 (SSRF guard IPv6 bypass) but different attack vector: redirect-following vs DNS resolution.
 
 ### #11202: Model Catalog with Resolved apiKey in LLM Prompt Context
 
