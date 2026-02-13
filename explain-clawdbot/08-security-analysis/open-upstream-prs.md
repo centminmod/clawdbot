@@ -116,13 +116,13 @@
 
 | PR # | Fixes Issue(s) | Issue Severity | PR Status | Notes |
 |------|---------------|----------------|-----------|-------|
-| [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:93-113` |
+| [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:96-117` |
 | [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:11` checks gateway bind + auth |
 | [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:42-69` |
 | [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:446-447` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
-| [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:102-136` wraps canvas/A2UI endpoints |
+| [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:109-150` wraps canvas/A2UI endpoints |
 | [#9529](https://github.com/openclaw/openclaw/pull/9529) | [#3277](https://github.com/openclaw/openclaw/issues/3277) (HIGH) | HIGH | OPEN | Validates archive entries against Zip Slip path traversal |
 | [#9513](https://github.com/openclaw/openclaw/pull/9513) | [#9512](https://github.com/openclaw/openclaw/issues/9512) (HIGH) | HIGH | OPEN | Adds path traversal checks to skill download archive extraction |
 | [#11054](https://github.com/openclaw/openclaw/pull/11054) | [#6609](https://github.com/openclaw/openclaw/issues/6609) (HIGH) | HIGH | OPEN | Adds auth token to sandbox browser bridge |
@@ -151,9 +151,9 @@
 | [#14843](https://github.com/openclaw/openclaw/pull/14843) | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM | CLOSED | `apiKey` credential exposure in `models.json` cache; author banned; duplicate #14836 still OPEN |
 | [#14665](https://github.com/openclaw/openclaw/pull/14665) | (homoglyph bypass) | MEDIUM | OPEN | Additional Unicode angle bracket homoglyphs bypass `foldMarkerChar()` at `external-content.ts:89-107` |
 | [#14662](https://github.com/openclaw/openclaw/pull/14662) | (XSS in control UI) | MEDIUM | OPEN | `JSON.stringify` in `<script>` tag at `control-ui.ts:173-179` does not escape `<` |
-| [#14661](https://github.com/openclaw/openclaw/pull/14661) | (canvas IP auth) | MEDIUM | OPEN | Canvas IP-based auth fallback at `server-http.ts:129` has no private network restriction; Greptile flags IPv6 `fe80::/10` misclass |
+| [#14661](https://github.com/openclaw/openclaw/pull/14661) | (canvas IP auth) | MEDIUM | OPEN | Canvas IP-based auth fallback at `server-http.ts:146` has no private network restriction; Greptile flags IPv6 `fe80::/10` misclass |
 | [#14655](https://github.com/openclaw/openclaw/pull/14655) | [#14586](https://github.com/openclaw/openclaw/issues/14586) | LOW | CLOSED | `includeSecrets` for config.get; author banned; no replacement PR identified |
-| [#14814](https://github.com/openclaw/openclaw/pull/14814) | (timing attack) | LOW | OPEN | Hook token at `server-http.ts:164` uses `!==` while `auth.ts:256` uses `safeEqual()` |
+| [#14814](https://github.com/openclaw/openclaw/pull/14814) | (timing attack) | LOW | OPEN | Hook token at `server-http.ts:247` uses `!==` while `auth.ts:256` uses `safeEqual()` |
 | [#14098](https://github.com/openclaw/openclaw/pull/14098) | (tool-call JSON leak) | LOW | OPEN | `stripJsonToolCallText()` prevents Ollama/local providers from leaking raw tool-call JSON to user surfaces |
 | [#14350](https://github.com/openclaw/openclaw/pull/14350) | (security hardening CLI) | MEDIUM | OPEN | `--harden` flag forces loopback bind + token auth + no Tailscale; no equivalent exists locally |
 | [#14318](https://github.com/openclaw/openclaw/pull/14318) | (outbound channel control) | MEDIUM | OPEN | `enforceOutboundAllowlist()` blocks Discord sends to non-allowed channels; local `send.outbound.ts` has zero guards |
@@ -179,11 +179,11 @@
 **Closes:** (addresses unconfigured reverse proxy auth bypass)
 
 **Changes:**
-- `src/gateway/server/ws-connection/message-handler.ts:203-204` — detects untrusted proxy headers
-- `src/gateway/auth.ts:93-113` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
+- `src/gateway/server/ws-connection/message-handler.ts:210-216` — detects untrusted proxy headers
+- `src/gateway/auth.ts:96-117` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
 - `src/security/audit.ts` — audit detection for misconfigured proxy setup
 
-**Local Impact:** ALREADY SYNCED — `isLocalDirectRequest()` at `src/gateway/auth.ts:106-113` checks `hasForwarded` and `remoteIsTrustedProxy`
+**Local Impact:** ALREADY SYNCED — `isLocalDirectRequest()` at `src/gateway/auth.ts:96-117` checks `hasForwarded` and `remoteIsTrustedProxy`
 
 ### #2016: Add Gateway Network Exposure Check to Doctor
 
@@ -242,7 +242,7 @@
 
 **Changes:**
 - `src/gateway/hooks.ts` — `extractHookToken()` no longer reads `url.searchParams` for token
-- `src/gateway/server-http.ts:193-199` — returns HTTP 400 when `?token=` query parameter is present
+- `src/gateway/server-http.ts:236-243` — returns HTTP 400 when `?token=` query parameter is present
 - `src/commands/dashboard.ts` — no longer constructs `?token=` URLs
 - `src/commands/onboard-helpers.ts` — no longer passes token in URL
 
@@ -255,9 +255,9 @@
 **Closes:** [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH — canvas host auth bypass)
 
 **Changes:**
-- `src/gateway/server-http.ts:102-136` — new `authorizeCanvasRequest()` function
-- `src/gateway/server-http.ts:444-462` — canvas HTTP handler now auth-wrapped
-- `src/gateway/server-http.ts:512` — canvas WebSocket upgrade now auth-wrapped
+- `src/gateway/server-http.ts:109-150` — new `authorizeCanvasRequest()` function
+- `src/gateway/server-http.ts:514-531` — canvas HTTP handler now auth-wrapped
+- `src/gateway/server-http.ts:584` — canvas WebSocket upgrade now auth-wrapped
 
 **Local Impact:** SYNC NEEDED — local canvas endpoints may still be unauthenticated
 
