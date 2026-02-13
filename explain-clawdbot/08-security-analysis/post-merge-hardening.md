@@ -39,10 +39,15 @@
 - [Feb 12 sync 1 (32 commits)](#post-merge-hardening-feb-12-sync-1-32-upstream-commits)
 - [Feb 12 sync 2 (Notes)](#post-merge-notes-feb-12-sync-2-6-upstream-commits)
 - [Feb 12 sync 3 (8 commits)](#post-merge-hardening-feb-12-sync-3-8-upstream-commits)
+- [Feb 12 sync 5 (33 commits)](#post-merge-hardening-feb-12-sync-5-33-commits)
 - [Feb 13 sync 1 (35 commits)](#post-merge-hardening-feb-13-sync-1-35-upstream-commits)
+- [Feb 13 sync 2 (17 commits)](#post-merge-hardening-feb-13-sync-2-17-commits)
+- [Feb 13 sync 3 (26 commits)](#post-merge-hardening-feb-13-sync-3-26-commits)
 - [Feb 13 sync 4 (20 commits)](#post-merge-hardening-feb-13-sync-4-20-upstream-commits)
 - [Feb 13 sync 5 (35 commits)](#post-merge-hardening-feb-13-sync-5-35-upstream-commits)
+- [Feb 13 sync 6 (35 commits)](#post-merge-hardening-feb-13-sync-6-35-upstream-commits)
 - [Feb 14 sync 1 (16 commits)](#post-merge-hardening-feb-14-sync-1-16-upstream-commits)
+- [Feb 14 sync 2 (16 commits)](#post-merge-hardening-feb-14-sync-2-16-upstream-commits)
 - [Feb 14 sync 3 (35 commits)](#post-merge-hardening-feb-14-sync-3-35-upstream-commits)
 - [Feb 14 sync 4 (21 commits)](#post-merge-hardening-feb-14-sync-4-21-upstream-commits)
 
@@ -1197,29 +1202,31 @@ Thanks @jogvan-k.
 
 2. **`86e4fe0a7`** (PR [#15406](https://github.com/openclaw/openclaw/pull/15406)) — **Auth: land codex oauth onboarding flow:** Adds OpenAI Codex OAuth provider onboarding (`src/commands/openai-codex-oauth.ts`, 183 lines with 98-line test file). Uses existing OAuth infrastructure with proper state verification. No security posture change — follows established patterns.
 
-**LOW — Windows Environment Injection Hardening (3):**
+**LOW — Windows Environment Injection Hardening (5):**
 
 3. **`e97aa4542`** — **fix(windows): handle undefined environment variables in runCommandWithTimeout:** `src/process/exec.ts:103-108` now filters `undefined` values from environment entries and coerces all values to strings via `String(value)`. Prevents Windows `spawn()` from receiving literal `undefined` as environment variable value, which could cause unpredictable behavior.
 
 4. **`23b1b5156`** — **fix(windows): normalize env entries for spawn:** `src/process/exec.ts:103` normalizes environment via intermediate `mergedEnv` variable before filtering. Ensures consistent environment merging across platforms.
 
-5. **`d7fb01afa`** — **fix(windows): resolve command execution and binary detection issues:** Windows-specific fixes for command execution and binary detection in `src/process/exec.ts`. Relates to shell invocation consistency on Windows platform.
+5. **`d7fb01afa`** — **fix(windows): resolve command execution and binary detection issues:** Three changes: (a) `src/process/exec.ts:119` adds `shell: true` on Windows for consistent command execution; (b) `src/agents/skills/config.ts:99-114` and `src/hooks/config.ts:68-83` — `hasBinary()` now checks Windows executable extensions (`.exe`, `.cmd`, `.bat`) in addition to extensionless binaries. Prevents binary detection failures on Windows where executables require extensions.
+
+6. **`ff0ce3284`** + **`1c36bec97`** — **Apply Copilot suggestions for PATHEXT support:** Refines `hasBinary()` in both `src/agents/skills/config.ts:102-107` and `src/hooks/config.ts:71-78` to read `PATHEXT` environment variable (falling back to `.EXE;.CMD;.BAT;.COM`) instead of hardcoded extensions. Respects system-configured executable extensions.
 
 **NON-SECURITY (notable):**
 
-6. **`397011bd7`** (PR [#11770](https://github.com/openclaw/openclaw/pull/11770)) — **fix: increase image tool maxTokens from 512 to 4096:** `src/agents/tools/image-tool.ts` now uses `maxTokens: 4096` for image descriptions. Token budget adjustment — no security posture change.
+7. **`397011bd7`** (PR [#11770](https://github.com/openclaw/openclaw/pull/11770)) — **fix: increase image tool maxTokens from 512 to 4096:** `src/agents/tools/image-tool.ts` now uses `maxTokens: 4096` for image descriptions. Token budget adjustment — no security posture change.
 
-7. **`b3b49bed8`** (PR [#14941](https://github.com/openclaw/openclaw/pull/14941)) — **fix(slack): override video/* MIME to audio/* for voice messages:** Slack-specific MIME type handling fix for voice messages. No security relevance.
+8. **`b3b49bed8`** (PR [#14941](https://github.com/openclaw/openclaw/pull/14941)) — **fix(slack): override video/* MIME to audio/* for voice messages:** Slack-specific MIME type handling fix for voice messages. No security relevance.
 
-8. **`3d921b615`** (PR [#13421](https://github.com/openclaw/openclaw/pull/13421)) — **fix(slack): apply limit parameter to emoji-list action:** Ensures `limit` parameter is applied to Slack emoji list requests. API correctness fix.
+9. **`3d921b615`** (PR [#13421](https://github.com/openclaw/openclaw/pull/13421)) — **fix(slack): apply limit parameter to emoji-list action:** Ensures `limit` parameter is applied to Slack emoji list requests. API correctness fix.
 
-9. **`7ec60d644`** — **fix: use relayAbort helper for addEventListener to preserve AbortError reason:** Signal handling improvement in WebSocket code.
+10. **`7ec60d644`** — **fix: use relayAbort helper for addEventListener to preserve AbortError reason:** Signal handling improvement in WebSocket code.
 
-10. **`5ac8d1d2b`** + **`d9c582627`** — **perf: use .abort.bind() instead of arrow closures to prevent memory leaks:** Memory leak fix for AbortSignal usage. 7174-related.
+11. **`5ac8d1d2b`** + **`d9c582627`** — **perf: use .abort.bind() instead of arrow closures to prevent memory leaks:** Memory leak fix for AbortSignal usage. 7174-related.
 
-11. **`1eccfa893`** — **perf(test): trim duplicate e2e suites and harden signal hooks:** Test cleanup and hardening.
+12. **`1eccfa893`** — **perf(test): trim duplicate e2e suites and harden signal hooks:** Test cleanup and hardening.
 
-12. **`45b9aad0f`** — **fix(imessage): prevent rpc spawn in tests:** Test infrastructure fix.
+13. **`45b9aad0f`** — **fix(imessage): prevent rpc spawn in tests:** Test infrastructure fix.
 
 **Line number shifts in this sync:** `ws-connection.ts` +35 lines (sanitizeLogValue function + imports): old 6-10→21-25, old 21→42 (sanitizeLogValue insertion), old 179-186→214-221 (close handler sanitized variables). All references updated in documentation.
 
