@@ -18,8 +18,11 @@ import {
   collectHooksHardeningFindings,
   collectIncludeFilePermFindings,
   collectInstalledSkillsCodeSafetyFindings,
+  collectMinimalProfileOverrideFindings,
   collectModelHygieneFindings,
+  collectNodeDenyCommandPatternFindings,
   collectSmallModelRiskFindings,
+  collectSandboxDockerNoopFindings,
   collectPluginsTrustFindings,
   collectSecretsInConfigFindings,
   collectPluginsCodeSafetyFindings,
@@ -596,7 +599,9 @@ async function collectChannelSecurityFindings(params: {
         detail:
           "Multiple DM senders currently share the main session, which can leak context across users.",
         remediation:
-          'Set session.dmScope="per-channel-peer" (or "per-account-channel-peer" for multi-account channels) to isolate DM sessions per sender.',
+          "Run: " +
+          formatCliCommand('openclaw config set session.dmScope "per-channel-peer"') +
+          ' (or "per-account-channel-peer" for multi-account channels) to isolate DM sessions per sender.',
       });
     }
   };
@@ -980,6 +985,9 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
   findings.push(...collectHooksHardeningFindings(cfg));
+  findings.push(...collectSandboxDockerNoopFindings(cfg));
+  findings.push(...collectNodeDenyCommandPatternFindings(cfg));
+  findings.push(...collectMinimalProfileOverrideFindings(cfg));
   findings.push(...collectSecretsInConfigFindings(cfg));
   findings.push(...collectModelHygieneFindings(cfg));
   findings.push(...collectSmallModelRiskFindings({ cfg, env }));
