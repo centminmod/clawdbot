@@ -312,7 +312,7 @@ Previously, the gateway host merged `params.env` without sanitization. As of PR 
 - Validation function at `src/agents/bash-tools.exec-runtime.ts:54` (`validateHostEnv`)
 - Enforcement at `src/agents/bash-tools.exec.ts:294-295` (validates before env merge at `:298`)
 
-On the node host, there is an explicit blocklist (`src/node-host/invoke.ts:44-174` — was `src/node-host/runner.ts:166-175`):
+On the node host, there is an explicit blocklist (`src/node-host/invoke.ts:45-175` — was `src/node-host/runner.ts:166-175`):
 ```
 const blockedEnvKeys = new Set(["NODE_OPTIONS", "PYTHONHOME", "PYTHONPATH", "PERL5LIB", "PERL5OPT", "RUBYOPT"]);
 const blockedEnvPrefixes = ["DYLD_", "LD_"];
@@ -597,7 +597,7 @@ Six security-relevant commits:
 
 - **`d6c088910`** — Credential protection via .gitignore: Adds `memory/` and `.agent/*.json` (excluding `workflows/`) to gitignore, preventing accidental commit of agent credentials and session data. Defense-in-depth for credential hygiene.
 
-- **`ea237115a`** — CLI flag handling refinement: Passes `--disable-warning=ExperimentalWarning` as Node CLI argument instead of via NODE_OPTIONS environment variable (fixes npm pack compatibility). Defense-in-depth for env var handling—NOT directly related to audit claim #8 (LD_PRELOAD/NODE_OPTIONS injection), which is already mitigated via blocklists in `src/node-host/invoke.ts:44-174` (was `src/node-host/runner.ts:166-175`) and `src/agents/bash-tools.exec-runtime.ts:32-50` (was `src/agents/bash-tools.exec.ts:61-78`) (PR #12). Thanks @18-RAJAT.
+- **`ea237115a`** — CLI flag handling refinement: Passes `--disable-warning=ExperimentalWarning` as Node CLI argument instead of via NODE_OPTIONS environment variable (fixes npm pack compatibility). Defense-in-depth for env var handling—NOT directly related to audit claim #8 (LD_PRELOAD/NODE_OPTIONS injection), which is already mitigated via blocklists in `src/node-host/invoke.ts:45-175` (was `src/node-host/runner.ts:166-175`) and `src/agents/bash-tools.exec-runtime.ts:32-50` (was `src/agents/bash-tools.exec.ts:61-78`) (PR #12). Thanks @18-RAJAT.
 
 - **`93b450349`** — Session state hygiene: Clears stale token metrics (totalTokens, inputTokens, outputTokens, contextTokens) when starting new sessions via /new or /reset. Prevents misleading context usage display from previous sessions.
 
@@ -726,7 +726,7 @@ One security-adjacent commit (reliability/hardening focus, continues cron race c
 | Severity | Commit | Description |
 |----------|--------|-------------|
 | **HIGH** | `730f86dd5` (PR [#11755](https://github.com/openclaw/openclaw/pull/11755)) | **Device pairing + phone control plugins** — New gateway surface area for device onboarding. Default-deny plugin policy mitigates risk; no auth bypass found. |
-| **MODERATE** | `456bd5874` (PR [#12125](https://github.com/openclaw/openclaw/pull/12125)) | **Structural home dir resolution** — `src/config/paths.ts:87-105` reorganized; strengthens defense against path traversal (Audit 1 Claim 6). |
+| **MODERATE** | `456bd5874` (PR [#12125](https://github.com/openclaw/openclaw/pull/12125)) | **Structural home dir resolution** — `src/config/paths.ts:88-106` reorganized; strengthens defense against path traversal (Audit 1 Claim 6). |
 | **MODERATE** | `db137dd65` (PR [#12091](https://github.com/openclaw/openclaw/pull/12091)) | **OPENCLAW_HOME respected for all internal paths** — Consistent path resolution via `src/config/paths.ts`. |
 | **MODERATE** | `0cf93b8fa` (PR [#12283](https://github.com/openclaw/openclaw/pull/12283)) | **Post-compaction amnesia fix for injected messages** — Transcript integrity improvement; injected system messages survive compaction. |
 | **LOW-MODERATE** | `d85f0566a` | **Thread-clear and Telegram retry guards** — Tightened guard conditions prevent race-condition edge cases. |
@@ -957,6 +957,12 @@ No line shifts. No new CVEs.
 ### Post-Merge Hardening (Feb 15 sync 5) — 30 upstream commits
 
 **Security relevance: HIGH** — 11 security-relevant commits. **Shell injection prevention** (`9dce3d8bf`, `66d7178f2`): `writeClaudeCliKeychainCredentials()` and keychain read in `src/agents/cli-credentials.ts:383-437` switched from `execSync` (shell) to `execFileSync` (no shell), preventing `$()` and backtick expansion in OAuth token values. **Addresses Audit 2 Claim 7.** **Webhook routing hardening** (`188c4cd07`, `61d59a802`): bluebubbles, zalo, and googlechat monitors reject ambiguous webhook target matches. Related to Audit 1 Claim 7. **Discovery routing + TLS pins** (`d583782ee`, 17 files): Android, iOS, macOS gateway clients hardened with TLS pinning and discovery validation. **CLI cleanup scoping** (`eb60e2e1b`, `6084d13b9`): kill signals restricted to owned child PIDs. **Nostr profile guards** (`3e0e78f82`): relates to GHSA-mv9j-6xhh-g383. **Feishu media URL hardening** (`5b4121d60`): relates to GHSA-wfp2-v9c7-fh79. **Config value redaction** (`d3428053d`): skills status output redaction. 3 new advisories: GHSA-mv9j-6xhh-g383 (HIGH), GHSA-3m3q-x3gj-f79x (MEDIUM), GHSA-g27f-9qjv-22pm (LOW). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-5.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 6) — 30 upstream commits
+
+**Security relevance: HIGH** — 10 security-relevant commits. **System.run rawCommand/argv consistency** (`cb3290fca`): new `validateSystemRunCommandConsistency()` in `src/infra/system-run-command.ts` prevents approval bypass via mismatched rawCommand/argv; gateway calls validation at `node-invoke-system-run-approval.ts:143`. Addresses Audit 2 Claim 1. **Tlon Urbit SSRF hardening** (`bfa7d21e9`, 18 files): new `base-url.ts` validates URLs, blocks private networks by default; `allowPrivateNetwork` flag requires user consent. Addresses Audit 2 Claim 4. **BlueBubbles LFI hardening** (`71f357d94`): path normalization + `mediaLocalRoots` allowlist in `media-send.ts` (157 lines); `O_NOFOLLOW` + realpath re-validation prevents symlink attacks. **Voice-call webhook hardening** chain (`29b587e73` + `ff11d8793`): Telnyx fails closed without public key; Twilio signatures enforced even in ngrok loopback mode. Addresses Audit 1 Claim 7. **Mobile TLS trust-on-first-use** (`054366dea`, 16 files): Android + iOS require explicit user confirmation before trusting new TLS certificates. **SSRF + traversal regression tests** (`7cc6add9b`, `09e216008`). **Webchat NO_REPLY filtering** (`baa3bf270`): strips internal control token from visible output. 1 new advisory: GHSA-pchc-86f6-8758 (HIGH — BlueBubbles webhook auth bypass). Line shifts: `paths.ts:87-105` → `88-106`, `invoke.ts:44-174` → `45-175`. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-6.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 

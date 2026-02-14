@@ -149,7 +149,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-163`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-31`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:16-44`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
-| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:294-295`). Node-host has blocklist (`src/node-host/invoke.ts:44-174`). Requires human approval + localhost + no sandbox. |
+| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:294-295`). Node-host has blocklist (`src/node-host/invoke.ts:45-175`). Requires human approval + localhost + no sandbox. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 
@@ -594,6 +594,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 15 sync 5) — 30 upstream commits
 
 **Security relevance: HIGH** — Shell injection prevention in keychain credential write/read (`9dce3d8bf`, `66d7178f2` — Audit 2 Claim 7). Webhook routing hardening for bluebubbles, zalo, googlechat (`188c4cd07`, `61d59a802`). Discovery routing + TLS pins across Android/iOS/macOS (17 files, `d583782ee`). CLI cleanup scoped to owned child PIDs (`eb60e2e1b`, `6084d13b9`). Nostr profile mutation guards (`3e0e78f82` — GHSA-mv9j-6xhh-g383). Feishu media URL hardening (`5b4121d60`). Config value redaction in skills status (`d3428053d`). 3 new advisories added. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-5.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 6) — 30 upstream commits
+
+**Security relevance: HIGH** — System.run rawCommand/argv consistency enforcement (`cb3290fca` — Audit 2 Claim 1). Tlon Urbit SSRF hardening with `allowPrivateNetwork` flag (`bfa7d21e9` — Audit 2 Claim 4). BlueBubbles LFI path hardening with `mediaLocalRoots` allowlist (`71f357d94`). Voice-call webhook fail-closed chain (`29b587e73` Telnyx + `ff11d8793` Twilio ngrok — Audit 1 Claim 7). Mobile TLS trust-on-first-use (`054366dea`, 16 files). SSRF + traversal regression tests (`7cc6add9b`, `09e216008`). Webchat NO_REPLY token filtering (`baa3bf270`). 1 new advisory: GHSA-pchc-86f6-8758 (HIGH). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-6.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
