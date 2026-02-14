@@ -44,7 +44,7 @@
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 | `src/auto-reply/reply/session.ts:87` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | MEDIUM | web_fetch hidden text prompt injection | `src/agents/tools/web-fetch-utils.ts:59-61` |
 | [#8592](https://github.com/openclaw/openclaw/issues/8592) | MEDIUM | No detection of encoded/obfuscated commands | `src/infra/exec-safety.ts:1-44` |
-| [#8588](https://github.com/openclaw/openclaw/issues/8588) | MEDIUM | Sensitive config files accessible when sandbox is home dir | `src/agents/sandbox/context.ts:39-46` (workspaceAccess=rw) |
+| [#8588](https://github.com/openclaw/openclaw/issues/8588) | MEDIUM | Sensitive config files accessible when sandbox is home dir | `src/agents/sandbox/context.ts:42-49` (workspaceAccess=rw) |
 | [#8589](https://github.com/openclaw/openclaw/issues/8589) | LOW | Sandbox file read lacks content filtering | `src/agents/pi-tools.read.ts:286-302` (no redaction on read) |
 | [#8593](https://github.com/openclaw/openclaw/issues/8593) | MEDIUM | chat.send handler lacks input length validation | `src/gateway/protocol/schema/logs-chat.ts:34-45` |
 | [#8594](https://github.com/openclaw/openclaw/issues/8594) | MEDIUM (WONTFIX) | No rate limiting on gateway endpoints | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-constants.ts` (no rate limit controls) |
@@ -187,11 +187,11 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/browser/bridge-server.ts:24` - `authToken?: string` (optional parameter)
-- `src/browser/bridge-server.ts:33-42` - Auth middleware only added IF token provided
+- `src/browser/bridge-server.ts:32-51` - Auth now required; loopback check + express setup with abort handling
 
 **Verification:**
-- `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:192-200` WITHOUT `authToken` parameter
-- Browser bridge runs unauthenticated in sandbox context
+- `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:215-225` WITH `authToken` and `authPassword` parameters (fixed in this sync)
+- Bridge auth registry at `src/browser/bridge-auth-registry.ts` manages ephemeral port auth
 
 ### #8696: Playwright Download Path Traversal
 

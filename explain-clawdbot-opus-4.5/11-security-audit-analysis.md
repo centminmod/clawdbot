@@ -920,6 +920,14 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated by nodes-tool approval flow, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 1) — 38 upstream commits
+
+**Security relevance: CRITICAL-HIGH** — **CRITICAL:** Gateway node invoke approval bypass fix (GHSA-gv46-4xfq-jv58) — 4-commit chain (`0af76f5f0`, `c15946274`, `a7af646fd`, `318379cdb`) adds allowlist-based param sanitization (`node-invoke-sanitize.ts`), system.run approval binding to device identity, and full request matching. New `node-invoke-system-run-approval.ts` (237 lines). **HIGH:** Sandbox bridge auth enforcement (tracked issue #6609) — 3-commit chain (`af50b914a`, `4711a943e`, `6dd6bce99`) adds `bridge-auth-registry.ts`, centralized `http-auth.ts` with timing-safe comparison, and mandatory auth for sandbox browser bridges. **HIGH:** Dangerous tool centralization + audit warning (GHSA-943q-mwmv-hhvh) — new `dangerous-tools.ts` with `DEFAULT_GATEWAY_HTTP_TOOL_DENY` and `DANGEROUS_ACP_TOOLS` constants; audit escalates to critical when `gateway.tools.allow` re-enables denied tools on non-loopback. **HIGH:** Trusted-proxy auth mode (`1fb52b4d7` — 28 files) — new `"trusted-proxy"` gateway auth mode delegating to reverse proxy, with 4 new audit checks. **MEDIUM:** ACP permission hardening (`153a7644e`, `bb1c3dfe1`) — tighter safe-kind inference and non-read/search permission prompting. Breaking change: moltbot legacy state/config support removed (`3b56a6252`). ReplyToMode defaults changed from "first" to "off" across channels.
+
+**Line shifts:** `net.ts` +55, `auth.ts` +116, `audit.ts` +104, `zod-schema.ts` +21, `types.gateway.ts` +32, `workspace.ts` +2, `server.ts` -65 (auth extracted), `sandbox/browser.ts` +23.
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 ---
 
 ## Recommended Hardening Measures
