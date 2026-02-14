@@ -9,7 +9,7 @@
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
 | [#8512](https://github.com/openclaw/openclaw/issues/8512) | CRITICAL | Plugin HTTP routes bypass gateway authentication | `src/gateway/server/plugins-http.ts:17-59` |
-| [#3277](https://github.com/openclaw/openclaw/issues/3277) | HIGH | Path validation bypass via `startsWith` prefix | `src/infra/archive.ts:86,120` - `validateArchiveEntryPath()` + `resolveCheckedOutPath()` (hardened Feb 15 sync 2) |
+| [#3277](https://github.com/openclaw/openclaw/issues/3277) | HIGH | Path validation bypass via `startsWith` prefix | `src/infra/archive.ts:119,153` - `validateArchiveEntryPath()` + `resolveCheckedOutPath()` (hardened Feb 15 sync 2) |
 | [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH | Browser control server DNS rebinding | `src/browser/server.ts:133` - auth middleware at `:117-124` mitigates but no Host header validation |
 | [#4950](https://github.com/openclaw/openclaw/issues/4950) | HIGH | Arbitrary JS execution via browser evaluate (default on) | `src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true` |
 | [#4995](https://github.com/openclaw/openclaw/issues/4995) | HIGH | iMessage dmPolicy auto-responds with pairing codes | `src/imessage/monitor/monitor-provider.ts:184,342-381` |
@@ -56,7 +56,7 @@
 | [#10331](https://github.com/openclaw/openclaw/issues/10331) | ~~MEDIUM~~ FIXED | Session store stale cache inside write lock | Fixed upstream (COMPLETED 2026-02-14); `src/config/sessions/store.ts:667,729` |
 | [#10333](https://github.com/openclaw/openclaw/issues/10333) | ~~MEDIUM~~ FIXED | BlueBubbles filename multipart header injection | Fixed in PR [#11093](https://github.com/openclaw/openclaw/pull/11093) — `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:26-30` |
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | HIGH | Weak UUID: Math.random() fallback + tool call IDs | `ui/src/ui/uuid.ts:23-33` (fallback), `src/auto-reply/reply/get-reply-inline-actions.ts:191` (toolCallId) |
-| [#7139](https://github.com/openclaw/openclaw/issues/7139) | MEDIUM | Default config: sandbox off, plaintext creds | `src/agents/sandbox/config.ts:147` (mode="off"), gateway loopback is safe; creds 0o600 |
+| [#7139](https://github.com/openclaw/openclaw/issues/7139) | MEDIUM | Default config: sandbox off, plaintext creds | `src/agents/sandbox/config.ts:166` (mode="off"), gateway loopback is safe; creds 0o600 |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM | Orphaned tool_use blocks from backgrounded exec | `src/agents/session-transcript-repair.ts:166-318` (reactive repair, not proactive) |
 | [#11900](https://github.com/openclaw/openclaw/issues/11900) | MEDIUM | Context files (USER.md, SOUL.md) loaded for all senders | `src/agents/bootstrap-files.ts:43-60` — no `senderIsOwner` check; `attempt.ts:192` calls unconditionally |
 | [#12571](https://github.com/openclaw/openclaw/issues/12571) | MEDIUM | Session isolation leak in cron jobs after ~24h | `src/cron/service/jobs.ts` — isolated sessions leak to main session after extended runtime |
@@ -109,7 +109,7 @@
 
 ### #7139: Default Config — Sandbox Disabled, Plaintext Credentials
 
-**Sandbox defaults to "off"** at `src/agents/sandbox/config.ts:147`:
+**Sandbox defaults to "off"** at `src/agents/sandbox/config.ts:166`:
 
 ```
 mode: agentSandbox?.mode ?? agent?.mode ?? "off"
@@ -122,9 +122,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** `startsWith(params.destDir)` is bypassable when paths share prefixes (e.g., `/tmp/foo` vs `/tmp/foobar`). Tar extraction has zero path validation.
 
 **Affected code:**
-- `src/infra/archive.ts:86` - `validateArchiveEntryPath()` now validates all entry paths (hardened Feb 15 sync 2)
-- `src/infra/archive.ts:120` - `resolveCheckedOutPath()` ensures output stays within dest dir
-- `src/infra/archive.ts:168-220` - tar extraction with `validateArchiveEntryPath()` filter + symlink rejection
+- `src/infra/archive.ts:119` - `validateArchiveEntryPath()` now validates all entry paths (hardened Feb 15 sync 2)
+- `src/infra/archive.ts:153` - `resolveCheckedOutPath()` ensures output stays within dest dir
+- `src/infra/archive.ts:362-414` - tar extraction with `validateArchiveEntryPath()` filter + symlink rejection
 
 ### #5052: Config Validation Silently Drops Security Settings
 
@@ -571,7 +571,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/agents/sandbox/context.ts:39-46` - `workspaceAccess === "rw"` uses `agentWorkspaceDir` as sandbox root
 - `src/agents/sandbox-paths.ts:33-47` - path escape protection only, no sensitive dir exclusion
-- `src/agents/sandbox/config.ts:149` - default `workspaceAccess: "none"` (safe)
+- `src/agents/sandbox/config.ts:168` - default `workspaceAccess: "none"` (safe)
 
 **Note:** Default configuration is SAFE. Only manifests with explicit non-default workspace + rw config.
 
@@ -987,7 +987,7 @@ All changes take effect immediately via automatic restart.
 **Severity:** MEDIUM
 **CWE:** CWE-22 (Path Traversal)
 
-**Vulnerability:** `resolvePatchPath()` has two code paths. When `sandboxRoot` is set, it calls `assertSandboxPath()` (secure). When `sandboxRoot` is `undefined` (gateway/non-sandboxed mode), it falls through to `resolvePathFromCwd()` which accepts absolute paths and normalizes `../` via `path.resolve()` with zero containment checks. Default sandbox mode is "off" (`src/agents/sandbox/config.ts:147`).
+**Vulnerability:** `resolvePatchPath()` has two code paths. When `sandboxRoot` is set, it calls `assertSandboxPath()` (secure). When `sandboxRoot` is `undefined` (gateway/non-sandboxed mode), it falls through to `resolvePathFromCwd()` which accepts absolute paths and normalizes `../` via `path.resolve()` with zero containment checks. Default sandbox mode is "off" (`src/agents/sandbox/config.ts:166`).
 
 **Affected code:**
 - `src/agents/apply-patch.ts:215-236` — `resolvePatchPath()` function

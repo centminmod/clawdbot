@@ -329,7 +329,7 @@ openclaw config set tools.elevated false
 **Severity:** 🟠 HIGH
 **Applicability:** Self-hosted
 
-OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config.ts:39-81`). But every hardened default can be overridden via config — meaning an AI (or a human) can systematically dismantle the sandbox one setting at a time.
+OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config.ts:54-97`). But every hardened default can be overridden via config — meaning an AI (or a human) can systematically dismantle the sandbox one setting at a time.
 
 #### 4a. Network Isolation Removal
 
@@ -354,7 +354,7 @@ OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config
 
 **Even worse:** `"host"` shares the host's network namespace directly — no isolation at all.
 
-Source: `src/agents/sandbox/docker.ts:245` — `args.push("--network", params.cfg.network)`
+Source: `src/agents/sandbox/docker.ts:263` — `args.push("--network", params.cfg.network)`
 
 #### 4b. Linux Capabilities Restoration
 
@@ -379,9 +379,9 @@ Source: `src/agents/sandbox/docker.ts:245` — `args.push("--network", params.cf
 
 With capabilities restored, a container escape via kernel exploits becomes significantly easier.
 
-**Note:** The `--security-opt no-new-privileges` flag is **hardcoded** and always applied (`src/agents/sandbox/docker.ts:259`). This cannot be disabled via config and prevents SUID binaries from gaining elevated privileges — a genuine defense-in-depth measure.
+**Note:** The `--security-opt no-new-privileges` flag is **hardcoded** and always applied (`src/agents/sandbox/docker.ts:277`). This cannot be disabled via config and prevents SUID binaries from gaining elevated privileges — a genuine defense-in-depth measure.
 
-Source: `src/agents/sandbox/docker.ts:256-258` — iterates `capDrop` array to build `--cap-drop` flags
+Source: `src/agents/sandbox/docker.ts:274-276` — iterates `capDrop` array to build `--cap-drop` flags
 
 #### 4c. Read-Only Root Filesystem Disabled
 
@@ -404,7 +404,7 @@ Source: `src/agents/sandbox/docker.ts:256-258` — iterates `capDrop` array to b
 - Write persistent files that survive container restarts (if volumes are mounted)
 - Create SUID binaries (though `no-new-privileges` limits exploitation)
 
-Source: `src/agents/sandbox/docker.ts:238` — `if (params.cfg.readOnlyRoot) args.push("--read-only")`
+Source: `src/agents/sandbox/docker.ts:256` — `if (params.cfg.readOnlyRoot) args.push("--read-only")`
 
 #### 4d. Workspace Access Escalation
 
@@ -426,7 +426,7 @@ Source: `src/agents/sandbox/docker.ts:238` — `if (params.cfg.readOnlyRoot) arg
 
 With `"rw"`, the sandboxed agent can modify files on the host filesystem — potentially overwriting config files, scripts, or source code outside the sandbox.
 
-Source: `src/agents/sandbox/docker.ts:322-332` — workspace mount with optional `:ro` suffix
+Source: `src/agents/sandbox/docker.ts:340-350` — workspace mount with optional `:ro` suffix
 
 #### 4e. Dangerous Bind Mounts
 
@@ -450,9 +450,9 @@ Source: `src/agents/sandbox/docker.ts:322-332` — workspace mount with optional
 - `/:/host:rw` — mounts the **entire host filesystem** read-write into the container. Complete host compromise.
 - `/var/run/docker.sock` — gives the container access to the Docker daemon. The sandboxed agent can now create new privileged containers, escape the sandbox entirely, and control the host.
 
-Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:55`), so per-agent overrides add to — not replace — the global list.
+Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:70`), so per-agent overrides add to — not replace — the global list.
 
-Source: `src/agents/sandbox/docker.ts:296-300` — iterates `binds` array to build `-v` flags
+Source: `src/agents/sandbox/docker.ts:314-318` — iterates `binds` array to build `-v` flags
 
 #### 4f. Resource Limits Removed
 
@@ -478,7 +478,7 @@ Source: `src/agents/sandbox/docker.ts:296-300` — iterates `binds` array to bui
 
 These are availability attacks, not confidentiality or integrity attacks — but on a shared host they can take down the gateway and other services.
 
-Source: `src/agents/sandbox/docker.ts:279-293` — resource limit flags
+Source: `src/agents/sandbox/docker.ts:294-313` — resource limit flags
 
 #### 4g. Custom DNS for Network Redirection
 
@@ -501,7 +501,7 @@ Source: `src/agents/sandbox/docker.ts:279-293` — resource limit flags
 
 Requires `network` to not be `"none"` — this attack only works when network isolation has already been weakened (4a).
 
-Source: `src/agents/sandbox/docker.ts:266-274` — DNS and extra hosts flags
+Source: `src/agents/sandbox/docker.ts:284-293` — DNS and extra hosts flags
 
 #### 4h. Security Profile Removal
 
@@ -521,7 +521,7 @@ Source: `src/agents/sandbox/docker.ts:266-274` — DNS and extra hosts flags
 
 **What blank values do:** Depending on Docker's handling, this may disable the default seccomp profile that blocks ~44 dangerous syscalls (including `mount`, `reboot`, `kexec_load`). Without seccomp filtering, a container has access to a wider kernel attack surface.
 
-Source: `src/agents/sandbox/docker.ts:260-264` — seccomp and AppArmor `--security-opt` flags
+Source: `src/agents/sandbox/docker.ts:278-283` — seccomp and AppArmor `--security-opt` flags
 
 #### Combined "Full Sandbox Dismantle" Example
 

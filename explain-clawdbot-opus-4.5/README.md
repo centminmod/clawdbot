@@ -142,7 +142,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 | # | Claim | Verdict | Explanation |
 |---|-------|---------|-------------|
-| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container (not host) (`src/agents/sandbox/docker.ts:248-249`). Config changes require gateway auth. Container has `no-new-privileges`. Real risk: Medium. |
+| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container (not host) (`src/agents/sandbox/docker.ts:356-357`). Config changes require gateway auth. Container has `no-new-privileges`. Real risk: Medium. |
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks validation (`src/agents/tools/nodes-tool.ts:344-347`), but writes to paired node device, not gateway host. Requires node pairing approval. Real risk: Low-Medium. |
 | 3 | Log traversal via `logs.tail` | **False** | `LogsTailParamsSchema` has `additionalProperties: false` with only `cursor`, `limit`, `maxBytes`. File path from `getResolvedLoggerSettings().file` (config), not user input. |
 | 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:209-247`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:120-142`). |
@@ -576,6 +576,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 15 sync 2) — 30 upstream commits
 
 **Security relevance: HIGH** — Archive extraction hardening (zip slip prevention, `resolvePathWithinRoot()` for browser downloads), hooks/plugin confinement chain (4 commits), npm spec validation, media payload bounds, gateway scope clearing, macOS deep link hardening. Addresses tracked issues #3277, #8696, #8516. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-2.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 3) — 30 upstream commits
+
+**Security relevance: HIGH** — OAuth CSRF fix (OC-25: `3967ece62`), browser CSRF mutation guard (`b566b09f8`), base64 pre-decode size validation (`31791233d`), archive extraction resource limits (`d3ee5deb8` + `4c7838e3c`), Telegram/Google Chat allowlist auth hardening (`e3b432e48`, `c8424bf29`), sandbox browser bind mount separation (`cb9a5e1cb`), sandbox config hash detection (`1f1fc095a`). **Addresses Audit 1 Claim 2** (OAuth CSRF). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-3.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 

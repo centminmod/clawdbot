@@ -183,7 +183,7 @@ All 8 claims were verified against the source code. None are exploitable as desc
 
 **Verdict: Partially true, heavily overstated.**
 
-The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:248-249`):
+The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:356-357`):
 ```
 await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
 ```
@@ -935,6 +935,14 @@ No line shifts. No new CVEs.
 **Line shifts:** `archive.ts` restructured, `tmp-openclaw-dir.ts` +7, `pw-tools-core.downloads.ts` +27, `agent.act.ts` +3, `input-files.ts` +3/+30/+63, `config/io.ts` -29 (backup rotation extracted), `validation.ts` +4, `skills-install.ts` +61, `signal-install.ts` +97.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated by browser path confinement, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 3) — 30 upstream commits
+
+**Security relevance: HIGH** — 11 security-relevant commits in this batch. **OAuth CSRF fix** (`3967ece62`, OC-25): explicit `state !== expectedState` validation in `src/agents/chutes-oauth.ts` — previously catch block fabricated matching state values. **Addresses Audit 1 Claim 2.** **Browser CSRF mutation guard** (`b566b09f8`): new `src/browser/csrf.ts` middleware blocks cross-origin POST/PUT/PATCH/DELETE on loopback routes via Origin/Referer/Sec-Fetch-Site checking. **Base64 pre-decode sizing** (`31791233d`): `estimateBase64DecodedBytes()` in `src/media/base64.ts` validates size before `Buffer.from()` to prevent memory exhaustion DoS. **Archive extraction limits** (`d3ee5deb8` + `4c7838e3c` + `5f4b29145`): centralized limits (`maxArchiveBytes=256MB`, `maxEntries=50K`, `maxExtractedBytes=512MB`, `maxEntryBytes=256MB`), budget tracking via `createExtractBudgetTransform()`, path traversal tests for absolute tar paths. Strengthens Audit 2 Claim 2. **Channel auth hardening** (`e3b432e48`, `c8424bf29`): Telegram and Google Chat deprecate `users/<email>` — require numeric sender IDs. **Sandbox isolation** (`cb9a5e1cb`): separate `browser.binds` config for browser containers. (`1f1fc095a`): config hash detection for stale browser containers.
+
+**Line shifts:** `docker.ts` all refs +18 (new user/env params), `config.ts` all refs +19 (new browser config functions), `audit-extra.async.ts` 770-933→675-850 (include scan extracted), `run.ts` hook section +10, `archive.ts` 86-220→119-414 (limits/budgets added).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
 ---
 
