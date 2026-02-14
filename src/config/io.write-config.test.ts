@@ -40,6 +40,10 @@ function restoreHomeEnv(snapshot: HomeEnvSnapshot) {
 describe("config io write", () => {
   let fixtureRoot = "";
   let fixtureCount = 0;
+  const silentLogger = {
+    warn: () => {},
+    error: () => {},
+  };
 
   beforeAll(async () => {
     fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-config-io-"));
@@ -86,6 +90,7 @@ describe("config io write", () => {
       const io = createConfigIO({
         env: {} as NodeJS.ProcessEnv,
         homedir: () => home,
+        logger: silentLogger,
       });
 
       const snapshot = await io.readConfigFileSnapshot();
@@ -144,6 +149,7 @@ describe("config io write", () => {
       const io = createConfigIO({
         env: { OPENAI_API_KEY: "sk-secret" } as NodeJS.ProcessEnv,
         homedir: () => home,
+        logger: silentLogger,
       });
 
       const snapshot = await io.readConfigFileSnapshot();
@@ -199,6 +205,7 @@ describe("config io write", () => {
       const io = createConfigIO({
         env: { DISCORD_USER_ID: "999" } as NodeJS.ProcessEnv,
         homedir: () => home,
+        logger: silentLogger,
       });
 
       const snapshot = await io.readConfigFileSnapshot();
@@ -302,6 +309,93 @@ describe("config io write", () => {
         (call) => typeof call[0] === "string" && call[0].startsWith("Config overwrite:"),
       );
       expect(overwriteLogs).toHaveLength(0);
+    });
+  });
+
+  it("appends config write audit JSONL entries with forensic metadata", async () => {
+    await withTempHome(async (home) => {
+      const configPath = path.join(home, ".openclaw", "openclaw.json");
+      const auditPath = path.join(home, ".openclaw", "logs", "config-audit.jsonl");
+      await fs.mkdir(path.dirname(configPath), { recursive: true });
+      await fs.writeFile(
+        configPath,
+        JSON.stringify({ gateway: { port: 18789 } }, null, 2),
+        "utf-8",
+      );
+
+      const io = createConfigIO({
+        env: {} as NodeJS.ProcessEnv,
+        homedir: () => home,
+        logger: {
+          warn: vi.fn(),
+          error: vi.fn(),
+        },
+      });
+
+      const snapshot = await io.readConfigFileSnapshot();
+      expect(snapshot.valid).toBe(true);
+
+      const next = structuredClone(snapshot.config);
+      next.gateway = {
+        ...next.gateway,
+        mode: "local",
+      };
+
+      await io.writeConfigFile(next);
+
+      const lines = (await fs.readFile(auditPath, "utf-8")).trim().split("\n").filter(Boolean);
+      expect(lines.length).toBeGreaterThan(0);
+      const last = JSON.parse(lines.at(-1) ?? "{}") as Record<string, unknown>;
+      expect(last.source).toBe("config-io");
+      expect(last.event).toBe("config.write");
+      expect(last.configPath).toBe(configPath);
+      expect(last.existsBefore).toBe(true);
+      expect(last.hasMetaAfter).toBe(true);
+      expect(last.previousHash).toBeTypeOf("string");
+      expect(last.nextHash).toBeTypeOf("string");
+      expect(last.result === "rename" || last.result === "copy-fallback").toBe(true);
+    });
+  });
+
+  it("records gateway watch session markers in config audit entries", async () => {
+    await withTempHome(async (home) => {
+      const configPath = path.join(home, ".openclaw", "openclaw.json");
+      const auditPath = path.join(home, ".openclaw", "logs", "config-audit.jsonl");
+      await fs.mkdir(path.dirname(configPath), { recursive: true });
+      await fs.writeFile(
+        configPath,
+        JSON.stringify({ gateway: { mode: "local" } }, null, 2),
+        "utf-8",
+      );
+
+      const io = createConfigIO({
+        env: {
+          OPENCLAW_WATCH_MODE: "1",
+          OPENCLAW_WATCH_SESSION: "watch-session-1",
+          OPENCLAW_WATCH_COMMAND: "gateway --force",
+        } as NodeJS.ProcessEnv,
+        homedir: () => home,
+        logger: {
+          warn: vi.fn(),
+          error: vi.fn(),
+        },
+      });
+
+      const snapshot = await io.readConfigFileSnapshot();
+      expect(snapshot.valid).toBe(true);
+      const next = structuredClone(snapshot.config);
+      next.gateway = {
+        ...next.gateway,
+        bind: "loopback",
+      };
+
+      await io.writeConfigFile(next);
+
+      const lines = (await fs.readFile(auditPath, "utf-8")).trim().split("\n").filter(Boolean);
+      const last = JSON.parse(lines.at(-1) ?? "{}") as Record<string, unknown>;
+      expect(last.watchMode).toBe(true);
+      expect(last.watchSession).toBe("watch-session-1");
+      expect(last.watchCommand).toBe("gateway --force");
     });
   });
 });

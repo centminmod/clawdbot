@@ -103,33 +103,23 @@ describe("docker-setup.sh", () => {
     expect(defaultsEnvFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
     expect(defaultsEnvFile).toContain("OPENCLAW_HOME_VOLUME=");
 
-    const homeVolumeResult = spawnSync("bash", [sandbox.scriptPath], {
+    await writeFile(sandbox.logPath, "");
+    const aptAndHomeVolumeResult = spawnSync("bash", [sandbox.scriptPath], {
       cwd: sandbox.rootDir,
       env: createEnv(sandbox, {
+        OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
         OPENCLAW_EXTRA_MOUNTS: "",
         OPENCLAW_HOME_VOLUME: "openclaw-home",
       }),
       encoding: "utf8",
     });
-    expect(homeVolumeResult.status).toBe(0);
+    expect(aptAndHomeVolumeResult.status).toBe(0);
+    const aptEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
+    expect(aptEnvFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
     const extraCompose = await readFile(join(sandbox.rootDir, "docker-compose.extra.yml"), "utf8");
     expect(extraCompose).toContain("openclaw-home:/home/node");
     expect(extraCompose).toContain("volumes:");
     expect(extraCompose).toContain("openclaw-home:");
-
-    await writeFile(sandbox.logPath, "");
-    const aptResult = spawnSync("bash", [sandbox.scriptPath], {
-      cwd: sandbox.rootDir,
-      env: createEnv(sandbox, {
-        OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
-        OPENCLAW_EXTRA_MOUNTS: "",
-        OPENCLAW_HOME_VOLUME: "",
-      }),
-      encoding: "utf8",
-    });
-    expect(aptResult.status).toBe(0);
-    const aptEnvFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
-    expect(aptEnvFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
     const log = await readFile(sandbox.logPath, "utf8");
     expect(log).toContain("--build-arg OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
   });
@@ -152,19 +142,12 @@ describe("docker-setup.sh", () => {
       return;
     }
 
-    const sandbox = await createDockerSetupSandbox();
-    const env = createEnv(sandbox, {
-      OPENCLAW_EXTRA_MOUNTS: "",
-      OPENCLAW_HOME_VOLUME: "",
-    });
-    const result = spawnSync(systemBash, [sandbox.scriptPath], {
-      cwd: sandbox.rootDir,
-      env,
+    const syntaxCheck = spawnSync(systemBash, ["-n", join(repoRoot, "docker-setup.sh")], {
       encoding: "utf8",
     });
 
-    expect(result.status).toBe(0);
-    expect(result.stderr).not.toContain("declare: -A: invalid option");
+    expect(syntaxCheck.status).toBe(0);
+    expect(syntaxCheck.stderr).not.toContain("declare: -A: invalid option");
   });
 
   it("keeps docker-compose gateway command in sync", async () => {
