@@ -573,6 +573,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 2) — 30 upstream commits
+
+**Security relevance: HIGH** — Archive extraction hardening (zip slip prevention, `resolvePathWithinRoot()` for browser downloads), hooks/plugin confinement chain (4 commits), npm spec validation, media payload bounds, gateway scope clearing, macOS deep link hardening. Addresses tracked issues #3277, #8696, #8516. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-2.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---

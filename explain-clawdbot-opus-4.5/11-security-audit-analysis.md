@@ -928,6 +928,14 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 2) — 30 upstream commits
+
+**Security relevance: HIGH** — 8 security fixes + 2 security tests in a single batch. **Archive extraction hardening** (`3aa94afcf`, 19 files): `validateArchiveEntryPath()`, `resolveCheckedOutPath()`, symlink rejection in tar, `sanitizeDownloadFileName()`, `resolvePathWithinRoot()` for browser downloads — addresses tracked issues #3277, #8696, #8516. **Hooks/plugin confinement chain** (4 commits): `isSafeRelativeModulePath()` schema validation, workspace-relative module loading, `resolveContainedDir()` for manifest paths, transform module confinement to `configDir/hooks/transforms/`. **npm spec validation** (`6f7d31c42`): new `validateRegistryNpmSpec()` rejects URLs/git refs/protocol specs. **Media payload bounds** (`00a089088`): `readResponseWithLimit()` + `rejectOversizedBase64Payload()`. **Gateway scope clearing** (`35c0e66ed`): clears self-declared scopes when no device identity. **macOS deep link hardening** (`28d9dd7a7`). **Discord TLS** (`8025e7c6c`): `buildGatewayConnectionDetails()` for proper TLS.
+
+**Line shifts:** `archive.ts` restructured, `tmp-openclaw-dir.ts` +7, `pw-tools-core.downloads.ts` +27, `agent.act.ts` +3, `input-files.ts` +3/+30/+63, `config/io.ts` -29 (backup rotation extracted), `validation.ts` +4, `skills-install.ts` +61, `signal-install.ts` +97.
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated by browser path confinement, bootstrap/memory .md scanning — unchanged).
+
 ---
 
 ## Recommended Hardening Measures

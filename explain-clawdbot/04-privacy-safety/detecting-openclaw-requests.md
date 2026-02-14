@@ -24,7 +24,7 @@ When OpenClaw downloads media files (images, audio, video) attached to incoming 
 User-Agent: OpenClaw-Gateway/1.0
 ```
 
-**Source:** `src/media/input-files.ts:149`
+**Source:** `src/media/input-files.ts:179`
 ```typescript
 init: { headers: { "User-Agent": "OpenClaw-Gateway/1.0" } },
 ```
@@ -40,7 +40,7 @@ User-Agent: openclaw
 Accept: application/vnd.github+json
 ```
 
-**Source:** `src/commands/signal-install.ts:124`
+**Source:** `src/commands/signal-install.ts:221`
 ```typescript
 headers: {
   "User-Agent": "openclaw",
@@ -341,8 +341,8 @@ export type GatewayClientInfo = {
 
 | Header | Where it's set | Notes |
 |---|---|---|
-| `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:149` | Media file downloads |
-| `User-Agent: openclaw` | `src/commands/signal-install.ts:124` | Signal CLI installation |
+| `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:179` | Media file downloads |
+| `User-Agent: openclaw` | `src/commands/signal-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:119` | Anthropic usage check |
 | `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:8` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |

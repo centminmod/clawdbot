@@ -747,9 +747,9 @@
 **Greptile Review:** Confidence 4/5. Flags edge case where `resolvePathWithinRoot` rejects paths that resolve exactly to the root directory.
 
 **Local Validation:**
-- `src/browser/routes/path-output.ts:1-29` — local code has complete `resolvePathWithinRoot()` implementation
+- `src/browser/routes/path-output.ts:1` — re-exports from `src/browser/paths.ts` (implementation moved Feb 15 sync 2)
 - `src/browser/routes/agent.debug.ts:7,17,135-146` — imports and uses `resolvePathWithinRoot()` for trace endpoint
-- `src/browser/routes/agent.act.ts:17,443-455,484-492` — imports and uses `resolvePathWithinRoot()` for downloads
+- `src/browser/routes/agent.act.ts:20,450-518` — imports and uses `resolvePathWithinRoot()` for downloads
 
 **Local Impact:** ALREADY SYNCED — all changes from PR #15652 are present in local code
 

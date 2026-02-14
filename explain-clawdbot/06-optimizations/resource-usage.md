@@ -27,9 +27,9 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:34-51` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
 | 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:89-135` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
-| 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:211-296` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
+| 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:235-336` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
 | 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
-| 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/input-files.ts:197-254` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
+| 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/input-files.ts:260-321` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
 | 7 | **Full AX tree traversal** — `Accessibility.getFullAXTree` on complex browser pages | `src/browser/cdp.ts:251-264` | Medium-High | Like reading every element on a web page aloud for accessibility — hundreds of elements on complex pages |
 | 8 | **Image resize via sips** — macOS-specific process spawning for each HEIC conversion/resize | `src/media/image-ops.ts:136-274` | Medium | Like opening a separate program for each photo conversion — the per-process overhead adds up |
 | 9 | **Media understanding** — sending media to AI providers (Whisper/Gemini/OpenAI) for transcription | `src/media-understanding/runner.ts:802-984` | Medium | CPU cost is mostly on the provider side, but local buffering and encoding still takes cycles |
@@ -153,7 +153,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 
 | Type | Limit | Location |
 |------|-------|----------|
-| Images | 6MB (10MB input files) | `src/media/constants.ts:1`, `src/media/input-files.ts:101` |
+| Images | 6MB (10MB input files) | `src/media/constants.ts:1`, `src/media/input-files.ts:104` |
 | Audio | 16MB | `src/media/constants.ts:2` |
 | Video | 16MB | `src/media/constants.ts:3` |
 | Documents | 100MB | `src/media/constants.ts:4` |
