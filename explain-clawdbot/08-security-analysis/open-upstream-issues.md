@@ -933,7 +933,7 @@ All changes take effect immediately via automatic restart.
 
 **Affected code:**
 - `src/gateway/http-utils.ts:65-79` — `resolveSessionKey()` returns `x-openclaw-session-key` header value as-is (line 71-73) with no ownership check
-- `src/gateway/tools-invoke-http.ts:62-65` — `resolveSessionKeyFromBody()` accepts arbitrary session key from request body
+- `src/gateway/tools-invoke-http.ts:44-48` — `resolveSessionKeyFromBody()` accepts arbitrary session key from request body
 - Affected endpoints: `/v1/chat/completions`, `/v1/responses`, `/tools/invoke`, `/hooks/agent`
 
 ### #11024: Gmail Push Endpoint Embeds Auth Token in URL Query String

@@ -370,7 +370,7 @@ Fourteen security-relevant commits:
 
 **HIGH (4):**
 
-- **`141f551a4` + `6ff209e93`** (PRs [#9903](https://github.com/openclaw/openclaw/pull/9903)/[#9790](https://github.com/openclaw/openclaw/pull/9790)) — **Exec-approvals allowlist coercion:** New `coerceAllowlistEntries()` in `src/infra/exec-approvals.ts:137-162`. Thanks @mcaxtr.
+- **`141f551a4` + `6ff209e93`** (PRs [#9903](https://github.com/openclaw/openclaw/pull/9903)/[#9790](https://github.com/openclaw/openclaw/pull/9790)) — **Exec-approvals allowlist coercion:** New `coerceAllowlistEntries()` in `src/infra/exec-approvals.ts:161-188`. Thanks @mcaxtr.
 
 - **`57326f72e`** (PR [#2092](https://github.com/openclaw/openclaw/pull/2092)) — **Nextcloud-Talk HMAC signing.**
 
@@ -582,6 +582,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 15 sync 3) — 30 upstream commits
 
 **Security relevance: HIGH** — OAuth CSRF fix (OC-25: `3967ece62`), browser CSRF mutation guard (`b566b09f8`), base64 pre-decode size validation (`31791233d`), archive extraction resource limits (`d3ee5deb8` + `4c7838e3c`), Telegram/Google Chat allowlist auth hardening (`e3b432e48`, `c8424bf29`), sandbox browser bind mount separation (`cb9a5e1cb`), sandbox config hash detection (`1f1fc095a`). **Addresses Audit 1 Claim 2** (OAuth CSRF). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-3.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 4) — 30 upstream commits
+
+**Security relevance: LOW** — All 30 commits are `refactor(*)` code extraction refactors. No behavioral changes to security controls. File mode `0o600` and atomic write semantics preserved. `DEFAULT_GATEWAY_HTTP_TOOL_DENY` moved to `src/security/dangerous-tools.ts:9-18`. Frontmatter parsing extracted to `src/shared/frontmatter.ts`. Two new advisories: GHSA-wfp2-v9c7-fh79 (MEDIUM, SSRF via media URL), CVE-2026-24764 (LOW, Slack metadata injection). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-4.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 

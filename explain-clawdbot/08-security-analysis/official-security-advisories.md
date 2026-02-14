@@ -22,6 +22,8 @@
 | [GHSA-56f2-hvwg-5743](https://github.com/openclaw/openclaw/security/advisories/GHSA-56f2-hvwg-5743) | HIGH | SSRF in Image Tool Remote Fetch | - | pending | - |
 | [GHSA-xc7w-v5x6-cc87](https://github.com/openclaw/openclaw/security/advisories/GHSA-xc7w-v5x6-cc87) | MEDIUM | Webhook Auth Bypass Behind Reverse Proxy (Loopback Trust) | - | pending | - |
 | [GHSA-qw99-grcx-4pvm](https://github.com/openclaw/openclaw/security/advisories/GHSA-qw99-grcx-4pvm) | MEDIUM | Chrome Extension Relay Wildcard Binding | - | pending | - |
+| [GHSA-wfp2-v9c7-fh79](https://github.com/openclaw/openclaw/security/advisories/GHSA-wfp2-v9c7-fh79) | MEDIUM | SSRF via Attachment/Media URL Hydration | CWE-918 | < v2026.2.2 | - |
+| [CVE-2026-24764](https://github.com/openclaw/openclaw/security/advisories/GHSA-782p-5fr5-7fj8) | LOW | Slack Integration Hardening: Channel Metadata Injection | CWE-74, CWE-94 | < v2026.2.3 | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -93,6 +95,31 @@
 **Affected component:** Media path parsing in `src/media/parse.ts`.
 
 **Fix:** Media path validation now restricts extraction to the media directory and rejects traversal sequences.
+
+### GHSA-wfp2-v9c7-fh79: SSRF via Attachment/Media URL Hydration
+
+**Severity:** MEDIUM (CWE-918: Server-Side Request Forgery)
+**Affected:** < v2026.2.2
+**Credits:** —
+
+**Description:** Server-side request forgery via attachment or media URL hydration. An attacker could craft media/attachment URLs that, when hydrated by the server, trigger requests to internal services or unintended external endpoints.
+
+**Impact:** Access to internal services, potential information disclosure via SSRF.
+
+**Fix:** Patched in v2026.2.2.
+
+### CVE-2026-24764: Slack Integration Hardening — Channel Metadata Injection
+
+**GHSA:** GHSA-782p-5fr5-7fj8
+**Severity:** LOW (CWE-74: Injection, CWE-94: Code Injection)
+**Affected:** < v2026.2.3
+**Credits:** —
+
+**Description:** Slack channel metadata (topic, purpose, channel name) could influence system prompts, potentially allowing prompt injection via channel configuration fields that are reflected into the agent's context.
+
+**Impact:** Prompt injection via Slack channel metadata. Low severity due to requiring Slack workspace admin access to modify channel metadata.
+
+**Fix:** Patched in v2026.2.3. Channel metadata is now sanitized before inclusion in system prompts.
 
 ### Relationship to Third-Party Audits
 
