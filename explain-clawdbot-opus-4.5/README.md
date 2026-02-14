@@ -149,7 +149,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:99-169`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-31`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:16-44`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
-| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:296-297`). Node-host has blocklist (`src/node-host/invoke.ts:45-175`). Requires human approval + localhost + no sandbox. |
+| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:298`). Node-host has blocklist (`src/node-host/invoke.ts:45-165`). Requires human approval + localhost + no sandbox. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 
@@ -161,7 +161,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 Three defense-in-depth items were identified (not exploitable as described, but worth hardening):
 
-1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12.** Gateway now validates env vars via `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec.ts:59-107`).
+1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12.** Gateway now validates env vars via `DANGEROUS_HOST_ENV_VARS` blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:298`).
 2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust.
 3. **outPath validation:** `screen_record` outPath accepts arbitrary paths. Writes are confined to the paired node device, but path validation would add depth.
 
@@ -230,7 +230,7 @@ This is new security hardening unrelated to existing audit claims. **All three l
 
 Seven security-relevant commits:
 
-- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution (`src/agents/bash-tools.exec.ts:59-107,976-977`). **Closes Legitimate Gap #1.**
+- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): `DANGEROUS_HOST_ENV_VARS` blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:298`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.**
 
 - **`b796f6ec0`** — Web tools and file parsing hardening (#4058) (thanks @VACInc)
 - **`a2b00495c`** — TLS 1.3 minimum requirement (thanks @loganaden)
@@ -346,7 +346,7 @@ Six security-relevant commits:
 
 - **`d6c088910`** — Credential protection via .gitignore: Adds `memory/` and `.agent/*.json` (excluding `workflows/`) to gitignore, preventing accidental commit of agent credentials and session data. Defense-in-depth for credential hygiene.
 
-- **`ea237115a`** — CLI flag handling refinement: Passes `--disable-warning=ExperimentalWarning` as Node CLI argument instead of via NODE_OPTIONS environment variable (fixes npm pack compatibility). Defense-in-depth for env var handling—NOT directly related to audit claim #8 (LD_PRELOAD/NODE_OPTIONS injection), which is already mitigated via blocklists in `src/node-host/runner.ts:166-175` and `src/agents/bash-tools.exec.ts:61-78` (PR #12). Thanks @18-RAJAT.
+- **`ea237115a`** — CLI flag handling refinement: Passes `--disable-warning=ExperimentalWarning` as Node CLI argument instead of via NODE_OPTIONS environment variable (fixes npm pack compatibility). Defense-in-depth for env var handling—NOT directly related to audit claim #8 (LD_PRELOAD/NODE_OPTIONS injection), which is already mitigated via blocklists in `src/node-host/invoke.ts:45-165` (was `runner.ts:166-175`) and `src/agents/bash-tools.exec-runtime.ts:32-50` (was `bash-tools.exec.ts:61-78`) (PR #12). Thanks @18-RAJAT.
 
 - **`93b450349`** — Session state hygiene: Clears stale token metrics (totalTokens, inputTokens, outputTokens, contextTokens) when starting new sessions via /new or /reset. Prevents misleading context usage display from previous sessions.
 
@@ -606,6 +606,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 15 sync 7) — 30 upstream commits
 
 **Security relevance: HIGH** — 8 security-relevant commits. SafeBins shell expansion blocking (`77b89719d` — Audit 2 Claims 7, 8). Node.invoke exec approvals blocking (`01b3226ec` — Audit 2 Claim 5). Session path traversal prevention (`cab0abf52` — Audit 1 Claim 6). BlueBubbles webhook auth hardening (`743f4b284` — GHSA-pchc-86f6-8758). Slack DM authorization gating (`f19eabee5`). Discord exec approval channel targeting (`5ba72bd9b`). Telnyx webhook centralization (`f47584fec` — Audit 1 Claim 7). Urbit SSRF request helpers (`d0f64c955` — Audit 2 Claim 4). 2 new advisories: GHSA-fhvm-j76f-qmjv (HIGH), GHSA-rmxw-jxxx-4cpc (MEDIUM). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-7.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 8) — 30 upstream commits
+
+**Security relevance: HIGH** — 6 security-relevant commits. apply_patch path traversal blocked (`5544646a0` — Audit 1 Claim 6, closes #12173). SafeBins glob detection + separate quoting (`24d2c6292` — Audit 2 Claim 7). Exec PATH hardening: ACP self-discovery + project-local bin opt-in (`013e8f6b3` — Audit 1 Claim 5, Audit 2 Claim 8). Node host pathPrepend suppression (`e4d63818f`). iMessage identity isolation (`872079d42`). Session deadlock prevention (`e6f67d5f3`). 5 new advisories. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-8.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 

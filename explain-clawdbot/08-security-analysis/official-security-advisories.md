@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; newer advisories (Feb 14) are pending version assignment.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6.
 
 ### Advisory Summary
 
@@ -28,8 +28,13 @@
 | [GHSA-3m3q-x3gj-f79x](https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x) | MEDIUM | Voice-Call Webhook Verification Bypass Behind Proxy | - | pending | - |
 | [GHSA-pchc-86f6-8758](https://github.com/openclaw/openclaw/security/advisories/GHSA-pchc-86f6-8758) | HIGH | BlueBubbles Webhook Auth Bypass via Loopback Proxy Trust | - | v2026.2.13 | @MegaManSec |
 | [GHSA-g27f-9qjv-22pm](https://github.com/openclaw/openclaw/security/advisories/GHSA-g27f-9qjv-22pm) | LOW | Log Poisoning via WebSocket Headers | - | pending | - |
-| [GHSA-fhvm-j76f-qmjv](https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv) | HIGH | Telegram Webhook Auth Bypass (Missing Secret) | CWE-285 | >= v2026.2.2 | @simecek |
+| [GHSA-fhvm-j76f-qmjv](https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv) | HIGH | Access-Group Authorization Bypass if Channel Type Lookup Fails | CWE-285 | >= v2026.2.2 | @simecek |
 | [GHSA-rmxw-jxxx-4cpc](https://github.com/openclaw/openclaw/security/advisories/GHSA-rmxw-jxxx-4cpc) | MEDIUM | Matrix Allowlist Bypass via displayName | - | >= v2026.2.2 | @MegaManSec |
+| [GHSA-4rj2-gpmh-qq5x](https://github.com/openclaw/openclaw/security/advisories/GHSA-4rj2-gpmh-qq5x) | CRITICAL | Inbound Allowlist Policy Bypass in Voice-Call Extension | - | pending | - |
+| [CVE-2026-25474](https://github.com/openclaw/openclaw/security/advisories/GHSA-mp5h-m6qj-6292) | HIGH | Telegram Webhook Secret Verification Bypass | - | pending | - |
+| [GHSA-7vwx-582j-j332](https://github.com/openclaw/openclaw/security/advisories/GHSA-7vwx-582j-j332) | HIGH | MS Teams Attachment Downloader Leaks Bearer Tokens | - | pending | - |
+| [GHSA-r5h9-vjqc-hq3r](https://github.com/openclaw/openclaw/security/advisories/GHSA-r5h9-vjqc-hq3r) | HIGH | Nextcloud Talk Allowlist Bypass via actor.name Spoofing | - | pending | - |
+| [GHSA-33rq-m5x2-fvgf](https://github.com/openclaw/openclaw/security/advisories/GHSA-33rq-m5x2-fvgf) | HIGH | Twitch allowFrom Not Enforced in Optional Plugin | - | pending | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -175,17 +180,17 @@
 
 **Fix:** Fixed in v2026.2.13. Commits `f836c385f`, `743f4b284` (defense-in-depth). Related hardening: `71f357d94` (LFI path hardening in BlueBubbles media-send). See [Feb 15 sync 6](./post-merge-hardening/2026-02-15-sync-6.md).
 
-### GHSA-fhvm-j76f-qmjv: Telegram Webhook Auth Bypass (Missing Secret)
+### GHSA-fhvm-j76f-qmjv: Access-Group Authorization Bypass if Channel Type Lookup Fails
 
 **Severity:** HIGH (CWE-285: Improper Authorization)
 **Affected:** < v2026.2.2
 **Credits:** @simecek
 
-**Description:** The Telegram channel plugin could accept webhook requests without verifying the webhook secret when the secret was not configured. If no `telegram.webhookSecret` was set, webhook requests were accepted without authentication, allowing an attacker who discovers the webhook URL to inject messages into the agent pipeline.
+**Description:** Access-group authorization bypass if channel type lookup fails. Originally disclosed as Telegram webhook auth bypass (missing secret), the advisory was updated to reflect a broader access-group authorization issue: if channel type resolution fails during authorization, the authorization check may be bypassed entirely.
 
-**Impact:** Unauthorized message injection via Telegram webhooks when the webhook secret is not configured.
+**Impact:** Authorization bypass — unauthorized users could interact with the agent when channel type lookup fails.
 
-**Fix:** Commit `ca92597e1`. Telegram webhook handler now fails closed when the webhook secret is missing — requests are rejected rather than accepted without verification.
+**Fix:** Commit `ca92597e1`. Authorization handler now fails closed when channel type cannot be resolved.
 
 ### GHSA-rmxw-jxxx-4cpc: Matrix Allowlist Bypass via displayName
 
@@ -198,6 +203,71 @@
 **Impact:** Allowlist bypass in Matrix channel — unauthorized users could interact with the agent by spoofing display names.
 
 **Fix:** Commit `8f3bfbd1c`. Matrix allowlist now requires full MXIDs (`@user:server`) and only accepts single exact matches from directory search. See [Feb 4 sync 1](./post-merge-hardening/2026-02-04-sync-1.md).
+
+### GHSA-4rj2-gpmh-qq5x: Inbound Allowlist Policy Bypass in Voice-Call Extension
+
+**Severity:** CRITICAL (CWE-287: Improper Authentication)
+**Affected:** <= v2026.2.1
+**Published:** 2026-02-14
+**Credits:** @simecek, @MegaManSec (reporters); @stanislavfortaisle (analyst)
+
+**Description:** The optional `voice-call` extension's inbound allowlist check in `extensions/voice-call/src/manager.ts` used suffix-based matching and accepted empty caller IDs after normalization. Two bypasses: (1) missing/empty `from` values normalized to an empty string caused the allowlist predicate to evaluate as allowed; (2) suffix-based matching meant any caller number whose digits ended with an allowlisted number would be accepted.
+
+**Impact:** Unauthorized callers could reach auto-response and tool execution when `inboundPolicy=allowlist` or `pairing` was configured. Only affects deployments with the optional voice-call extension enabled.
+
+**Fix:** Commit `f8dfd034f`. Reject inbound calls when caller ID is missing, require strict equality for normalized caller IDs, add regression tests for missing/anonymous caller ID and suffix-collision cases. Patched in >= v2026.2.2.
+
+### CVE-2026-25474 / GHSA-mp5h-m6qj-6292: Telegram Webhook Secret Verification Bypass
+
+**Severity:** HIGH (CWE-345: Insufficient Verification of Data Authenticity)
+**Affected:** <= v2026.1.30
+**Published:** 2026-02-14
+**Credits:** @yueyueL
+
+**Description:** In Telegram webhook mode, if `channels.telegram.webhookSecret` is not set, OpenClaw accepted webhook HTTP requests without verifying Telegram's `X-Telegram-Bot-Api-Secret-Token` header. An attacker who can reach the webhook endpoint could send forged updates processed as if from Telegram. Note: Telegram webhook mode requires explicit configuration of `channels.telegram.webhookUrl`.
+
+**Impact:** Forged Telegram updates could trigger unintended bot actions, depending on enabled commands/tools and configuration.
+
+**Fix:** Commit `ca92597e1` (config validation: `webhookUrl` requires `webhookSecret`). Defense-in-depth: `5643a934` (default webhook bind to loopback), `3cbcba10` (bound request body size/time), `633fe8b9` (runtime guard: reject webhook startup when secret is missing/empty). Patched in >= v2026.2.1.
+
+### GHSA-7vwx-582j-j332: MS Teams Attachment Downloader Leaks Bearer Tokens
+
+**Severity:** HIGH (CWE-201: Insertion of Sensitive Information Into Sent Data)
+**Affected:** <= v2026.1.30
+**Published:** 2026-02-14
+**Credits:** @yueyueL
+
+**Description:** When downloading inbound MS Teams attachments/inline images, OpenClaw may retry a URL with an `Authorization: Bearer <token>` header after receiving 401/403. Because the default download allowlist uses suffix matching (including some multi-tenant suffix domains), a message referencing an untrusted but allowlisted host could cause the bearer token to be sent to the wrong place. Only affects deployments with the optional MS Teams extension enabled.
+
+**Impact:** Bearer token leakage to attacker-controlled domains matching suffix-based allowlist entries.
+
+**Fix:** Commit `41cc5bcd4`. Patched in >= v2026.2.1. Workaround: ensure auth host allowlist is strict (only Microsoft-owned endpoints) and avoid wildcard/broad suffix entries.
+
+### GHSA-r5h9-vjqc-hq3r: Nextcloud Talk Allowlist Bypass via actor.name Spoofing
+
+**Severity:** HIGH
+**Affected:** @openclaw/nextcloud-talk <= v2026.2.2
+**Published:** 2026-02-14
+**Credits:** @MegaManSec
+
+**Description:** In the optional Nextcloud Talk plugin, allowlist matching accepted equality on the mutable `actor.name` (display name) field from webhook payloads, in addition to the stable `actor.id`. An attacker could change their Nextcloud display name to match an allowlisted user ID and bypass DM or room allowlists. Core OpenClaw is not impacted unless the Nextcloud Talk plugin is installed.
+
+**Impact:** Allowlist bypass — unauthorized users could interact with the agent by spoofing display names in Nextcloud Talk.
+
+**Fix:** Commit `6b4b6049b`. Allowlist matching now uses only `actor.id` (stable identifier). Patched in @openclaw/nextcloud-talk >= v2026.2.6.
+
+### GHSA-33rq-m5x2-fvgf: Twitch allowFrom Not Enforced in Optional Plugin
+
+**Severity:** HIGH (CWE-285: Improper Authorization)
+**Affected:** >= v2026.1.29, < v2026.2.1
+**Published:** 2026-02-14
+**Credits:** @MegaManSec
+
+**Description:** In the optional Twitch channel plugin (`extensions/twitch/src/access-control.ts`), `allowFrom` was documented as a hard allowlist of Twitch user IDs but was not enforced as a hard gate. When `allowedRoles` was unset or empty, the access control path defaulted to allow, so any Twitch user who could mention the bot could reach the agent dispatch pipeline. Only affects deployments with the Twitch plugin enabled.
+
+**Impact:** Authorization bypass — any Twitch user could invoke the bot regardless of `allowFrom` configuration, potentially leading to unintended actions and resource/cost exhaustion.
+
+**Fix:** Commit `8c7901c98`. `checkTwitchAccessControl()` now returns `allowed: false` for non-members when `allowFrom` is configured. Patched in >= v2026.2.1.
 
 ### Relationship to Third-Party Audits
 

@@ -310,7 +310,7 @@ This validates the name of an executable to run, not arguments passed to it. Arg
 Previously, the gateway host merged `params.env` without sanitization. As of PR #12, the gateway now validates env vars:
 - Blocklist at `src/agents/bash-tools.exec-runtime.ts:32-50`
 - Validation function at `src/agents/bash-tools.exec-runtime.ts:54` (`validateHostEnv`)
-- Enforcement at `src/agents/bash-tools.exec.ts:296-297` (validates before env merge at `:300`)
+- Enforcement at `src/agents/bash-tools.exec.ts:298` (validates before env merge at `:303`)
 
 On the node host, there is an explicit blocklist (`src/node-host/invoke.ts:45-175` — was `src/node-host/runner.ts:166-175`):
 ```
@@ -363,7 +363,7 @@ Both audits correctly identify code patterns that *could* be concerning in isola
 
 While none of the 8 claims are exploitable as described, three defense-in-depth improvements were identified:
 
-1. ~~**Gateway-side env var blocklist (Claim 8):**~~ **CLOSED in PR #12.** Gateway now has `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:32-50,54`), with enforcement at `src/agents/bash-tools.exec.ts:296-297`.
+1. ~~**Gateway-side env var blocklist (Claim 8):**~~ **CLOSED in PR #12.** Gateway now has `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:32-50,54`), with enforcement at `src/agents/bash-tools.exec.ts:298`.
 
 2. **Pipe-delimited token format (Claim 6):** The token construction uses pipe delimiters without input sanitization. RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 
@@ -465,7 +465,7 @@ Sixty-four upstream commits (merged via PR #12 from `openclaw/main`) introduced 
 
   The gateway-side env var blocklist gap is now closed. New security controls:
 
-  1. **Blocklist** (`src/agents/bash-tools.exec.ts:61-78`):
+  1. **Blocklist** (`src/agents/bash-tools.exec-runtime.ts:32-50`):
      - `LD_PRELOAD`, `LD_LIBRARY_PATH`, `LD_AUDIT`
      - `DYLD_INSERT_LIBRARIES`, `DYLD_LIBRARY_PATH`
      - `NODE_OPTIONS`, `NODE_PATH`, `PYTHONPATH`, `PYTHONHOME`
@@ -971,6 +971,14 @@ No line shifts. No new CVEs.
 **Security relevance: HIGH** — 8 security-relevant commits. **SafeBins shell expansion blocking** (`77b89719d`): new `buildSafeShellCommand()` in `src/infra/exec-approvals-analysis.ts:734` prevents shell metacharacter expansion in safeBins arguments, imported at `src/agents/bash-tools.exec.ts:18`, called at `:818`. **Addresses Audit 2 Claims 7 and 8.** **Node.invoke exec approvals blocking** (`01b3226ec`): blocks `system.execApprovals.get/set` from node.invoke pathway at `src/gateway/server-methods/nodes.ts:391-397`. **Addresses Audit 2 Claim 5.** **Session path traversal prevention** (`cab0abf52`): new `resolvePathFromAgentSessionsDir()` (lines 75-85), `resolveSiblingAgentSessionsDir()` (lines 87-102), `extractAgentIdFromAbsoluteSessionPath()` (lines 104-113) in `src/config/sessions/paths.ts`. **Addresses Audit 1 Claim 6.** **BlueBubbles webhook auth hardening** (`743f4b284`): defense-in-depth for GHSA-pchc-86f6-8758. **Slack DM auth gating** (`f19eabee5`): `normalizeSlackChannelType()` + authorization checks at `src/slack/monitor/slash.ts:183-199`. **Discord exec approval targeting** (`5ba72bd9b`): channel targeting for approval forwarding. **Telnyx webhook centralization** (`f47584fec`): centralized `verifyTelnyxWebhook()` function strengthens Audit 1 Claim 7. **Urbit SSRF centralization** (`d0f64c955`): continues Audit 2 Claim 4 hardening from sync 6. 2 new advisories: GHSA-fhvm-j76f-qmjv (HIGH — Telegram webhook auth bypass), GHSA-rmxw-jxxx-4cpc (MEDIUM — Matrix allowlist bypass). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-7.md).
 
 **Line shifts:** `bash-tools.exec.ts` 294-295→296-297 (validateHostEnv enforcement), 298→300 (env merge). `server-methods.ts` 93-163→99-169 (authorizeGatewayMethod — pre-existing shift now corrected in docs).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 8) — 30 upstream commits
+
+**Security relevance: HIGH** — 6 security-relevant commits. **apply_patch path traversal blocked** (`5544646a0`): `resolvePatchPath()` now calls `assertSandboxPath()` at `src/agents/apply-patch.ts:264` regardless of sandbox mode, closing the non-sandboxed path traversal vector. **Addresses Audit 1 Claim 6.** Closes [#12173](https://github.com/openclaw/openclaw/issues/12173). **SafeBins glob detection** (`24d2c6292`): new `hasGlobToken()` at `src/infra/exec-approvals-allowlist.ts:58` blocks glob chars in safeBins tokens; `buildSafeBinsShellCommand()` at `src/infra/exec-approvals-analysis.ts:784` applies separate quoting for safeBins-approved segments. **Addresses Audit 2 Claim 7.** **Exec PATH hardening** (`013e8f6b3`): new `resolveSelfEntryPath()` at `src/acp/client.ts:266` resolves ACP entry via `import.meta.url`; `candidateBinDirs()` at `src/infra/path-env.ts:52` makes project-local `node_modules/.bin` opt-in. **Addresses Audit 1 Claim 5, Audit 2 Claim 8.** **Node host pathPrepend suppression** (`e4d63818f`): `tools.exec.pathPrepend` explicitly ignored for node hosts at `bash-tools.exec.ts:320-327`. **iMessage identity isolation** (`872079d42`): new `parseIMessageNotification()` at `src/imessage/monitor/monitor-provider.ts:163` validates all 15 message fields, preventing pairing-store DM identities from entering group allowlist evaluation. **Session deadlock prevention** (`e6f67d5f3`): `timedOutDuringCompaction` flag at `attempt.ts:672` + `shouldFlagCompactionTimeout()` from `compaction-timeout.ts:9` distinguish compaction hangs from model timeouts. 5 new advisories published. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-8.md).
+
+**Line shifts:** `bash-tools.exec.ts` 296-297→298 (validateHostEnv enforcement), 290→293 (coerceEnv), 298→301 (mergedEnv), 199-207→202-210 (elevatedMode), 269-271→272-274 (bypassApprovals). `apply-patch.ts` 215-236→249-273 (resolvePatchPath). `exec-approvals-allowlist.ts` 157-197→190 (evaluateExecAllowlist).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
