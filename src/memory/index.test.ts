@@ -6,6 +6,10 @@ import { getMemorySearchManager, type MemoryIndexManager } from "./index.js";
 
 let embedBatchCalls = 0;
 
+vi.mock("./sqlite-vec.js", () => ({
+  loadSqliteVecExtension: async () => ({ ok: false, error: "sqlite-vec disabled in tests" }),
+}));
+
 vi.mock("./embeddings.js", () => {
   const embedText = (text: string) => {
     const lower = text.toLowerCase();
@@ -71,9 +75,9 @@ describe("memory index", () => {
           memorySearch: {
             provider: "openai",
             model: "mock-embed",
-            store: { path: indexPath },
+            store: { path: indexPath, vector: { enabled: false } },
             sync: { watch: false, onSessionStart: false, onSearch: true },
-            query: { minScore: 0 },
+            query: { minScore: 0, hybrid: { enabled: false } },
           },
         },
         list: [{ id: "main", default: true }],
@@ -85,7 +89,7 @@ describe("memory index", () => {
       throw new Error("manager missing");
     }
     manager = result.manager;
-    await result.manager.sync({ force: true });
+    await result.manager.sync({ reason: "test" });
     const results = await result.manager.search("alpha");
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.path).toContain("memory/2026-01-12.md");
@@ -110,7 +114,7 @@ describe("memory index", () => {
             provider: "openai",
             store: { path: indexPath },
             sync: { watch: false, onSessionStart: false, onSearch: true },
-            query: { minScore: 0 },
+            query: { minScore: 0, hybrid: { enabled: false } },
           },
         },
         list: [{ id: "main", default: true }],
@@ -137,7 +141,7 @@ describe("memory index", () => {
     if (!first.manager) {
       throw new Error("manager missing");
     }
-    await first.manager.sync({ force: true });
+    await first.manager.sync({ reason: "test" });
     const callsAfterFirstSync = embedBatchCalls;
     await first.manager.close();
 
@@ -178,7 +182,7 @@ describe("memory index", () => {
             model: "mock-embed",
             store: { path: indexPath, vector: { enabled: false } },
             sync: { watch: false, onSessionStart: false, onSearch: false },
-            query: { minScore: 0 },
+            query: { minScore: 0, hybrid: { enabled: false } },
             cache: { enabled: true },
           },
         },
@@ -230,7 +234,7 @@ describe("memory index", () => {
       return;
     }
 
-    await manager.sync({ force: true });
+    await manager.sync({ reason: "test" });
     const results = await manager.search("zebra");
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.path).toContain("memory/2026-01-12.md");
@@ -272,8 +276,9 @@ describe("memory index", () => {
           memorySearch: {
             provider: "openai",
             model: "mock-embed",
-            store: { path: indexPath },
+            store: { path: indexPath, vector: { enabled: false } },
             sync: { watch: false, onSessionStart: false, onSearch: true },
+            query: { minScore: 0, hybrid: { enabled: false } },
           },
         },
         list: [{ id: "main", default: true }],
@@ -300,8 +305,9 @@ describe("memory index", () => {
           memorySearch: {
             provider: "openai",
             model: "mock-embed",
-            store: { path: indexPath },
+            store: { path: indexPath, vector: { enabled: false } },
             sync: { watch: false, onSessionStart: false, onSearch: true },
+            query: { minScore: 0, hybrid: { enabled: false } },
             extraPaths: [extraDir],
           },
         },

@@ -8,7 +8,6 @@ import {
   isConfigPathTruthy,
   loadWorkspaceSkillEntries,
   resolveBundledAllowlist,
-  resolveConfigPath,
   resolveSkillConfig,
   resolveSkillsInstallPreferences,
   type SkillEntry,
@@ -20,7 +19,6 @@ import { resolveBundledSkillsContext } from "./skills/bundled-context.js";
 
 export type SkillStatusConfigCheck = {
   path: string;
-  value: unknown;
   satisfied: boolean;
 };
 
@@ -216,7 +214,6 @@ function buildSkillStatus(
         skillConfig?.env?.[envName] ||
         (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
       ),
-    resolveConfigValue: (pathStr) => resolveConfigPath(config, pathStr),
     isConfigSatisfied: (pathStr) => isConfigPathTruthy(config, pathStr),
   });
   const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
