@@ -4,7 +4,7 @@
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 14-02-2026 (11:35 AEST)
+> **Last checked:** 14-02-2026 (14:06 AEST)
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
@@ -17,16 +17,16 @@
 | [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH | Browser file upload arbitrary read | `src/browser/pw-tools-core.interactions.ts:531` |
 | [#5995](https://github.com/openclaw/openclaw/issues/5995) | HIGH | Secrets exposed in session transcripts | `config.get` now redacted via `redactConfigSnapshot()` (PR #9858); transcripts still expose by design |
 | [#6606](https://github.com/openclaw/openclaw/issues/6606) | HIGH (WONTFIX) | Telegram webhook binds to 0.0.0.0 with optional secret | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/telegram/webhook.ts:26,36,46-48` |
-| [#6609](https://github.com/openclaw/openclaw/issues/6609) | HIGH | Browser bridge server optional authentication | `src/browser/bridge-server.ts:33-42` |
+| [#6609](https://github.com/openclaw/openclaw/issues/6609) | ~~HIGH~~ FIXED | Browser bridge server optional authentication | Fixed upstream (COMPLETED 2026-02-14); `src/browser/bridge-server.ts:33-42` |
 | [#8054](https://github.com/openclaw/openclaw/issues/8054) | ~~HIGH~~ FIXED | Type coercion `"undefined"` credentials | Fixed upstream (COMPLETED 2026-02-13); `src/wizard/onboarding.gateway-config.ts:206` |
 | [#8516](https://github.com/openclaw/openclaw/issues/8516) | HIGH | Browser download/trace endpoints arbitrary file write | `src/browser/routes/agent.act.ts:447-480` |
-| [#8586](https://github.com/openclaw/openclaw/issues/8586) | HIGH | Configurable bypass allows unrestricted command exec | `src/agents/bash-tools.exec.ts:199-207,269-271` |
+| [#8586](https://github.com/openclaw/openclaw/issues/8586) | ~~HIGH~~ FIXED | Configurable bypass allows unrestricted command exec | Fixed upstream (COMPLETED 2026-02-14); `src/agents/bash-tools.exec.ts:199-207,269-271` |
 | [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH (WONTFIX) | Env vars exposed via shell commands | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/bash-tools.exec.ts:290,298` |
 | [#8590](https://github.com/openclaw/openclaw/issues/8590) | HIGH | Status endpoint exposes sensitive internal info | `src/gateway/server-methods/health.ts:28-31` |
 | [#8696](https://github.com/openclaw/openclaw/issues/8696) | HIGH | Playwright download path traversal | `src/browser/pw-tools-core.downloads.ts:20-24` |
 | [#8776](https://github.com/openclaw/openclaw/issues/8776) | ~~HIGH~~ FIXED | soul-evil hook silently hijacks agent | Fixed in PR [#14757](https://github.com/openclaw/openclaw/pull/14757) — soul-evil hook completely removed |
 | [#9435](https://github.com/openclaw/openclaw/issues/9435) | ~~HIGH~~ FIXED | Gateway auth token exposed in URL query params | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token acceptance removed from `src/gateway/hooks.ts`, dashboard URL no longer passes `?token=` |
-| [#9512](https://github.com/openclaw/openclaw/issues/9512) | HIGH | Skill download archive path traversal | `src/agents/skills-install.ts:267,274` |
+| [#9512](https://github.com/openclaw/openclaw/issues/9512) | ~~HIGH~~ FIXED | Skill download archive path traversal | Fixed upstream (COMPLETED 2026-02-14); `src/agents/skills-install.ts:267,274` |
 | [#9517](https://github.com/openclaw/openclaw/issues/9517) | ~~HIGH~~ FIXED | Gateway canvas host auth bypass | Fixed in PR [#9518](https://github.com/openclaw/openclaw/pull/9518) — new `authorizeCanvasRequest()` at `src/gateway/server-http.ts:109-155` |
 | [#9627](https://github.com/openclaw/openclaw/issues/9627) | HIGH | Config secrets exposed in JSON after update/doctor | `src/config/io.ts:849-1067` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`) |
 | [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:849-1067` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
@@ -39,7 +39,7 @@
 | [#5120](https://github.com/openclaw/openclaw/issues/5120) | ~~MEDIUM~~ FIXED | Webhook token accepted via query parameters | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token extraction removed from `src/gateway/hooks.ts` (note: upstream issue still OPEN) |
 | [#5122](https://github.com/openclaw/openclaw/issues/5122) | ~~MEDIUM~~ MITIGATED | readJsonBody() Slowloris DoS (no read timeout) | `src/gateway/hooks.ts:177-194` — now delegates to `readJsonBodyWithLimit()` from `src/infra/http-body.ts` with 30s timeout (commit `3cbcba10c`) |
 | [#5123](https://github.com/openclaw/openclaw/issues/5123) | MEDIUM | ReDoS in session filter regex | `src/infra/exec-approval-forwarder.ts:70-77` |
-| [#5124](https://github.com/openclaw/openclaw/issues/5124) | MEDIUM | ReDoS in log redaction patterns | `src/logging/redact.ts:47-61` |
+| [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:47-61` |
 | [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); partially mitigated locally (hook token + device pairing use `safeEqualSecret`); `src/infra/node-pairing.ts:277` still uses `===` |
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 | `src/auto-reply/reply/session.ts:87` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | MEDIUM | web_fetch hidden text prompt injection | `src/agents/tools/web-fetch-utils.ts:59-61` |
@@ -51,9 +51,9 @@
 | [#9007](https://github.com/openclaw/openclaw/issues/9007) | LOW | Google Places URL path interpolation (skill, not core) | `skills/local-places/src/local_places/google_places.py:238` |
 | [#9065](https://github.com/openclaw/openclaw/issues/9065) | LOW | ~/.openclaw group-writable after sudo install | Operational - code uses `0o700` but sudo bypasses |
 | [#10324](https://github.com/openclaw/openclaw/issues/10324) | MEDIUM | Memory index multi-write lacks transactions | `src/memory/manager.ts:2198-2301` (DELETEs+INSERTs without BEGIN/COMMIT) |
-| [#10326](https://github.com/openclaw/openclaw/issues/10326) | MEDIUM | Child process stop() lacks SIGKILL escalation | `src/imessage/client.ts:110-131`, `src/signal/daemon.ts:96-100` |
+| [#10326](https://github.com/openclaw/openclaw/issues/10326) | ~~MEDIUM~~ FIXED | Child process stop() lacks SIGKILL escalation | Fixed upstream (COMPLETED 2026-02-14); `src/imessage/client.ts:110-131`, `src/signal/daemon.ts:96-100` |
 | [#10330](https://github.com/openclaw/openclaw/issues/10330) | MEDIUM | TOCTOU race in device auth token storage | `src/infra/device-auth-store.ts:92-119` (read+write with no lock) |
-| [#10331](https://github.com/openclaw/openclaw/issues/10331) | MEDIUM | Session store stale cache inside write lock | `src/config/sessions/store.ts:667,729` (partially fixed — `updateSessionStore()` at :575 now uses `skipCache: true`; two callers remain unfixed) |
+| [#10331](https://github.com/openclaw/openclaw/issues/10331) | ~~MEDIUM~~ FIXED | Session store stale cache inside write lock | Fixed upstream (COMPLETED 2026-02-14); `src/config/sessions/store.ts:667,729` |
 | [#10333](https://github.com/openclaw/openclaw/issues/10333) | ~~MEDIUM~~ FIXED | BlueBubbles filename multipart header injection | Fixed in PR [#11093](https://github.com/openclaw/openclaw/pull/11093) — `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:26-30` |
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | HIGH | Weak UUID: Math.random() fallback + tool call IDs | `ui/src/ui/uuid.ts:23-33` (fallback), `src/auto-reply/reply/get-reply-inline-actions.ts:191` (toolCallId) |
 | [#7139](https://github.com/openclaw/openclaw/issues/7139) | MEDIUM | Default config: sandbox off, plaintext creds | `src/agents/sandbox/config.ts:147` (mode="off"), gateway loopback is safe; creds 0o600 |
@@ -74,7 +74,7 @@
 | [#11431](https://github.com/openclaw/openclaw/issues/11431) | ~~CRITICAL~~ FIXED | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | Fixed in PRs: `92702af7a` (plugins+hooks, Feb 12 sync 1) + [#14659](https://github.com/openclaw/openclaw/pull/14659) (skills, Feb 13 sync 1) — `--ignore-scripts` added to all install commands |
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH (WONTFIX) | Sandbox browser bridge started without auth token | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/sandbox/browser.ts:192`; relates to #6609 |
 | [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH (WONTFIX) | config.patch bypasses commands.restart restriction | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-methods/config.ts:330` |
-| [#13683](https://github.com/openclaw/openclaw/issues/13683) | HIGH | CLI `config get` returns unredacted secrets to sandboxed agents | `src/cli/config-cli.ts:269-270` — reads `snapshot.config` without `redactConfigObject()`; gateway RPC at `server-methods/config.ts:108` correctly redacts |
+| [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:269-270` |
 | [#13786](https://github.com/openclaw/openclaw/issues/13786) | ~~HIGH~~ FIXED | BlueBubbles webhook auth bypass via loopback proxy trust | Fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) — loopback bypass removed; all requests require password auth |
 | [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:484-497`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
@@ -82,10 +82,12 @@
 | [#13274](https://github.com/openclaw/openclaw/issues/13274) | HIGH | SSRF guard bypassed by IPv4-compatible IPv6 addresses | `src/infra/net/ssrf.ts:144-165` — `isPrivateIpAddress()` does not handle `::127.0.0.1` or `::7f00:1` |
 | [#11738](https://github.com/openclaw/openclaw/issues/11738) | HIGH | Canvas authorization IP co-tenancy bypass | `src/gateway/server-http.ts:100-105` — `hasAuthorizedWsClientForIp()` trusts any request from same IP as authenticated WS client; bypasses auth in NAT/proxy environments |
 | [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH | HTTP API session keys lack ownership validation | `src/gateway/http-utils.ts:71-73` — `x-openclaw-session-key` header accepted as-is with no ownership check; cross-user session access in multi-user deployments |
-| [#11024](https://github.com/openclaw/openclaw/issues/11024) | HIGH | Gmail push endpoint embeds auth token in URL query string | `src/hooks/gmail-setup-utils.ts:315` — push endpoint constructed as `?token=<secret>`; same CWE-598 as fixed #9435/#5120 but Gmail-specific path |
+| [#11024](https://github.com/openclaw/openclaw/issues/11024) | ~~HIGH~~ FIXED | Gmail push endpoint embeds auth token in URL query string | Fixed upstream (COMPLETED 2026-02-14); `src/hooks/gmail-setup-utils.ts:315` |
 | [#11811](https://github.com/openclaw/openclaw/issues/11811) | HIGH | MSTeams attachment fetch follows redirects before allowlist checks (SSRF) | `extensions/msteams/src/attachments/download.ts:93` — `fetchFn(params.url)` with default redirect behavior; allowlist checked on initial URL only |
+| [#15906](https://github.com/openclaw/openclaw/issues/15906) | HIGH | RCE via rogue gateway impersonation (mDNS discovery spoofing) | `apps/android/.../GatewayDiscovery.kt:148-162` (TLS fingerprint stored but not enforced); `apps/macos/.../ShellExecutor.swift:14-32` (unrestricted command exec); partial mitigation via device pairing nonce/challenge |
+| [#15950](https://github.com/openclaw/openclaw/issues/15950) | HIGH | Android production build permits cleartext traffic globally | `apps/android/.../network_security_config.xml:4` — `cleartextTrafficPermitted="true"` in base-config; enables HTTP/WS interception on untrusted networks |
 | [#14875](https://github.com/openclaw/openclaw/issues/14875) | ~~HIGH~~ FIXED | Feishu channel hardcodes CommandAuthorized bypassing access groups | Fixed upstream (COMPLETED 2026-02-13); `extensions/feishu/src/bot.ts:818,906` |
-| [#14117](https://github.com/openclaw/openclaw/issues/14117) | MEDIUM | Session isolation & message attribution failure | Cross-session message leakage between main + remote sessions; raw cron output exposed; relates to #12571 |
+| [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:126-142` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
 | [#12173](https://github.com/openclaw/openclaw/issues/12173) | MEDIUM | apply_patch tool path traversal when sandbox disabled | `src/agents/apply-patch.ts:215-236` — `resolvePatchPath()` falls through to `resolvePathFromCwd()` with no containment when `sandboxRoot` is undefined (default) |
@@ -176,7 +178,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #6609: Browser Bridge Server Optional Authentication
 
-**Severity:** HIGH (CVSS 7.7)
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~HIGH~~ FIXED (was CVSS 7.7)
 **CWE:** CWE-306 (Missing Authentication for Critical Function)
 
 **Vulnerability:** Browser bridge server's authentication token is optional. When started without `authToken`, all browser automation endpoints are exposed without authentication.
@@ -206,7 +210,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #9512: Skill Download Archive Path Traversal
 
-**Severity:** HIGH (CVSS 7.6)
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~HIGH~~ FIXED (was CVSS 7.6)
 **CWE:** CWE-22 (Path Traversal)
 
 **Vulnerability:** `skills.install` with download installer extracts archives via system `tar`/`unzip` without validating entry paths. Malicious archives with `../` sequences can write files outside the target directory (Zip Slip attack).
@@ -305,7 +311,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #5124: ReDoS in Log Redaction Patterns
 
-**Severity:** MEDIUM
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~MEDIUM~~ FIXED
 **CWE:** CWE-1333 (Inefficient Regular Expression Complexity)
 
 **Vulnerability:** Log redaction `parsePattern()` compiles arbitrary regex patterns that could cause catastrophic backtracking on large log entries.
@@ -369,7 +377,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #8586: Configurable Bypass Allows Unrestricted Command Exec
 
-**Severity:** HIGH
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~HIGH~~ FIXED
 **CWE:** CWE-269 (Improper Privilege Management)
 
 **Vulnerability:** When `elevatedMode=full` is configured, all security controls on command execution are bypassed. The `bypassApprovals` flag skips `resolveExecApprovals` entirely, allowing any command without user confirmation.
@@ -608,7 +618,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #10326: Child Process stop() Lacks SIGKILL Escalation
 
-**Severity:** MEDIUM (CVSS 5.5)
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~MEDIUM~~ FIXED (was CVSS 5.5)
 **CWE:** CWE-404 (Improper Resource Shutdown or Release)
 
 **Vulnerability:** Child process termination in iMessage and Signal daemons sends only SIGTERM with no fallback to SIGKILL. Misbehaving or hung child processes can remain alive indefinitely, consuming resources.
@@ -630,7 +642,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #10331: Session Store Stale Cache Inside Write Lock
 
-**Severity:** MEDIUM (CVSS 5.9)
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~MEDIUM~~ FIXED (was CVSS 5.9)
 **CWE:** CWE-662 (Improper Synchronization)
 
 **Vulnerability:** Two session store write methods call `loadSessionStore()` without `skipCache: true`, reading stale cached data even though they hold the write lock. Concurrent requests to the same session can silently lose metadata updates.
@@ -746,7 +760,9 @@ All changes take effect immediately via automatic restart.
 
 ### #13683: CLI `config get` Returns Unredacted Secrets to Sandboxed Agents
 
-**Severity:** HIGH
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~HIGH~~ FIXED
 **CWE:** CWE-200 (Exposure of Sensitive Information)
 
 **Vulnerability:** The CLI `openclaw config get` command reads and outputs resolved config values (including secrets from `${ENV_VAR}` substitution) without applying the redaction system. The gateway RPC `config.get` handler correctly redacts via `redactConfigSnapshot()`, but the CLI path bypasses this entirely. A sandboxed agent with exec access can extract any API key configured via env var substitution.
@@ -819,7 +835,9 @@ All changes take effect immediately via automatic restart.
 
 ### #14117: Session Isolation & Message Attribution Failure
 
-**Severity:** MEDIUM
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~MEDIUM~~ FIXED
 **CWE:** CWE-200 (Exposure of Sensitive Information) / CWE-362 (Race Condition)
 
 **Vulnerability:** Three distinct session management failures:
@@ -918,7 +936,9 @@ All changes take effect immediately via automatic restart.
 
 ### #11024: Gmail Push Endpoint Embeds Auth Token in URL Query String
 
-**Severity:** HIGH
+**Status: FIXED** -- closed as COMPLETED upstream 2026-02-14
+
+**Severity:** ~~HIGH~~ FIXED
 **CWE:** CWE-598 (Sensitive Query Strings)
 
 **Vulnerability:** Gmail webhook setup constructs Pub/Sub push endpoints as `https://...?token=<secret>`, exposing the shared secret via URL telemetry surfaces (reverse-proxy logs, access logs, traces, analytics). Additionally, the setup prints tokens in CLI output and `--json` mode.
@@ -974,6 +994,37 @@ All changes take effect immediately via automatic restart.
 - Called at lines 141, 149, 155, 159 for add/delete/update/move patch operations
 
 **Mitigation note:** When sandbox is disabled, the exec tool already has unrestricted file access. This is an additional vector (apply_patch vs exec) but does not expand the attack surface beyond what exec provides. Severity is MEDIUM rather than HIGH because it does not bypass a security boundary that is otherwise enforced.
+
+### #15906: RCE via Rogue Gateway Impersonation (mDNS Discovery Spoofing)
+
+**Severity:** HIGH
+**CWE:** CWE-300 (Channel Accessible by Non-Endpoint) / CWE-295 (Improper Certificate Validation)
+
+**Vulnerability:** The OpenClaw Node discovery mechanism (mDNS/Bonjour and Wide Area DNS-SD) automatically discovers and presents Gateways to users for connection without enforcing TLS certificate pinning or TOFU (Trust-On-First-Use) verification. An attacker on the same local network can advertise a rogue mDNS service impersonating a legitimate Gateway. The TLS fingerprint from the mDNS TXT record (`gatewayTlsSha256`) is stored but never verified against the actual TLS certificate presented during connection.
+
+**Affected code:**
+- `apps/android/app/src/main/java/ai/openclaw/android/gateway/GatewayDiscovery.kt:148-162` -- `onServiceResolved` stores `tlsFingerprintSha256` from TXT record but does not enforce it; endpoint published immediately via `publish()`
+- `apps/macos/Sources/OpenClawDiscovery/WideAreaGatewayDiscovery.swift:75-99` -- DNS-SD results resolved without identity verification or certificate pinning
+- `apps/macos/Sources/OpenClaw/ShellExecutor.swift:14-32` -- `runDetailed()` executes arbitrary commands via `/usr/bin/env` with no allowlist or sandboxing
+
+**Partial mitigation:** Device pairing nonce/challenge flow exists in `GatewaySession.kt:263-264,448-451`. New devices must go through pairing approval before the Gateway can send commands. Auto-approve for local connections reduces this protection. The core issue is that mDNS is inherently unauthenticated, and the TLS fingerprint metadata is informational only.
+
+**Impact:** On shared/hostile networks (coffee shops, co-working spaces, conference WiFi), an attacker can impersonate a Gateway and potentially execute commands on paired Nodes. Requires network adjacency and either auto-approve being enabled or social engineering of the pairing approval.
+
+### #15950: Android Production Build Permits Cleartext Traffic Globally
+
+**Severity:** HIGH
+**CWE:** CWE-319 (Cleartext Transmission of Sensitive Information)
+
+**Vulnerability:** The Android app ships with a `network_security_config.xml` that globally enables cleartext HTTP traffic via `<base-config cleartextTrafficPermitted="true">`. This overrides the secure default for modern Android SDKs (API 28+), allowing all HTTP connections including credential-bearing gateway flows to be intercepted on untrusted networks.
+
+**Affected code:**
+- `apps/android/app/src/main/res/xml/network_security_config.xml:4` -- `<base-config cleartextTrafficPermitted="true" tools:ignore="InsecureBaseConfiguration" />`
+- `apps/android/app/src/main/AndroidManifest.xml` -- `android:networkSecurityConfig="@xml/network_security_config"` applies the permissive config to all production builds
+
+**Context:** The inline comment says "This app is primarily used on a trusted tailnet; allow cleartext for IP-based endpoints too." While this is true for Tailscale deployments, the production APK is distributed to all users, many of whom use non-Tailscale setups where cleartext traffic is actively dangerous.
+
+**Impact:** Gateway auth tokens, API keys, and conversation data can be intercepted via MITM on any untrusted network. The `tools:ignore="InsecureBaseConfiguration"` annotation deliberately suppresses the Android lint warning for this security issue.
 
 ### Notable Non-Core Issues
 
