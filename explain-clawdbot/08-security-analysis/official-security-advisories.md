@@ -24,6 +24,9 @@
 | [GHSA-qw99-grcx-4pvm](https://github.com/openclaw/openclaw/security/advisories/GHSA-qw99-grcx-4pvm) | MEDIUM | Chrome Extension Relay Wildcard Binding | - | pending | - |
 | [GHSA-wfp2-v9c7-fh79](https://github.com/openclaw/openclaw/security/advisories/GHSA-wfp2-v9c7-fh79) | MEDIUM | SSRF via Attachment/Media URL Hydration | CWE-918 | < v2026.2.2 | - |
 | [CVE-2026-24764](https://github.com/openclaw/openclaw/security/advisories/GHSA-782p-5fr5-7fj8) | LOW | Slack Integration Hardening: Channel Metadata Injection | CWE-74, CWE-94 | < v2026.2.3 | - |
+| [GHSA-mv9j-6xhh-g383](https://github.com/openclaw/openclaw/security/advisories/GHSA-mv9j-6xhh-g383) | HIGH | Unauthenticated Nostr Profile HTTP Endpoints | - | pending | - |
+| [GHSA-3m3q-x3gj-f79x](https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x) | MEDIUM | Voice-Call Webhook Verification Bypass Behind Proxy | - | pending | - |
+| [GHSA-g27f-9qjv-22pm](https://github.com/openclaw/openclaw/security/advisories/GHSA-g27f-9qjv-22pm) | LOW | Log Poisoning via WebSocket Headers | - | pending | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -120,6 +123,42 @@
 **Impact:** Prompt injection via Slack channel metadata. Low severity due to requiring Slack workspace admin access to modify channel metadata.
 
 **Fix:** Patched in v2026.2.3. Channel metadata is now sanitized before inclusion in system prompts.
+
+### GHSA-mv9j-6xhh-g383: Unauthenticated Nostr Profile HTTP Endpoints
+
+**Severity:** HIGH
+**Published:** 2026-02-14
+**Credits:** —
+
+**Description:** Unauthenticated Nostr profile HTTP endpoints allow remote profile and configuration tampering. An attacker could modify Nostr profile settings without authentication via the HTTP API endpoints.
+
+**Impact:** Remote profile/config tampering via unauthenticated HTTP requests.
+
+**Fix:** Pending. Related hardening: `3e0e78f82` (fix(nostr): guard profile mutations) adds mutation guards in `extensions/nostr/src/nostr-profile-http.ts`. See [Feb 15 sync 5](./post-merge-hardening/2026-02-15-sync-5.md).
+
+### GHSA-3m3q-x3gj-f79x: Voice-Call Webhook Verification Bypass Behind Proxy
+
+**Severity:** MEDIUM
+**Published:** 2026-02-14
+**Credits:** —
+
+**Description:** The optional voice-call plugin's webhook verification may be bypassed when the gateway is deployed behind certain proxy configurations that alter or strip request headers used for signature validation.
+
+**Impact:** Webhook authentication bypass in proxy configurations, potentially allowing unauthorized voice call events to be processed.
+
+**Fix:** Pending. Related prior hardening: `a749db982` (Feb 4 sync 3) enhanced webhook verification with provider-specific validation for Twilio and Plivo.
+
+### GHSA-g27f-9qjv-22pm: Log Poisoning via WebSocket Headers
+
+**Severity:** LOW
+**Published:** 2026-02-14
+**Credits:** —
+
+**Description:** OpenClaw log poisoning (indirect prompt injection) via WebSocket headers. Crafted WebSocket connection headers could inject content into gateway logs, potentially influencing agent behavior if logs are consumed by the AI agent.
+
+**Impact:** Indirect prompt injection via log content. Low severity due to requiring WebSocket connection access and the indirect nature of the injection path.
+
+**Fix:** Pending.
 
 ### Relationship to Third-Party Audits
 

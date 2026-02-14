@@ -954,6 +954,12 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 5) — 30 upstream commits
+
+**Security relevance: HIGH** — 11 security-relevant commits. **Shell injection prevention** (`9dce3d8bf`, `66d7178f2`): `writeClaudeCliKeychainCredentials()` and keychain read in `src/agents/cli-credentials.ts:383-437` switched from `execSync` (shell) to `execFileSync` (no shell), preventing `$()` and backtick expansion in OAuth token values. **Addresses Audit 2 Claim 7.** **Webhook routing hardening** (`188c4cd07`, `61d59a802`): bluebubbles, zalo, and googlechat monitors reject ambiguous webhook target matches. Related to Audit 1 Claim 7. **Discovery routing + TLS pins** (`d583782ee`, 17 files): Android, iOS, macOS gateway clients hardened with TLS pinning and discovery validation. **CLI cleanup scoping** (`eb60e2e1b`, `6084d13b9`): kill signals restricted to owned child PIDs. **Nostr profile guards** (`3e0e78f82`): relates to GHSA-mv9j-6xhh-g383. **Feishu media URL hardening** (`5b4121d60`): relates to GHSA-wfp2-v9c7-fh79. **Config value redaction** (`d3428053d`): skills status output redaction. 3 new advisories: GHSA-mv9j-6xhh-g383 (HIGH), GHSA-3m3q-x3gj-f79x (MEDIUM), GHSA-g27f-9qjv-22pm (LOW). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-5.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 ---
 
 ## Recommended Hardening Measures

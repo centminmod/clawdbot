@@ -591,6 +591,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 5) — 30 upstream commits
+
+**Security relevance: HIGH** — Shell injection prevention in keychain credential write/read (`9dce3d8bf`, `66d7178f2` — Audit 2 Claim 7). Webhook routing hardening for bluebubbles, zalo, googlechat (`188c4cd07`, `61d59a802`). Discovery routing + TLS pins across Android/iOS/macOS (17 files, `d583782ee`). CLI cleanup scoped to owned child PIDs (`eb60e2e1b`, `6084d13b9`). Nostr profile mutation guards (`3e0e78f82` — GHSA-mv9j-6xhh-g383). Feishu media URL hardening (`5b4121d60`). Config value redaction in skills status (`d3428053d`). 3 new advisories added. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-5.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
