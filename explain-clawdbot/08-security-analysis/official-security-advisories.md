@@ -28,6 +28,8 @@
 | [GHSA-3m3q-x3gj-f79x](https://github.com/openclaw/openclaw/security/advisories/GHSA-3m3q-x3gj-f79x) | MEDIUM | Voice-Call Webhook Verification Bypass Behind Proxy | - | pending | - |
 | [GHSA-pchc-86f6-8758](https://github.com/openclaw/openclaw/security/advisories/GHSA-pchc-86f6-8758) | HIGH | BlueBubbles Webhook Auth Bypass via Loopback Proxy Trust | - | v2026.2.13 | @MegaManSec |
 | [GHSA-g27f-9qjv-22pm](https://github.com/openclaw/openclaw/security/advisories/GHSA-g27f-9qjv-22pm) | LOW | Log Poisoning via WebSocket Headers | - | pending | - |
+| [GHSA-fhvm-j76f-qmjv](https://github.com/openclaw/openclaw/security/advisories/GHSA-fhvm-j76f-qmjv) | HIGH | Telegram Webhook Auth Bypass (Missing Secret) | CWE-285 | >= v2026.2.2 | @simecek |
+| [GHSA-rmxw-jxxx-4cpc](https://github.com/openclaw/openclaw/security/advisories/GHSA-rmxw-jxxx-4cpc) | MEDIUM | Matrix Allowlist Bypass via displayName | - | >= v2026.2.2 | @MegaManSec |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -172,6 +174,30 @@
 **Impact:** Webhook authentication bypass in loopback proxy configurations, potentially allowing unauthorized BlueBubbles events to be processed.
 
 **Fix:** Fixed in v2026.2.13. Commits `f836c385f`, `743f4b284` (defense-in-depth). Related hardening: `71f357d94` (LFI path hardening in BlueBubbles media-send). See [Feb 15 sync 6](./post-merge-hardening/2026-02-15-sync-6.md).
+
+### GHSA-fhvm-j76f-qmjv: Telegram Webhook Auth Bypass (Missing Secret)
+
+**Severity:** HIGH (CWE-285: Improper Authorization)
+**Affected:** < v2026.2.2
+**Credits:** @simecek
+
+**Description:** The Telegram channel plugin could accept webhook requests without verifying the webhook secret when the secret was not configured. If no `telegram.webhookSecret` was set, webhook requests were accepted without authentication, allowing an attacker who discovers the webhook URL to inject messages into the agent pipeline.
+
+**Impact:** Unauthorized message injection via Telegram webhooks when the webhook secret is not configured.
+
+**Fix:** Commit `ca92597e1`. Telegram webhook handler now fails closed when the webhook secret is missing — requests are rejected rather than accepted without verification.
+
+### GHSA-rmxw-jxxx-4cpc: Matrix Allowlist Bypass via displayName
+
+**Severity:** MEDIUM
+**Affected:** < v2026.2.2
+**Credits:** @MegaManSec
+
+**Description:** The Matrix channel plugin's allowlist matching accepted display names in addition to full MXIDs (`@user:server`). An attacker could set their display name to match an allowed user's MXID, bypassing the allowlist restriction.
+
+**Impact:** Allowlist bypass in Matrix channel — unauthorized users could interact with the agent by spoofing display names.
+
+**Fix:** Commit `8f3bfbd1c`. Matrix allowlist now requires full MXIDs (`@user:server`) and only accepts single exact matches from directory search. See [Feb 4 sync 1](./post-merge-hardening/2026-02-04-sync-1.md).
 
 ### Relationship to Third-Party Audits
 

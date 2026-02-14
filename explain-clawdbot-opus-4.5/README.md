@@ -146,10 +146,10 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks validation (`src/agents/tools/nodes-tool.ts:344-347`), but writes to paired node device, not gateway host. Requires node pairing approval. Real risk: Low-Medium. |
 | 3 | Log traversal via `logs.tail` | **False** | `LogsTailParamsSchema` has `additionalProperties: false` with only `cursor`, `limit`, `maxBytes`. File path from `getResolvedLoggerSettings().file` (config), not user input. |
 | 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:209-247`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:120-142`). |
-| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:93-163`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:99-169`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-31`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:16-44`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
-| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:294-295`). Node-host has blocklist (`src/node-host/invoke.ts:45-175`). Requires human approval + localhost + no sandbox. |
+| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:296-297`). Node-host has blocklist (`src/node-host/invoke.ts:45-175`). Requires human approval + localhost + no sandbox. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 
@@ -298,7 +298,7 @@ Two security-relevant commits:
 
 - **`66d8117d4`** — Control UI origin hardening: New `checkBrowserOrigin()` (`src/gateway/origin-check.ts:43-71`) validates WebSocket Origin headers for Control UI and Webchat connections. Accepts only: configured `allowedOrigins`, same-host requests, or loopback addresses. Prevents clickjacking and cross-origin WebSocket hijacking. New config: `gateway.controlUi.allowedOrigins`.
 
-- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:93`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
+- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:99`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
 
 **Gap status: 1 closed, 2 remain open** (pipe-delimited token format, outPath validation).
 
@@ -600,6 +600,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 15 sync 6) — 30 upstream commits
 
 **Security relevance: HIGH** — System.run rawCommand/argv consistency enforcement (`cb3290fca` — Audit 2 Claim 1). Tlon Urbit SSRF hardening with `allowPrivateNetwork` flag (`bfa7d21e9` — Audit 2 Claim 4). BlueBubbles LFI path hardening with `mediaLocalRoots` allowlist (`71f357d94`). Voice-call webhook fail-closed chain (`29b587e73` Telnyx + `ff11d8793` Twilio ngrok — Audit 1 Claim 7). Mobile TLS trust-on-first-use (`054366dea`, 16 files). SSRF + traversal regression tests (`7cc6add9b`, `09e216008`). Webchat NO_REPLY token filtering (`baa3bf270`). 1 new advisory: GHSA-pchc-86f6-8758 (HIGH). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-6.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 7) — 30 upstream commits
+
+**Security relevance: HIGH** — 8 security-relevant commits. SafeBins shell expansion blocking (`77b89719d` — Audit 2 Claims 7, 8). Node.invoke exec approvals blocking (`01b3226ec` — Audit 2 Claim 5). Session path traversal prevention (`cab0abf52` — Audit 1 Claim 6). BlueBubbles webhook auth hardening (`743f4b284` — GHSA-pchc-86f6-8758). Slack DM authorization gating (`f19eabee5`). Discord exec approval channel targeting (`5ba72bd9b`). Telnyx webhook centralization (`f47584fec` — Audit 1 Claim 7). Urbit SSRF request helpers (`d0f64c955` — Audit 2 Claim 4). 2 new advisories: GHSA-fhvm-j76f-qmjv (HIGH), GHSA-rmxw-jxxx-4cpc (MEDIUM). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-7.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 

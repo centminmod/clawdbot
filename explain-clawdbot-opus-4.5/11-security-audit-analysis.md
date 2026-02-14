@@ -190,7 +190,7 @@ await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
 
 However, the article omits critical context:
 - **Execution is inside a Docker container**, not on the host. The container runs with `no-new-privileges` and restricted capabilities.
-- **Modifying config requires gateway authentication.** The `config.patch` server method is gated behind `authorizeGatewayMethod()` which requires the `operator` role (`src/gateway/server-methods.ts:93-163`).
+- **Modifying config requires gateway authentication.** The `config.patch` server method is gated behind `authorizeGatewayMethod()` which requires the `operator` role (`src/gateway/server-methods.ts:99-169`).
 - **Agent runtime schemas validate config** via Zod (`src/agents/zod-schema.agent-runtime.ts`).
 
 **What the article missed:** Container isolation is the primary security boundary for agent execution. RCE inside a container is not equivalent to RCE on the host. Real risk is Medium (CVSS 6-7), not Critical (10.0).
@@ -261,7 +261,7 @@ The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-
 
 **Verdict: False.**
 
-The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:93-163`) enforces role-based access control on every server method:
+The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:99-169`) enforces role-based access control on every server method:
 - Agents connect with `role: "node"` and are restricted to `NODE_ROLE_METHODS` only
 - Any non-node method call from a node role returns `unauthorized role: node`
 - Approval methods require `operator.approvals` scope (line 108-109)
@@ -310,7 +310,7 @@ This validates the name of an executable to run, not arguments passed to it. Arg
 Previously, the gateway host merged `params.env` without sanitization. As of PR #12, the gateway now validates env vars:
 - Blocklist at `src/agents/bash-tools.exec-runtime.ts:32-50`
 - Validation function at `src/agents/bash-tools.exec-runtime.ts:54` (`validateHostEnv`)
-- Enforcement at `src/agents/bash-tools.exec.ts:294-295` (validates before env merge at `:298`)
+- Enforcement at `src/agents/bash-tools.exec.ts:296-297` (validates before env merge at `:300`)
 
 On the node host, there is an explicit blocklist (`src/node-host/invoke.ts:45-175` — was `src/node-host/runner.ts:166-175`):
 ```
@@ -363,7 +363,7 @@ Both audits correctly identify code patterns that *could* be concerning in isola
 
 While none of the 8 claims are exploitable as described, three defense-in-depth improvements were identified:
 
-1. ~~**Gateway-side env var blocklist (Claim 8):**~~ **CLOSED in PR #12.** Gateway now has `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec.ts:59-107`), with enforcement before env merge.
+1. ~~**Gateway-side env var blocklist (Claim 8):**~~ **CLOSED in PR #12.** Gateway now has `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:32-50,54`), with enforcement at `src/agents/bash-tools.exec.ts:296-297`.
 
 2. **Pipe-delimited token format (Claim 6):** The token construction uses pipe delimiters without input sanitization. RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 
@@ -549,7 +549,7 @@ Two security-relevant commits:
 
 - **`66d8117d4`** — Control UI origin hardening: New `checkBrowserOrigin()` (`src/gateway/origin-check.ts:43-71`) validates WebSocket Origin headers for Control UI and Webchat connections. Accepts only: configured `allowedOrigins`, same-host requests, or loopback addresses. Prevents clickjacking and cross-origin WebSocket hijacking. New config: `gateway.controlUi.allowedOrigins`.
 
-- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:93`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
+- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:99`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
 
 **Gap status: 1 closed, 2 remain open** (pipe-delimited token format, outPath validation).
 
@@ -963,6 +963,14 @@ No line shifts. No new CVEs.
 ### Post-Merge Hardening (Feb 15 sync 6) — 30 upstream commits
 
 **Security relevance: HIGH** — 10 security-relevant commits. **System.run rawCommand/argv consistency** (`cb3290fca`): new `validateSystemRunCommandConsistency()` in `src/infra/system-run-command.ts` prevents approval bypass via mismatched rawCommand/argv; gateway calls validation at `node-invoke-system-run-approval.ts:143`. Addresses Audit 2 Claim 1. **Tlon Urbit SSRF hardening** (`bfa7d21e9`, 18 files): new `base-url.ts` validates URLs, blocks private networks by default; `allowPrivateNetwork` flag requires user consent. Addresses Audit 2 Claim 4. **BlueBubbles LFI hardening** (`71f357d94`): path normalization + `mediaLocalRoots` allowlist in `media-send.ts` (157 lines); `O_NOFOLLOW` + realpath re-validation prevents symlink attacks. **Voice-call webhook hardening** chain (`29b587e73` + `ff11d8793`): Telnyx fails closed without public key; Twilio signatures enforced even in ngrok loopback mode. Addresses Audit 1 Claim 7. **Mobile TLS trust-on-first-use** (`054366dea`, 16 files): Android + iOS require explicit user confirmation before trusting new TLS certificates. **SSRF + traversal regression tests** (`7cc6add9b`, `09e216008`). **Webchat NO_REPLY filtering** (`baa3bf270`): strips internal control token from visible output. 1 new advisory: GHSA-pchc-86f6-8758 (HIGH — BlueBubbles webhook auth bypass). Line shifts: `paths.ts:87-105` → `88-106`, `invoke.ts:44-174` → `45-175`. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-6.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 7) — 30 upstream commits
+
+**Security relevance: HIGH** — 8 security-relevant commits. **SafeBins shell expansion blocking** (`77b89719d`): new `buildSafeShellCommand()` in `src/infra/exec-approvals-analysis.ts:734` prevents shell metacharacter expansion in safeBins arguments, imported at `src/agents/bash-tools.exec.ts:18`, called at `:818`. **Addresses Audit 2 Claims 7 and 8.** **Node.invoke exec approvals blocking** (`01b3226ec`): blocks `system.execApprovals.get/set` from node.invoke pathway at `src/gateway/server-methods/nodes.ts:391-397`. **Addresses Audit 2 Claim 5.** **Session path traversal prevention** (`cab0abf52`): new `resolvePathFromAgentSessionsDir()` (lines 75-85), `resolveSiblingAgentSessionsDir()` (lines 87-102), `extractAgentIdFromAbsoluteSessionPath()` (lines 104-113) in `src/config/sessions/paths.ts`. **Addresses Audit 1 Claim 6.** **BlueBubbles webhook auth hardening** (`743f4b284`): defense-in-depth for GHSA-pchc-86f6-8758. **Slack DM auth gating** (`f19eabee5`): `normalizeSlackChannelType()` + authorization checks at `src/slack/monitor/slash.ts:183-199`. **Discord exec approval targeting** (`5ba72bd9b`): channel targeting for approval forwarding. **Telnyx webhook centralization** (`f47584fec`): centralized `verifyTelnyxWebhook()` function strengthens Audit 1 Claim 7. **Urbit SSRF centralization** (`d0f64c955`): continues Audit 2 Claim 4 hardening from sync 6. 2 new advisories: GHSA-fhvm-j76f-qmjv (HIGH — Telegram webhook auth bypass), GHSA-rmxw-jxxx-4cpc (MEDIUM — Matrix allowlist bypass). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-7.md).
+
+**Line shifts:** `bash-tools.exec.ts` 294-295→296-297 (validateHostEnv enforcement), 298→300 (env merge). `server-methods.ts` 93-163→99-169 (authorizeGatewayMethod — pre-existing shift now corrected in docs).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
