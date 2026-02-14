@@ -580,7 +580,7 @@
 **Changes (24 files):**
 - `src/gateway/auth-rate-limit.ts` (NEW) — sliding-window rate limiter with per-scope counters
 - `src/gateway/auth.ts` — integrates rate limiter with `check()` / `recordFailure()` / `reset()`
-- `src/gateway/server.impl.ts:275-277` — creates rate limiter from `gateway.auth.rateLimit` config
+- `src/gateway/server.impl.ts:301-304` — creates rate limiter from `gateway.auth.rateLimit` config
 - All gateway entry points (HTTP, WebSocket, tools-invoke, openai-http, openresponses-http) — pass rate limiter
 
 **Local Impact:** ALREADY SYNCED — `auth-rate-limit.ts` exists with full implementation; integrated across all gateway entry points
