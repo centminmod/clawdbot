@@ -581,7 +581,7 @@ These options apply across most `channels` subcommands:
 
 | Option | What it does |
 |--------|-------------|
-| `--channel <name>` | `whatsapp\|telegram\|discord\|googlechat\|slack\|mattermost\|signal\|imessage\|msteams` |
+| `--channel <name>` | Core: `whatsapp\|telegram\|discord\|irc\|googlechat\|slack\|signal\|imessage` — Plugins: `msteams\|mattermost` |
 | `--account <id>` | Channel account id (default `default`) |
 | `--name <label>` | Display name for the account |
 

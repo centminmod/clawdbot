@@ -498,7 +498,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=%h/.openclaw/bin/openclaw gateway --foreground
+ExecStart=%h/.openclaw/bin/openclaw gateway run
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production

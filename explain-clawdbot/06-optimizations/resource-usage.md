@@ -108,7 +108,7 @@ OpenClaw has several defenses:
 - **Compaction system:** `src/agents/compaction.ts` — multi-stage summarization to prevent unbounded context growth
 - **History turn limiting:** `src/agents/pi-embedded-runner/history.ts:15-36`
 - **Context pruning extension:** `src/agents/pi-extensions/context-pruning/extension.ts`
-- **WebSocket payload limits:** 512KB/frame, 1.5MB/connection buffer, 6MB history — `src/gateway/server-constants.ts:1-4`
+- **WebSocket payload limits:** 8MB/frame, 16MB/connection buffer, 6MB history — `src/gateway/server-constants.ts:1-4`
 
 ### Plugin memory
 
@@ -157,8 +157,8 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Audio | 16MB | `src/media/constants.ts:2` |
 | Video | 16MB | `src/media/constants.ts:3` |
 | Documents | 100MB | `src/media/constants.ts:4` |
-| WS frame | 512KB | `src/gateway/server-constants.ts:1` |
-| WS buffer | 1.5MB/connection | `src/gateway/server-constants.ts:2` |
+| WS frame | 8MB | `src/gateway/server-constants.ts:1` |
+| WS buffer | 16MB/connection | `src/gateway/server-constants.ts:2` |
 | Browser screenshot | 5MB | `src/browser/screenshot.ts:4` |
 
 ### No disk-space checks

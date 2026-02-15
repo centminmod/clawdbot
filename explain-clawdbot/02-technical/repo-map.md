@@ -152,7 +152,7 @@ From repo root:
   - search: `pairing` in `src/pairing/` and `docs/channels/pairing.md`
 
 - **Find a specific channel's allowlist behavior:**
-  - search `allowFrom` or `dmPolicy` in channel config types (`src/config/types.*.ts` — 31 files) and channel runtime
+  - search `allowFrom` or `dmPolicy` in channel config types (`src/config/types.*.ts` — 30 files) and channel runtime
 
 - **Find ChatType / DM policy enum:**
   - search: `ChatType` — used across channel adapters for group vs DM routing
