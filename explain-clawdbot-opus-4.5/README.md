@@ -669,6 +669,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 3) — 60 upstream commits
+
+**Security relevance: HIGH** — 2 direct vulnerability fixes + 8 hardening improvements. **workspace-* path traversal prevention** (`75f33e92b`): rejects per-agent state dirs via tmpdir allowlist — **Audit 1 Claim 6**. **Discord role-based allowlist bypass** (`c68263418`): Carbon Role objects stringify to mentions instead of IDs; fixed to `rawMember.roles` — **Audit 2 Claim 5**. **Bootstrap hiding** (`b4f14d6f7`): BOOTSTRAP.md excluded from file listings post-onboarding. **Plugin-SDK centralization** (`80eb91d9e`): 5 new shared modules. **iMessage monitor split** (`a6158873f`): proper abort handling. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-3.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---

@@ -195,7 +195,7 @@ Every path through which the AI can modify system state:
 - Gateway tool actions with zero gating: `src/agents/tools/gateway-tool.ts:30-37,175-225`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
 - Cron tool: `src/gateway/server-methods/cron.ts:73-97`
-- Agent files: `src/gateway/server-methods/agents.ts:454-506`
+- Agent files: `src/gateway/server-methods/agents.ts:467-519`
 
 **Key insight:** The `/config set` chat command has TWO permission gates (`commands.config` + `configWrites`). The gateway tool has ZERO. Setting `configWrites: false` only blocks the chat command — the gateway tool bypasses it entirely.
 
@@ -842,7 +842,7 @@ openclaw cron remove <job-id>
 
 **Security impact:** Bootstrap files are loaded into the system prompt on every agent turn. Injected content appears as trusted system instructions. This persists across sessions and affects all future conversations.
 
-**Source:** `src/gateway/server-methods/agents.ts:454-506`
+**Source:** `src/gateway/server-methods/agents.ts:467-519`
 
 The `agents.files.set` method restricts writes to `ALLOWED_FILE_NAMES` only, but all allowed names (IDENTITY.md, SOUL.md, TOOLS.md, AGENTS.md, etc.) are security-sensitive — they're injected directly into the system prompt.
 
@@ -1043,7 +1043,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:42,273-310` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:34-51` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:805-894` |
-| **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:454-506` |
+| **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:467-519` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:998,890` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:441-442` |

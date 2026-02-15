@@ -12,7 +12,7 @@
 | [#3277](https://github.com/openclaw/openclaw/issues/3277) | ~~HIGH~~ FIXED | Path validation bypass via `startsWith` prefix | Fixed upstream (COMPLETED 2026-02-15); `src/infra/archive.ts:119,153` - `validateArchiveEntryPath()` + `resolveCheckedOutPath()` (hardened Feb 15 sync 2) |
 | [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH | Browser control server DNS rebinding | `src/browser/server.ts:59` - auth middleware extracted to `src/browser/server-middleware.ts:24-35`; no Host header validation |
 | [#4950](https://github.com/openclaw/openclaw/issues/4950) | HIGH | Arbitrary JS execution via browser evaluate (default on) | `src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true` |
-| [#4995](https://github.com/openclaw/openclaw/issues/4995) | HIGH | iMessage dmPolicy auto-responds with pairing codes | `src/imessage/monitor/monitor-provider.ts:184,342-381` |
+| [#4995](https://github.com/openclaw/openclaw/issues/4995) | HIGH | iMessage dmPolicy auto-responds with pairing codes | `src/imessage/monitor/monitor-provider.ts:142,247-278` |
 | [#5052](https://github.com/openclaw/openclaw/issues/5052) | HIGH | Config validation fail-open returns `{}` | `src/config/io.ts:651,654` - security settings reset |
 | [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH | Browser file upload arbitrary read | `src/browser/pw-tools-core.interactions.ts:531` |
 | [#5995](https://github.com/openclaw/openclaw/issues/5995) | HIGH | Secrets exposed in session transcripts | `config.get` now redacted via `redactConfigSnapshot()` (PR #9858); transcripts still expose by design |
@@ -297,8 +297,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Default `dmPolicy` is `"pairing"`, which automatically responds to unknown contacts with valid pairing codes. Any sender can receive a pairing code without owner verification.
 
 **Affected code:**
-- `src/imessage/monitor/monitor-provider.ts:184` - default `dmPolicy` is `"pairing"`
-- `src/imessage/monitor/monitor-provider.ts:342-381` - auto-responds with pairing code to unknown contacts
+- `src/imessage/monitor/monitor-provider.ts:142` - default `dmPolicy` is `"pairing"`
+- `src/imessage/monitor/monitor-provider.ts:247-278` - auto-responds (pairing decision logic extracted to `inbound-processing.ts:81,201`) with pairing code to unknown contacts
 
 ### #5122: readJsonBody() Slowloris DoS (No Read Timeout)
 
