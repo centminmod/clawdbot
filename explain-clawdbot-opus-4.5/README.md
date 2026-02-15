@@ -675,6 +675,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 4) — 9 upstream commits
+
+**Security relevance: NONE** — All 9 commits are test infrastructure refactors or minor UI fixes. No changes to security controls. **Line shifts:** `tui-formatters.ts` 529-590→93-117 (function extracted to top of file).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
