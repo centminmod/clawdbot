@@ -4,7 +4,7 @@
 
 > **Status:** These issues are open in upstream openclaw/openclaw and confirmed to affect the local codebase. Monitor for patches.
 >
-> **Last checked:** 16-02-2026 (02:48 AEST)
+> **Last checked:** 16-02-2026 (06:24 AEST)
 
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
