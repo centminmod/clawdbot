@@ -66,6 +66,7 @@
 - [Feb 15 sync 8 (30 commits)](./post-merge-hardening/2026-02-15-sync-8.md)
 - [Feb 15 sync 9 (30 commits)](./post-merge-hardening/2026-02-15-sync-9.md)
 - [Feb 15 sync 10 (60 commits)](./post-merge-hardening/2026-02-15-sync-10.md)
+- [Feb 15 sync 11 (80 commits)](./post-merge-hardening/2026-02-15-sync-11.md)
 
 ## Post-Merge Security Hardening
 
