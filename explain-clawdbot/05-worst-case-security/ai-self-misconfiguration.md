@@ -913,7 +913,7 @@ OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:635`)
 
 Additionally, extensible maps like `env` and plugin `config` sections accept arbitrary string keys, providing another vector for injecting unexpected values.
 
-Source: `src/config/validation.ts:86-131`
+Source: `src/config/validation.ts:86-133`
 
 ### Persistence Mechanisms
 
@@ -1017,7 +1017,7 @@ openclaw doctor                  # Interactive mode
 openclaw doctor --non-interactive  # CI/CD mode (no prompts)
 ```
 
-Source: `src/commands/doctor.ts:65-313`
+Source: `src/commands/doctor.ts:66-315`
 
 ### `openclaw status`
 
@@ -1041,7 +1041,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:3` |
 | **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:152-459` |
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:42,273-310` |
-| **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec.ts:61-78` |
+| **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:34-51` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:805-894` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:454-506` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:998,890` |
