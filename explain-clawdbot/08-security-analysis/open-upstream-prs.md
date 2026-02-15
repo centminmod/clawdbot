@@ -151,7 +151,7 @@
 |------|---------------|----------------|-----------|-------|
 | [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:101-122` |
 | [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:11` checks gateway bind + auth |
-| [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:42-69` |
+| [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:47-77` |
 | [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:446-447` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
@@ -159,7 +159,7 @@
 | [#9529](https://github.com/openclaw/openclaw/pull/9529) | [#3277](https://github.com/openclaw/openclaw/issues/3277) (HIGH) | HIGH | OPEN | Validates archive entries against Zip Slip path traversal |
 | [#9513](https://github.com/openclaw/openclaw/pull/9513) | [#9512](https://github.com/openclaw/openclaw/issues/9512) (HIGH) | HIGH | OPEN | Adds path traversal checks to skill download archive extraction |
 | [#11054](https://github.com/openclaw/openclaw/pull/11054) | [#6609](https://github.com/openclaw/openclaw/issues/6609) (HIGH) | HIGH | OPEN | Adds auth token to sandbox browser bridge |
-| [#11093](https://github.com/openclaw/openclaw/pull/11093) | [#10333](https://github.com/openclaw/openclaw/issues/10333) (MEDIUM) | MEDIUM | MERGED | `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:26-30` strips dangerous chars from Content-Disposition filenames |
+| [#11093](https://github.com/openclaw/openclaw/pull/11093) | [#10333](https://github.com/openclaw/openclaw/issues/10333) (MEDIUM) | MEDIUM | MERGED | `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:27-29` strips dangerous chars from Content-Disposition filenames |
 | [#11169](https://github.com/openclaw/openclaw/pull/11169) | [#8776](https://github.com/openclaw/openclaw/issues/8776) (HIGH) | HIGH | OPEN | Removes bundled soul-evil hook that enables silent agent hijacking |
 | [#11435](https://github.com/openclaw/openclaw/pull/11435) | [#11437](https://github.com/openclaw/openclaw/issues/11437) (CRITICAL) | CRITICAL | OPEN | Validates `OPENCLAW_BROWSER_CONTROL_MODULE` env var before dynamic `import()` |
 | [#11432](https://github.com/openclaw/openclaw/pull/11432) | [#11434](https://github.com/openclaw/openclaw/issues/11434) (HIGH) | HIGH | OPEN | Adds `--ignore-scripts` to npm install in hook and plugin installers |
@@ -214,13 +214,13 @@
 | [#13767](https://github.com/openclaw/openclaw/pull/13767) | [#13756](https://github.com/openclaw/openclaw/issues/13756) | MEDIUM | MERGED | Reject "undefined"/"null" token strings; local `onboard-helpers.ts:79` already rejects; ALREADY SYNCED |
 | [#14350](https://github.com/openclaw/openclaw/pull/14350) | (security hardening CLI) | MEDIUM | CLOSED | `--harden` flag closed without merge 2026-02-13; no replacement PR |
 | [#14661](https://github.com/openclaw/openclaw/pull/14661) | (canvas IP auth) | MEDIUM | MERGED | Canvas IP auth restricted to private networks; local `server-http.ts:150` uses `isPrivateOrLoopbackAddress()`; ALREADY SYNCED |
-| [#15592](https://github.com/openclaw/openclaw/pull/15592) | (log injection) | LOW | MERGED | Sanitize WebSocket log headers; local `ws-connection.ts:39-54` has `sanitizeLogValue()`; ALREADY SYNCED |
+| [#15592](https://github.com/openclaw/openclaw/pull/15592) | (log injection) | LOW | MERGED | Sanitize WebSocket log headers; local `ws-connection.ts:40-54` has `sanitizeLogValue()`; ALREADY SYNCED |
 | [#15604](https://github.com/openclaw/openclaw/pull/15604) | (link-understanding SSRF) | MEDIUM | MERGED | Block private/loopback/metadata IPs in link-understanding; local `detect.ts:35-42` has `isBlockedHost()`; ALREADY SYNCED |
 | [#15615](https://github.com/openclaw/openclaw/pull/15615) | (PATH shadow attack) | MEDIUM | OPEN | Restrict PATH override to exact match; local `runner.ts:230-233` allows prepending via `endsWith()` |
 | [#15652](https://github.com/openclaw/openclaw/pull/15652) | (browser path traversal) | MEDIUM | MERGED | Constrain browser trace/download output paths; local `path-output.ts` has `resolvePathWithinRoot()`; ALREADY SYNCED |
 | [#15608](https://github.com/openclaw/openclaw/pull/15608) | (rate-limit state reset) | LOW | CLOSED | Superseded by #15848 (MERGED); NOT AFFECTED |
 | [#15848](https://github.com/openclaw/openclaw/pull/15848) | (rate-limit state pruning) | LOW | MERGED | Prune expired hook auth failure entries; local `server-http.ts:209-226` has prune-then-evict logic; ALREADY SYNCED |
-| [#15924](https://github.com/openclaw/openclaw/pull/15924) | (macOS keychain shell injection) | HIGH | OPEN | `execSync` with string interpolation at `cli-credentials.ts:408-409`; CWE-78 via `$()` and backtick expansion; fix: `execFileSync` |
+| [#15924](https://github.com/openclaw/openclaw/pull/15924) | (macOS keychain shell injection) | HIGH | OPEN | `execSync` with string interpolation at `cli-credentials.ts:377`; CWE-78 via `$()` and backtick expansion; fix: `execFileSync` |
 | [#15940](https://github.com/openclaw/openclaw/pull/15940) | [#1560](https://github.com/openclaw/openclaw/issues/1560) | MEDIUM | OPEN | Trusted-proxy auth mode; `authorizeTrustedProxy()` + `GatewayTrustedProxyConfig` not in local code; CIDR matching for proxy IP validation |
 | [#16036](https://github.com/openclaw/openclaw/pull/16036) | [#8751](https://github.com/openclaw/openclaw/issues/8751) | MEDIUM | OPEN | Session transcript `.jsonl` files use default `0o644` (world-readable); fix: `0o600` across 7+ write paths; Greptile 5/5 confidence |
 
@@ -258,10 +258,10 @@
 
 **Changes:**
 - `src/media/parse.ts:36-64` — `isValidMedia()` refactored to accept all local path types (absolute, tilde, traversal, Windows, bare filenames); security validation deferred to load layer
-- `src/web/media.ts:42-69` — new `assertLocalMediaAllowed()` validates local paths against allowed directory roots (`/tmp`, `~/.openclaw/media`, `~/.openclaw/agents`), resolves symlinks
+- `src/web/media.ts:47-77` — new `assertLocalMediaAllowed()` validates local paths against allowed directory roots (`/tmp`, `~/.openclaw/media`, `~/.openclaw/agents`), resolves symlinks
 - `src/media/parse.test.ts` — test coverage updated for new path acceptance + load-time validation
 
-**Local Impact:** ALREADY SYNCED — LFI defense now two-layer: `isValidMedia()` at `src/media/parse.ts:36-64` accepts paths, `assertLocalMediaAllowed()` at `src/web/media.ts:42-69` enforces directory root guards
+**Local Impact:** ALREADY SYNCED — LFI defense now two-layer: `isValidMedia()` at `src/media/parse.ts:36-64` accepts paths, `assertLocalMediaAllowed()` at `src/web/media.ts:47-77` enforces directory root guards
 
 ### #8241: Matrix Thread Session Isolation
 
@@ -320,7 +320,7 @@
 **Closes:** [#10333](https://github.com/openclaw/openclaw/issues/10333) (MEDIUM — multipart header injection)
 
 **Changes:**
-- `extensions/bluebubbles/src/attachments.ts:26-30` — `sanitizeFilename()` now strips `"`, `\r`, `\n`, and other Content-Disposition-dangerous characters beyond just `path.basename()`
+- `extensions/bluebubbles/src/attachments.ts:27-29` — `sanitizeFilename()` now strips `"`, `\r`, `\n`, and other Content-Disposition-dangerous characters beyond just `path.basename()`
 
 **Local Impact:** SYNC NEEDED — local `sanitizeFilename()` may still use only `path.basename()`
 
@@ -799,11 +799,11 @@
 **Greptile Review:** No Greptile review available.
 
 **Local Validation:**
-- `src/agents/cli-credentials.ts:408-409` — local code uses `execSync` with `'${newValue.replace(/'/g, "'\"'\"'")}'` — vulnerable to `$()` and backtick command substitution
+- `src/agents/cli-credentials.ts:377` — local code uses `execSync` with `'${newValue.replace(/'/g, "'\"'\"'")}'` — vulnerable to `$()` and backtick command substitution
 - `src/agents/cli-credentials.ts:386` — `execSyncImpl` defaults to Node's `execSync`
-- `src/agents/cli-credentials.ts:388-389` — read operation also uses `execSync` but with constant-only interpolation (lower risk)
+- `src/agents/cli-credentials.ts:358-362` — read operation also uses `execSync` but with constant-only interpolation (lower risk)
 
-**Local Impact:** OPEN/PENDING — PR not yet merged. Local `cli-credentials.ts:408-409` has the vulnerable `execSync` pattern.
+**Local Impact:** OPEN/PENDING — PR not yet merged. Local `cli-credentials.ts:377` has the vulnerable `execSync` pattern.
 
 ### #15940: Add Trusted-Proxy Auth Mode Types and Schema
 

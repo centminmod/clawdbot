@@ -571,7 +571,7 @@ Four security-relevant commits:
 
 - **`392bbddf2`** — Owner-only tools + command auth hardening (#9202): New `applyOwnerOnlyToolPolicy()` (`src/agents/tool-policy.ts:91-110`) gates sensitive tools (currently `whatsapp_login`) to owner senders only. Treats undefined `senderIsOwner` as unauthorized (default-deny). New `commands.ownerAllowFrom` config parameter for explicit owner identification. Defense-in-depth for tool access control (thanks @victormier).
 
-- **`4434cae56`** — Harden sandboxed media handling (#9182): New `assertMediaNotDataUrl()` and `resolveSandboxedMediaSource()` (`src/agents/sandbox-paths.ts:55-82`) block data-URL payloads and validate media paths within sandbox boundaries. Enforcement moved to `message-action-runner.ts` for delivery-point validation. Prevents path traversal and sandbox escape via media parameters (thanks @victormier).
+- **`4434cae56`** — Harden sandboxed media handling (#9182): New `assertMediaNotDataUrl()` and `resolveSandboxedMediaSource()` (`src/agents/sandbox-paths.ts:66-98`) block data-URL payloads and validate media paths within sandbox boundaries. Enforcement moved to `message-action-runner.ts` for delivery-point validation. Prevents path traversal and sandbox escape via media parameters (thanks @victormier).
 
 - **`a13ff55bd`** — Gateway credential exfiltration prevention (#9179): New `resolveExplicitGatewayAuth()` and `ensureExplicitGatewayAuth()` (`src/gateway/call.ts:59-89`) require explicit credentials when `--url` is overridden to non-local addresses. Prevents credential leakage to attacker-controlled URLs (CWE-522). Local addresses (127.0.0.1, private IPs, tailnet 100.x.x.x) retain credential fallback (thanks @victormier).
 
@@ -770,7 +770,7 @@ One security-relevant fix:
 
 **LOW (1):**
 
-- **`ef4a0e92b`** (PR [#11645](https://github.com/openclaw/openclaw/pull/11645)) — **fix(memory/qmd): scope query to managed collections:** New `buildCollectionFilterArgs()` (`src/memory/qmd-manager.ts:1006-1012`) restricts QMD searches to configured collections only. Returns empty results if no managed collections exist. Defense-in-depth for Gap #4 (bootstrap/memory `.md` scanning).
+- **`ef4a0e92b`** (PR [#11645](https://github.com/openclaw/openclaw/pull/11645)) — **fix(memory/qmd): scope query to managed collections:** New `buildCollectionFilterArgs()` (`src/memory/qmd-manager.ts:1080-1086`) restricts QMD searches to configured collections only. Returns empty results if no managed collections exist. Defense-in-depth for Gap #4 (bootstrap/memory `.md` scanning).
 
 Other changes: gateway eager-init for QMD backend (`efc79f69a`), legacy `memorySearch` config migration (`868873016`, `a76dea0d2`), changelog update (`8d80212f9`), test mock fix (`40919b1fc`).
 
@@ -833,7 +833,7 @@ No line shifts. No new CVEs.
 **MEDIUM (3):**
 - **`1d2c5783f`** (PR [#13830](https://github.com/openclaw/openclaw/pull/13830)) — Tool call ID sanitization extended to Anthropic provider in `resolveTranscriptPolicy()`. Was only Google + Mistral.
 - **`bebba124e`** (PR [#13952](https://github.com/openclaw/openclaw/pull/13952)) — Raw HTML in chat messages now escaped via `htmlEscapeRenderer` in `ui/src/ui/markdown.ts:132-133`. DOMPurify already handled XSS; this prevents confusing UX.
-- **`4baa43384`** — Major LFI defense refactor for CVE-2026-25475. `isValidMedia()` (`src/media/parse.ts:36-64`) now accepts all local path types. Security validation moved to load layer: `assertLocalMediaAllowed()` (`src/web/media.ts:42-69`) enforces directory root guards.
+- **`4baa43384`** — Major LFI defense refactor for CVE-2026-25475. `isValidMedia()` (`src/media/parse.ts:36-64`) now accepts all local path types. Security validation moved to load layer: `assertLocalMediaAllowed()` (`src/web/media.ts:47-77`) enforces directory root guards.
 
 **LOW (3):**
 - **`729181bd0`** (PR [#13747](https://github.com/openclaw/openclaw/pull/13747)) — Rate limit errors excluded from context overflow classification.
@@ -849,7 +849,7 @@ No line shifts. No new CVEs.
 **Merge commit:** `24224da4c` | **Security relevance: LOW** — 1 session isolation fix, 1 error resilience fix, 6 cron robustness fixes.
 
 **LOW (2):**
-- **`631102e71`** (PR [#4887](https://github.com/openclaw/openclaw/pull/4887)) — Process/exec tool scope now prefers `sessionKey` over `agentId` (`src/agents/pi-tools.ts:215-217`). Prevents cross-session process visibility/killing. Defense-in-depth for session isolation.
+- **`631102e71`** (PR [#4887](https://github.com/openclaw/openclaw/pull/4887)) — Process/exec tool scope now prefers `sessionKey` over `agentId` (`src/agents/pi-tools.ts:233-236`). Prevents cross-session process visibility/killing. Defense-in-depth for session isolation.
 - **`b912d3992`** (PR [#13500](https://github.com/openclaw/openclaw/pull/13500)) — Cloudflare 521 and transient 5xx HTML errors detected via `isCloudflareOrHtmlErrorPage()`, sanitized to clean message. Model fallback triggers on transient 5xx. Prevents raw HTML leakage in error messages.
 
 **Cron robustness (6):** Schedule error isolation with auto-disable after 3 failures (`04f695e56`). Timer re-arm during active execution (`ace5e33ce`). Prevent `nextRunAtMs` silent advancement (#13992 fix, `39e3d58fe`). One-shot `at` job re-fire prevention (`a88ea42ec`). Correct agentId for isolated job auth (`b0dfb8395`). Heartbeat agentId pass-through (`04e3a66f9`).
@@ -956,7 +956,7 @@ No line shifts. No new CVEs.
 
 ### Post-Merge Hardening (Feb 15 sync 5) — 30 upstream commits
 
-**Security relevance: HIGH** — 11 security-relevant commits. **Shell injection prevention** (`9dce3d8bf`, `66d7178f2`): `writeClaudeCliKeychainCredentials()` and keychain read in `src/agents/cli-credentials.ts:383-437` switched from `execSync` (shell) to `execFileSync` (no shell), preventing `$()` and backtick expansion in OAuth token values. **Addresses Audit 2 Claim 7.** **Webhook routing hardening** (`188c4cd07`, `61d59a802`): bluebubbles, zalo, and googlechat monitors reject ambiguous webhook target matches. Related to Audit 1 Claim 7. **Discovery routing + TLS pins** (`d583782ee`, 17 files): Android, iOS, macOS gateway clients hardened with TLS pinning and discovery validation. **CLI cleanup scoping** (`eb60e2e1b`, `6084d13b9`): kill signals restricted to owned child PIDs. **Nostr profile guards** (`3e0e78f82`): relates to GHSA-mv9j-6xhh-g383. **Feishu media URL hardening** (`5b4121d60`): relates to GHSA-wfp2-v9c7-fh79. **Config value redaction** (`d3428053d`): skills status output redaction. 3 new advisories: GHSA-mv9j-6xhh-g383 (HIGH), GHSA-3m3q-x3gj-f79x (MEDIUM), GHSA-g27f-9qjv-22pm (LOW). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-5.md).
+**Security relevance: HIGH** — 11 security-relevant commits. **Shell injection prevention** (`9dce3d8bf`, `66d7178f2`): `writeClaudeCliKeychainCredentials()` and keychain read in `src/agents/cli-credentials.ts:352-397` switched from `execSync` (shell) to `execFileSync` (no shell), preventing `$()` and backtick expansion in OAuth token values. **Addresses Audit 2 Claim 7.** **Webhook routing hardening** (`188c4cd07`, `61d59a802`): bluebubbles, zalo, and googlechat monitors reject ambiguous webhook target matches. Related to Audit 1 Claim 7. **Discovery routing + TLS pins** (`d583782ee`, 17 files): Android, iOS, macOS gateway clients hardened with TLS pinning and discovery validation. **CLI cleanup scoping** (`eb60e2e1b`, `6084d13b9`): kill signals restricted to owned child PIDs. **Nostr profile guards** (`3e0e78f82`): relates to GHSA-mv9j-6xhh-g383. **Feishu media URL hardening** (`5b4121d60`): relates to GHSA-wfp2-v9c7-fh79. **Config value redaction** (`d3428053d`): skills status output redaction. 3 new advisories: GHSA-mv9j-6xhh-g383 (HIGH), GHSA-3m3q-x3gj-f79x (MEDIUM), GHSA-g27f-9qjv-22pm (LOW). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-5.md).
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
@@ -1027,6 +1027,14 @@ No line shifts. No new CVEs.
 **Line shifts:** `bash-tools.exec.ts` 298→300 (validateHostEnv), `workspace.ts` 278-332→400-454 and 336-344→458-466, `qmd-manager.ts` 346-353→355-371, `bootstrap.ts` 84→85 and 162-191→187-239, `bootstrap-files.ts` 21-60→25-66. All verified via grep.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 13) — 94 upstream commits
+
+**Security relevance: HIGH** — 14 security-relevant commits. **Sandbox containment** (`424c718bc`, `914b9d1e7`, `4a44da7d9`): `workspaceOnly` extended to sandboxed file tools, apply_patch defaults to workspace containment, symlink escape blocked on delete. **Addresses Audit 1 Claim 6, Audit 2 Claim 2.** **Bind-mount awareness** (`726ff36fd`, `eafda6f52`): new `resolveSandboxFsPathWithMounts()` in `src/agents/sandbox/fs-paths.ts` parses `docker.binds` and enforces `ro`/`rw` per mount. **QMD scope deny bypass** (`f9bb748a6`): new `rawKeyPrefix` in `src/sessions/send-policy.ts:86-89` prevents session key normalization bypass. **Memory recall hardening** (`ed7d83bcf`, `61725fb37`): auto-capture requires opt-in, `looksLikePromptInjection()` at `extensions/memory-lancedb/index.ts:215` blocks injection payloads. Related to Audit 2 Claim 5. **Discord voice SSRF** (`725741486`): media routed through `loadWebMediaRaw()` with SSRF guards. **Addresses Audit 2 Claims 3, 4.** **Windows spawn hardening** (`a7eb0dd9a`): `shell: true` fully removed from `src/process/exec.ts`. **Addresses Audit 2 Claim 7.** **TUI injection** (`de02b0720`, `750a7146e`): codepoint sanitization and binary redaction. **localRoots bypass** (`683aa09b5`): requires `sandboxValidated` flag. **Media allowlist** (`b79e7fdb7`, `edb06170f`, `6863b9dbe`): image tool workspace roots. **HTTP body limiter** (`444a910d9`): prevents crash on payload limit. 5 memory bounding commits. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-13.md).
+
+**Line shifts:** `cli-credentials.ts` 383-437→352-397, 388-389→358-362, 408-409→377. `pi-tools.ts` 215-217→233-236. `sandbox-paths.ts` 55-82→66-98. `qmd-manager.ts` 355-371→415-421, 1006-1012→1080-1086. `ws-connection.ts` 39-54→40-54. `exec.ts` 103-108→119-120, 119→139. `media.ts` 42-69→47-77. `apply-patch.ts` 47-49→81-86. `send-policy.ts` 23-91→23-131. `manager-sync-ops.ts` 262-296→277-318.
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated, bootstrap/memory .md scanning — Gap #4 strengthened by scope deny bypass fix).
 
 ---
 

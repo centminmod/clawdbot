@@ -195,7 +195,7 @@ Mitigations:
 - Run Cisco AI Defense scanner against workspace directory for deeper LLM-based analysis
 - Subagent exposure is limited: `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:458-466`) restricts subagents to only AGENTS.md + TOOLS.md
 
-Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85,187-239` (injection), `src/memory/qmd-manager.ts:355-371` (QMD validation)
+Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85,187-239` (injection), `src/memory/qmd-manager.ts:415-421` (QMD validation)
 
 See: [Cisco AI Defense gap analysis](../08-security-analysis/cisco-ai-defense-skill-scanner.md#beyond-skillmd-all-persistent-md-files-are-unscanned)
 

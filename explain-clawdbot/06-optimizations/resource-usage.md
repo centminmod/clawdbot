@@ -54,7 +54,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - SHA-256 hashing for content deduplication and caching
 
 **Child process stdout/stderr accumulation:**
-- `src/process/exec.ts:114-141` — unbounded string concatenation of process output
+- `src/process/exec.ts:133-162` — unbounded string concatenation of process output
 - `src/memory/qmd-manager.ts:553-575` — same pattern for QMD processing
 
 **Media fetch buffering:**
@@ -710,7 +710,7 @@ Source: `src/memory/memory-schema.ts:9-82`
 | `sync.onSearch` | `true` | Sync before search if dirty flag is set |
 | `sync.intervalMinutes` | 0 (disabled) | Periodic sync timer |
 
-Source: `src/memory/manager-sync-ops.ts:262-296` (watcher setup), `src/agents/memory-search.ts:78` (debounce default)
+Source: `src/memory/manager-sync-ops.ts:277-318` (watcher setup), `src/agents/memory-search.ts:78` (debounce default)
 
 **Session delta tracking** (for session memory source):
 

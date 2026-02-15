@@ -320,7 +320,7 @@ Four security-relevant commits:
 
 - **`392bbddf2`** — Owner-only tools + command auth hardening (#9202): New `applyOwnerOnlyToolPolicy()` (`src/agents/tool-policy.ts:91-110`) gates sensitive tools (currently `whatsapp_login`) to owner senders only. Treats undefined `senderIsOwner` as unauthorized (default-deny). New `commands.ownerAllowFrom` config parameter for explicit owner identification. Defense-in-depth for tool access control (thanks @victormier).
 
-- **`4434cae56`** — Harden sandboxed media handling (#9182): New `assertMediaNotDataUrl()` and `resolveSandboxedMediaSource()` (`src/agents/sandbox-paths.ts:55-82`) block data-URL payloads and validate media paths within sandbox boundaries. Enforcement moved to `message-action-runner.ts` for delivery-point validation. Prevents path traversal and sandbox escape via media parameters (thanks @victormier).
+- **`4434cae56`** — Harden sandboxed media handling (#9182): New `assertMediaNotDataUrl()` and `resolveSandboxedMediaSource()` (`src/agents/sandbox-paths.ts:66-98`) block data-URL payloads and validate media paths within sandbox boundaries. Enforcement moved to `message-action-runner.ts` for delivery-point validation. Prevents path traversal and sandbox escape via media parameters (thanks @victormier).
 
 - **`a13ff55bd`** — Gateway credential exfiltration prevention (#9179): New `resolveExplicitGatewayAuth()` and `ensureExplicitGatewayAuth()` (`src/gateway/call.ts:59-89`) require explicit credentials when `--url` is overridden to non-local addresses. Prevents credential leakage to attacker-controlled URLs (CWE-522). Local addresses (127.0.0.1, private IPs, tailnet 100.x.x.x) retain credential fallback (thanks @victormier).
 
@@ -487,7 +487,7 @@ One security-adjacent commit (reliability/hardening focus):
 
 ### Post-Merge Hardening (Feb 10 sync 7) — 6 upstream commits
 
-One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only via new `buildCollectionFilterArgs()` (`src/memory/qmd-manager.ts:1006-1012`). Defense-in-depth for Gap #4 (memory `.md` scanning). Other: gateway QMD eager-init, legacy `memorySearch` config migration, test mock fix.
+One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only via new `buildCollectionFilterArgs()` (`src/memory/qmd-manager.ts:1080-1086`). Defense-in-depth for Gap #4 (memory `.md` scanning). Other: gateway QMD eager-init, legacy `memorySearch` config migration, test mock fix.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — Gap #4 strengthened by collection scoping).
 
@@ -640,6 +640,14 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 **Line shifts:** `bash-tools.exec.ts` 298→300, `workspace.ts` 278-332→400-454 and 336-344→458-466, `qmd-manager.ts` 346-353→355-371, `bootstrap.ts` 84→85 and 162-191→187-239, `bootstrap-files.ts` 21-60→25-66.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 13) — 94 upstream commits
+
+**Security relevance: HIGH** — 14 security-relevant commits. **Sandbox containment** (`424c718bc`, `914b9d1e7`, `4a44da7d9`): `workspaceOnly` extended to sandboxed file tools, apply_patch defaults to workspace containment, symlink escape blocked. Addresses Audit 1 Claim 6, Audit 2 Claim 2. **Bind-mount awareness** (`726ff36fd`, `eafda6f52`): `docker.binds` parsing with `ro`/`rw` enforcement. **QMD scope deny bypass** (`f9bb748a6`): `rawKeyPrefix` prevents session key normalization bypass. **Memory recall hardening** (`ed7d83bcf`, `61725fb37`): auto-capture opt-in, injection detection. Related to Audit 2 Claim 5. **Discord voice SSRF** (`725741486`): media through SSRF guards. Addresses Audit 2 Claims 3, 4. **Windows spawn hardening** (`a7eb0dd9a`): `shell: true` removed. Addresses Audit 2 Claim 7. **TUI injection** (`de02b0720`, `750a7146e`): codepoint sanitization. **Media allowlist** (`b79e7fdb7`, `edb06170f`, `6863b9dbe`): image workspace roots. 5 memory bounding commits. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-13.md).
+
+**Line shifts:** `cli-credentials.ts` 383-437→352-397. `pi-tools.ts` 215-217→233-236. `sandbox-paths.ts` 55-82→66-98. `qmd-manager.ts` 355-371→415-421, 1006-1012→1080-1086. `ws-connection.ts` 39-54→40-54. `exec.ts` 103-108→119-120. `media.ts` 42-69→47-77. `apply-patch.ts` 47-49→81-86. `send-policy.ts` 23-91→23-131.
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated, bootstrap/memory .md scanning — Gap #4 strengthened by scope deny bypass fix).
 
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
