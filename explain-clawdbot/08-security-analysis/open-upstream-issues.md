@@ -347,9 +347,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Telegram webhook server defaults to binding on `0.0.0.0` (all interfaces), and the webhook secret token is optional. Without a secret, any network client can send fake webhook events.
 
 **Affected code:**
-- `src/telegram/webhook.ts:26` - defaults to `0.0.0.0` binding
-- `src/telegram/webhook.ts:36` - `webhookSecret` is optional
-- `src/telegram/webhook.ts:46-48` - secret validation only IF configured
+- `src/telegram/webhook.ts:40` - defaults to `127.0.0.1` binding (hardened from `0.0.0.0`)
+- `src/telegram/webhook.ts:30` - `webhookSecret` is optional in type signature
+- `src/telegram/webhook.ts:41-47` - secret now **mandatory** at runtime (throws if missing/empty, commit `633fe8b9c`)
 
 ### #7862: Session Transcripts 644 Instead of 600
 

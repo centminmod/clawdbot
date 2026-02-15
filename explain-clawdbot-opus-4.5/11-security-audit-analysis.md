@@ -990,6 +990,14 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 10) — 60 upstream commits
+
+**Security relevance: HIGH** — 8 security-relevant commits. Telegram webhook secret now mandatory (`633fe8b9c` — Audit 1 Claim 7, CVE-2026-25474 runtime guard). Gateway SSRF hardening chain: backend URL override drop (`c5406e1d2`) + tool gatewayUrl loopback allowlist (`2d5647a80`) — Audit 2 Claim 4, GHSA-g8p2-7wf7-98mq defense-in-depth. Explicit token precedence in gateway client (`d8a2c80cd`). Session key normalization for send policy (`2a3da2133`). OAuth manual code flow with validation (`ee8d8be2e`). Exec stdin closure for non-PTY runs (`d73f3336d`). Podman root write prevention (`b2a4283c3` — Audit 1 Claim 5). 48 safe commits: test harness extraction, suite consolidation, perf optimizations. 2 new advisories: GHSA-3hcm-ggvf-rch5 (HIGH — exec allowlist bypass via backticks), GHSA-mr32-vwc2-5j6h (HIGH — browser relay CDP missing auth). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-10.md).
+
+**Line shifts:** `bash-tools.exec-runtime.ts:32-50` (DANGEROUS_HOST_ENV_VARS — unchanged, new function added at line 369). `gateway.ts` gained `canonicalizeToolGatewayWsUrl()` at lines 13-41 and `validateGatewayUrlOverrideForAgentTools()` at lines 43-77.
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 ---
 
 ## Recommended Hardening Measures

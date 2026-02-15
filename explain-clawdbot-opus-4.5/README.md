@@ -621,6 +621,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 10) — 60 upstream commits
+
+**Security relevance: HIGH** — 8 security-relevant commits. Telegram webhook secret mandatory (`633fe8b9c` — CVE-2026-25474). Gateway SSRF hardening: backend URL override drop (`c5406e1d2`) + tool gatewayUrl loopback allowlist (`2d5647a80`) — GHSA-g8p2-7wf7-98mq defense-in-depth. Explicit token precedence (`d8a2c80cd`). Session key normalization (`2a3da2133`). OAuth manual code flow (`ee8d8be2e`). Exec stdin closure (`d73f3336d`). Podman root write prevention (`b2a4283c3`). 48 safe test refactors. 2 new advisories: GHSA-3hcm-ggvf-rch5, GHSA-mr32-vwc2-5j6h. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-10.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
