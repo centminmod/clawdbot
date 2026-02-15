@@ -55,10 +55,10 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 **Child process stdout/stderr accumulation:**
 - `src/process/exec.ts:133-162` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:645-663` — same pattern for QMD processing
+- `src/memory/qmd-manager.ts:656-661` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1146`), configured by `MAX_QMD_OUTPUT_CHARS` (`:34`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
 
 **Media fetch buffering:**
-- `src/media/fetch.ts:131-133` — full response body buffered into memory before processing
+- `src/media/fetch.ts:131-140` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
 
 ---
 
@@ -77,8 +77,8 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:8` | 5000 max, 20min TTL | Well bounded |
 | Gateway dedupe | `src/gateway/server-constants.ts:33-34` | 1000 max, 5min TTL | Well bounded |
 | Browser roleRefs | `src/browser/pw-session.ts:96-97` | 50 max LRU | Well bounded |
-| Followup queues | `src/auto-reply/reply/queue/state.ts:20` | 20/queue, no queue count cap | **Unbounded queues** |
-| Agent event seqByRun | `src/infra/agent-events.ts:21` | **No cleanup** | **Leak risk** |
+| Followup queues | `src/auto-reply/reply/queue/state.ts:20` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
+| Agent event seqByRun | `src/infra/agent-events.ts:21` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
 | Agent run sequence | `src/gateway/server-runtime-state.ts:185` | **No pruning** (maintenance timer skips it) | **Leak risk** |
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:103` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:113` | **No eviction at all** | **Leak risk** |
