@@ -3,9 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { monitorWebChannel } from "./auto-reply.js";
 import {
+  createWebInboundDeliverySpies,
+  createWebListenerFactoryCapture,
   installWebAutoReplyTestHomeHooks,
   installWebAutoReplyUnitTestHooks,
   resetLoadConfigMock,
+  sendWebDirectInboundMessage,
+  sendWebGroupInboundMessage,
   setLoadConfigMock,
 } from "./auto-reply.test-harness.js";
 
@@ -27,40 +31,27 @@ describe("broadcast groups", () => {
       },
     } satisfies OpenClawConfig);
 
-    const sendMedia = vi.fn();
-    const reply = vi.fn().mockResolvedValue(undefined);
-    const sendComposing = vi.fn();
     const seen: string[] = [];
     const resolver = vi.fn(async (ctx: { SessionKey?: unknown }) => {
       seen.push(String(ctx.SessionKey));
       return { text: "ok" };
     });
 
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
+    const spies = createWebInboundDeliverySpies();
+
+    const { listenerFactory, getOnMessage } = createWebListenerFactoryCapture();
 
     await monitorWebChannel(false, listenerFactory, false, resolver);
-    expect(capturedOnMessage).toBeDefined();
+    const onMessage = getOnMessage();
+    expect(onMessage).toBeDefined();
 
-    await capturedOnMessage?.({
+    await sendWebDirectInboundMessage({
+      onMessage: onMessage!,
+      spies,
       id: "m1",
       from: "+1000",
-      conversationId: "+1000",
       to: "+2000",
       body: "hello",
-      timestamp: Date.now(),
-      chatType: "direct",
-      chatId: "direct:+1000",
-      sendComposing,
-      reply,
-      sendMedia,
     });
 
     expect(resolver).toHaveBeenCalledTimes(2);
@@ -81,58 +72,37 @@ describe("broadcast groups", () => {
       },
     } satisfies OpenClawConfig);
 
-    const sendMedia = vi.fn();
-    const reply = vi.fn().mockResolvedValue(undefined);
-    const sendComposing = vi.fn();
+    const spies = createWebInboundDeliverySpies();
     const resolver = vi.fn().mockResolvedValue({ text: "ok" });
 
-    let capturedOnMessage:
-      | ((msg: import("./inbound.js").WebInboundMessage) => Promise<void>)
-      | undefined;
-    const listenerFactory = async (opts: {
-      onMessage: (msg: import("./inbound.js").WebInboundMessage) => Promise<void>;
-    }) => {
-      capturedOnMessage = opts.onMessage;
-      return { close: vi.fn() };
-    };
+    const { listenerFactory, getOnMessage } = createWebListenerFactoryCapture();
 
     await monitorWebChannel(false, listenerFactory, false, resolver);
-    expect(capturedOnMessage).toBeDefined();
+    const onMessage = getOnMessage();
+    expect(onMessage).toBeDefined();
 
-    await capturedOnMessage?.({
+    await sendWebGroupInboundMessage({
+      onMessage: onMessage!,
+      spies,
       body: "hello group",
-      from: "123@g.us",
-      conversationId: "123@g.us",
-      chatId: "123@g.us",
-      chatType: "group",
-      to: "+2",
       id: "g1",
       senderE164: "+111",
       senderName: "Alice",
       selfE164: "+999",
-      sendComposing,
-      reply,
-      sendMedia,
     });
 
     expect(resolver).not.toHaveBeenCalled();
 
-    await capturedOnMessage?.({
+    await sendWebGroupInboundMessage({
+      onMessage: onMessage!,
+      spies,
       body: "@bot ping",
-      from: "123@g.us",
-      conversationId: "123@g.us",
-      chatId: "123@g.us",
-      chatType: "group",
-      to: "+2",
       id: "g2",
       senderE164: "+222",
       senderName: "Bob",
       mentionedJids: ["999@s.whatsapp.net"],
       selfE164: "+999",
       selfJid: "999@s.whatsapp.net",
-      sendComposing,
-      reply,
-      sendMedia,
     });
 
     expect(resolver).toHaveBeenCalledTimes(2);
@@ -153,22 +123,16 @@ describe("broadcast groups", () => {
       expect(payload.SenderId).toBe("+222");
     }
 
-    await capturedOnMessage?.({
+    await sendWebGroupInboundMessage({
+      onMessage: onMessage!,
+      spies,
       body: "@bot ping 2",
-      from: "123@g.us",
-      conversationId: "123@g.us",
-      chatId: "123@g.us",
-      chatType: "group",
-      to: "+2",
       id: "g3",
       senderE164: "+333",
       senderName: "Clara",
       mentionedJids: ["999@s.whatsapp.net"],
       selfE164: "+999",
       selfJid: "999@s.whatsapp.net",
-      sendComposing,
-      reply,
-      sendMedia,
     });
 
     expect(resolver).toHaveBeenCalledTimes(4);
