@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (4 new advisories) patched in v2026.2.1-2.2.
 
 ### Advisory Summary
 
@@ -34,6 +34,10 @@
 | [CVE-2026-25474](https://github.com/openclaw/openclaw/security/advisories/GHSA-mp5h-m6qj-6292) | HIGH | Telegram Webhook Secret Verification Bypass | - | pending | - |
 | [GHSA-7vwx-582j-j332](https://github.com/openclaw/openclaw/security/advisories/GHSA-7vwx-582j-j332) | HIGH | MS Teams Attachment Downloader Leaks Bearer Tokens | - | pending | - |
 | [GHSA-r5h9-vjqc-hq3r](https://github.com/openclaw/openclaw/security/advisories/GHSA-r5h9-vjqc-hq3r) | HIGH | Nextcloud Talk Allowlist Bypass via actor.name Spoofing | - | pending | - |
+| [GHSA-qrq5-wjgg-rvqw](https://github.com/openclaw/openclaw/security/advisories/GHSA-qrq5-wjgg-rvqw) | CRITICAL | Path Traversal in Plugin Installation | CWE-22 | >= v2026.2.1 | @logicx24 |
+| [GHSA-rv39-79c4-7459](https://github.com/openclaw/openclaw/security/advisories/GHSA-rv39-79c4-7459) | HIGH | Gateway Device Identity Skip | CWE-306 | >= v2026.2.2 | @simecek |
+| [GHSA-qj77-c3c8-9c3q](https://github.com/openclaw/openclaw/security/advisories/GHSA-qj77-c3c8-9c3q) | HIGH | Windows cmd.exe Exec Allowlist Bypass | CWE-78 | >= v2026.2.2 | @simecek |
+| [GHSA-mqpw-46fh-299h](https://github.com/openclaw/openclaw/security/advisories/GHSA-mqpw-46fh-299h) | HIGH | operator.write Exec Approval Bypass via /approve | CWE-269, CWE-863 | >= v2026.2.2 | @yueyueL |
 | [GHSA-33rq-m5x2-fvgf](https://github.com/openclaw/openclaw/security/advisories/GHSA-33rq-m5x2-fvgf) | HIGH | Twitch allowFrom Not Enforced in Optional Plugin | - | pending | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
@@ -268,6 +272,58 @@
 **Impact:** Authorization bypass — any Twitch user could invoke the bot regardless of `allowFrom` configuration, potentially leading to unintended actions and resource/cost exhaustion.
 
 **Fix:** Commit `8c7901c98`. `checkTwitchAccessControl()` now returns `allowed: false` for non-members when `allowFrom` is configured. Patched in >= v2026.2.1.
+
+### GHSA-qrq5-wjgg-rvqw: Path Traversal in Plugin Installation
+
+**Severity:** CRITICAL (CWE-22: Path Traversal)
+**Affected:** < v2026.2.1
+**Published:** 2026-02-14
+**Credits:** @logicx24
+
+**Description:** During plugin installation, crafted plugin archive paths could traverse outside the intended plugin directory. A malicious plugin package could write files to arbitrary locations on the filesystem via path traversal sequences in archive entry names.
+
+**Impact:** Arbitrary file write on the host filesystem during plugin installation, potentially leading to code execution.
+
+**Fix:** Commit `d03eca84`. Plugin installation now validates archive entry paths and rejects traversal sequences. Patched in >= v2026.2.1.
+
+### GHSA-rv39-79c4-7459: Gateway Device Identity Skip
+
+**Severity:** HIGH (CWE-306: Missing Authentication for Critical Function)
+**Affected:** < v2026.2.2
+**Published:** 2026-02-14
+**Credits:** @simecek
+
+**Description:** The gateway device authentication flow could be bypassed under certain conditions, allowing unauthenticated devices to interact with the gateway API without completing the device identity verification step.
+
+**Impact:** Unauthenticated device access to the gateway API, potentially enabling unauthorized agent interactions and configuration access.
+
+**Fix:** Commit `fe81b1d7`. Gateway now enforces device identity verification on all authenticated endpoints. Patched in >= v2026.2.2.
+
+### GHSA-qj77-c3c8-9c3q: Windows cmd.exe Exec Allowlist Bypass
+
+**Severity:** HIGH (CWE-78: OS Command Injection)
+**Affected:** < v2026.2.2
+**Published:** 2026-02-14
+**Credits:** @simecek
+
+**Description:** On Windows, the exec allowlist could be bypassed by invoking commands through `cmd.exe` with specific argument patterns that the allowlist regex did not account for. This allowed execution of commands that should have been blocked by the configured allowlist.
+
+**Impact:** Execution of blocked commands on Windows deployments, bypassing the exec safety allowlist intended to restrict agent tool use.
+
+**Fix:** Commit `a7f4a53ce`. Windows command parsing now normalizes `cmd.exe` invocations before allowlist evaluation. Patched in >= v2026.2.2.
+
+### GHSA-mqpw-46fh-299h: operator.write Exec Approval Bypass via /approve
+
+**Severity:** HIGH (CWE-269: Improper Privilege Management, CWE-863: Incorrect Authorization)
+**Affected:** < v2026.2.2
+**Published:** 2026-02-14
+**Credits:** @yueyueL
+
+**Description:** An operator with `operator.write` permission could bypass exec approval requirements by using the `/approve` command to auto-approve pending tool executions. The `/approve` endpoint did not verify that the approver had the necessary permission level to approve execution of the specific tool being requested.
+
+**Impact:** Privilege escalation — operators with write-only access could approve arbitrary command executions that should require higher-level approval.
+
+**Fix:** Commit `efe2a464`. The `/approve` endpoint now verifies the approver's permission level against the tool's required approval tier. Patched in >= v2026.2.2.
 
 ### Relationship to Third-Party Audits
 

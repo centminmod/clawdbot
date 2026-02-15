@@ -615,6 +615,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
 
+### Post-Merge Hardening (Feb 15 sync 9) — 30 upstream commits
+
+**Security relevance: LOW** — 2 security-adjacent commits. Gateway handler extraction (`615c9c3c9`) shifted `nodes.ts:391-397` → `nodes.ts:371-381` (execApprovals blocking). Dashboard localhost coercion (`b9d14855d`). 28 non-security commits: test perf, Slack/Discord dmPolicy aliases, CLI fixes. 4 new advisories: GHSA-qrq5-wjgg-rvqw (CRITICAL), GHSA-rv39-79c4-7459 (HIGH), GHSA-qj77-c3c8-9c3q (HIGH), GHSA-mqpw-46fh-299h (HIGH). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-9.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation, bootstrap/memory .md scanning — unchanged).
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
