@@ -1,25 +1,17 @@
 import * as fs from "node:fs/promises";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { parseCameraSnapPayload, parseCameraClipPayload } from "./nodes-camera.js";
+import { callGateway, installBaseProgramMocks, runTui, runtime } from "./program.test-mocks.js";
 
-const messageCommand = vi.fn();
-const statusCommand = vi.fn();
-const configureCommand = vi.fn();
-const configureCommandWithSections = vi.fn();
-const setupCommand = vi.fn();
-const onboardCommand = vi.fn();
-const callGateway = vi.fn();
-const runChannelLogin = vi.fn();
-const runChannelLogout = vi.fn();
-const runTui = vi.fn();
+installBaseProgramMocks();
 
-const runtime = {
-  log: vi.fn(),
-  error: vi.fn(),
-  exit: vi.fn(() => {
-    throw new Error("exit");
-  }),
-};
+function getFirstRuntimeLogLine(): string {
+  const first = runtime.log.mock.calls[0]?.[0];
+  if (typeof first !== "string") {
+    throw new Error(`Expected runtime.log first arg to be string, got ${typeof first}`);
+  }
+  return first;
+}
 
 const IOS_NODE = {
   nodeId: "ios-node",
@@ -27,6 +19,14 @@ const IOS_NODE = {
   remoteIp: "192.168.0.88",
   connected: true,
 } as const;
+
+function getFirstRuntimeLogLine(): string {
+  const value = runtime.log.mock.calls[0]?.[0];
+  if (typeof value !== "string") {
+    throw new Error(`expected runtime.log first arg to be string, got ${typeof value}`);
+  }
+  return value;
+}
 
 function mockCameraGateway(
   command: "camera.snap" | "camera.clip",
@@ -50,38 +50,6 @@ function mockCameraGateway(
     return { ok: true };
   });
 }
-
-vi.mock("../commands/message.js", () => ({ messageCommand }));
-vi.mock("../commands/status.js", () => ({ statusCommand }));
-vi.mock("../commands/configure.js", () => ({
-  CONFIGURE_WIZARD_SECTIONS: [
-    "workspace",
-    "model",
-    "web",
-    "gateway",
-    "daemon",
-    "channels",
-    "skills",
-    "health",
-  ],
-  configureCommand,
-  configureCommandWithSections,
-}));
-vi.mock("../commands/setup.js", () => ({ setupCommand }));
-vi.mock("../commands/onboard.js", () => ({ onboardCommand }));
-vi.mock("../runtime.js", () => ({ defaultRuntime: runtime }));
-vi.mock("./channel-auth.js", () => ({ runChannelLogin, runChannelLogout }));
-vi.mock("../tui/tui.js", () => ({ runTui }));
-vi.mock("../gateway/call.js", () => ({
-  callGateway,
-  randomIdempotencyKey: () => "idem-test",
-  buildGatewayConnectionDetails: () => ({
-    url: "ws://127.0.0.1:1234",
-    urlSource: "test",
-    message: "Gateway target: ws://127.0.0.1:1234",
-  }),
-}));
-vi.mock("./deps.js", () => ({ createDefaultDeps: () => ({}) }));
 
 const { buildProgram } = await import("./program.js");
 
@@ -107,7 +75,7 @@ describe("cli program (nodes media)", () => {
       .toSorted((a, b) => a.localeCompare(b));
     expect(facings).toEqual(["back", "front"]);
 
-    const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+    const out = getFirstRuntimeLogLine();
     const mediaPaths = out
       .split("\n")
       .filter((l) => l.startsWith("MEDIA:"))
@@ -180,7 +148,7 @@ describe("cli program (nodes media)", () => {
       }),
     );
 
-    const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+    const out = getFirstRuntimeLogLine();
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
     expect(mediaPath).toMatch(/openclaw-camera-clip-front-.*\.mp4$/);
 
@@ -236,7 +204,7 @@ describe("cli program (nodes media)", () => {
       }),
     );
 
-    const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+    const out = getFirstRuntimeLogLine();
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
 
     try {
@@ -311,7 +279,7 @@ describe("cli program (nodes media)", () => {
       }),
     );
 
-    const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+    const out = getFirstRuntimeLogLine();
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
 
     try {
@@ -404,7 +372,7 @@ describe("cli program (nodes media)", () => {
       { from: "user" },
     );
 
-    const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+    const out = getFirstRuntimeLogLine();
     const mediaPath = out.replace(/^MEDIA:/, "").trim();
     expect(mediaPath).toMatch(/openclaw-canvas-snapshot-.*\.png$/);
 
@@ -503,7 +471,7 @@ describe("cli program (nodes media)", () => {
         { from: "user" },
       );
 
-      const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+      const out = getFirstRuntimeLogLine();
       const mediaPath = out.replace(/^MEDIA:/, "").trim();
       expect(mediaPath).toMatch(/openclaw-camera-snap-front-.*\.jpg$/);
 
@@ -552,7 +520,7 @@ describe("cli program (nodes media)", () => {
         { from: "user" },
       );
 
-      const out = String(runtime.log.mock.calls[0]?.[0] ?? "");
+      const out = getFirstRuntimeLogLine();
       const mediaPath = out.replace(/^MEDIA:/, "").trim();
       expect(mediaPath).toMatch(/openclaw-camera-clip-front-.*\.mp4$/);
 
