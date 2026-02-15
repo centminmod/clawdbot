@@ -310,7 +310,7 @@ This validates the name of an executable to run, not arguments passed to it. Arg
 Previously, the gateway host merged `params.env` without sanitization. As of PR #12, the gateway now validates env vars:
 - Blocklist at `src/agents/bash-tools.exec-runtime.ts:32-50`
 - Validation function at `src/agents/bash-tools.exec-runtime.ts:54` (`validateHostEnv`)
-- Enforcement at `src/agents/bash-tools.exec.ts:298` (validates before env merge at `:303`)
+- Enforcement at `src/agents/bash-tools.exec.ts:300` (validates before env merge at `:305`)
 
 On the node host, there is an explicit blocklist (`src/node-host/invoke.ts:45-175` — was `src/node-host/runner.ts:166-175`):
 ```
@@ -363,7 +363,7 @@ Both audits correctly identify code patterns that *could* be concerning in isola
 
 While none of the 8 claims are exploitable as described, three defense-in-depth improvements were identified:
 
-1. ~~**Gateway-side env var blocklist (Claim 8):**~~ **CLOSED in PR #12.** Gateway now has `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:32-50,54`), with enforcement at `src/agents/bash-tools.exec.ts:298`.
+1. ~~**Gateway-side env var blocklist (Claim 8):**~~ **CLOSED in PR #12.** Gateway now has `DANGEROUS_HOST_ENV_VARS` blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:32-50,54`), with enforcement at `src/agents/bash-tools.exec.ts:300`.
 
 2. **Pipe-delimited token format (Claim 6):** The token construction uses pipe delimiters without input sanitization. RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 
@@ -1003,6 +1003,28 @@ No line shifts. No new CVEs.
 **Security relevance: HIGH** — 6 security-relevant commits. **SSRF guard IPv4-mapped IPv6 blocking** (`c0c0e0f9a`): complete IPv6 handling rewrite in `src/infra/net/ssrf.ts` — new `parseIpv6Hextets()` at lines 91-150, `extractIpv4FromEmbeddedIpv6()` at 152-165, expanded `isPrivateIpAddress()` at 193-257. Blocks full-form `::ffff:127.0.0.1` and metadata service via IPv6 embedding. **Addresses Audit 2 Claim 4.** Closes [#13274](https://github.com/openclaw/openclaw/issues/13274). **Workspace-only path guards** (`5e7c3250c`): `workspaceOnly` parameter + `wrapToolWorkspaceRootGuard()` at `pi-tools.read.ts:255` for read/write/list tools; `resolvePatchPath()` at `apply-patch.ts:254-285` with `assertSandboxPath()` at `:274`. **Addresses Audit 1 Claims 5, 6; partially mitigates Gap #3.** **OAuth CSRF state validation** (`a99ad11a4`): `parseOAuthCallbackInput()` at `chutes-oauth.ts:36-80` now enforces state parameter match, rejects bare code input. **Addresses Audit 1 Claim 2.** **Device pairing token hardening** (`48b3d7096`): new `src/infra/pairing-token.ts:6` generates 256-bit base64url tokens via `crypto.randomBytes()`. **Addresses Audit 1 Claim 4.** **Clawtributors shell injection fix** (`a429380e3`): `isValidLogin()` at `scripts/update-clawtributors.ts:293` + `execFileSync()` at `:336`. **Addresses Audit 2 Claim 7.** **Compaction safety timeout** (`c0cd3c3c0`): `compactWithSafetyTimeout()` at `compaction-safety-timeout.ts:5` prevents deadlock. 6 additional security-adjacent commits (session cleanup, shell output cap, plugin hooks, mutation tracking). 64 safe commits: test refactors, changelog docs, perf optimizations. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-11.md).
 
 **Line shifts:** `ssrf.ts` major rewrite (+124 lines): `resolvePinnedHostname` 391-396, `resolvePinnedHostnameWithPolicy` 337-389, `isPrivateIpAddress` 193-257. `apply-patch.ts` +11 lines: `resolvePatchPath` 254-285, `assertSandboxPath` at 274. `chutes-oauth.ts` +12 lines: `parseOAuthCallbackInput` 36-80.
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 12) — 80 upstream commits
+
+**Merge commit:** `8181f51db` | **Range:** `ff9629add..8181f51db` | **78 non-merge commits** (31 flagged, 47 safe)
+
+**Security relevance: LOW** — 5 security-adjacent commits. No direct audit claim overlap.
+
+**LOW (5):**
+
+- **`52bfe5060`** — **File-lock refactor to plugin-sdk:** Implementation moved from `src/infra/file-lock.ts` to `src/plugin-sdk/file-lock.ts` (192 lines). Original file re-exports. PID-based stale lock detection and atomic operations preserved. Security behavior unchanged.
+
+- **`ea0ef1870`** — **Centralize exec approval timeout:** New `DEFAULT_EXEC_APPROVAL_TIMEOUT_MS = 120_000` at `src/infra/exec-approvals.ts:85`. Replaces scattered timeout values. Defense-in-depth for approval flow consistency.
+
+- **`28b78b25b`** — **Persist bootstrap onboarding state:** New workspace-state.json tracking via `resolveWorkspaceStatePath()` at `src/agents/workspace.ts:143`, `readWorkspaceOnboardingState()` at `:186-202`, `writeWorkspaceOnboardingState()` at `:204-218`. Causes +122 line shift: `loadWorkspaceBootstrapFiles()` 278-332 → 400-454, `filterBootstrapFilesForSession()` 336-344 → 458-466.
+
+- **`dec685970`** — **Reduce prompt token bloat:** New `compactNotifyOutput()` at `src/agents/bash-tools.exec-runtime.ts:218-230`. `DEFAULT_PENDING_MAX_OUTPUT` reduced 200k → 30k chars at `:117`.
+
+- **`2493455f0`** — **Extract LINE webhook handler:** New `src/line/webhook-node.ts` (129 lines) with `createLineNodeWebhookHandler()` and `src/line/webhook-utils.ts` with shared `parseLineWebhookBody()` and `isLineWebhookVerificationRequest()`. Defense-in-depth for Audit 1 Claim 7 (webhook verification) through shared verification logic.
+
+**Line shifts:** `bash-tools.exec.ts` 298→300 (validateHostEnv), `workspace.ts` 278-332→400-454 and 336-344→458-466, `qmd-manager.ts` 346-353→355-371, `bootstrap.ts` 84→85 and 162-191→187-239, `bootstrap-files.ts` 21-60→25-66. All verified via grep.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — unchanged).
 

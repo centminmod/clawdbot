@@ -149,7 +149,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 | 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:99-169`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-31`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:16-44`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
-| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:298`). Node-host has blocklist (`src/node-host/invoke.ts:45-165`). Requires human approval + localhost + no sandbox. |
+| 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:300`). Node-host has blocklist (`src/node-host/invoke.ts:45-165`). Requires human approval + localhost + no sandbox. |
 
 **Result: 0 of 8 claims are exploitable as described.**
 
@@ -161,7 +161,7 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 Three defense-in-depth items were identified (not exploitable as described, but worth hardening):
 
-1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12.** Gateway now validates env vars via `DANGEROUS_HOST_ENV_VARS` blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:298`).
+1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12.** Gateway now validates env vars via `DANGEROUS_HOST_ENV_VARS` blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:300`).
 2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust.
 3. **outPath validation:** `screen_record` outPath accepts arbitrary paths. Writes are confined to the paired node device, but path validation would add depth.
 
@@ -230,7 +230,7 @@ This is new security hardening unrelated to existing audit claims. **All three l
 
 Seven security-relevant commits:
 
-- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): `DANGEROUS_HOST_ENV_VARS` blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:298`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.**
+- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): `DANGEROUS_HOST_ENV_VARS` blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:300`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.**
 
 - **`b796f6ec0`** — Web tools and file parsing hardening (#4058) (thanks @VACInc)
 - **`a2b00495c`** — TLS 1.3 minimum requirement (thanks @loganaden)
@@ -630,6 +630,14 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 15 sync 11) — 80 upstream commits
 
 **Security relevance: HIGH** — 6 security-relevant commits. SSRF guard IPv4-mapped IPv6 blocking (`c0c0e0f9a` — Audit 2 Claim 4, closes #13274). Workspace-only path guards (`5e7c3250c` — Audit 1 Claims 5, 6; Gap #3 partial). OAuth CSRF state validation (`a99ad11a4` — Audit 1 Claim 2). Device pairing token hardening (`48b3d7096` — Audit 1 Claim 4). Clawtributors shell injection fix (`a429380e3` — Audit 2 Claim 7). Compaction safety timeout (`c0cd3c3c0`). 6 security-adjacent (session cleanup, shell output cap, plugin hooks, mutation tracking). 64 safe: test refactors, changelog docs, perf optimizations. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-11.md).
+
+**Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — unchanged).
+
+### Post-Merge Hardening (Feb 15 sync 12) — 80 upstream commits
+
+**Security relevance: LOW** — 5 security-adjacent commits. File-lock refactor to plugin-sdk (`52bfe5060`), exec approval timeout centralization (`ea0ef1870`), workspace bootstrap onboarding state persistence (`28b78b25b` — causes +122 line shift in workspace.ts), exec notification token bloat reduction (`dec685970` — `DEFAULT_PENDING_MAX_OUTPUT` 200k→30k), LINE webhook handler extraction with shared verification (`2493455f0` — defense-in-depth for Audit 1 Claim 7). 73 non-security commits: test infrastructure, CI, provider improvements. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-12.md).
+
+**Line shifts:** `bash-tools.exec.ts` 298→300, `workspace.ts` 278-332→400-454 and 336-344→458-466, `qmd-manager.ts` 346-353→355-371, `bootstrap.ts` 84→85 and 162-191→187-239, `bootstrap-files.ts` 21-60→25-66.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 partially mitigated, bootstrap/memory .md scanning — unchanged).
 

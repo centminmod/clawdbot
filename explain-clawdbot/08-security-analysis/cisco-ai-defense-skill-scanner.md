@@ -170,7 +170,7 @@ The SKILL.md gap extends to **all persistent `.md` files** in the workspace. Two
 
 **Path 1 — Bootstrap files (system prompt injection, high trust):**
 
-Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:278-332`) and injected directly into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:162-191`). They appear as fully trusted context with **no content validation** — only truncation at 20,000 characters per file (`src/agents/pi-embedded-helpers/bootstrap.ts:84`).
+Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:400-454`) and injected directly into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:187-239`). They appear as fully trusted context with **no content validation** — only truncation at 20,000 characters per file (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
 
 | Bootstrap file | Purpose | Max chars | Injection path |
 |----------------|---------|-----------|----------------|
@@ -184,17 +184,17 @@ Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agent
 | `MEMORY.md` | Persistent memory context | 20,000 | System prompt |
 | `memory.md` | Persistent memory context (lowercase variant) | 20,000 | System prompt |
 
-Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:84` (truncation limit)
+Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85` (truncation limit)
 
 **Total unscanned system prompt attack surface: 9 x 20,000 = 180,000 characters.**
 
 **Path 2 — Memory directory files (tool-call injection, lower trust):**
 
-Files in `memory/*.md` are **not** loaded by `loadWorkspaceBootstrapFiles()`. They go through a separate pipeline: `listMemoryFiles()` (`src/memory/internal.ts:78-107`) and `resolveDefaultCollections()` (`src/memory/backend-config.ts:233-252`), accessed via `memory_search`/`memory_get` tool calls with a 4,000-character injection budget — not as system prompt context. The QMD backend validates `.md` extension and rejects symlinks (`src/memory/qmd-manager.ts:346-352`) but does **not** scan content.
+Files in `memory/*.md` are **not** loaded by `loadWorkspaceBootstrapFiles()`. They go through a separate pipeline: `listMemoryFiles()` (`src/memory/internal.ts:78-107`) and `resolveDefaultCollections()` (`src/memory/backend-config.ts:233-252`), accessed via `memory_search`/`memory_get` tool calls with a 4,000-character injection budget — not as system prompt context. The QMD backend validates `.md` extension and rejects symlinks (`src/memory/qmd-manager.ts:355-371`) but does **not** scan content.
 
 **Neither path is scanned by the built-in skill scanner** (`src/security/skill-scanner.ts:37-46`), which only processes JS/TS files.
 
-**Subagent mitigation:** `filterBootstrapFilesForSession()` at `src/agents/workspace.ts:336-344` limits subagents to only `AGENTS.md` + `TOOLS.md`, reducing the bootstrap attack surface from 9 files to 2 in multi-agent setups.
+**Subagent mitigation:** `filterBootstrapFilesForSession()` at `src/agents/workspace.ts:458-466` limits subagents to only `AGENTS.md` + `TOOLS.md`, reducing the bootstrap attack surface from 9 files to 2 in multi-agent setups.
 
 **Risk scenario:** An attacker with workspace write access (via compromised skill, plugin, shared git repo, or social engineering) plants persistent prompt injection in any of these files. The injection persists across sessions and appears as trusted system context, making it significantly harder for the model to reject than runtime injection from user messages or fetched content.
 
