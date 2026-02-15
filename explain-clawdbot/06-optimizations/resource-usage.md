@@ -55,7 +55,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 **Child process stdout/stderr accumulation:**
 - `src/process/exec.ts:133-162` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:553-575` — same pattern for QMD processing
+- `src/memory/qmd-manager.ts:645-663` — same pattern for QMD processing
 
 **Media fetch buffering:**
 - `src/media/fetch.ts:131-133` — full response body buffered into memory before processing

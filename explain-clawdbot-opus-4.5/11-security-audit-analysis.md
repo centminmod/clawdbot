@@ -1036,6 +1036,14 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated, bootstrap/memory .md scanning — Gap #4 strengthened by scope deny bypass fix).
 
+### Post-Merge Hardening (Feb 15 sync 14) — 37 upstream commits
+
+**Security relevance: MEDIUM** — 12 security-relevant fix commits with 7 companion tests and 1 password-related UI security fix. No audit claims fully addressed; incremental hardening across OAuth, webhooks, allowlists, memory, and plugin installation. **Password exposure prevention** (`a32403180`): URL parameter hydration no longer includes passwords. **OAuth CSRF hardened** (`cdeedd809` + `6c0dca30b`): manual OAuth state parameter validation. Tangentially strengthens Audit 1 Claim 2. **File path alias bypass closed** (`032842a74` + `53e4d37cf`): Read tool accepts both `path` and `file_path`. **Cron replay protection** (`7b89e68d1` + `bb6758567`): interrupted jobs tracked and skipped. **Discord allowlist null-safety** (`7b4984e73` + `66414b28b`): empty guild maps no longer bypass checks. **Memory query ranking** (`04a88a6ee` + `46a3c1606`): multi-collection deduplication. **Signal group ID** (`8647a1ebe` + `4587175fb`): case-sensitive preservation. **Telegram webhook timeout** (`f032ade9c` + `69a1ab231`): 10s timeout prevents retry storms. **Plugin install file: URL validation** (`981d57213`): rejects hostnames and malformed paths. **Memory dirty-state isolation** (`7addb519d` + `44bbb4ddf`): status queries don't pollute dirty state. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-14.md).
+
+**Line shifts:** `telegram/webhook.ts` 30→31, 40→41, 41-47→42-48. `qmd-manager.ts` 415-421→418-424, 1080-1086→1126-1132.
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 ---
 
 ## Recommended Hardening Measures

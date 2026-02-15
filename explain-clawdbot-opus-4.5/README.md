@@ -649,6 +649,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** (pipe-delimited token format, outPath validation — Gap #3 further mitigated, bootstrap/memory .md scanning — Gap #4 strengthened by scope deny bypass fix).
 
+### Post-Merge Hardening (Feb 15 sync 14) — 37 upstream commits
+
+**Security relevance: MEDIUM** — 12 security-relevant fix commits with 7 companion tests. No audit claims fully addressed; incremental hardening across OAuth, webhooks, allowlists, memory, and plugin installation. **OAuth CSRF hardened** (`cdeedd809` + `6c0dca30b`): manual OAuth state parameter validation — tangentially strengthens Audit 1 Claim 2. **File path alias bypass closed** (`032842a74`): Read tool accepts both `path` and `file_path`. **Discord allowlist null-safety** (`7b4984e73`): empty guild maps no longer bypass checks. **Telegram webhook timeout** (`f032ade9c`): 10s timeout prevents retry storms. **Plugin install file: URL validation** (`981d57213`): rejects hostnames and malformed paths. **Memory dirty-state isolation** (`7addb519d`): status queries don't pollute dirty state. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-14.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
