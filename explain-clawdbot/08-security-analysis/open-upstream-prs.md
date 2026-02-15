@@ -466,9 +466,9 @@
 - `src/agents/pi-embedded-runner/run/attempt.ts` — uses `Agent.transformContext` hook to run `sanitizeAntigravityThinkingBlocks` before every API call (not just at session load)
 
 **Local Validation:**
-- `src/agents/pi-embedded-runner/run/attempt.ts:778-779` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
+- `src/agents/pi-embedded-runner/run/attempt.ts:893` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
 - No `transformContext` hook usage in local `pi-embedded-runner` (grep confirmed)
-- `src/agents/pi-embedded-runner/google.ts:67` — `sanitizeAntigravityThinkingBlocks` function exists but only called from `attempt.ts:779` and `google.ts:458`
+- `src/agents/pi-embedded-runner/google.ts:67` — `sanitizeAntigravityThinkingBlocks` function exists but only called from `attempt.ts:893` and `google.ts:458`
 
 **Local Impact:** OPEN/PENDING — PR not yet merged. Relates to #14218 (thinking sanitization bypass).
 
