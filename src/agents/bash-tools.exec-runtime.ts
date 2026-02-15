@@ -324,6 +324,39 @@ export async function runExecProcess(opts: {
   let stdin: SessionStdin | undefined;
   const execCommand = opts.execCommand ?? opts.command;
 
+  const spawnFallbacks = [
+    {
+      label: "no-detach",
+      options: { detached: false },
+    },
+  ];
+
+  const handleSpawnFallback = (err: unknown, fallback: { label: string }) => {
+    const errText = formatSpawnError(err);
+    const warning = `Warning: spawn failed (${errText}); retrying with ${fallback.label}.`;
+    logWarn(`exec: spawn failed (${errText}); retrying with ${fallback.label}.`);
+    opts.warnings.push(warning);
+  };
+
+  const spawnShellChild = async (
+    shell: string,
+    shellArgs: string[],
+  ): Promise<ChildProcessWithoutNullStreams> => {
+    const { child: spawned } = await spawnWithFallback({
+      argv: [shell, ...shellArgs, execCommand],
+      options: {
+        cwd: opts.workdir,
+        env: opts.env,
+        detached: process.platform !== "win32",
+        stdio: ["pipe", "pipe", "pipe"],
+        windowsHide: true,
+      },
+      fallbacks: spawnFallbacks,
+      onFallback: handleSpawnFallback,
+    });
+    return spawned as ChildProcessWithoutNullStreams;
+  };
+
   // `exec` does not currently accept tool-provided stdin content. For non-PTY runs,
   // keeping stdin open can cause commands like `wc -l` (or safeBins-hardened segments)
   // to block forever waiting for input, leading to accidental backgrounding.
@@ -359,18 +392,8 @@ export async function runExecProcess(opts: {
         stdio: ["pipe", "pipe", "pipe"],
         windowsHide: true,
       },
-      fallbacks: [
-        {
-          label: "no-detach",
-          options: { detached: false },
-        },
-      ],
-      onFallback: (err, fallback) => {
-        const errText = formatSpawnError(err);
-        const warning = `Warning: spawn failed (${errText}); retrying with ${fallback.label}.`;
-        logWarn(`exec: spawn failed (${errText}); retrying with ${fallback.label}.`);
-        opts.warnings.push(warning);
-      },
+      fallbacks: spawnFallbacks,
+      onFallback: handleSpawnFallback,
     });
     child = spawned as ChildProcessWithoutNullStreams;
     stdin = child.stdin;
@@ -417,56 +440,12 @@ export async function runExecProcess(opts: {
       const warning = `Warning: PTY spawn failed (${errText}); retrying without PTY for \`${opts.command}\`.`;
       logWarn(`exec: PTY spawn failed (${errText}); retrying without PTY for "${opts.command}".`);
       opts.warnings.push(warning);
-      const { child: spawned } = await spawnWithFallback({
-        argv: [shell, ...shellArgs, execCommand],
-        options: {
-          cwd: opts.workdir,
-          env: opts.env,
-          detached: process.platform !== "win32",
-          stdio: ["pipe", "pipe", "pipe"],
-          windowsHide: true,
-        },
-        fallbacks: [
-          {
-            label: "no-detach",
-            options: { detached: false },
-          },
-        ],
-        onFallback: (fallbackErr, fallback) => {
-          const fallbackText = formatSpawnError(fallbackErr);
-          const fallbackWarning = `Warning: spawn failed (${fallbackText}); retrying with ${fallback.label}.`;
-          logWarn(`exec: spawn failed (${fallbackText}); retrying with ${fallback.label}.`);
-          opts.warnings.push(fallbackWarning);
-        },
-      });
-      child = spawned as ChildProcessWithoutNullStreams;
+      child = await spawnShellChild(shell, shellArgs);
       stdin = child.stdin;
     }
   } else {
     const { shell, args: shellArgs } = getShellConfig();
-    const { child: spawned } = await spawnWithFallback({
-      argv: [shell, ...shellArgs, execCommand],
-      options: {
-        cwd: opts.workdir,
-        env: opts.env,
-        detached: process.platform !== "win32",
-        stdio: ["pipe", "pipe", "pipe"],
-        windowsHide: true,
-      },
-      fallbacks: [
-        {
-          label: "no-detach",
-          options: { detached: false },
-        },
-      ],
-      onFallback: (err, fallback) => {
-        const errText = formatSpawnError(err);
-        const warning = `Warning: spawn failed (${errText}); retrying with ${fallback.label}.`;
-        logWarn(`exec: spawn failed (${errText}); retrying with ${fallback.label}.`);
-        opts.warnings.push(warning);
-      },
-    });
-    child = spawned as ChildProcessWithoutNullStreams;
+    child = await spawnShellChild(shell, shellArgs);
     stdin = child.stdin;
     maybeCloseNonPtyStdin();
   }
