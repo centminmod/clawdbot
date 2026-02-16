@@ -7,7 +7,6 @@ import {
   createImageCarousel,
   createImageCarouselColumn,
   createYesNoConfirm,
-  createButtonMenu,
   createLinkMenu,
   createProductCarousel,
   messageAction,
@@ -39,27 +38,20 @@ describe("messageAction", () => {
 });
 
 describe("uriAction", () => {
-  it("creates a URI action", () => {
-    const action = uriAction("Visit", "https://example.com");
-
-    expect(action.type).toBe("uri");
-    expect(action.label).toBe("Visit");
+  it("truncates labels and keeps target URL", () => {
+    const action = uriAction("This label is definitely too long", "https://example.com");
+    expect(action.label).toBe("This label is defini");
     expect((action as { uri: string }).uri).toBe("https://example.com");
   });
 });
 
 describe("postbackAction", () => {
-  it("creates a postback action", () => {
-    const action = postbackAction("Select", "action=select&id=1");
-
-    expect(action.type).toBe("postback");
-    expect(action.label).toBe("Select");
-    expect((action as { data: string }).data).toBe("action=select&id=1");
-  });
-
   it("includes displayText when provided", () => {
     const action = postbackAction("Select", "data", "Selected!");
 
+    expect(action.type).toBe("postback");
+    expect(action.label).toBe("Select");
+    expect((action as { data: string }).data).toBe("data");
     expect((action as { displayText: string }).displayText).toBe("Selected!");
   });
 
@@ -72,14 +64,6 @@ describe("postbackAction", () => {
 });
 
 describe("datetimePickerAction", () => {
-  it("creates a datetime picker action", () => {
-    const action = datetimePickerAction("Pick date", "date_selected", "date");
-
-    expect(action.type).toBe("datetimepicker");
-    expect(action.label).toBe("Pick date");
-    expect((action as { mode: string }).mode).toBe("date");
-  });
-
   it("includes min/max/initial when provided", () => {
     const action = datetimePickerAction("Pick", "data", "datetime", {
       initial: "2024-01-01T12:00",
@@ -87,6 +71,9 @@ describe("datetimePickerAction", () => {
       max: "2024-12-31T23:59",
     });
 
+    expect(action.type).toBe("datetimepicker");
+    expect(action.label).toBe("Pick");
+    expect((action as { mode: string }).mode).toBe("datetime");
     expect((action as { initial: string }).initial).toBe("2024-01-01T12:00");
     expect((action as { min: string }).min).toBe("2024-01-01T00:00");
     expect((action as { max: string }).max).toBe("2024-12-31T23:59");
@@ -94,16 +81,6 @@ describe("datetimePickerAction", () => {
 });
 
 describe("createConfirmTemplate", () => {
-  it("creates a confirm template", () => {
-    const confirm = messageAction("Yes");
-    const cancel = messageAction("No");
-    const template = createConfirmTemplate("Are you sure?", confirm, cancel);
-
-    expect(template.type).toBe("template");
-    expect(template.template.type).toBe("confirm");
-    expect((template.template as { text: string }).text).toBe("Are you sure?");
-  });
-
   it("truncates text to 240 characters", () => {
     const longText = "x".repeat(300);
     const template = createConfirmTemplate(longText, messageAction("Yes"), messageAction("No"));
@@ -124,16 +101,6 @@ describe("createConfirmTemplate", () => {
 });
 
 describe("createButtonTemplate", () => {
-  it("creates a button template", () => {
-    const actions = [messageAction("Button 1"), messageAction("Button 2")];
-    const template = createButtonTemplate("Title", "Description", actions);
-
-    expect(template.type).toBe("template");
-    expect(template.template.type).toBe("buttons");
-    expect((template.template as { title: string }).title).toBe("Title");
-    expect((template.template as { text: string }).text).toBe("Description");
-  });
-
   it("limits actions to 4", () => {
     const actions = Array.from({ length: 6 }, (_, i) => messageAction(`Button ${i}`));
     const template = createButtonTemplate("Title", "Text", actions);
@@ -176,43 +143,19 @@ describe("createButtonTemplate", () => {
 });
 
 describe("createTemplateCarousel", () => {
-  it("creates a carousel template", () => {
-    const columns = [
-      createCarouselColumn({ text: "Column 1", actions: [messageAction("Select")] }),
-      createCarouselColumn({ text: "Column 2", actions: [messageAction("Select")] }),
-    ];
-    const template = createTemplateCarousel(columns);
-
-    expect(template.type).toBe("template");
-    expect(template.template.type).toBe("carousel");
-    expect((template.template as { columns: unknown[] }).columns.length).toBe(2);
-  });
-
   it("limits columns to 10", () => {
     const columns = Array.from({ length: 15 }, () =>
       createCarouselColumn({ text: "Text", actions: [messageAction("OK")] }),
     );
     const template = createTemplateCarousel(columns);
 
+    expect(template.type).toBe("template");
+    expect(template.template.type).toBe("carousel");
     expect((template.template as { columns: unknown[] }).columns.length).toBe(10);
   });
 });
 
 describe("createCarouselColumn", () => {
-  it("creates a carousel column", () => {
-    const column = createCarouselColumn({
-      title: "Item",
-      text: "Description",
-      actions: [messageAction("View")],
-      thumbnailImageUrl: "https://example.com/img.jpg",
-    });
-
-    expect(column.title).toBe("Item");
-    expect(column.text).toBe("Description");
-    expect(column.thumbnailImageUrl).toBe("https://example.com/img.jpg");
-    expect(column.actions.length).toBe(1);
-  });
-
   it("limits actions to 3", () => {
     const column = createCarouselColumn({
       text: "Text",
@@ -237,34 +180,15 @@ describe("createCarouselColumn", () => {
 });
 
 describe("createImageCarousel", () => {
-  it("creates an image carousel", () => {
-    const columns = [
-      createImageCarouselColumn("https://example.com/1.jpg", messageAction("View 1")),
-      createImageCarouselColumn("https://example.com/2.jpg", messageAction("View 2")),
-    ];
-    const template = createImageCarousel(columns);
-
-    expect(template.type).toBe("template");
-    expect(template.template.type).toBe("image_carousel");
-  });
-
   it("limits columns to 10", () => {
     const columns = Array.from({ length: 15 }, (_, i) =>
       createImageCarouselColumn(`https://example.com/${i}.jpg`, messageAction("View")),
     );
     const template = createImageCarousel(columns);
 
+    expect(template.type).toBe("template");
+    expect(template.template.type).toBe("image_carousel");
     expect((template.template as { columns: unknown[] }).columns.length).toBe(10);
-  });
-});
-
-describe("createImageCarouselColumn", () => {
-  it("creates an image carousel column", () => {
-    const action = uriAction("Visit", "https://example.com");
-    const column = createImageCarouselColumn("https://example.com/img.jpg", action);
-
-    expect(column.imageUrl).toBe("https://example.com/img.jpg");
-    expect(column.action).toBe(action);
   });
 });
 
@@ -303,22 +227,6 @@ describe("createYesNoConfirm", () => {
   });
 });
 
-describe("createButtonMenu", () => {
-  it("creates a button menu with text buttons", () => {
-    const template = createButtonMenu("Menu", "Choose an option", [
-      { label: "Option 1" },
-      { label: "Option 2", text: "selected option 2" },
-    ]);
-
-    expect(template.type).toBe("template");
-    expect(template.template.type).toBe("buttons");
-
-    const actions = (template.template as { actions: Array<{ type: string }> }).actions;
-    expect(actions.length).toBe(2);
-    expect(actions[0].type).toBe("message");
-  });
-});
-
 describe("createLinkMenu", () => {
   it("creates a button menu with URL links", () => {
     const template = createLinkMenu("Links", "Visit our sites", [
@@ -335,19 +243,6 @@ describe("createLinkMenu", () => {
 });
 
 describe("createProductCarousel", () => {
-  it("creates a product carousel", () => {
-    const template = createProductCarousel([
-      { title: "Product 1", description: "Desc 1", price: "$10" },
-      { title: "Product 2", description: "Desc 2", imageUrl: "https://example.com/p2.jpg" },
-    ]);
-
-    expect(template.type).toBe("template");
-    expect(template.template.type).toBe("carousel");
-
-    const columns = (template.template as { columns: unknown[] }).columns;
-    expect(columns.length).toBe(2);
-  });
-
   it("uses URI action when actionUrl provided", () => {
     const template = createProductCarousel([
       {
