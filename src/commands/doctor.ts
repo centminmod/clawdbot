@@ -312,4 +312,5 @@ export async function doctorCommand(
   }
 
   outro("Doctor complete.");
+  runtime.exit(0);
 }

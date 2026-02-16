@@ -759,6 +759,7 @@ export async function runEmbeddedAttempt(
         waitForCompactionRetry,
         getMessagingToolSentTexts,
         getMessagingToolSentTargets,
+        getSuccessfulCronAdds,
         didSendViaMessagingTool,
         getLastToolError,
         getUsageTotals,
@@ -849,31 +850,37 @@ export async function runEmbeddedAttempt(
       try {
         const promptStartedAt = Date.now();
 
-        // Run before_agent_start hooks to allow plugins to inject context
+        // Run before_agent_start hooks to allow plugins to inject context.
+        // If run.ts already fired the hook (for model override), reuse its result.
         let effectivePrompt = params.prompt;
-        if (hookRunner?.hasHooks("before_agent_start")) {
-          try {
-            const hookResult = await hookRunner.runBeforeAgentStart(
-              {
-                prompt: params.prompt,
-                messages: activeSession.messages,
-              },
-              {
-                agentId: hookAgentId,
-                sessionKey: params.sessionKey,
-                sessionId: params.sessionId,
-                workspaceDir: params.workspaceDir,
-                messageProvider: params.messageProvider ?? undefined,
-              },
+        const hookResult =
+          params.earlyHookResult ??
+          (hookRunner?.hasHooks("before_agent_start")
+            ? await hookRunner
+                .runBeforeAgentStart(
+                  {
+                    prompt: params.prompt,
+                    messages: activeSession.messages,
+                  },
+                  {
+                    agentId: hookAgentId,
+                    sessionKey: params.sessionKey,
+                    sessionId: params.sessionId,
+                    workspaceDir: params.workspaceDir,
+                    messageProvider: params.messageProvider ?? undefined,
+                  },
+                )
+                .catch((hookErr: unknown) => {
+                  log.warn(`before_agent_start hook failed: ${String(hookErr)}`);
+                  return undefined;
+                })
+            : undefined);
+        {
+          if (hookResult?.prependContext) {
+            effectivePrompt = `${hookResult.prependContext}\n\n${params.prompt}`;
+            log.debug(
+              `hooks: prepended context to prompt (${hookResult.prependContext.length} chars)`,
             );
-            if (hookResult?.prependContext) {
-              effectivePrompt = `${hookResult.prependContext}\n\n${params.prompt}`;
-              log.debug(
-                `hooks: prepended context to prompt (${hookResult.prependContext.length} chars)`,
-              );
-            }
-          } catch (hookErr) {
-            log.warn(`before_agent_start hook failed: ${String(hookErr)}`);
           }
         }
 
@@ -1172,6 +1179,7 @@ export async function runEmbeddedAttempt(
         didSendViaMessagingTool: didSendViaMessagingTool(),
         messagingToolSentTexts: getMessagingToolSentTexts(),
         messagingToolSentTargets: getMessagingToolSentTargets(),
+        successfulCronAdds: getSuccessfulCronAdds(),
         cloudCodeAssistFormatError: Boolean(
           lastAssistant?.errorMessage && isCloudCodeAssistFormatError(lastAssistant.errorMessage),
         ),

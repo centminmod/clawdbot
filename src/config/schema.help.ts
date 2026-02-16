@@ -17,6 +17,10 @@ export const FIELD_HELP: Record<string, string> = {
     "Optional allowlist of skills for this agent (omit = all skills; empty = no skills).",
   "agents.list[].identity.avatar":
     "Avatar image path (relative to the agent workspace only) or a remote URL/data URL.",
+  "agents.defaults.heartbeat.suppressToolErrorWarnings":
+    "Suppress tool error warning payloads during heartbeat runs.",
+  "agents.list[].heartbeat.suppressToolErrorWarnings":
+    "Suppress tool error warning payloads during heartbeat runs.",
   "discovery.mdns.mode":
     'mDNS broadcast mode ("minimal" default, "full" includes cliPath/sshPort, "off" disables mDNS).',
   "gateway.auth.token":
@@ -98,6 +102,8 @@ export const FIELD_HELP: Record<string, string> = {
     "Perplexity base URL override (default: https://openrouter.ai/api/v1 or https://api.perplexity.ai).",
   "tools.web.search.perplexity.model":
     'Perplexity model override (default: "perplexity/sonar-pro").',
+  "tools.web.urlAllowlist":
+    "Optional URL/domain allowlist shared by web_search and web_fetch. Accepts domain patterns like 'example.com', '*.github.com'. When configured, only matching URLs are allowed.",
   "tools.web.fetch.enabled": "Enable the web_fetch tool (lightweight HTTP fetch).",
   "tools.web.fetch.maxChars": "Max characters returned by web_fetch (truncated).",
   "tools.web.fetch.maxCharsCap":
@@ -323,6 +329,8 @@ export const FIELD_HELP: Record<string, string> = {
   "channels.slack.commands.native": 'Override native commands for Slack (bool or "auto").',
   "channels.slack.commands.nativeSkills":
     'Override native skill commands for Slack (bool or "auto").',
+  "channels.slack.streamMode":
+    "Live stream preview mode for Slack replies (replace | status_final | append).",
   "session.agentToAgent.maxPingPongTurns":
     "Max reply-back turns between requester and target (0–5).",
   "channels.telegram.customCommands":
