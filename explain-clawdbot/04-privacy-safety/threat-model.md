@@ -118,10 +118,13 @@ Source: `src/gateway/auth.ts:64-85` (`resolveTailscaleClientIp()`, `resolveReque
 OpenClaw stores transcripts and credentials on disk under `~/.openclaw/`.
 If another user/process on the host can read that directory, privacy is gone.
 
+In February 2026, Hudson Rock documented the **first confirmed case** of infostealer malware (Vidar variant) exfiltrating OpenClaw config files from an infected machine. This escalated credential theft from a theoretical risk to a confirmed real-world incident. See [Hudson Rock Infostealer Analysis](../08-security-analysis/hudson-rock-infostealer-analysis.md).
+
 Mitigations:
 - file permissions (audit fixes these)
 - avoid syncing `~/.openclaw` to cloud drives
 - OS-level hardening (separate user, disk encryption)
+- endpoint protection (AV/EDR software)
 
 ### 5) Supply chain / plugins
 Plugins run in-process and plugin installation can execute code during install.
