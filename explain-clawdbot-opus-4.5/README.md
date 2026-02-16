@@ -681,6 +681,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 7) — 21 upstream commits
+
+**Security relevance: LOW** — 2 defensive improvements (plugin manifest cache invalidation, process tool schema tightening). 19 commits are test suite consolidation/docs. No audit claims or gaps affected. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-7.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---

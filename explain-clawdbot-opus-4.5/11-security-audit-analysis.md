@@ -1068,6 +1068,14 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 7) — 21 upstream commits
+
+**Security relevance: LOW** — 2 defensive improvements across 4 production files; remaining 19 commits are test consolidation and docs. Plugin manifest cache invalidation (`bed0e0762`): `clearPluginManifestRegistryCache()` at `src/plugins/manifest-registry.ts:64`, called at `src/cli/plugins-cli.ts:597,648` to ensure config validation sees freshly installed plugins. Process tool schema tightening (`bbcbabab7`): timeout changed from `Union[Number|String]` to strict `Type.Number({minimum: 0})` at `src/agents/bash-tools.process.ts:67-72`; sessions-spawn timeout normalization at `src/agents/tools/sessions-spawn-tool.ts:102-111`. **LARGE REFACTOR:** 12,419 lines changed (test suite merges). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-7.md).
+
+**Line shifts:** `plugins-cli.ts` 46-70→47-71 (resolveFileNpmSpecToLocalPath).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 ---
 
 ## Recommended Hardening Measures
