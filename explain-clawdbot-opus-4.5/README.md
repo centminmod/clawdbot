@@ -687,6 +687,18 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 8) — 21 upstream commits
+
+**Security relevance: LOW** — 2 gateway boot session management improvements, 19 test refactors and chore. No audit claims or gaps affected. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-8.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
+### Post-Merge Hardening (Feb 16 sync 9) — 21 upstream commits
+
+**Security relevance: MODERATE** — 1 feature commit adds cron finished-run webhook (PR #14535) with URL validation, bearer token auth, timeout protection, and log redaction. 20 commits are test consolidation. No audit claims or gaps affected. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-9.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---

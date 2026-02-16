@@ -1076,6 +1076,18 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 8) — 21 upstream commits
+
+**Security relevance: LOW** — 2 gateway boot session management improvements (`fe73878df`, `b562aa662`) touching `src/gateway/boot.ts` (not documented in audits). 19 remaining commits are test refactors and chore (dependency update, CI caching). No audit claims or gaps affected. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-8.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
+### Post-Merge Hardening (Feb 16 sync 9) — 21 upstream commits
+
+**Security relevance: MODERATE** — 1 feature commit adds cron finished-run webhook notifications (PR #14535). The webhook implementation includes URL validation via `HttpUrlSchema` (`src/config/zod-schema.ts:96-102`), bearer token auth (`src/gateway/server-cron.ts:115`), 10-second timeout protection (`src/gateway/server-cron.ts:23,117-120`), and URL redaction in error logs (`src/gateway/server-cron.ts:25-32`). Webhook token marked `.register(sensitive)` for credential redaction (`src/config/zod-schema.ts:307`). Per-job opt-in via `notify` flag (`src/gateway/server-cron.ts:110`). 20 remaining commits are test consolidation. No audit claims or gaps affected. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-9.md).
+
+**Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
 ---
 
 ## Recommended Hardening Measures
