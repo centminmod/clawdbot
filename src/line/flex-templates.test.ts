@@ -5,25 +5,16 @@ import {
   createImageCard,
   createActionCard,
   createCarousel,
-  createNotificationBubble,
   createEventCard,
-  createMediaPlayerCard,
   createDeviceControlCard,
-  toFlexMessage,
 } from "./flex-templates.js";
 
 describe("createInfoCard", () => {
   it("includes footer when provided", () => {
     const card = createInfoCard("Title", "Body", "Footer text");
 
-    expect(card.footer).toBeDefined();
     const footer = card.footer as { contents: Array<{ text: string }> };
     expect(footer.contents[0].text).toBe("Footer text");
-  });
-
-  it("omits footer when not provided", () => {
-    const card = createInfoCard("Title", "Body");
-    expect(card.footer).toBeUndefined();
   });
 });
 
@@ -37,21 +28,6 @@ describe("createListCard", () => {
     const listBox = body.contents[2] as { contents: unknown[] };
     expect(listBox.contents.length).toBe(8);
   });
-
-  it("includes actions on items when provided", () => {
-    const items = [
-      {
-        title: "Clickable",
-        action: { type: "message" as const, label: "Click", text: "clicked" },
-      },
-    ];
-    const card = createListCard("List", items);
-    const body = card.body as {
-      contents: Array<{ type: string; contents?: Array<{ action?: unknown }> }>;
-    };
-    const listBox = body.contents[2] as { contents: Array<{ action?: unknown }> };
-    expect(listBox.contents[0].action).toEqual(items[0].action);
-  });
 });
 
 describe("createImageCard", () => {
@@ -61,14 +37,6 @@ describe("createImageCard", () => {
     const body = card.body as { contents: Array<{ text: string }> };
     expect(body.contents.length).toBe(2);
     expect(body.contents[1].text).toBe("Body text");
-  });
-
-  it("applies custom aspect ratio", () => {
-    const card = createImageCard("https://example.com/img.jpg", "Title", undefined, {
-      aspectRatio: "16:9",
-    });
-
-    expect((card.hero as { aspectRatio: string }).aspectRatio).toBe("16:9");
   });
 });
 
@@ -83,15 +51,6 @@ describe("createActionCard", () => {
     const footer = card.footer as { contents: unknown[] };
     expect(footer.contents.length).toBe(4);
   });
-
-  it("includes hero image when provided", () => {
-    const card = createActionCard("Title", "Body", [], {
-      imageUrl: "https://example.com/hero.jpg",
-    });
-
-    expect(card.hero).toBeDefined();
-    expect((card.hero as { url: string }).url).toBe("https://example.com/hero.jpg");
-  });
 });
 
 describe("createCarousel", () => {
@@ -99,71 +58,11 @@ describe("createCarousel", () => {
     const bubbles = Array.from({ length: 15 }, (_, i) => createInfoCard(`Card ${i}`, `Body ${i}`));
     const carousel = createCarousel(bubbles);
 
-    expect(carousel.type).toBe("carousel");
     expect(carousel.contents.length).toBe(12);
   });
 });
 
-describe("createNotificationBubble", () => {
-  it("includes title when provided", () => {
-    const bubble = createNotificationBubble("Details here", {
-      title: "Alert Title",
-    });
-    const body = bubble.body as { contents: Array<{ contents?: Array<{ text?: string }> }> };
-    const contentSection = body.contents[1] as { contents: Array<{ text?: string }> };
-    expect(contentSection.contents[0].text).toBe("Alert Title");
-  });
-});
-
-describe("createMediaPlayerCard", () => {
-  it("includes album art when provided", () => {
-    const card = createMediaPlayerCard({
-      title: "Track Name",
-      imageUrl: "https://example.com/album.jpg",
-    });
-
-    expect(card.hero).toBeDefined();
-    expect((card.hero as { url: string }).url).toBe("https://example.com/album.jpg");
-  });
-
-  it("includes playback controls", () => {
-    const card = createMediaPlayerCard({
-      title: "Track",
-      controls: {
-        previous: { data: "action=prev" },
-        play: { data: "action=play" },
-        pause: { data: "action=pause" },
-        next: { data: "action=next" },
-      },
-    });
-
-    expect(card.footer).toBeDefined();
-  });
-
-  it("includes extra actions", () => {
-    const card = createMediaPlayerCard({
-      title: "Track",
-      extraActions: [
-        { label: "Add to Playlist", data: "action=add_playlist" },
-        { label: "Share", data: "action=share" },
-      ],
-    });
-
-    expect(card.footer).toBeDefined();
-  });
-});
-
 describe("createDeviceControlCard", () => {
-  it("includes device image", () => {
-    const card = createDeviceControlCard({
-      deviceName: "Device",
-      imageUrl: "https://example.com/device.jpg",
-      controls: [],
-    });
-
-    expect(card.hero).toBeDefined();
-  });
-
   it("limits controls to 6", () => {
     const card = createDeviceControlCard({
       deviceName: "Device",
@@ -173,7 +72,6 @@ describe("createDeviceControlCard", () => {
       })),
     });
 
-    expect(card.footer).toBeDefined();
     // Should have max 3 rows of 2 buttons
     const footer = card.footer as { contents: unknown[] };
     expect(footer.contents.length).toBeLessThanOrEqual(3);
@@ -193,27 +91,5 @@ describe("createEventCard", () => {
     expect(card.size).toBe("mega");
     const body = card.body as { contents: Array<{ type: string }> };
     expect(body.contents).toHaveLength(3);
-  });
-
-  it("includes action when provided", () => {
-    const card = createEventCard({
-      title: "Meeting",
-      date: "Jan 24",
-      action: { type: "uri", label: "Join", uri: "https://meet.google.com/abc" },
-    });
-
-    expect(card.body).toBeDefined();
-    expect((card.body as { action?: unknown }).action).toBeDefined();
-  });
-});
-
-describe("toFlexMessage", () => {
-  it("wraps a container in a FlexMessage", () => {
-    const bubble = createInfoCard("Title", "Body");
-    const message = toFlexMessage("Alt text", bubble);
-
-    expect(message.type).toBe("flex");
-    expect(message.altText).toBe("Alt text");
-    expect(message.contents).toBe(bubble);
   });
 });

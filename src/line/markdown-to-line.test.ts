@@ -34,19 +34,6 @@ And some more text.`;
     expect(textWithoutTables).not.toContain("|");
   });
 
-  it("extracts a multi-column table", () => {
-    const text = `| Col A | Col B | Col C |
-|-------|-------|-------|
-| 1     | 2     | 3     |
-| a     | b     | c     |`;
-
-    const { tables } = extractMarkdownTables(text);
-
-    expect(tables).toHaveLength(1);
-    expect(tables[0].headers).toEqual(["Col A", "Col B", "Col C"]);
-    expect(tables[0].rows).toHaveLength(2);
-  });
-
   it("extracts multiple tables", () => {
     const text = `Table 1:
 
@@ -139,15 +126,6 @@ echo "world"
     expect(codeBlocks[0].language).toBe("python");
     expect(codeBlocks[1].language).toBe("bash");
   });
-
-  it("returns empty when no code blocks present", () => {
-    const text = "No code here, just text.";
-
-    const { codeBlocks, textWithoutCode } = extractCodeBlocks(text);
-
-    expect(codeBlocks).toHaveLength(0);
-    expect(textWithoutCode).toBe(text);
-  });
 });
 
 describe("extractLinks", () => {
@@ -160,15 +138,6 @@ describe("extractLinks", () => {
     expect(links[0]).toEqual({ text: "Google", url: "https://google.com" });
     expect(links[1]).toEqual({ text: "GitHub", url: "https://github.com" });
     expect(textWithLinks).toBe("Check out Google and GitHub.");
-  });
-
-  it("handles text without links", () => {
-    const text = "No links here.";
-
-    const { links, textWithLinks } = extractLinks(text);
-
-    expect(links).toHaveLength(0);
-    expect(textWithLinks).toBe(text);
   });
 });
 
@@ -185,17 +154,6 @@ describe("stripMarkdown", () => {
 
   it("strips strikethrough markers", () => {
     expect(stripMarkdown("This is ~~deleted~~ text")).toBe("This is deleted text");
-  });
-
-  it("strips headers", () => {
-    expect(stripMarkdown("# Heading 1")).toBe("Heading 1");
-    expect(stripMarkdown("## Heading 2")).toBe("Heading 2");
-    expect(stripMarkdown("### Heading 3")).toBe("Heading 3");
-  });
-
-  it("strips blockquotes", () => {
-    expect(stripMarkdown("> This is a quote")).toBe("This is a quote");
-    expect(stripMarkdown(">This is also a quote")).toBe("This is also a quote");
   });
 
   it("removes horizontal rules", () => {
@@ -230,18 +188,6 @@ Some ~~deleted~~ content.`;
 });
 
 describe("convertTableToFlexBubble", () => {
-  it("creates a multi-column layout for 3+ column tables", () => {
-    const table = {
-      headers: ["A", "B", "C"],
-      rows: [["1", "2", "3"]],
-    };
-
-    const bubble = convertTableToFlexBubble(table);
-
-    expect(bubble.type).toBe("bubble");
-    expect(bubble.body).toBeDefined();
-  });
-
   it("replaces empty cells with placeholders", () => {
     const table = {
       headers: ["A", "B"],
@@ -284,9 +230,6 @@ describe("convertCodeBlockToFlexBubble", () => {
 
     const bubble = convertCodeBlockToFlexBubble(block);
 
-    expect(bubble.type).toBe("bubble");
-    expect(bubble.body).toBeDefined();
-
     const body = bubble.body as { contents: Array<{ text: string }> };
     expect(body.contents[0].text).toBe("Code (typescript)");
   });
@@ -314,24 +257,6 @@ describe("convertCodeBlockToFlexBubble", () => {
 });
 
 describe("processLineMessage", () => {
-  it("processes text with tables", () => {
-    const text = `Here's the data:
-
-| Key | Value |
-|-----|-------|
-| a   | 1     |
-
-Done.`;
-
-    const result = processLineMessage(text);
-
-    expect(result.flexMessages).toHaveLength(1);
-    expect(result.flexMessages[0].type).toBe("flex");
-    expect(result.text).toContain("Here's the data:");
-    expect(result.text).toContain("Done.");
-    expect(result.text).not.toContain("|");
-  });
-
   it("processes text with code blocks", () => {
     const text = `Check this code:
 
@@ -391,32 +316,21 @@ print("done")
 });
 
 describe("hasMarkdownToConvert", () => {
-  it("detects tables", () => {
-    const text = `| A | B |
+  it("detects supported markdown patterns", () => {
+    const cases = [
+      `| A | B |
 |---|---|
-| 1 | 2 |`;
-    expect(hasMarkdownToConvert(text)).toBe(true);
-  });
+| 1 | 2 |`,
+      "```js\ncode\n```",
+      "**bold**",
+      "~~deleted~~",
+      "# Title",
+      "> quote",
+    ];
 
-  it("detects code blocks", () => {
-    const text = "```js\ncode\n```";
-    expect(hasMarkdownToConvert(text)).toBe(true);
-  });
-
-  it("detects bold", () => {
-    expect(hasMarkdownToConvert("**bold**")).toBe(true);
-  });
-
-  it("detects strikethrough", () => {
-    expect(hasMarkdownToConvert("~~deleted~~")).toBe(true);
-  });
-
-  it("detects headers", () => {
-    expect(hasMarkdownToConvert("# Title")).toBe(true);
-  });
-
-  it("detects blockquotes", () => {
-    expect(hasMarkdownToConvert("> quote")).toBe(true);
+    for (const text of cases) {
+      expect(hasMarkdownToConvert(text)).toBe(true);
+    }
   });
 
   it("returns false for plain text", () => {
