@@ -393,7 +393,7 @@ Forty upstream commits (merged via PR #2 from `moltbot/main`) introduced five se
 
 - **Discord username resolution gating** (`7958ead91`, `b01612c26`): Username lookups gated through directory config (`src/discord/targets.ts:77`).
 
-- **Telegram session fragmentation fix** (`915497114`): `resolveTelegramForumThreadId()` ignores thread IDs in non-forum groups (`src/telegram/bot/helpers.ts:73-86`).
+- **Telegram session fragmentation fix** (`915497114`): `resolveTelegramForumThreadId()` ignores thread IDs in non-forum groups (`src/telegram/bot/helpers.ts:74-86`).
 
 - **Formal security models** (`3bf768ab0`): TLA+ machine-checked proofs for pairing, routing, and isolation invariants (`docs/security/formal-verification.md`).
 
