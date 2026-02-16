@@ -393,7 +393,7 @@ Forty upstream commits (merged via PR #2 from `moltbot/main`) introduced five se
 
 - **Discord username resolution gating** (`7958ead91`, `b01612c26`): Username lookups gated through directory config (`src/discord/targets.ts:77`).
 
-- **Telegram session fragmentation fix** (`915497114`): `resolveTelegramForumThreadId()` ignores thread IDs in non-forum groups (`src/telegram/bot/helpers.ts:22-35`).
+- **Telegram session fragmentation fix** (`915497114`): `resolveTelegramForumThreadId()` ignores thread IDs in non-forum groups (`src/telegram/bot/helpers.ts:73-86`).
 
 - **Formal security models** (`3bf768ab0`): TLA+ machine-checked proofs for pairing, routing, and isolation invariants (`docs/security/formal-verification.md`).
 
@@ -1062,7 +1062,7 @@ No line shifts. No new CVEs.
 
 ### Post-Merge Hardening (Feb 16 sync 3) — 60 upstream commits
 
-**Security relevance: HIGH** — 2 direct vulnerability fixes plus 8 hardening improvements across 60 commits (10,529 lines changed). **workspace-* path traversal prevention** (`75f33e92b`): `assertLocalMediaAllowed()` at `src/web/media.ts:56-72` now rejects per-agent `workspace-*` state dirs through default tmpdir allowlist — **Audit 1 Claim 6 directly hardened**. **Discord role-based allowlist bypass** (`c68263418`): Carbon Role objects stringify to mentions (`<@&ID>`) instead of raw IDs; fixed to use `rawMember.roles` at `src/discord/monitor/message-handler.preflight.ts:227` — **Audit 2 Claim 5 directly fixed**. **Bootstrap hiding** (`b4f14d6f7`): `isWorkspaceOnboardingCompleted()` at `src/agents/workspace.ts:192` + `BOOTSTRAP_FILE_NAMES_POST_ONBOARDING` at `agents.ts:56` hides BOOTSTRAP.md post-onboarding. **Plugin-SDK centralization** (`80eb91d9e`): 5 new shared helper modules. **iMessage monitor split** (`a6158873f`): inbound processing extracted with proper abort handling. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-3.md).
+**Security relevance: HIGH** — 2 direct vulnerability fixes plus 8 hardening improvements across 60 commits (10,529 lines changed). **workspace-* path traversal prevention** (`75f33e92b`): `assertLocalMediaAllowed()` at `src/web/media.ts:56-72` now rejects per-agent `workspace-*` state dirs through default tmpdir allowlist — **Audit 1 Claim 6 directly hardened**. **Discord role-based allowlist bypass** (`c68263418`): Carbon Role objects stringify to mentions (`<@&ID>`) instead of raw IDs; fixed to use `rawMember.roles` at `src/discord/monitor/message-handler.preflight.ts:241` — **Audit 2 Claim 5 directly fixed**. **Bootstrap hiding** (`b4f14d6f7`): `isWorkspaceOnboardingCompleted()` at `src/agents/workspace.ts:192` + `BOOTSTRAP_FILE_NAMES_POST_ONBOARDING` at `agents.ts:56` hides BOOTSTRAP.md post-onboarding. **Plugin-SDK centralization** (`80eb91d9e`): 5 new shared helper modules. **iMessage monitor split** (`a6158873f`): inbound processing extracted with proper abort handling. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-3.md).
 
 **Line shifts:** `workspace.ts` 363-398→375-410, 400-454→412-466, 458-466→470-478. `agents.ts` 454-506→467-519, 60-89→64-93, 67-82→71-86. `media.ts` 47-77→47-89. `monitor-provider.ts` 184→142, 342-381→247-278 (decision logic to `inbound-processing.ts:81,201`).
 
@@ -1087,6 +1087,12 @@ No line shifts. No new CVEs.
 **Security relevance: MODERATE** — 1 feature commit adds cron finished-run webhook notifications (PR #14535). The webhook implementation includes URL validation via `HttpUrlSchema` (`src/config/zod-schema.ts:96-102`), bearer token auth (`src/gateway/server-cron.ts:115`), 10-second timeout protection (`src/gateway/server-cron.ts:23,117-120`), and URL redaction in error logs (`src/gateway/server-cron.ts:25-32`). Webhook token marked `.register(sensitive)` for credential redaction (`src/config/zod-schema.ts:307`). Per-job opt-in via `notify` flag (`src/gateway/server-cron.ts:110`). 20 remaining commits are test consolidation. No audit claims or gaps affected. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-9.md).
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
+
+### Post-Merge Hardening (Feb 16 sync 13) — 31 upstream commits
+
+**Security relevance: HIGH** — 5 security-relevant commits: **Telegram bot token redaction** (`cf6990701`): `formatErrorMessage()` and `formatUncaughtError()` (`src/infra/errors.ts:31,50`) now call `redactSensitiveText()`, two new Telegram token patterns in `DEFAULT_REDACT_PATTERNS` (`src/logging/redact.ts:36-37`) — **Gap 2 strengthened**. **Pre-commit hook option injection hardening** (`ba84b1253`): NUL-delimited file listing (`-z`), `--` separators on all tool invocations. **Sandbox bind validation tightening** (`a7cbce1b3`): `/run`, `/var/run`, `/private/var/run` added to `BLOCKED_HOST_PATHS` (lines 22-24), `getBlockedBindReason()` returns structured object (line 68), Zod `superRefine` expanded (`src/config/zod-schema.agent-runtime.ts:128-180`) — **Audit 1 Claim 6 and Gap 3 strengthened**. **Control UI XSS fix** (`3b4096e02`, `adc818db4`): inline `<script>` injection replaced with JSON endpoint (`/__openclaw/control-ui-config.json`), strict CSP with `script-src 'self'`, `base-uri 'none'`, `frame-ancestors 'none'` (`src/gateway/control-ui.ts:70-90`). 26 remaining commits are refactors and helper extraction. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-13.md).
+
+**Gap status: 1 closed, 3 remain open** — Gap 2 further strengthened (Telegram token redaction).
 
 ---
 

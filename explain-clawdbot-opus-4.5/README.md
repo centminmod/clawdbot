@@ -699,6 +699,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
+### Post-Merge Hardening (Feb 16 sync 13) — 31 upstream commits
+
+**Security relevance: HIGH** — 5 security-relevant commits: Telegram bot token redaction in errors (`cf6990701`), pre-commit hook option injection hardening (`ba84b1253`), sandbox bind validation tightening with 3 new blocked paths (`a7cbce1b3`), Control UI XSS fix replacing inline scripts with JSON endpoint (`3b4096e02`), and CSP lockdown with `script-src 'self'` (`adc818db4`). 26 remaining commits are refactors. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-13.md).
+
+**Gap status: 1 closed, 3 remain open** — Gap 2 further strengthened (Telegram token redaction).
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
