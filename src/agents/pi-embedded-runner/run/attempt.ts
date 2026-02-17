@@ -54,7 +54,10 @@ import { resolveSandboxRuntimeStatus } from "../../sandbox/runtime-status.js";
 import { repairSessionFileIfNeeded } from "../../session-file-repair.js";
 import { guardSessionManager } from "../../session-tool-result-guard-wrapper.js";
 import { sanitizeToolUseResultPairing } from "../../session-transcript-repair.js";
-import { acquireSessionWriteLock } from "../../session-write-lock.js";
+import {
+  acquireSessionWriteLock,
+  resolveSessionLockMaxHoldFromTimeout,
+} from "../../session-write-lock.js";
 import { detectRuntimeShell } from "../../shell-utils.js";
 import {
   applySkillEnvOverrides,
@@ -482,6 +485,9 @@ export async function runEmbeddedAttempt(
 
     const sessionLock = await acquireSessionWriteLock({
       sessionFile: params.sessionFile,
+      maxHoldMs: resolveSessionLockMaxHoldFromTimeout({
+        timeoutMs: params.timeoutMs,
+      }),
     });
 
     let sessionManager: ReturnType<typeof guardSessionManager> | undefined;
