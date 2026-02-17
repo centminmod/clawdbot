@@ -260,7 +260,7 @@ Four security-relevant commits:
 
 - **`fe81b1d71`** — Require shared auth before device bypass: Validates shared secret auth before allowing Tailscale device bypass (`src/gateway/server/ws-connection/message-handler.ts:454-499`).
 
-- **`fff59da96`** — Slack fail closed on channel type lookup: Fails closed when channel type lookup fails, infers type from ID prefix (`src/slack/monitor/slash.ts:181-182`).
+- **`fff59da96`** — Slack fail closed on channel type lookup: Fails closed when channel type lookup fails, infers type from ID prefix (`src/slack/monitor/slash.ts:338-342`).
 
 - **`578bde1e0`** — Security: healthcheck skill (#7641): Bootstrap audit guidance tooling (`skills/healthcheck/SKILL.md`) (thanks @Takhoffman).
 
@@ -714,6 +714,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 17 sync 2) — 120 upstream commits
 
 **Security relevance: HIGH** — 15 security-relevant commits. **Most critical:** shell variable injection preflight (`b0a01fe48` — **Claim 7 DIRECTLY ADDRESSED**), auth profile cooldown auto-expiry (`03cadc4b7` — **Claim 4 ADDRESSED**), credential sync (`feed57098`), sandbox SHA-1 restoration (`f27561186`), webchat auth (`e95134ba3`), graceful process termination (`20957efa4`), MEDIA token parsing restriction (`0587e4cc7`), service token drift detection (`d799a3994`), session isolation (`5f821ed06`, `93fbe6482`). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-2.md).
+
+**Gap status: 1 closed, 3 remain open.**
+
+### Post-Merge Hardening (Feb 17 sync 4) — 120 upstream commits
+
+**Security relevance: HIGH** — 23 security-relevant commits. **Most critical:** session file 0o600 permissions (`ae0b110e4` — **Claim 5 DIRECTLY ADDRESSED**), stale device-auth token clearing (`b2d622cfa` — **Claims 1-4**), account factory RBAC centralization (`d24340d75`, `59384001a`, `5544ab820` — **Claim 5 SUBSTANTIALLY STRENGTHENED**), per-account action gating for Discord/Telegram (`556b531a1`, `a03fec2a3`, `4640999e7`), Gemini OAuth (`153794080`, `3379b9d34`), base64 validation (`38c96bc53`), subagent spawn + loop guards (`5a3a448bc`, `de900bace`, `a6c741eb4`), llms.txt discovery (`e368c3650`), media dedup (`838259331`), FTS query expansion (`bcab2469d`, `65aedac20`). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-4.md).
 
 **Gap status: 1 closed, 3 remain open.**
 
