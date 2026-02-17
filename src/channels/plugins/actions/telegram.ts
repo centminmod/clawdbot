@@ -1,3 +1,4 @@
+import type { TelegramActionConfig } from "../../../config/types.telegram.js";
 import type { ChannelMessageActionAdapter, ChannelMessageActionName } from "../types.js";
 import {
   createActionGate,
@@ -46,13 +47,19 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
     if (accounts.length === 0) {
       return [];
     }
-    const gate = createActionGate(cfg.channels?.telegram?.actions);
+    // Union of all accounts' action gates (any account enabling an action makes it available)
+    const gates = accounts.map((a) => createActionGate(a.config.actions));
+    const gate = (key: keyof TelegramActionConfig, defaultValue = true) =>
+      gates.some((g) => g(key, defaultValue));
     const actions = new Set<ChannelMessageActionName>(["send"]);
     if (gate("reactions")) {
       actions.add("react");
     }
     if (gate("deleteMessage")) {
       actions.add("delete");
+    }
+    if (gate("polls")) {
+      actions.add("poll");
     }
     if (gate("editMessage")) {
       actions.add("edit");
@@ -106,6 +113,40 @@ export const telegramMessageActions: ChannelMessageActionAdapter = {
           messageId,
           emoji,
           remove,
+          accountId: accountId ?? undefined,
+        },
+        cfg,
+      );
+    }
+
+    if (action === "poll") {
+      const to = readStringParam(params, "to", { required: true });
+      const question = readStringParam(params, "pollQuestion", { required: true });
+      const options = readStringArrayParam(params, "pollOption", { required: true }) ?? [];
+      const allowMultiselect = typeof params.pollMulti === "boolean" ? params.pollMulti : undefined;
+      const durationSeconds = readNumberParam(params, "pollDurationSeconds", {
+        integer: true,
+      });
+      const durationHours = readNumberParam(params, "pollDurationHours", {
+        integer: true,
+      });
+      const replyToMessageId = readNumberParam(params, "replyTo", { integer: true });
+      const messageThreadId = readNumberParam(params, "threadId", { integer: true });
+      const silent = typeof params.silent === "boolean" ? params.silent : undefined;
+      const isAnonymous = typeof params.isAnonymous === "boolean" ? params.isAnonymous : undefined;
+      return await handleTelegramAction(
+        {
+          action: "poll",
+          to,
+          question,
+          options,
+          allowMultiselect,
+          durationSeconds: durationSeconds ?? undefined,
+          durationHours: durationHours ?? undefined,
+          replyToMessageId: replyToMessageId ?? undefined,
+          messageThreadId: messageThreadId ?? undefined,
+          silent,
+          isAnonymous,
           accountId: accountId ?? undefined,
         },
         cfg,
