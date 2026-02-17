@@ -1,10 +1,10 @@
 import { Type } from "@sinclair/typebox";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { AnyAgentTool } from "./common.js";
 import { formatCliCommand } from "../../cli/command-format.js";
+import type { OpenClawConfig } from "../../config/config.js";
 import { matchesHostnameAllowlist, normalizeHostnameAllowlist } from "../../infra/net/ssrf.js";
 import { wrapWebContent } from "../../security/external-content.js";
 import { normalizeSecretInput } from "../../utils/normalize-secret-input.js";
+import type { AnyAgentTool } from "./common.js";
 import { jsonResult, readNumberParam, readStringParam } from "./common.js";
 import {
   CacheEntry,
@@ -13,6 +13,7 @@ import {
   normalizeCacheKey,
   readCache,
   readResponseText,
+  resolveWebUrlAllowlist,
   resolveCacheTtlMs,
   resolveTimeoutSeconds,
   withTimeout,
@@ -79,17 +80,7 @@ type WebSearchConfig = NonNullable<OpenClawConfig["tools"]>["web"] extends infer
 type WebConfig = NonNullable<OpenClawConfig["tools"]>["web"];
 
 export function resolveUrlAllowlist(web?: WebConfig): string[] | undefined {
-  if (!web || typeof web !== "object") {
-    return undefined;
-  }
-  if (!("urlAllowlist" in web)) {
-    return undefined;
-  }
-  const allowlist = web.urlAllowlist;
-  if (!Array.isArray(allowlist)) {
-    return undefined;
-  }
-  return allowlist.length > 0 ? allowlist : undefined;
+  return resolveWebUrlAllowlist(web);
 }
 
 export function filterResultsByAllowlist(

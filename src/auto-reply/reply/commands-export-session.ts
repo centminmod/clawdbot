@@ -11,7 +11,6 @@ import {
   resolveSessionFilePath,
 } from "../../config/sessions/paths.js";
 import { loadSessionStore } from "../../config/sessions/store.js";
-import { resolveUserPath } from "../../utils.js";
 import { resolveCommandsSystemPromptBundle } from "./commands-system-prompt.js";
 
 // Export HTML templates are bundled with this module
@@ -170,7 +169,11 @@ export async function buildExportSessionReply(params: HandleCommandsParams): Pro
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const defaultFileName = `openclaw-session-${entry.sessionId.slice(0, 8)}-${timestamp}.html`;
   const outputPath = args.outputPath
-    ? resolveUserPath(args.outputPath)
+    ? path.resolve(
+        args.outputPath.startsWith("~")
+          ? args.outputPath.replace("~", process.env.HOME ?? "")
+          : args.outputPath,
+      )
     : path.join(params.workspaceDir, defaultFileName);
 
   // Ensure directory exists
