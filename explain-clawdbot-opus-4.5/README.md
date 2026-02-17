@@ -324,7 +324,7 @@ Four security-relevant commits:
 
 - **`a13ff55bd`** — Gateway credential exfiltration prevention (#9179): New `resolveExplicitGatewayAuth()` and `ensureExplicitGatewayAuth()` (`src/gateway/call.ts:59-89`) require explicit credentials when `--url` is overridden to non-local addresses. Prevents credential leakage to attacker-controlled URLs (CWE-522). Local addresses (127.0.0.1, private IPs, tailnet 100.x.x.x) retain credential fallback (thanks @victormier).
 
-- **`385a7eba3`** — Enforce owner allowlist for commands: Hardens `commands.ownerAllowFrom` enforcement (`src/auto-reply/command-auth.ts:203-328`)—when explicit owners are configured, non-matching senders cannot execute commands even if `allowFrom` is wildcard.
+- **`385a7eba3`** — Enforce owner allowlist for commands: Hardens `commands.ownerAllowFrom` enforcement (`src/auto-reply/command-auth.ts:218-343`)—when explicit owners are configured, non-matching senders cannot execute commands even if `allowFrom` is wildcard.
 
 **Gap status: 1 closed, 2 remain open** (pipe-delimited token format, outPath validation).
 
@@ -475,7 +475,7 @@ One security-adjacent commit (reliability/hardening focus):
 
 - **`4537ebc43`** — **fix: enforce Discord agent component DM auth:** New `ensureDmComponentAuthorized()` in `src/discord/monitor/agent-components.ts`. Prevents channel spoofing via Discord buttons/select menus.
 
-- **`47f6bb414`** — **Commands: add commands.allowFrom config:** Per-provider command authorization in `src/auto-reply/command-auth.ts:203-328`. **Strengthens Audit 2 Claim 5.**
+- **`47f6bb414`** — **Commands: add commands.allowFrom config:** Per-provider command authorization in `src/auto-reply/command-auth.ts:218-343`. **Strengthens Audit 2 Claim 5.**
 
 - **`1d46ca3a9`** — **fix(signal): enforce mention gating for group messages:** Aligns Signal with Slack/Discord/Telegram mention gating.
 
@@ -704,6 +704,18 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 **Security relevance: HIGH** — 5 security-relevant commits: Telegram bot token redaction in errors (`cf6990701`), pre-commit hook option injection hardening (`ba84b1253`), sandbox bind validation tightening with 3 new blocked paths (`a7cbce1b3`), Control UI XSS fix replacing inline scripts with JSON endpoint (`3b4096e02`), and CSP lockdown with `script-src 'self'` (`adc818db4`). 26 remaining commits are refactors. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-13.md).
 
 **Gap status: 1 closed, 3 remain open** — Gap 2 further strengthened (Telegram token redaction).
+
+### Post-Merge Hardening (Feb 17 sync 1) — 69 upstream commits
+
+**Security relevance: HIGH** — 8 security-relevant commits: session transcript 0o600 permissions (`095d52209` — **Claim 1 STRENGTHENED**), silent token constant (`553d17f8a`), QR pairing hardening (`68e39cf2c`), tool policy refactor (`df6d0ee92`), config merge hardening (`f4b2fd00b`, `cb391f4bd`), fetch wrapper idempotency (`b4fa10ae6`, `e3e8046a9`). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-1.md).
+
+**Gap status: 1 closed, 3 remain open.**
+
+### Post-Merge Hardening (Feb 17 sync 2) — 120 upstream commits
+
+**Security relevance: HIGH** — 15 security-relevant commits. **Most critical:** shell variable injection preflight (`b0a01fe48` — **Claim 7 DIRECTLY ADDRESSED**), auth profile cooldown auto-expiry (`03cadc4b7` — **Claim 4 ADDRESSED**), credential sync (`feed57098`), sandbox SHA-1 restoration (`f27561186`), webchat auth (`e95134ba3`), graceful process termination (`20957efa4`), MEDIA token parsing restriction (`0587e4cc7`), service token drift detection (`d799a3994`), session isolation (`5f821ed06`, `93fbe6482`). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-2.md).
+
+**Gap status: 1 closed, 3 remain open.**
 
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
