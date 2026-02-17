@@ -16,6 +16,15 @@ import { ensureLoaded, persist } from "./store.js";
 const MAX_TIMER_DELAY_MS = 60_000;
 
 /**
+ * Minimum gap between consecutive fires of the same cron job.  This is a
+ * safety net that prevents spin-loops when `computeJobNextRunAtMs` returns
+ * a value within the same second as the just-completed run.  The guard
+ * is intentionally generous (2 s) so it never masks a legitimate schedule
+ * but always breaks an infinite re-trigger cycle.  (See #17821)
+ */
+const MIN_REFIRE_GAP_MS = 2_000;
+
+/**
  * Maximum wall-clock time for a single job execution. Acts as a safety net
  * on top of the per-provider / per-agent timeouts to prevent one stuck job
  * from wedging the entire cron lane.
@@ -107,7 +116,18 @@ function applyJobResult(
         "cron: applying error backoff",
       );
     } else if (job.enabled) {
-      job.state.nextRunAtMs = computeJobNextRunAtMs(job, result.endedAt);
+      const naturalNext = computeJobNextRunAtMs(job, result.endedAt);
+      if (job.schedule.kind === "cron") {
+        // Safety net: ensure the next fire is at least MIN_REFIRE_GAP_MS
+        // after the current run ended.  Prevents spin-loops when the
+        // schedule computation lands in the same second due to
+        // timezone/croner edge cases (see #17821).
+        const minNext = result.endedAt + MIN_REFIRE_GAP_MS;
+        job.state.nextRunAtMs =
+          naturalNext !== undefined ? Math.max(naturalNext, minNext) : minNext;
+      } else {
+        job.state.nextRunAtMs = naturalNext;
+      }
     } else {
       job.state.nextRunAtMs = undefined;
     }
@@ -216,6 +236,15 @@ export async function onTimer(state: CronServiceState) {
       summary?: string;
       sessionId?: string;
       sessionKey?: string;
+      model?: string;
+      provider?: string;
+      usage?: {
+        input_tokens?: number;
+        output_tokens?: number;
+        total_tokens?: number;
+        cache_read_tokens?: number;
+        cache_write_tokens?: number;
+      };
       startedAt: number;
       endedAt: number;
     }> = [];
@@ -426,6 +455,15 @@ async function executeJobCore(
   summary?: string;
   sessionId?: string;
   sessionKey?: string;
+  model?: string;
+  provider?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    cache_read_tokens?: number;
+    cache_write_tokens?: number;
+  };
 }> {
   if (job.sessionTarget === "main") {
     const text = resolveJobPayloadTextForMain(job);
@@ -515,6 +553,9 @@ async function executeJobCore(
     summary: res.summary,
     sessionId: res.sessionId,
     sessionKey: res.sessionKey,
+    model: res.model,
+    provider: res.provider,
+    usage: res.usage,
   };
 }
 
@@ -542,6 +583,15 @@ export async function executeJob(
     summary?: string;
     sessionId?: string;
     sessionKey?: string;
+    model?: string;
+    provider?: string;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+      cache_read_tokens?: number;
+      cache_write_tokens?: number;
+    };
   };
   try {
     coreResult = await executeJobCore(state, job);
@@ -574,6 +624,15 @@ function emitJobFinished(
     summary?: string;
     sessionId?: string;
     sessionKey?: string;
+    model?: string;
+    provider?: string;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+      cache_read_tokens?: number;
+      cache_write_tokens?: number;
+    };
   },
   runAtMs: number,
 ) {
@@ -588,6 +647,9 @@ function emitJobFinished(
     runAtMs,
     durationMs: job.state.lastDurationMs,
     nextRunAtMs: job.state.nextRunAtMs,
+    model: result.model,
+    provider: result.provider,
+    usage: result.usage,
   });
 }
 

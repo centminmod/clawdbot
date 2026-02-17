@@ -483,6 +483,7 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     isGuildMessage,
     channelConfig,
     threadChannel,
+    channelType: channelInfo?.type,
     baseText: baseText ?? "",
     combinedBody,
     replyToMode,
@@ -557,14 +558,12 @@ export async function processDiscordMessage(ctx: DiscordMessagePreflightContext)
     storePath,
     sessionKey: ctxPayload.SessionKey ?? route.sessionKey,
     ctx: ctxPayload,
-    updateLastRoute: isDirectMessage
-      ? {
-          sessionKey: route.mainSessionKey,
-          channel: "discord",
-          to: `user:${author.id}`,
-          accountId: route.accountId,
-        }
-      : undefined,
+    updateLastRoute: {
+      sessionKey: ctxPayload.SessionKey ?? route.sessionKey,
+      channel: "discord",
+      to: effectiveTo,
+      accountId: route.accountId,
+    },
     onRecordError: (err) => {
       logVerbose(`discord: failed updating session meta: ${String(err)}`);
     },
