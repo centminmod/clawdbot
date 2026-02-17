@@ -183,14 +183,14 @@ All 8 claims were verified against the source code. None are exploitable as desc
 
 **Verdict: Partially true, heavily overstated.**
 
-The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:360-361`):
+The `setupCommand` field does execute a shell command (`src/agents/sandbox/docker.ts:377-378`):
 ```
 await execDocker(["exec", "-i", name, "sh", "-lc", cfg.setupCommand]);
 ```
 
 However, the article omits critical context:
 - **Execution is inside a Docker container**, not on the host. The container runs with `no-new-privileges` and restricted capabilities.
-- **Modifying config requires gateway authentication.** The `config.patch` server method is gated behind `authorizeGatewayMethod()` which requires the `operator` role (`src/gateway/server-methods.ts:99-169`).
+- **Modifying config requires gateway authentication.** The `config.patch` server method is gated behind `authorizeGatewayMethod()` which requires the `operator` role (`src/gateway/server-methods.ts:105-175`).
 - **Agent runtime schemas validate config** via Zod (`src/agents/zod-schema.agent-runtime.ts`).
 
 **What the article missed:** Container isolation is the primary security boundary for agent execution. RCE inside a container is not equivalent to RCE on the host. Real risk is Medium (CVSS 6-7), not Critical (10.0).
@@ -261,7 +261,7 @@ The test suite explicitly covers DNS rebinding scenarios (`src/agents/tools/web-
 
 **Verdict: False.**
 
-The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:99-169`) enforces role-based access control on every server method:
+The `authorizeGatewayMethod()` function (`src/gateway/server-methods.ts:105-175`) enforces role-based access control on every server method:
 - Agents connect with `role: "node"` and are restricted to `NODE_ROLE_METHODS` only
 - Any non-node method call from a node role returns `unauthorized role: node`
 - Approval methods require `operator.approvals` scope (line 108-109)
@@ -549,7 +549,7 @@ Two security-relevant commits:
 
 - **`66d8117d4`** — Control UI origin hardening: New `checkBrowserOrigin()` (`src/gateway/origin-check.ts:24-52`) validates WebSocket Origin headers for Control UI and Webchat connections. Accepts only: configured `allowedOrigins`, same-host requests, or loopback addresses. Prevents clickjacking and cross-origin WebSocket hijacking. New config: `gateway.controlUi.allowedOrigins`.
 
-- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:99`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
+- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:105`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
 
 **Gap status: 1 closed, 2 remain open** (pipe-delimited token format, outPath validation).
 
@@ -699,7 +699,7 @@ One security-adjacent commit (reliability/hardening focus, continues cron race c
 
 **HIGH (3):**
 
-- **`980f78873`** (PR [#11045](https://github.com/openclaw/openclaw/pull/11045)) — **Agent CRUD RBAC gating:** New `agents.create`, `agents.update`, `agents.delete` gateway methods gated behind `operator.admin` scope in `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:146-148`). Prevents non-admin clients from creating/modifying/deleting agents. Strengthens Audit 2 Claim 5 (agent self-approval) controls.
+- **`980f78873`** (PR [#11045](https://github.com/openclaw/openclaw/pull/11045)) — **Agent CRUD RBAC gating:** New `agents.create`, `agents.update`, `agents.delete` gateway methods gated behind `operator.admin` scope in `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:158-160`). Prevents non-admin clients from creating/modifying/deleting agents. Strengthens Audit 2 Claim 5 (agent self-approval) controls.
 
 - **`b8c8130ef`** (PR [#11448](https://github.com/openclaw/openclaw/pull/11448)) — **Gateway LAN IP bind fix:** New `pickPrimaryLanIPv4()` in `src/gateway/net.ts:9-25` resolves the primary non-internal IPv4 address for `bind=lan` mode. WebSocket and probe URLs now use actual LAN IP instead of `0.0.0.0`.
 
@@ -1046,7 +1046,7 @@ No line shifts. No new CVEs.
 
 ### Post-Merge Hardening (Feb 15 sync 15) — 101 upstream commits
 
-**Security relevance: HIGH** — 9 security-relevant commits addressing input sanitization, path traversal prevention, config injection mitigation, and terminal escape hardening. 3 audit claims directly addressed. **Chat input sanitization** (`a2fe3b661`): null byte rejection and control character filtering via `sanitizeChatSendMessageInput()` (`src/gateway/server-methods/chat.ts:63`). **Transcript tool-call hardening** (`aa56045b4`): rejects blocks with missing/blank `id`/`name` fields via `hasToolCallId()`/`hasToolCallName()` (`src/agents/session-transcript-repair.ts:65,69`). **Text param normalization** (`c8733822c`): `extractStructuredText()` (`src/agents/pi-tools.read.ts:109`) prevents tool-call loops — addresses Audit 2 Claim 7. **Path validation consolidation** (`b37346103` + `e93764350`): shared `isPathInside()` (`src/security/scan-paths.ts:3`) and `resolveSafeInstallDir()` (`src/infra/install-safe-path.ts:19`) — addresses Audit 1 Claim 6. **Config array merging** (`8ec0ef586`): ID-based merging via `applyMergePatch()` (`src/config/merge-patch.ts:42`) — addresses Audit 2 Claim 1. **Bearer auth consolidation** (`b5c81f732`): `authorizeGatewayBearerRequestOrReply()` (`src/gateway/http-auth-helpers.ts:7`). **Binary MIME hardening** (`86a156db2`): `isBinaryMediaMime()` (`src/media-understanding/apply.ts:320`) covers application/* types. **ANSI injection hardening** (`9255f3665`): `splitAnsiParts()` in TUI searchable select. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-15.md).
+**Security relevance: HIGH** — 9 security-relevant commits addressing input sanitization, path traversal prevention, config injection mitigation, and terminal escape hardening. 3 audit claims directly addressed. **Chat input sanitization** (`a2fe3b661`): null byte rejection and control character filtering via `sanitizeChatSendMessageInput()` (`src/gateway/server-methods/chat.ts:78`). **Transcript tool-call hardening** (`aa56045b4`): rejects blocks with missing/blank `id`/`name` fields via `hasToolCallId()`/`hasToolCallName()` (`src/agents/session-transcript-repair.ts:65,69`). **Text param normalization** (`c8733822c`): `extractStructuredText()` (`src/agents/pi-tools.read.ts:109`) prevents tool-call loops — addresses Audit 2 Claim 7. **Path validation consolidation** (`b37346103` + `e93764350`): shared `isPathInside()` (`src/security/scan-paths.ts:3`) and `resolveSafeInstallDir()` (`src/infra/install-safe-path.ts:19`) — addresses Audit 1 Claim 6. **Config array merging** (`8ec0ef586`): ID-based merging via `applyMergePatch()` (`src/config/merge-patch.ts:42`) — addresses Audit 2 Claim 1. **Bearer auth consolidation** (`b5c81f732`): `authorizeGatewayBearerRequestOrReply()` (`src/gateway/http-auth-helpers.ts:7`). **Binary MIME hardening** (`86a156db2`): `isBinaryMediaMime()` (`src/media-understanding/apply.ts:320`) covers application/* types. **ANSI injection hardening** (`9255f3665`): `splitAnsiParts()` in TUI searchable select. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-15-sync-15.md).
 
 **Line shifts:** `system-prompt.ts` 351-357→362-366, 377,381→387,391, 408-412→419-423, 430-432→441-442, 552-572→565-582, 553-555→566-569, 575-590→589-604, 164-612→164-625. `browser/server.ts` 133→59, 117-124→`server-middleware.ts:24-35`, 79-166→25-136.
 
@@ -1113,6 +1113,14 @@ No line shifts. No new CVEs.
 **Security relevance: HIGH** — 23 security-relevant commits. **Session file permissions** (`ae0b110e4` — `0o600` on session files via `json-file.ts:77` — **Claim 5 DIRECTLY ADDRESSED**), stale device-auth token clearing (`b2d622cfa`), account factory RBAC centralization (`d24340d75`, `59384001a`, `5544ab820` — **Claim 5 SUBSTANTIALLY STRENGTHENED**), per-account action gating (`556b531a1`, `a03fec2a3`, `4640999e7`), Gemini OAuth hardening (`153794080`, `3379b9d34`), base64 validation (`38c96bc53`), subagent spawn control (`5a3a448bc`), loop guards (`de900bace`, `a6c741eb4`), llms.txt discovery exposure (`e368c3650`), media dedup (`838259331`), FTS query expansion (`bcab2469d`, `65aedac20`), crash loop prevention (`0b8b95f2c`), webhook URL (`60bd154e5`), OPENCLAW_HOME override (`34b18ea9d`), sender_id spoofing (`d4c057f8c`), loopback auth skip (`9aa8db5c8`). See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-4.md).
 
 **Line shifts:** `system-prompt.ts` +24 across multiple sections, `slash.ts` +~160 net, `sessions-spawn-tool.ts` refactored 320→86 lines, `cron/run.ts` +13.
+
+**Gap status: 1 closed, 3 remain open.**
+
+### Post-Merge Hardening (Feb 17 sync 5) — 60 upstream commits
+
+**Security relevance: HIGH** — 6 security-relevant commits. **OC-09 env var injection fix** (`235794d9f`): `sanitizeEnvVars()` at `src/agents/sandbox/sanitize-env-vars.ts:111` blocks 39+ credential patterns in Docker containers — **Claim 8 DIRECTLY ADDRESSED**, Gap 1 sandbox path closed. **IPv6 host header** (`4e5a9d83b`): `resolveHostName()` at `net.ts:32` with IPv6 detection at `:44`. **Trusted proxy trim** (`d3698f4eb`): `.trim()` at `net.ts:217` prevents whitespace bypass. **Chat history hardcap** (`5d9a026a9`): 12K char/128KB limits at `chat.ts:63-64`. **Mesh RBAC** (`16e59b26a` + `83990ed54`): mesh.plan.auto/run/retry gated as WRITE_METHODS at `server-methods.ts:100-102`, new `mesh.ts` (706 lines) with DAG validation. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-5.md).
+
+**Line shifts:** `server-methods.ts` 99→105, 99-169→105-175, 146-148→158-160. `docker.ts` 260→261, 278-280→295-296, 281→298, 282-287→299-303, 288-297→305-313, 298-317→315-333, 318-322→335-337, 344-354→361-370, 360-361→377-378. `chat.ts` 63→78, 52→67.
 
 **Gap status: 1 closed, 3 remain open.**
 

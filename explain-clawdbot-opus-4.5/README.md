@@ -142,11 +142,11 @@ In January 2026, a Medium article by Saad Khalid titled *"Why Clawdbot is a Bad 
 
 | # | Claim | Verdict | Explanation |
 |---|-------|---------|-------------|
-| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container (not host) (`src/agents/sandbox/docker.ts:360-361`). Config changes require gateway auth. Container has `no-new-privileges`. Real risk: Medium. |
+| 1 | Config injection RCE via `setupCommand` | **Partially true, overstated** | `setupCommand` executes inside Docker container (not host) (`src/agents/sandbox/docker.ts:377-378`). Config changes require gateway auth. Container has `no-new-privileges`. Real risk: Medium. |
 | 2 | Arbitrary write via `nodes:screen_record` outPath | **True but overstated** | `outPath` lacks validation (`src/agents/tools/nodes-tool.ts:344-347`), but writes to paired node device, not gateway host. Requires node pairing approval. Real risk: Low-Medium. |
 | 3 | Log traversal via `logs.tail` | **False** | `LogsTailParamsSchema` has `additionalProperties: false` with only `cursor`, `limit`, `maxBytes`. File path from `getResolvedLoggerSettings().file` (config), not user input. |
 | 4 | DNS rebinding SSRF via web-fetch | **False** | `resolvePinnedHostname()` + `createPinnedDispatcher()` (`src/infra/net/ssrf.ts:337-404`) pin DNS resolution. Redirect-to-private-IP explicitly tested and blocked (`web-fetch.ssrf.test.ts:120-142`). |
-| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:99-169`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
+| 5 | Self-approving agent (no RBAC) | **False** | `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:105-175`) enforces role checks. Agents connect as `role: "node"`, blocked from all non-node methods. Approval requires `operator.approvals` scope. Further hardened by owner-only tool gating (`392bbddf2`) and owner allowlist enforcement (`385a7eba3`). |
 | 6 | Token field shifting via pipe injection | **Misleading** | Pipe-delimited format (`src/gateway/device-auth.ts:13-31`) lacks input sanitization (true), but tokens are RSA-signed. Modified payload fails signature verification. |
 | 7 | Shell injection via incomplete regex | **False** | `isSafeExecutableValue()` (`src/infra/exec-safety.ts:16-44`) validates executable *names* (not commands). `BARE_NAME_PATTERN = /^[A-Za-z0-9._+-]+$/` is strict. Article conflates config validation with shell injection. |
 | 8 | Environment variable injection (LD_PRELOAD) | **Partially true, MITIGATED in PR #12** | Gateway validates `params.env` via blocklist (`src/agents/bash-tools.exec-runtime.ts:32-50`) and validation function (`src/agents/bash-tools.exec-runtime.ts:54`, enforced at `src/agents/bash-tools.exec.ts:300`). Node-host has blocklist (`src/node-host/invoke.ts:45-165`). Requires human approval + localhost + no sandbox. |
@@ -298,7 +298,7 @@ Two security-relevant commits:
 
 - **`66d8117d4`** — Control UI origin hardening: New `checkBrowserOrigin()` (`src/gateway/origin-check.ts:24-52`) validates WebSocket Origin headers for Control UI and Webchat connections. Accepts only: configured `allowedOrigins`, same-host requests, or loopback addresses. Prevents clickjacking and cross-origin WebSocket hijacking. New config: `gateway.controlUi.allowedOrigins`.
 
-- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:99`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
+- **`efe2a464a`** — Approval scope gating (#1) (thanks @mitsuhiko): `/approve` command now requires `operator.approvals` or `operator.admin` scope for gateway clients (`src/auto-reply/reply/commands-approve.ts:89-101`). Defense-in-depth layer atop existing `authorizeGatewayMethod()` RBAC (`src/gateway/server-methods.ts:105`). Strengthens protection against Audit 2 Claim 5 (agent self-approval).
 
 **Gap status: 1 closed, 2 remain open** (pipe-delimited token format, outPath validation).
 
@@ -440,7 +440,7 @@ One security-adjacent commit (reliability/hardening focus):
 
 **HIGH (3):**
 
-- **`980f78873`** (PR [#11045](https://github.com/openclaw/openclaw/pull/11045)) — **Agent CRUD RBAC gating:** New `agents.create/update/delete` gated behind `operator.admin` in `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:146-148`). Strengthens Audit 2 Claim 5.
+- **`980f78873`** (PR [#11045](https://github.com/openclaw/openclaw/pull/11045)) — **Agent CRUD RBAC gating:** New `agents.create/update/delete` gated behind `operator.admin` in `authorizeGatewayMethod()` (`src/gateway/server-methods.ts:158-160`). Strengthens Audit 2 Claim 5.
 
 - **`b8c8130ef`** (PR [#11448](https://github.com/openclaw/openclaw/pull/11448)) — **Gateway LAN IP bind fix:** New `pickPrimaryLanIPv4()` in `src/gateway/net.ts:9-25` for `bind=lan` mode.
 
@@ -720,6 +720,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 ### Post-Merge Hardening (Feb 17 sync 4) — 120 upstream commits
 
 **Security relevance: HIGH** — 23 security-relevant commits. **Most critical:** session file 0o600 permissions (`ae0b110e4` — **Claim 5 DIRECTLY ADDRESSED**), stale device-auth token clearing (`b2d622cfa` — **Claims 1-4**), account factory RBAC centralization (`d24340d75`, `59384001a`, `5544ab820` — **Claim 5 SUBSTANTIALLY STRENGTHENED**), per-account action gating for Discord/Telegram (`556b531a1`, `a03fec2a3`, `4640999e7`), Gemini OAuth (`153794080`, `3379b9d34`), base64 validation (`38c96bc53`), subagent spawn + loop guards (`5a3a448bc`, `de900bace`, `a6c741eb4`), llms.txt discovery (`e368c3650`), media dedup (`838259331`), FTS query expansion (`bcab2469d`, `65aedac20`). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-4.md).
+
+**Gap status: 1 closed, 3 remain open.**
+
+### Post-Merge Hardening (Feb 17 sync 5) — 60 upstream commits
+
+**Security relevance: HIGH** — 6 security-relevant commits. **OC-09 env var injection** (`235794d9f`): `sanitizeEnvVars()` blocks 39+ credential patterns in Docker containers — **Claim 8 DIRECTLY ADDRESSED**. **IPv6 host header** (`4e5a9d83b`), **trusted proxy trim** (`d3698f4eb`), **chat history hardcap** (`5d9a026a9` — 12K/128KB limits), **mesh orchestration RBAC** (`16e59b26a` + `83990ed54` — scope enforcement + DAG validation). See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-5.md).
 
 **Gap status: 1 closed, 3 remain open.**
 

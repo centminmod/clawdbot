@@ -369,7 +369,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/auto-reply/reply/session.ts:87` - `writeFileSync` with no explicit mode
-- `src/gateway/server-methods/chat.ts:73,81` - transcript file creation with no explicit mode
+- `src/gateway/server-methods/chat.ts:285` - transcript file creation with no explicit mode
 
 **Note:** `src/security/fix.ts:442,451` applies 0o600 to `auth-profiles.json` and `sessions.json` but NOT individual `.jsonl` transcript files.
 
