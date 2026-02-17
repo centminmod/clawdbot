@@ -1084,7 +1084,7 @@ No line shifts. No new CVEs.
 
 ### Post-Merge Hardening (Feb 16 sync 9) — 21 upstream commits
 
-**Security relevance: MODERATE** — 1 feature commit adds cron finished-run webhook notifications (PR #14535). The webhook implementation includes URL validation via `HttpUrlSchema` (`src/config/zod-schema.ts:96-102`), bearer token auth (`src/gateway/server-cron.ts:115`), 10-second timeout protection (`src/gateway/server-cron.ts:23,117-120`), and URL redaction in error logs (`src/gateway/server-cron.ts:25-32`). Webhook token marked `.register(sensitive)` for credential redaction (`src/config/zod-schema.ts:307`). Per-job opt-in via `notify` flag (`src/gateway/server-cron.ts:110`). 20 remaining commits are test consolidation. No audit claims or gaps affected. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-9.md).
+**Security relevance: MODERATE** — 1 feature commit adds cron finished-run webhook notifications (PR #14535). The webhook implementation includes URL validation via `HttpUrlSchema` (`src/config/zod-schema.ts:96-102`), bearer token auth (`src/gateway/server-cron.ts:240`), 10-second timeout protection (`src/gateway/server-cron.ts:28,242-245`), and URL redaction in error logs (`src/gateway/server-cron.ts:30-37`). Webhook token marked `.register(sensitive)` for credential redaction (`src/config/zod-schema.ts:307`). Per-job opt-in via `notify` flag (`src/gateway/server-cron.ts:235`). 20 remaining commits are test consolidation. No audit claims or gaps affected. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-16-sync-9.md).
 
 **Gap status: 1 closed, 3 remain open** — no gaps closed in this sync.
 
@@ -1129,6 +1129,14 @@ No line shifts. No new CVEs.
 **Security relevance: MODERATE** — 3 security-relevant commits. **Tool loop detection** (`076df941a`): `resolveToolLoopDetectionConfig()` at `pi-tools.ts:128-153` + `ToolLoopDetectionSchema` at `zod-schema.agent-runtime.ts:370-401` — configurable DoS defense with per-detector toggles. **Windows bind mounts** (`dacffd7ac`): `splitBindSpec()` at `fs-paths.ts:63-92` — prevents incorrect sandbox path mapping on Windows. **Skills bloat guard** (`5b3873add`): `resolveSkillsLimits()` at `skills/workspace.ts:118-128` enforces 5 limits (maxSkillsInPrompt=150, maxSkillsPromptChars=30KB, maxSkillFileBytes=256KB). No audit claims directly addressed. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-6.md).
 
 **Line shifts:** `skills/workspace.ts` 230→447 (disableModelInvocation), 302-346→566-612 (resolveSyncedSkillDestinationPath).
+
+**Gap status: 1 closed, 3 remain open.**
+
+### Post-Merge Hardening (Feb 17 sync 7) — 60 upstream commits
+
+**Security relevance: HIGH** — 4 security-relevant commits. **URL allowlist consolidation** (`a6466f257`): `resolveWebUrlAllowlist()` at `src/agents/tools/web-shared.ts:11` centralizes SSRF URL allowlist validation for both web-fetch and web-search tools, delegated via `resolveFetchUrlAllowlist()` at `src/agents/tools/web-fetch.ts:78` — **Audit 2 Claim 4 STRENGTHENED**. **Windows/UNC bind mount parsing** (`6244ef9ea`): new `getHostContainerSeparatorIndex()` at `src/agents/sandbox/fs-paths.ts:82` improves separator detection for bind mount specifications — **Audit 1 Claim 6 STRENGTHENED**. **Input file limit centralization** (`37c97964a`): `resolveInputFileLimits()` at `src/media/input-files.ts:171` unifies upload constraints — **Audit 2 Claim 2 defense-in-depth**. **Device auth scope normalization** (`b9aed3a07`): `normalizeDeviceAuthScopes()` at `src/shared/device-auth.ts:18` eliminates scope inconsistency across four device pairing code paths — **Audit 1 Claims 2 & 5 defense-in-depth**. 56 remaining commits are reverts, cron session namespace routing, test type fixes, and infrastructure refactors. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-7.md).
+
+**Line shifts:** `server-cron.ts` :115→:240 (bearer token), :110→:235 (opt-in gating), :23,117-120→:28,242-245 (timeout), :25-32,132→:30-37,257 (URL redaction). `hasBinary()`/PATHEXT logic extracted from `skills/config.ts`+`hooks/config.ts` to `src/shared/config-eval.ts:121`/`:110-115`.
 
 **Gap status: 1 closed, 3 remain open.**
 

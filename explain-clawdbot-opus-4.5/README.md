@@ -735,6 +735,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open.**
 
+### Post-Merge Hardening (Feb 17 sync 7) — 60 upstream commits
+
+**Security relevance: HIGH** — 4 security-relevant commits. **URL allowlist consolidation** (`a6466f257`): `resolveWebUrlAllowlist()` centralizes SSRF URL allowlist validation for web-fetch and web-search tools — **Audit 2 Claim 4 STRENGTHENED**. **Windows/UNC bind mount parsing** (`6244ef9ea`): improved separator detection for bind mount specifications — **Audit 1 Claim 6 STRENGTHENED**. **Input file limit centralization** (`37c97964a`): upload constraint unification — Audit 2 Claim 2 defense-in-depth. **Device auth scope normalization** (`b9aed3a07`): consistent scope handling across all device pairing workflows — Audit 1 Claims 2 & 5 defense-in-depth. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-7.md).
+
+**Gap status: 1 closed, 3 remain open.**
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
