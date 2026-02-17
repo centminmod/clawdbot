@@ -1124,6 +1124,14 @@ No line shifts. No new CVEs.
 
 **Gap status: 1 closed, 3 remain open.**
 
+### Post-Merge Hardening (Feb 17 sync 6) — 60 upstream commits
+
+**Security relevance: MODERATE** — 3 security-relevant commits. **Tool loop detection** (`076df941a`): `resolveToolLoopDetectionConfig()` at `pi-tools.ts:128-153` + `ToolLoopDetectionSchema` at `zod-schema.agent-runtime.ts:370-401` — configurable DoS defense with per-detector toggles. **Windows bind mounts** (`dacffd7ac`): `splitBindSpec()` at `fs-paths.ts:63-92` — prevents incorrect sandbox path mapping on Windows. **Skills bloat guard** (`5b3873add`): `resolveSkillsLimits()` at `skills/workspace.ts:118-128` enforces 5 limits (maxSkillsInPrompt=150, maxSkillsPromptChars=30KB, maxSkillFileBytes=256KB). No audit claims directly addressed. See [detailed entry](../../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-6.md).
+
+**Line shifts:** `skills/workspace.ts` 230→447 (disableModelInvocation), 302-346→566-612 (resolveSyncedSkillDestinationPath).
+
+**Gap status: 1 closed, 3 remain open.**
+
 ---
 
 ## Recommended Hardening Measures

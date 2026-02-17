@@ -2,6 +2,12 @@
 
 This directory contains synthesized documentation for OpenClaw, combining AI-generated analyses with source-code verification.
 
+* ALWAYS read and understand relevant files before proposing code edits. Do not speculate about code you have not inspected. If the user references a specific file/path, you MUST open and inspect it before explaining or proposing fixes. Be rigorous and persistent in searching code for key facts. Thoroughly review the style, conventions, and abstractions of the codebase before implementing new features or abstractions.
+* After receiving tool results, carefully reflect on their quality and determine optimal next steps before proceeding. Use your thinking to plan and iterate based on this new information, and then take the best next action.
+* After completing a task that involves tool use, provide a quick summary of what you've done.
+* For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
+* Before you finish, please verify your solution
+
 ## Purpose
 
 1. **Beginner-friendly documentation** - Plain English explanations for non-technical users
@@ -30,8 +36,8 @@ When AI-generated content conflicts with source code, trust the code.
 
 ## Maintenance Workflow
 
-- After completing documentation edits, always verify ALL files referenced in the plan were actually updated. Cross-check the plan's file list against git diff before reporting completion.
-- Never report findings as 'new' or 'valid' without first verifying them against the actual codebase. If you discover something that seems noteworthy, grep the codebase and existing docs to confirm it's not already covered or fabricated.
+* After completing documentation edits, always verify ALL files referenced in the plan were actually updated. Cross-check the plan's file list against git diff before reporting completion.
+* Never report findings as 'new' or 'valid' without first verifying them against the actual codebase. If you discover something that seems noteworthy, grep the codebase and existing docs to confirm it's not already covered or fabricated.
 
 ### After upstream commits merge
 
@@ -66,9 +72,9 @@ When verifying CLI commands or tool flags in documentation, always check platfor
 
 The project has been renamed: Clawdbot -> Moltbot -> OpenClaw. When updating:
 
-- Use "OpenClaw" for current references
-- Keep historical references accurate (e.g., "Issue #1796" from Clawdbot era)
-- CLI command is `openclaw`
+* Use "OpenClaw" for current references
+* Keep historical references accurate (e.g., "Issue #1796" from Clawdbot era)
+* CLI command is `openclaw`
 
 ## Security Audit Sections
 
@@ -76,43 +82,43 @@ Security audit analyses are in `08-security-analysis/`:
 
 ### Issue #1796 (Argus Security Platform)
 
-- 512 findings, 8 CRITICAL claims
-- **Verdict: 0/8 exploitable as described**
-- All claims verified against source code with file/line references
+* 512 findings, 8 CRITICAL claims
+* **Verdict: 0/8 exploitable as described**
+* All claims verified against source code with file/line references
 
 ### Medium Article (Saad Khalid)
 
-- 8 claimed zero-day vulnerabilities
-- **Verdict: 0/8 exploitable as described**
-- Three legitimate defense-in-depth gaps identified (still open)
+* 8 claimed zero-day vulnerabilities
+* **Verdict: 0/8 exploitable as described**
+* Three legitimate defense-in-depth gaps identified (still open)
 
 ### Ecosystem Threats Section
 
-- 5 supply chain/social engineering threats
-- Not codebase vulnerabilities; user education focus
-- Prompted by community advisory from @edgeaiplanet
+* 5 supply chain/social engineering threats
+* Not codebase vulnerabilities; user education focus
+* Prompted by community advisory from @edgeaiplanet
 
 ## Source AI Analyses
 
 Individual model analyses are stored in sibling directories:
 
-- `../explain-clawdbot-opus-4.5/` - Most rigorous security verification
-- `../explain-clawdbot-copilot-gpt-5.2/` - Best contextual framing
-- `../explain-clawdbot-glm-4.7/` - Clear side-by-side tables
-- `../explain-clawdbot-gemini-3.0-pro/` - Concise (verify claims)
-- `../explain-clawdbot-kilocode-kimi-k2.5/` - Best beginner analogies
+* `../explain-clawdbot-opus-4.5/` - Most rigorous security verification
+* `../explain-clawdbot-copilot-gpt-5.2/` - Best contextual framing
+* `../explain-clawdbot-glm-4.7/` - Clear side-by-side tables
+* `../explain-clawdbot-gemini-3.0-pro/` - Concise (verify claims)
+* `../explain-clawdbot-kilocode-kimi-k2.5/` - Best beginner analogies
 
 ## Git Exclusions
 
-- **Never commit `.private/` or `.claude/` files.** Both directories are excluded via `.git/info/exclude` and must not be force-added or staged. `.private/` contains local-only reports; `.claude/` contains local skills/settings. Neither should reach the remote.
+* **Never commit `.private/` or `.claude/` files.** Both directories are excluded via `.git/info/exclude` and must not be force-added or staged. `.private/` contains local-only reports; `.claude/` contains local skills/settings. Neither should reach the remote.
 
 ## Related Resources
 
-- Official docs: <https://docs.openclaw.ai>
-- Security docs: <https://docs.openclaw.ai/gateway/security>
-- Security policy: `../SECURITY.md`
-- Source code: `../src/`
-- Canonical docs: `../docs/`
+* Official docs: <https://docs.openclaw.ai>
+* Security docs: <https://docs.openclaw.ai/gateway/security>
+* Security policy: `../SECURITY.md`
+* Source code: `../src/`
+* Canonical docs: `../docs/`
 
 <claude-mem-context>
 # Recent Activity

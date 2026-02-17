@@ -729,6 +729,12 @@ One LOW security fix: `ef4a0e92b` scopes QMD queries to managed collections only
 
 **Gap status: 1 closed, 3 remain open.**
 
+### Post-Merge Hardening (Feb 17 sync 6) — 60 upstream commits
+
+**Security relevance: MODERATE** — 3 security-relevant commits. **Tool loop detection** (`076df941a`): configurable DoS defense with per-detector toggles. **Windows bind mounts** (`dacffd7ac`): sandbox path parsing fix. **Skills bloat guard** (`5b3873add`): 5 configurable limits prevent prompt injection via skill bloat. See [detailed entry](../explain-clawdbot/08-security-analysis/post-merge-hardening/2026-02-17-sync-6.md).
+
+**Gap status: 1 closed, 3 remain open.**
+
 For the full detailed analysis with code references, see [11 - Security Audit Analysis](./11-security-audit-analysis.md#second-security-audit-medium-article-january-2026).
 
 ---
