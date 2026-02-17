@@ -206,6 +206,22 @@ function buildChatCommands(): ChatCommandDefinition[] {
       category: "status",
     }),
     defineChatCommand({
+      key: "export-session",
+      nativeName: "export-session",
+      description: "Export current session to HTML file with full system prompt.",
+      textAliases: ["/export-session", "/export"],
+      acceptsArgs: true,
+      category: "status",
+      args: [
+        {
+          name: "path",
+          description: "Output path (default: workspace)",
+          type: "string",
+          required: false,
+        },
+      ],
+    }),
+    defineChatCommand({
       key: "tts",
       nativeName: "tts",
       description: "Control text-to-speech (TTS).",

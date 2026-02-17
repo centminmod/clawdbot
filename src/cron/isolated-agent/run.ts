@@ -500,10 +500,10 @@ export async function runCronIsolatedAgentTurn(params: {
       }
     | undefined;
   {
-    const usage = runResult.meta.agentMeta?.usage;
-    const promptTokens = runResult.meta.agentMeta?.promptTokens;
-    const modelUsed = runResult.meta.agentMeta?.model ?? fallbackModel ?? model;
-    const providerUsed = runResult.meta.agentMeta?.provider ?? fallbackProvider ?? provider;
+    const usage = runResult.meta?.agentMeta?.usage;
+    const promptTokens = runResult.meta?.agentMeta?.promptTokens;
+    const modelUsed = runResult.meta?.agentMeta?.model ?? fallbackModel ?? model;
+    const providerUsed = runResult.meta?.agentMeta?.provider ?? fallbackProvider ?? provider;
     const contextTokens =
       agentCfg?.contextTokens ?? lookupContextTokens(modelUsed) ?? DEFAULT_CONTEXT_TOKENS;
 
@@ -511,7 +511,7 @@ export async function runCronIsolatedAgentTurn(params: {
     cronSession.sessionEntry.model = modelUsed;
     cronSession.sessionEntry.contextTokens = contextTokens;
     if (isCliProvider(providerUsed, cfgWithAgentDefaults)) {
-      const cliSessionId = runResult.meta.agentMeta?.sessionId?.trim();
+      const cliSessionId = runResult.meta?.agentMeta?.sessionId?.trim();
       if (cliSessionId) {
         setCliSessionId(cronSession.sessionEntry, providerUsed, cliSessionId);
       }
@@ -641,7 +641,13 @@ export async function runCronIsolatedAgentTurn(params: {
         }
       } catch (err) {
         if (!deliveryBestEffort) {
-          return withRunSession({ status: "error", summary, outputText, error: String(err), ...telemetry });
+          return withRunSession({
+            status: "error",
+            summary,
+            outputText,
+            error: String(err),
+            ...telemetry,
+          });
         }
       }
     } else if (synthesizedText) {
@@ -739,7 +745,13 @@ export async function runCronIsolatedAgentTurn(params: {
         }
       } catch (err) {
         if (!deliveryBestEffort) {
-          return withRunSession({ status: "error", summary, outputText, error: String(err), ...telemetry });
+          return withRunSession({
+            status: "error",
+            summary,
+            outputText,
+            error: String(err),
+            ...telemetry,
+          });
         }
         logWarn(`[cron:${params.job.id}] ${String(err)}`);
       }
