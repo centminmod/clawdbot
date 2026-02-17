@@ -756,7 +756,7 @@ totalTokens >= contextWindow - reserveTokens - softThreshold
 
 *Plain English: When you type `/new` to start a fresh conversation, the old conversation gets saved as a dated memory file — like tearing out your notepad page and filing it before starting a blank one.*
 
-The session memory hook (`src/hooks/bundled/session-memory/handler.ts:73-204`) triggers on the `/new` command:
+The session memory hook (`src/hooks/bundled/session-memory/handler.ts:74-327`) triggers on the `/new` command:
 
 1. Reads the last N messages from the current session's JSONL transcript file (default: 15 messages, `handler.ts:28`)
 2. Generates a descriptive slug via LLM (e.g., `"debugging-auth-flow"`) or falls back to HHMM timestamp (`handler.ts:146-150`)
