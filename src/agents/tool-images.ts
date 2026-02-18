@@ -2,6 +2,11 @@ import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ImageContent } from "@mariozechner/pi-ai";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getImageMetadata, resizeToJpeg } from "../media/image-ops.js";
+import {
+  DEFAULT_IMAGE_MAX_BYTES,
+  DEFAULT_IMAGE_MAX_DIMENSION_PX,
+  type ImageSanitizationLimits,
+} from "./image-sanitization.js";
 
 type ToolContentBlock = AgentToolResult<unknown>["content"][number];
 type ImageContentBlock = Extract<ToolContentBlock, { type: "image" }>;
@@ -13,58 +18,9 @@ type TextContentBlock = Extract<ToolContentBlock, { type: "text" }>;
 //
 // To keep sessions resilient (and avoid "silent" WhatsApp non-replies), we auto-downscale
 // and recompress base64 image blocks when they exceed these limits.
-const MAX_IMAGE_DIMENSION_PX = 2000;
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION_PX = DEFAULT_IMAGE_MAX_DIMENSION_PX;
+const MAX_IMAGE_BYTES = DEFAULT_IMAGE_MAX_BYTES;
 const log = createSubsystemLogger("agents/tool-images");
-
-// Valid base64: alphanumeric, +, /, with 0-2 trailing = padding only
-// This regex ensures = only appears at the end as valid padding
-const BASE64_REGEX = /^[A-Za-z0-9+/]*={0,2}$/;
-
-/**
- * Validates and normalizes base64 image data before processing.
- * - Strips data URL prefixes (e.g., "data:image/png;base64,")
- * - Converts URL-safe base64 to standard base64 (- → +, _ → /)
- * - Validates base64 character set and structure
- * - Ensures the string is not empty after trimming
- *
- * Returns the cleaned base64 string or throws an error if invalid.
- */
-function validateAndNormalizeBase64(base64: string): string {
-  let data = base64.trim();
-
-  // Strip data URL prefix if present (e.g., "data:image/png;base64,...")
-  const dataUrlMatch = data.match(/^data:[^;]+;base64,(.*)$/i);
-  if (dataUrlMatch) {
-    data = dataUrlMatch[1].trim();
-  }
-
-  if (!data) {
-    throw new Error("Base64 data is empty");
-  }
-
-  // Normalize URL-safe base64 to standard base64
-  // URL-safe uses - instead of + and _ instead of /
-  data = data.replace(/-/g, "+").replace(/_/g, "/");
-
-  // Check for valid base64 characters and structure
-  // The regex ensures = only appears as 0-2 trailing padding chars
-  // Node's Buffer.from silently ignores invalid chars, but Anthropic API rejects them
-  if (!BASE64_REGEX.test(data)) {
-    throw new Error("Base64 data contains invalid characters or malformed padding");
-  }
-
-  // Check that length is valid for base64 (must be multiple of 4 when padded)
-  // Remove padding for length check, then verify
-  const withoutPadding = data.replace(/=+$/, "");
-  const remainder = withoutPadding.length % 4;
-  if (remainder === 1) {
-    // A single char remainder is always invalid in base64
-    throw new Error("Base64 data has invalid length");
-  }
-
-  return data;
-}
 
 function isImageBlock(block: unknown): block is ImageContentBlock {
   if (!block || typeof block !== "object") {
@@ -149,7 +105,7 @@ async function resizeImageBase64IfNeeded(params: {
   const maxDim = hasDimensions ? Math.max(width ?? 0, height ?? 0) : params.maxDimensionPx;
   const sideStart = maxDim > 0 ? Math.min(params.maxDimensionPx, maxDim) : params.maxDimensionPx;
   const sideGrid = [sideStart, 1800, 1600, 1400, 1200, 1000, 800]
-    .map((v) => Math.min(params.maxDimensionPx, v))
+    .filter((v) => v > 0 && v <= params.maxDimensionPx)
     .filter((v, i, arr) => v > 0 && arr.indexOf(v) === i)
     .toSorted((a, b) => b - a);
 
@@ -197,7 +153,7 @@ async function resizeImageBase64IfNeeded(params: {
 export async function sanitizeContentBlocksImages(
   blocks: ToolContentBlock[],
   label: string,
-  opts: { maxDimensionPx?: number; maxBytes?: number } = {},
+  opts: ImageSanitizationLimits = {},
 ): Promise<ToolContentBlock[]> {
   const maxDimensionPx = Math.max(opts.maxDimensionPx ?? MAX_IMAGE_DIMENSION_PX, 1);
   const maxBytes = Math.max(opts.maxBytes ?? MAX_IMAGE_BYTES, 1);
@@ -209,8 +165,8 @@ export async function sanitizeContentBlocksImages(
       continue;
     }
 
-    const rawData = block.data.trim();
-    if (!rawData) {
+    const data = block.data.trim();
+    if (!data) {
       out.push({
         type: "text",
         text: `[${label}] omitted empty image payload`,
@@ -219,11 +175,6 @@ export async function sanitizeContentBlocksImages(
     }
 
     try {
-      // Validate and normalize base64 before processing
-      // This catches invalid base64 that Buffer.from() would silently accept
-      // but Anthropic's API would reject, preventing permanent session corruption
-      const data = validateAndNormalizeBase64(rawData);
-
       const inferredMimeType = inferMimeTypeFromBase64(data);
       const mimeType = inferredMimeType ?? block.mimeType;
       const resized = await resizeImageBase64IfNeeded({
@@ -252,7 +203,7 @@ export async function sanitizeContentBlocksImages(
 export async function sanitizeImageBlocks(
   images: ImageContent[],
   label: string,
-  opts: { maxDimensionPx?: number; maxBytes?: number } = {},
+  opts: ImageSanitizationLimits = {},
 ): Promise<{ images: ImageContent[]; dropped: number }> {
   if (images.length === 0) {
     return { images, dropped: 0 };
@@ -265,7 +216,7 @@ export async function sanitizeImageBlocks(
 export async function sanitizeToolResultImages(
   result: AgentToolResult<unknown>,
   label: string,
-  opts: { maxDimensionPx?: number; maxBytes?: number } = {},
+  opts: ImageSanitizationLimits = {},
 ): Promise<AgentToolResult<unknown>> {
   const content = Array.isArray(result.content) ? result.content : [];
   if (!content.some((b) => isImageBlock(b) || isTextBlock(b))) {
