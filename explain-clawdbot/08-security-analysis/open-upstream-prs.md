@@ -222,7 +222,7 @@
 | [#10525](https://github.com/openclaw/openclaw/pull/10525) | (A2UI path traversal) | MEDIUM | MERGED | `openFileWithinRoot()` at `a2ui.ts:75`; merged 2026-02-13; ALREADY SYNCED |
 | [#10529](https://github.com/openclaw/openclaw/pull/10529) | (WhatsApp cred perms) | MEDIUM | MERGED | `0o600` chmod at `auth-store.ts:72`, `session.ts:77,91`; merged 2026-02-13; ALREADY SYNCED |
 | [#15379](https://github.com/openclaw/openclaw/pull/15379) | [#13826](https://github.com/openclaw/openclaw/issues/13826) | LOW | OPEN | No `transformContext` hook in local `pi-embedded-runner`; sanitization only at session load (`attempt.ts:778-779`), not during tool-call iterations |
-| [#15360](https://github.com/openclaw/openclaw/pull/15360) | [#6669](https://github.com/openclaw/openclaw/issues/6669) | LOW | OPEN | `statsLine` with token counts, session IDs, file paths, costs in user-visible `message` at `subagent-announce.ts:545-559` |
+| [#15360](https://github.com/openclaw/openclaw/pull/15360) | [#6669](https://github.com/openclaw/openclaw/issues/6669) | LOW | OPEN | `statsLine` with token counts, session IDs, file paths, costs in user-visible `message` at `subagent-announce.ts:822-833` |
 | [#15296](https://github.com/openclaw/openclaw/pull/15296) | (config secret hardening) | MEDIUM | OPEN | No `--show-secrets` opt-in for CLI `config get`; gateway `config.get` returns unredacted by default |
 | [#8757](https://github.com/openclaw/openclaw/pull/8757) | (MS Teams SSRF redirect) | MEDIUM | CLOSED | Closed without merge 2026-02-13; MS Teams redirect validation SSRF fix; no replacement PR identified |
 | [#13129](https://github.com/openclaw/openclaw/pull/13129) | (dmScope UX) | LOW | MERGED | Uses `formatCliCommand()` for dmScope remediation; local `audit.ts:603` already uses it; ALREADY SYNCED |
@@ -486,7 +486,7 @@
 **Greptile Review:** Notes queue draining logic may drop `extraSystemPrompt` when messages are combined or summarized.
 
 **Local Validation:**
-- `src/agents/subagent-announce.ts:545-559` — `statsLine` (token counts, session IDs, file paths, costs) in user-visible `message`; `Findings:` heading and `Summarize this naturally` instructions also exposed
+- `src/agents/subagent-announce.ts:822-833` — `statsLine` (token counts, session IDs, file paths, costs) in user-visible `message`; `Findings:` heading and `Summarize this naturally` instructions also exposed
 - No `extraSystemPrompt` field in local `AnnounceQueueItem`
 
 **Local Impact:** OPEN/PENDING — PR not yet merged. Internal stats and instructions leak to users.
