@@ -174,17 +174,14 @@ You should see a response generated locally.
 ### 6) Configure OpenClaw to use Docker Model Runner
 
 ```bash
-# Set provider to OpenAI-compatible mode
-openclaw config set provider.name openai
-
-# Point to Docker Model Runner's API
-openclaw config set provider.baseUrl http://model-runner.docker.internal/v1
-
-# Set the model name (must match what you pulled)
-openclaw config set provider.model glm-4.7-flash
+# Add Docker Model Runner as a provider
+openclaw config set models.providers.dmr.baseUrl http://model-runner.docker.internal/v1
 
 # API key is not needed but the field must exist
-openclaw config set provider.apiKey "not-needed"
+openclaw config set models.providers.dmr.apiKey "not-needed"
+
+# Add a model entry under the provider
+openclaw config set models.providers.dmr.models '[{ "id": "glm-4.7-flash" }]'
 ```
 
 ### 7) Verify OpenClaw configuration

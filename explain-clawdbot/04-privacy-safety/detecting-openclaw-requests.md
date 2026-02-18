@@ -24,7 +24,7 @@ When OpenClaw downloads media files (images, audio, video) attached to incoming 
 User-Agent: OpenClaw-Gateway/1.0
 ```
 
-**Source:** `src/media/input-files.ts:171`
+**Source:** `src/media/input-files.ts:201`
 ```typescript
 init: { headers: { "User-Agent": "OpenClaw-Gateway/1.0" } },
 ```
