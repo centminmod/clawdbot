@@ -407,8 +407,8 @@ openclaw config set provider.baseUrl http://model-runner.docker.internal/v1
 openclaw config set provider.model glm-4.7-flash
 
 # Enable Docker sandbox for tool execution
-openclaw config set agents.defaults.sandbox docker
-openclaw config set agents.defaults.sandboxNetwork none
+openclaw config set agents.defaults.sandbox.mode "all"
+openclaw config set agents.defaults.sandbox.docker.network "none"
 ```
 
 Combined with FileVault/LUKS disk encryption, this keeps all AI processing and data on hardware you control.
