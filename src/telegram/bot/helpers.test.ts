@@ -8,18 +8,13 @@ import {
 } from "./helpers.js";
 
 describe("resolveTelegramForumThreadId", () => {
-  it("returns undefined for non-forum groups even with messageThreadId", () => {
-    // Reply threads in regular groups should not create separate sessions
-    expect(resolveTelegramForumThreadId({ isForum: false, messageThreadId: 42 })).toBeUndefined();
-  });
-
-  it("returns undefined for non-forum groups without messageThreadId", () => {
-    expect(
-      resolveTelegramForumThreadId({ isForum: false, messageThreadId: undefined }),
-    ).toBeUndefined();
-    expect(
-      resolveTelegramForumThreadId({ isForum: undefined, messageThreadId: 99 }),
-    ).toBeUndefined();
+  it.each([
+    { isForum: false, messageThreadId: 42 },
+    { isForum: false, messageThreadId: undefined },
+    { isForum: undefined, messageThreadId: 99 },
+  ])("returns undefined for non-forum groups", (params) => {
+    // Reply threads in regular groups should not create separate sessions.
+    expect(resolveTelegramForumThreadId(params)).toBeUndefined();
   });
 
   it("returns General topic (1) for forum groups without messageThreadId", () => {
@@ -69,12 +64,6 @@ describe("buildTelegramThreadParams", () => {
       message_thread_id: 0,
     });
   });
-
-  it("normalizes thread ids to integers", () => {
-    expect(buildTelegramThreadParams({ id: 42.9, scope: "forum" })).toEqual({
-      message_thread_id: 42,
-    });
-  });
 });
 
 describe("buildTypingThreadParams", () => {
@@ -85,9 +74,20 @@ describe("buildTypingThreadParams", () => {
   it("includes General topic thread id for typing indicators", () => {
     expect(buildTypingThreadParams(1)).toEqual({ message_thread_id: 1 });
   });
+});
 
-  it("normalizes thread ids to integers", () => {
-    expect(buildTypingThreadParams(42.9)).toEqual({ message_thread_id: 42 });
+describe("thread id normalization", () => {
+  it.each([
+    {
+      build: () => buildTelegramThreadParams({ id: 42.9, scope: "forum" }),
+      expected: { message_thread_id: 42 },
+    },
+    {
+      build: () => buildTypingThreadParams(42.9),
+      expected: { message_thread_id: 42 },
+    },
+  ])("normalizes thread ids to integers", ({ build, expected }) => {
+    expect(build()).toEqual(expected);
   });
 });
 
