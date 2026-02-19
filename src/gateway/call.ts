@@ -16,7 +16,8 @@ import {
   type GatewayClientName,
 } from "../utils/message-channel.js";
 import { GatewayClient } from "./client.js";
-import { pickPrimaryLanIPv4 } from "./net.js";
+import type { OperatorScope } from "./method-scopes.js";
+import { isSecureWebSocketUrl, pickPrimaryLanIPv4 } from "./net.js";
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 
 export type CallGatewayOptions = {
@@ -37,6 +38,7 @@ export type CallGatewayOptions = {
   instanceId?: string;
   minProtocol?: number;
   maxProtocol?: number;
+  scopes?: OperatorScope[];
   /**
    * Overrides the config path shown in connection error details.
    * Does not affect config loading; callers still control auth via opts.token/password/env/config.
@@ -134,6 +136,22 @@ export function buildGatewayConnectionDetails(
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;
   const bindDetail = !urlOverride && !remoteUrl ? `Bind: ${bindMode}` : undefined;
+
+  // Security check: block ALL insecure ws:// to non-loopback addresses (CWE-319, CVSS 9.8)
+  // This applies to the FINAL resolved URL, regardless of source (config, CLI override, etc).
+  // Both credentials and chat/conversation data must not be transmitted over plaintext to remote hosts.
+  if (!isSecureWebSocketUrl(url)) {
+    throw new Error(
+      [
+        `SECURITY ERROR: Gateway URL "${url}" uses plaintext ws:// to a non-loopback address.`,
+        "Both credentials and chat data would be exposed to network interception.",
+        `Source: ${urlSource}`,
+        `Config: ${configPath}`,
+        "Fix: Use wss:// for the gateway URL, or connect via SSH tunnel to localhost.",
+      ].join("\n"),
+    );
+  }
+
   const message = [
     `Gateway target: ${url}`,
     `Source: ${urlSource}`,
@@ -241,6 +259,9 @@ export async function callGateway<T = Record<string, unknown>>(
   };
   const formatTimeoutError = () =>
     `gateway timeout after ${timeoutMs}ms\n${connectionDetails.message}`;
+  const scopes = Array.isArray(opts.scopes)
+    ? opts.scopes
+    : ["operator.admin", "operator.approvals", "operator.pairing"];
   return await new Promise<T>((resolve, reject) => {
     let settled = false;
     let ignoreClose = false;
@@ -269,7 +290,7 @@ export async function callGateway<T = Record<string, unknown>>(
       platform: opts.platform,
       mode: opts.mode ?? GATEWAY_CLIENT_MODES.CLI,
       role: "operator",
-      scopes: ["operator.admin", "operator.approvals", "operator.pairing"],
+      scopes,
       deviceIdentity: loadOrCreateDeviceIdentity(),
       minProtocol: opts.minProtocol ?? PROTOCOL_VERSION,
       maxProtocol: opts.maxProtocol ?? PROTOCOL_VERSION,
