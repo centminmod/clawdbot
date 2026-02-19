@@ -167,7 +167,7 @@
 | PR # | Fixes Issue(s) | Issue Severity | PR Status | Notes |
 |------|---------------|----------------|-----------|-------|
 | [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:101-122` |
-| [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:11` checks gateway bind + auth |
+| [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:12` checks gateway bind + auth |
 | [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:47-89` |
 | [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:446-447` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
@@ -272,7 +272,7 @@
 - CRITICAL warning if gateway bound to network without auth
 - Actionable fix commands in warning messages
 
-**Local Impact:** ALREADY SYNCED — `noteSecurityWarnings()` at `src/commands/doctor-security.ts:11` with full exposure check
+**Local Impact:** ALREADY SYNCED — `noteSecurityWarnings()` at `src/commands/doctor-security.ts:12` with full exposure check
 
 ### #4880: Restrict Local Path Extraction in Media Parser (Prevent LFI)
 
@@ -642,7 +642,7 @@
 **Changes:**
 - `src/security/audit.ts` — uses `formatCliCommand('openclaw config set session.dmScope "per-channel-peer"')` in audit warning remediation text
 
-**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:603`, `src/commands/doctor-security.ts:128`, `src/commands/onboard-channels.ts:198,254`
+**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:603`, `src/commands/doctor-security.ts:131`, `src/commands/onboard-channels.ts:198,254`
 
 ### #13184: Default Standalone Servers to Loopback Bind
 
