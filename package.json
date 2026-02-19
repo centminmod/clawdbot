@@ -1,6 +1,6 @@
 {
   "name": "openclaw",
-  "version": "2026.2.19",
+  "version": "2026.2.20",
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": [],
   "homepage": "https://github.com/openclaw/openclaw#readme",
@@ -215,6 +215,7 @@
   "pnpm": {
     "minimumReleaseAge": 2880,
     "overrides": {
+      "hono": "4.11.10",
       "fast-xml-parser": "5.3.6",
       "request": "npm:@cypress/request@3.0.10",
       "request-promise": "npm:@cypress/request-promise@5.0.0",
