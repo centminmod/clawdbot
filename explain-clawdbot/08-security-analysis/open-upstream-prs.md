@@ -195,7 +195,7 @@
 | [#14350](https://github.com/openclaw/openclaw/pull/14350) | CLOSED | hardening | Add `--harden` CLI flag for security-hardened gateway mode (closed 2026-02-13; no replacement) | — | NOT AFFECTED |
 | [#15608](https://github.com/openclaw/openclaw/pull/15608) | CLOSED | hardening | Prune expired hook auth failure entries (closed 2026-02-14; superseded by #15848 MERGED) | — | NOT AFFECTED |
 
-**Total:** 174 tracked PRs (36 merged, 108 open, 1 draft, 29 closed)
+**Total:** 174 tracked PRs (36 merged, 106 open, 1 draft, 31 closed)
 
 > **Status change log (20-02-2026 20:20 AEST):** 17 state changes detected. #2580 OPEN->CLOSED, #3926 OPEN->CLOSED (browser evaluateEnabled; vulnerability remains), #11119 DRAFT->CLOSED, #11742 OPEN->CLOSED, #12351 OPEN->CLOSED, #13117 OPEN->CLOSED (Telegram webhook; #13521 still tracks fix), #13170 OPEN->CLOSED, #13183 OPEN->CLOSED, #13198 OPEN->CLOSED (#19675 covers related fix), #13876 OPEN->CLOSED, #14662 OPEN->CLOSED, #14814 OPEN->CLOSED (#21755 covers timingSafeEqual padding), #15360 OPEN->CLOSED, #16036 OPEN->CLOSED, #16947 OPEN->CLOSED, #16965 OPEN->CLOSED (#21665 covers bind-mount denylist), #16967 OPEN->CLOSED. 49 new PRs added: #18048 MERGED (OC-09 env var credential theft, ALREADY SYNCED), #20686 MERGED (gateway auth secure default, ALREADY SYNCED), plus 47 OPEN security PRs from Feb 16-20 security sprint. 1 sync action needed: #21665 (bind-mount denylist missing /home and /Users).
 >
