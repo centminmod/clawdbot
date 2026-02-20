@@ -7,6 +7,9 @@ This directory contains synthesized documentation for OpenClaw, combining AI-gen
 * After completing a task that involves tool use, provide a quick summary of what you've done.
 * For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
 * Before you finish, please verify your solution
+* When running skills or sub-agents, ensure task agents use 'general-purpose' type (not 'explore' or read-only) when they need to write files. Always verify sub-agent permissions match their required operations before execution.
+* When shell scripts use `set -e`, ensure grep commands are guarded with `|| true` or `|| :` to prevent exit code 1 on no matches from terminating the script.
+* Before making any changes to skill files (SKILL.md, *.sh scripts in skills/), first: 1) State what you think the problem is in 2 sentences, 2) List the specific files you'll modify, 3) Wait for my confirmation. Do not begin editing until I say 'go'.
 
 ## Purpose
 
