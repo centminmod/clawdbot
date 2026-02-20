@@ -77,6 +77,11 @@
 | [CVE-2026-26972](https://github.com/openclaw/openclaw/security/advisories/GHSA-xwjm-j929-xq7c) | MEDIUM | Path Traversal in Browser Download Functionality | CWE-22 | pending | @locus-x64 |
 | [GHSA-p25h-9q54-ffvw](https://github.com/openclaw/openclaw/security/advisories/GHSA-p25h-9q54-ffvw) | HIGH | Zip Slip Path Traversal in Tar Archive Extraction | CWE-22 | pending | @xuemian168 |
 | [GHSA-chm2-m3w2-wcxm](https://github.com/openclaw/openclaw/security/advisories/GHSA-chm2-m3w2-wcxm) | LOW | Google Chat Mutable Email Principal Spoofing | CWE-290, CWE-863 | pending | @vincentkoc |
+| [GHSA-fh3f-q9qw-93j9](https://github.com/openclaw/openclaw/security/advisories/GHSA-fh3f-q9qw-93j9) | MEDIUM | Replace Deprecated Sandbox Hash Algorithm (SHA-1 → SHA-256) | - | v2026.2.15 | @kexinoh (Tencent zhuque Lab) |
+| [CVE-2026-27004 / GHSA-6hf3-mhgc-cm65](https://github.com/openclaw/openclaw/security/advisories/GHSA-6hf3-mhgc-cm65) | HIGH | OC-07: Session Tool Visibility Hardening and Telegram Webhook Secret Fallback | - | v2026.2.15 | @aether-ai-agent |
+| [CVE-2026-27009 / GHSA-37gc-85xm-2ww6](https://github.com/openclaw/openclaw/security/advisories/GHSA-37gc-85xm-2ww6) | MEDIUM | Stored XSS in Control UI via Unsanitized Assistant Name/Avatar | CWE-79 | v2026.2.15 | @Adam55A-code |
+| [GHSA-mmpf-jwf4-h3qv](https://github.com/openclaw/openclaw/security/advisories/GHSA-mmpf-jwf4-h3qv) | LOW | Option Injection in Pre-Commit Hook Can Stage Ignored Files | - | v2026.2.15 | @mrthankyou |
+| [CVE-2026-27003 / GHSA-chf7-jq6g-qrwv](https://github.com/openclaw/openclaw/security/advisories/GHSA-chf7-jq6g-qrwv) | MEDIUM | OC-17: Telegram Bot Token Exposure via Logs | - | v2026.2.15 | @aether-ai-agent |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
