@@ -338,7 +338,7 @@ for line in sys.stdin:
 "
 ```
 
-Source: `src/config/io.ts:376-390` (audit helpers), `src/config/io.ts:900-1020` (audit record builder)
+Source: `src/config/io.ts:376-390` (audit helpers), `src/config/io.ts:944-1044` (audit record builder)
 
 See: [AI Self-Misconfiguration Guide](../05-worst-case-security/ai-self-misconfiguration.md), [Attack #28](../05-worst-case-security/prompt-injection-attacks.md#-attack-28-config-self-modification-via-gateway-tool)
 
@@ -398,7 +398,7 @@ OpenClaw loads nine workspace bootstrap `.md` files into the agent's system prom
 
 **Caveat:** These are **soft guidance**, not hard enforcement. A determined prompt injection attack may override them. Use this as defense-in-depth alongside tool policies, sandboxing, and access controls — not as a replacement.
 
-Source: `src/agents/workspace.ts:30-31` (bootstrap file list), official security docs
+Source: `src/agents/workspace.ts:135-145` (bootstrap file name set), official security docs
 
 ---
 
@@ -412,9 +412,9 @@ OpenClaw's repo includes detect-secrets configuration for catching accidentally 
 # Install detect-secrets
 pip install detect-secrets
 
-# Initialize baseline in your repo
+# Initialize baseline in your repo (new repo) or verify existing baseline
 cd your-openclaw-repo
-detect-secrets scan > .secrets.baseline
+detect-secrets scan --baseline .secrets.baseline
 
 # Commit the baseline
 git add .secrets.baseline .detect-secrets.cfg
@@ -433,24 +433,24 @@ pip install pre-commit
 pre-commit install
 ```
 
-### If the scan fails
+### If the scan fails (local or CI)
 
 ```bash
-# See what was detected
-detect-secrets scan | diff .secrets.baseline -
+# Reproduce against baseline
+detect-secrets scan --baseline .secrets.baseline
 
-# If it's a false positive, update the baseline
+# Review baseline entries interactively
+detect-secrets audit .secrets.baseline
+
+# If it's a false positive, update baseline after review
 detect-secrets scan --update .secrets.baseline
-
-# If it's a real secret, remove it from history
-git filter-branch --force --index-filter \
-  'git rm --cached --ignore-unmatch path/to/file-with-secret' \
-  --prune-empty --tag-name-filter cat -- --all
 ```
+
+If it is a real secret: rotate/revoke it immediately, remove it from tracked files/history using your repo's approved history-rewrite process, then regenerate/update the baseline.
 
 **Files in the repo:**
 - `.secrets.baseline` — Known secrets baseline (hashes, not actual secrets)
-- `.detect-secrets.cfg` — Scanner configuration (excludes, plugins)
+- `.detect-secrets.cfg` — Scanner configuration reference (detect-secrets does not auto-read it without flags)
 
 Source: Official security docs — https://docs.openclaw.ai/gateway/security
 
