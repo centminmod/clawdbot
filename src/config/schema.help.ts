@@ -26,6 +26,13 @@ export const FIELD_HELP: Record<string, string> = {
   "gateway.auth.token":
     "Required by default for gateway access (unless using Tailscale Serve identity); required for non-loopback binds.",
   "gateway.auth.password": "Required for Tailscale funnel.",
+  "agents.defaults.sandbox.browser.network":
+    "Docker network for sandbox browser containers (default: openclaw-sandbox-browser). Avoid bridge if you need stricter isolation.",
+  "agents.list[].sandbox.browser.network": "Per-agent override for sandbox browser Docker network.",
+  "agents.defaults.sandbox.browser.cdpSourceRange":
+    "Optional CIDR allowlist for container-edge CDP ingress (for example 172.21.0.1/32).",
+  "agents.list[].sandbox.browser.cdpSourceRange":
+    "Per-agent override for CDP source CIDR allowlist.",
   "gateway.controlUi.basePath":
     "Optional URL prefix where the Control UI is served (e.g. /openclaw).",
   "gateway.controlUi.root":
@@ -392,7 +399,7 @@ export const FIELD_HELP: Record<string, string> = {
   "channels.telegram.dmPolicy":
     'Direct message access control ("pairing" recommended). "open" requires channels.telegram.allowFrom=["*"].',
   "channels.telegram.streaming":
-    "Enable Telegram live stream preview via message edits (default: true; legacy streamMode auto-maps here).",
+    "Enable Telegram live stream preview via message edits (default: false; legacy streamMode auto-maps here).",
   "channels.discord.streamMode":
     "Live stream preview mode for Discord replies (off | partial | block). Separate from block streaming; uses sendMessage + editMessage.",
   "channels.discord.draftChunk.minChars":
