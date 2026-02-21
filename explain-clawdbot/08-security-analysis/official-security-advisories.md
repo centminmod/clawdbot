@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (1 new advisory, 1 CRITICAL) published 2026-02-21, patched in v2026.2.21.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21.
 
 ### Advisory Summary
 
@@ -93,6 +93,36 @@
 | [GHSA-cxpw-2g23-2vgw](https://github.com/openclaw/openclaw/security/advisories/GHSA-cxpw-2g23-2vgw) | LOW | OC-53: ACP prompt-size checks missing in local stdio bridge | CWE-400 | v2026.2.18 | @aether-ai-agent |
 | [GHSA-w45g-5746-x9fp](https://github.com/openclaw/openclaw/security/advisories/GHSA-w45g-5746-x9fp) | MEDIUM | Harden cron webhook delivery against SSRF | CWE-918 | v2026.2.18 | @Adam55A-code |
 | [GHSA-82g8-464f-2mv7](https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7) | CRITICAL | Environment Variable Injection via Host Exec Env | CWE-78 | v2026.2.21 | @aether-ai-agent |
+| [GHSA-vvjh-f6p9-5vcf](https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf) | HIGH | ZDI-CAN-29311: Canvas Authentication Bypass | CWE-291 | pending | @zdi-disclosures |
+| [GHSA-vffc-f7r7-rx2w](https://github.com/openclaw/openclaw/security/advisories/GHSA-vffc-f7r7-rx2w) | HIGH | Line Break Injection in systemd Unit Generation Enables Local Command Execution | CWE-77 | pending | @tdjackey |
+| [GHSA-w7j5-j98m-w679](https://github.com/openclaw/openclaw/security/advisories/GHSA-w7j5-j98m-w679) | HIGH | Multiple E2E/test Dockerfiles run all processes as root | CWE-250 | pending | @TerminalsandCoffee |
+| [GHSA-56pc-6hvp-4gv4](https://github.com/openclaw/openclaw/security/advisories/GHSA-56pc-6hvp-4gv4) | HIGH | OC-06: Arbitrary file read via $include directive | CWE-22 | pending | @aether-ai-agent |
+| [GHSA-r5fq-947m-xm57](https://github.com/openclaw/openclaw/security/advisories/GHSA-r5fq-947m-xm57) | HIGH | Path traversal in apply_patch could write/delete files outside workspace | CWE-22 | pending | @p80n-sec |
+| [GHSA-jrvc-8ff5-2f9f](https://github.com/openclaw/openclaw/security/advisories/GHSA-jrvc-8ff5-2f9f) | HIGH | SSRF guard bypass via full-form IPv4-mapped IPv6 (loopback / metadata reachable) | CWE-918 | pending | @yueyueL |
+| [GHSA-jqpq-mgvm-f9r6](https://github.com/openclaw/openclaw/security/advisories/GHSA-jqpq-mgvm-f9r6) | HIGH | Command hijacking via unsafe PATH handling (bootstrapping + node-host overrides) | CWE-78, CWE-427, CWE-807 | pending | @akhmittra |
+| [CVE-2026-26325 / GHSA-h3f9-mjwj-w476](https://github.com/openclaw/openclaw/security/advisories/GHSA-h3f9-mjwj-w476) | HIGH | Node host system.run rawCommand/command mismatch can bypass allowlist/approvals | - | pending | @christos-eth |
+| [GHSA-3xfw-4pmr-4xc5](https://github.com/openclaw/openclaw/security/advisories/GHSA-3xfw-4pmr-4xc5) | MEDIUM | OpenClaw safeBins grep -e File Read Bypass (stdin-only policy bypass) | CWE-184 | pending | @athuljayaram |
+| [GHSA-jq4x-98m3-ggq6](https://github.com/openclaw/openclaw/security/advisories/GHSA-jq4x-98m3-ggq6) | MEDIUM | ZDI-CAN-29312: Canvas Path Traversal Information Disclosure | CWE-22 | pending | @zdi-disclosures |
+| [GHSA-jjgj-cpp9-cvpv](https://github.com/openclaw/openclaw/security/advisories/GHSA-jjgj-cpp9-cvpv) | MEDIUM | Local File Exfiltration via MCP Tool Result MEDIA: Directive Injection | CWE-22, CWE-200 | pending | @NucleiAv |
+| [GHSA-mqr9-vqhq-3jxw](https://github.com/openclaw/openclaw/security/advisories/GHSA-mqr9-vqhq-3jxw) | MEDIUM | Windows Scheduled Task script generation allowed local command injection | - | pending | @tdjackey |
+| [GHSA-pj5x-38rw-6fph](https://github.com/openclaw/openclaw/security/advisories/GHSA-pj5x-38rw-6fph) | MEDIUM | Command Injection via unescaped environment assignments in Windows Scheduled Task | CWE-78 | pending | @tdjackey |
+| [GHSA-pfv7-rr5m-qmv6](https://github.com/openclaw/openclaw/security/advisories/GHSA-pfv7-rr5m-qmv6) | MEDIUM | Auth inconsistency on local Browser Extension Relay /extension endpoint | - | pending | @tdjackey |
+| [GHSA-8cp7-rp8r-mg77](https://github.com/openclaw/openclaw/security/advisories/GHSA-8cp7-rp8r-mg77) | MEDIUM | SSRF guard bypass via IPv6 transition over ISATAP | CWE-918 | pending | @zpbrent |
+| [GHSA-c6hr-w26q-c636](https://github.com/openclaw/openclaw/security/advisories/GHSA-c6hr-w26q-c636) | MEDIUM | ReDoS and regex injection via unescaped Feishu mention metadata in RegExp | CWE-1333 | pending | - |
+| [GHSA-2mc2-g238-722j](https://github.com/openclaw/openclaw/security/advisories/GHSA-2mc2-g238-722j) | MEDIUM | iMessage remote attachment SCP hardening (strict host-key checks and remoteHost validation) | CWE-78, CWE-295 | pending | @allsmog |
+| [GHSA-vj3g-5px3-gr46](https://github.com/openclaw/openclaw/security/advisories/GHSA-vj3g-5px3-gr46) | MEDIUM | Path traversal in Feishu media temp-file naming allows writes outside os.tmpdir() | CWE-22 | pending | @allsmog |
+| [GHSA-7fcc-cw49-xm78](https://github.com/openclaw/openclaw/security/advisories/GHSA-7fcc-cw49-xm78) | MEDIUM | Command injection via Windows shell fallback in Lobster tool execution | CWE-78 | pending | @allsmog |
+| [GHSA-3x3x-h76w-hp98](https://github.com/openclaw/openclaw/security/advisories/GHSA-3x3x-h76w-hp98) | MEDIUM | OpenClaw exec allowlist safeBins short-option bypass | CWE-184 | pending | @FailButWin, @Redgrave961 |
+| [GHSA-g75x-8qqm-2vxp](https://github.com/openclaw/openclaw/security/advisories/GHSA-g75x-8qqm-2vxp) | MEDIUM | tools.exec.safeBins PATH-hijack allowed trojan binaries to bypass allowlist checks | CWE-426, CWE-863 | pending | @jackhax |
+| [GHSA-gq83-8q7q-9hfx](https://github.com/openclaw/openclaw/security/advisories/GHSA-gq83-8q7q-9hfx) | MEDIUM | Serialize sandbox registry writes to prevent races and delete-rollback corruption | - | pending | @kexinoh |
+| [GHSA-x9cf-3w63-rpq9](https://github.com/openclaw/openclaw/security/advisories/GHSA-x9cf-3w63-rpq9) | MEDIUM | Sensitive file disclosure via stageSandboxMedia | CWE-22 | pending | @zpbrent |
+| [GHSA-p536-vvpp-9mc8](https://github.com/openclaw/openclaw/security/advisories/GHSA-p536-vvpp-9mc8) | MEDIUM | Web Fetch DoS via unbounded response parsing | CWE-400 | pending | @xuemian168, @ShangzhiXu |
+| [CVE-2026-26323 / GHSA-m7x8-2w3w-pr42](https://github.com/openclaw/openclaw/security/advisories/GHSA-m7x8-2w3w-pr42) | MEDIUM | Command injection in maintainer clawtributors updater | CWE-78 | pending | @scanleale, @MegaManSec |
+| [GHSA-v773-r54f-q32w](https://github.com/openclaw/openclaw/security/advisories/GHSA-v773-r54f-q32w) | MEDIUM | Slack: dmPolicy=open allowed any DM sender to run privileged slash commands | - | pending | @christos-eth |
+| [GHSA-xvhf-x56f-2hpp](https://github.com/openclaw/openclaw/security/advisories/GHSA-xvhf-x56f-2hpp) | MEDIUM | Exec approvals: safeBins could bypass stdin-only constraints via shell expansion | - | pending | @christos-eth |
+| [GHSA-fg3m-vhrr-8gj6](https://github.com/openclaw/openclaw/security/advisories/GHSA-fg3m-vhrr-8gj6) | LOW | Windows Lobster shell fallback command injection in constrained fallback path | CWE-78 | pending | @tdjackey |
+| [GHSA-ff98-w8hj-qrxf](https://github.com/openclaw/openclaw/security/advisories/GHSA-ff98-w8hj-qrxf) | LOW | Plugin runtime command execution is part of trusted plugin boundary | CWE-78 | pending | @markmusson |
+| [GHSA-2hm8-rqrm-xfjq](https://github.com/openclaw/openclaw/security/advisories/GHSA-2hm8-rqrm-xfjq) | LOW | Owner-only gateway tool access checks were incomplete in specific authenticated DM flows | CWE-269, CWE-863 | pending | @Adam55A-code |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -809,6 +839,354 @@
 **Fix commits:** `2cdbadee1` (creates `src/infra/host-env-security.ts` with unified `sanitizeHostExecEnv()` at `:46`), `f202e7307` (centralizes policy to `src/infra/host-env-security-policy.json`, policy now shared with macOS Swift layer). `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:34` (enforced at `src/agents/bash-tools.exec.ts:330`) delegates to the centralized enforcement point.
 
 See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-sync-7.md).
+
+### GHSA-vvjh-f6p9-5vcf: ZDI-CAN-29311: Canvas Authentication Bypass
+
+**Severity:** HIGH (CWE-291: Reliance on IP Address for Authentication)
+**Published:** 2026-02-21
+**Credits:** @zdi-disclosures
+
+**Description:** ZDI-submitted advisory. The Canvas integration authenticated requests based on peer IP/loopback trust rather than a secret token, allowing authentication bypass from local or proxied requests.
+
+**Impact:** Unauthorized access to Canvas integration endpoints; potential data manipulation or exfiltration from connected Canvas workspaces.
+
+**Fix:** Pending.
+
+### GHSA-jq4x-98m3-ggq6: ZDI-CAN-29312: Canvas Path Traversal Information Disclosure
+
+**Severity:** MEDIUM (CWE-22: Path Traversal)
+**Published:** 2026-02-21
+**Credits:** @zdi-disclosures
+
+**Description:** ZDI-submitted advisory. Path traversal in Canvas media/file handling allowed reading files outside the intended directory boundary.
+
+**Impact:** Information disclosure — local files accessible to the OpenClaw process readable via crafted Canvas paths.
+
+**Fix:** Pending.
+
+### GHSA-vffc-f7r7-rx2w: Line Break Injection in systemd Unit Generation
+
+**Severity:** HIGH (CWE-77: Command Injection via OS String)
+**Published:** 2026-02-21
+**Credits:** @tdjackey
+
+**Description:** When OpenClaw generates systemd unit files for service autostart on Linux, unsanitized values were written into unit file fields. Newline characters in values (e.g., service name, exec path) could inject additional unit file directives, enabling local command execution.
+
+**Impact:** Local code execution via crafted configuration when using systemd-based autostart. Affects Linux deployments only.
+
+**Fix:** Pending.
+
+### GHSA-w7j5-j98m-w679: Multiple E2E/test Dockerfiles run all processes as root
+
+**Severity:** HIGH (CWE-250: Execution with Unnecessary Privileges)
+**Published:** 2026-02-21
+**Credits:** @TerminalsandCoffee
+
+**Description:** Multiple end-to-end test Dockerfiles ran all container processes as root (uid 0). While test-only, this creates a security risk if test containers are inadvertently used in production or if test environments share resources with production.
+
+**Impact:** Test containers running as root expose the host to container escape risk. Defense-in-depth gap in test infrastructure.
+
+**Fix:** Pending.
+
+### GHSA-56pc-6hvp-4gv4: OC-06: Arbitrary File Read via $include Directive
+
+**Severity:** HIGH (CWE-22: Path Traversal)
+**Published:** 2026-02-21
+**Credits:** @aether-ai-agent
+
+**Description:** The configuration `$include` directive could be used to include arbitrary files from the local filesystem, potentially disclosing sensitive content. An attacker who can influence configuration (e.g., through `config.apply`) could read arbitrary files accessible to the OpenClaw process.
+
+**Impact:** Arbitrary file read — configuration values from sensitive local files (credentials, keys, system files) could be exposed via `$include` directives.
+
+**Fix:** Pending.
+
+### GHSA-jjgj-cpp9-cvpv: Local File Exfiltration via MCP Tool Result MEDIA: Directive Injection
+
+**Severity:** MEDIUM (CWE-22, CWE-200: Path Traversal, Information Disclosure)
+**Published:** 2026-02-21
+**Credits:** @NucleiAv
+
+**Description:** An MCP server returning a crafted tool result containing a `MEDIA:` directive could cause OpenClaw to stage local files from the agent machine, effectively exfiltrating them through the normal media handling pipeline.
+
+**Impact:** Exfiltration of local files accessible to the OpenClaw process via MCP tool result injection.
+
+**Fix:** Pending.
+
+### GHSA-mqr9-vqhq-3jxw: Windows Scheduled Task Script Command Injection
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+**Credits:** @tdjackey
+
+**Description:** When generating Windows Scheduled Task scripts for autostart, unsafe handling of cmd-style argument construction allowed local command injection via specially crafted values in task parameters.
+
+**Impact:** Local command execution via crafted scheduled task configuration on Windows deployments.
+
+**Fix:** Pending.
+
+### GHSA-pj5x-38rw-6fph: Windows Scheduled Task Environment Assignment Injection
+
+**Severity:** MEDIUM (CWE-78: OS Command Injection)
+**Published:** 2026-02-21
+**Credits:** @tdjackey
+
+**Description:** Unescaped environment variable assignments in Windows Scheduled Task script generation allowed injection of additional shell commands via crafted environment variable names or values.
+
+**Impact:** Command injection during scheduled task setup on Windows deployments.
+
+**Fix:** Pending.
+
+### GHSA-pfv7-rr5m-qmv6: Browser Extension Relay /extension Auth Inconsistency
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+**Credits:** @tdjackey
+
+**Description:** The `/extension` endpoint of the local Browser Extension Relay had inconsistent authentication handling compared to other relay endpoints. Under certain conditions, requests to this endpoint could succeed without proper authentication.
+
+**Impact:** Unauthorized access to browser extension relay functionality from local processes.
+
+**Fix:** Pending.
+
+### GHSA-8cp7-rp8r-mg77: SSRF Guard Bypass via IPv6 ISATAP Transition
+
+**Severity:** MEDIUM (CWE-918: SSRF)
+**Published:** 2026-02-21
+**Credits:** @zpbrent
+
+**Description:** The SSRF guard did not handle IPv6 ISATAP (Intra-Site Automatic Tunnel Addressing Protocol) addresses, which embed IPv4 addresses in IPv6 format. Crafted ISATAP addresses could bypass SSRF protection and reach loopback or metadata endpoints.
+
+**Impact:** SSRF to internal/loopback/cloud-metadata endpoints via ISATAP IPv6 address encoding.
+
+**Fix:** Pending.
+
+### GHSA-c6hr-w26q-c636: ReDoS via Feishu Mention Metadata
+
+**Severity:** MEDIUM (CWE-1333: Uncontrolled Regex)
+**Published:** 2026-02-21
+**Credits:** —
+
+**Description:** Feishu mention metadata (user IDs, department names) was used in dynamically constructed RegExp patterns without proper escaping. Crafted mention values could inject malicious regex patterns causing catastrophic backtracking (ReDoS) or regex injection.
+
+**Impact:** Denial of service via regex catastrophic backtracking from crafted Feishu mention content; potential regex injection to alter matching behavior.
+
+**Fix:** Pending.
+
+### GHSA-2mc2-g238-722j: iMessage Remote Attachment SCP Hardening
+
+**Severity:** MEDIUM (CWE-78: OS Command Injection, CWE-295: Certificate Verification)
+**Published:** 2026-02-21
+**Credits:** @allsmog
+
+**Description:** iMessage remote attachment downloads via SCP did not enforce strict SSH host-key verification or validate the `remoteHost` parameter against allowed patterns, enabling potential MITM attacks or command injection via crafted host values.
+
+**Impact:** SSH MITM during remote attachment download; potential command injection via malformed host parameter.
+
+**Fix:** Pending.
+
+### GHSA-vj3g-5px3-gr46: Path Traversal in Feishu Media Temp-File Naming
+
+**Severity:** MEDIUM (CWE-22: Path Traversal)
+**Published:** 2026-02-21
+**Credits:** @allsmog
+
+**Description:** Feishu media attachment filenames were used to construct temp file paths without sanitization, allowing path traversal sequences in filenames to write files outside `os.tmpdir()`.
+
+**Impact:** Arbitrary file write in paths accessible to OpenClaw via crafted Feishu attachment filenames.
+
+**Fix:** Pending.
+
+### GHSA-7fcc-cw49-xm78: Command Injection via Windows Lobster Shell Fallback
+
+**Severity:** MEDIUM (CWE-78: OS Command Injection)
+**Published:** 2026-02-21
+**Credits:** @allsmog
+
+**Description:** The Lobster tool execution on Windows used a shell fallback path that did not sanitize command arguments, allowing command injection via crafted tool invocations.
+
+**Impact:** Command injection on Windows deployments using the Lobster shell tool.
+
+**Fix:** Pending.
+
+### GHSA-3x3x-h76w-hp98: safeBins Short-Option Bypass for File Write
+
+**Severity:** MEDIUM (CWE-184: Incomplete Allowlist)
+**Published:** 2026-02-21
+**Credits:** @FailButWin, @Redgrave961
+
+**Description:** The `safeBins` allowlist checked for specific long-option flags but missed short-option equivalents. For example, allowing `sort` with specific long options could still permit file write via the short `-o` flag, bypassing the intended restriction.
+
+**Impact:** Arbitrary file write via allowed `safeBins` binaries using short options that were not checked by the allowlist guard.
+
+**Fix:** Pending.
+
+### GHSA-g75x-8qqm-2vxp: safeBins PATH-Hijack for Allowlist Bypass
+
+**Severity:** MEDIUM (CWE-426: Untrusted Search Path, CWE-863: Incorrect Authorization)
+**Published:** 2026-02-21
+**Credits:** @jackhax
+
+**Description:** The `tools.exec.safeBins` feature resolved binary paths via PATH lookup. An attacker who could inject a directory at the front of PATH (e.g., via environment variable manipulation) could place a trojan binary that would pass the allowlist name check but execute attacker-controlled code.
+
+**Impact:** Allowlist bypass via PATH hijacking — trojan binaries masquerading as trusted `safeBins` entries.
+
+**Fix:** Pending.
+
+### GHSA-gq83-8q7q-9hfx: Sandbox Registry Write Race and Delete-Rollback Corruption
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+**Credits:** @kexinoh
+
+**Description:** Concurrent sandbox registry writes were not serialized, creating race conditions that could lead to state corruption. Additionally, partial delete operations could leave the registry in an inconsistent state that was not properly rolled back.
+
+**Impact:** Sandbox state corruption under concurrent operations; potential security-bypass if registry corruption causes stale or incorrect sandbox configurations to be used.
+
+**Fix:** Pending.
+
+### GHSA-x9cf-3w63-rpq9: Sensitive File Disclosure via stageSandboxMedia
+
+**Severity:** MEDIUM (CWE-22: Path Traversal)
+**Published:** 2026-02-21
+**Credits:** @zpbrent
+
+**Description:** The `stageSandboxMedia` function did not sufficiently validate file paths before staging them for sandbox access, enabling path traversal to expose sensitive local files through the sandbox media pipeline.
+
+**Impact:** Local file disclosure via crafted paths in sandbox media staging operations.
+
+**Fix:** Pending.
+
+### GHSA-r5fq-947m-xm57: Path Traversal in apply_patch Outside Workspace
+
+**Severity:** HIGH (CWE-22: Path Traversal)
+**Published:** 2026-02-19
+**Credits:** @p80n-sec
+
+**Description:** The `apply_patch` tool did not validate that patch target paths stayed within the workspace directory. A crafted patch with traversal sequences in file paths could write or delete files outside the designated workspace.
+
+**Impact:** Arbitrary file write/delete outside the workspace boundary via crafted patches; potential for writing to sensitive system paths.
+
+**Fix:** Pending.
+
+### GHSA-p536-vvpp-9mc8: Web Fetch DoS via Unbounded Response Parsing
+
+**Severity:** MEDIUM (CWE-400: Uncontrolled Resource Consumption)
+**Published:** 2026-02-18
+**Credits:** @xuemian168, @ShangzhiXu
+
+**Description:** The web fetch tool parsed response bodies without enforcing size limits during the parsing phase. Responses containing deeply nested structures or extremely large text could exhaust memory during parsing before any size limit check applied.
+
+**Impact:** Denial of service via memory exhaustion from crafted web fetch responses.
+
+**Fix:** Pending.
+
+### GHSA-jrvc-8ff5-2f9f: SSRF Guard Bypass via Full-Form IPv4-Mapped IPv6
+
+**Severity:** HIGH (CWE-918: SSRF)
+**Published:** 2026-02-15
+**Credits:** @yueyueL
+
+**Description:** The SSRF guard handled the compact IPv4-mapped IPv6 form (`::ffff:127.0.0.1`) but did not handle the full-form representation (`0:0:0:0:0:ffff:127.0.0.1`). Crafted URLs using the full-form notation could bypass SSRF protection to reach loopback or cloud metadata endpoints.
+
+**Impact:** SSRF to loopback/metadata services via full-form IPv4-mapped IPv6 notation.
+
+**Fix:** Pending.
+
+### GHSA-jqpq-mgvm-f9r6: Command Hijacking via Unsafe PATH Handling
+
+**Severity:** HIGH (CWE-78, CWE-427, CWE-807)
+**Published:** 2026-02-15
+**Credits:** @akhmittra
+
+**Description:** OpenClaw's bootstrapping and node-host startup did not sanitize the `PATH` environment variable before resolving binaries. An attacker who could influence the process environment (e.g., via `NODE_PATH` or pre-existing env injection) could insert malicious directories into PATH to hijack binary resolution.
+
+**Impact:** Command hijacking — attacker-controlled binaries executed instead of trusted system binaries during OpenClaw startup.
+
+**Fix:** Addressed by hardening in Feb 21 sync 7/8 (centralized env sanitization in `host-env-security.ts`).
+
+### CVE-2026-26325 / GHSA-h3f9-mjwj-w476: Node Host system.run rawCommand/command Mismatch
+
+**Severity:** HIGH
+**Published:** 2026-02-15
+**Credits:** @christos-eth
+
+**Description:** The node-host's `system.run` method accepted both a `rawCommand` (passed directly to shell) and a `command` (passed as argument array) field. The exec allowlist and approval gating checked only one of these fields, creating a mismatch that allowed certain constructions to bypass allowlist evaluation entirely.
+
+**Impact:** Exec allowlist/approval bypass — commands could be structured to pass the `command` field check while the actual execution used `rawCommand` without equivalent validation.
+
+**Fix:** Pending.
+
+### CVE-2026-26323 / GHSA-m7x8-2w3w-pr42: Command Injection in clawtributors Updater
+
+**Severity:** MEDIUM (CWE-78: OS Command Injection)
+**Published:** 2026-02-15
+**Credits:** @scanleale, @MegaManSec
+
+**Description:** The `clawtributors` maintainer update script used unsanitized user data (contributor names from GitHub API responses) when constructing shell commands, allowing injection of shell metacharacters.
+
+**Impact:** Command injection in the contributors update workflow. Requires running the maintainer script against attacker-controlled GitHub API responses.
+
+**Fix:** Pending.
+
+### GHSA-v773-r54f-q32w: Slack dmPolicy=open Allows Privileged Slash Commands
+
+**Severity:** MEDIUM
+**Published:** 2026-02-15
+**Credits:** @christos-eth
+
+**Description:** When `channels.slack.dmPolicy` was set to `open`, any Slack DM sender could execute privileged slash commands (e.g., `/approve`, agent control commands) that should require pairing or explicit authorization. The `dmPolicy=open` flag was intended only to allow general messages, not privileged commands.
+
+**Impact:** Unauthorized execution of privileged slash commands from any Slack user in `dmPolicy=open` configurations.
+
+**Fix:** Pending.
+
+### GHSA-xvhf-x56f-2hpp: safeBins stdin-Only Constraint Bypass via Shell Expansion
+
+**Severity:** MEDIUM
+**Published:** 2026-02-15
+**Credits:** @christos-eth
+
+**Description:** Some `safeBins` entries were configured for stdin-only operation (no file arguments) to prevent file read/write. Shell expansion features (e.g., process substitution `<(...)`, here-strings `<<<`) could be used to pass file-like content to these commands without violating the surface-level argument check, bypassing the stdin-only constraint.
+
+**Impact:** Bypass of stdin-only safeBins restriction via shell expansion constructs.
+
+**Fix:** Pending (partially addressed by exec approvals hardening in Feb 21 sync 8).
+
+### GHSA-fg3m-vhrr-8gj6: Windows Lobster Shell Fallback Injection
+
+**Severity:** LOW (CWE-78: OS Command Injection)
+**Published:** 2026-02-21
+**Credits:** @tdjackey
+
+**Description:** A constrained Windows shell fallback path in the Lobster tool used for constrained execution was vulnerable to command injection via crafted inputs.
+
+**Impact:** Low-severity command injection in a constrained execution fallback path on Windows.
+
+**Fix:** Pending.
+
+### GHSA-ff98-w8hj-qrxf: Plugin Runtime Command Execution (Trusted Boundary)
+
+**Severity:** LOW (CWE-78)
+**Published:** 2026-02-21
+**Credits:** @markmusson
+
+**Description:** Plugin runtime command execution operates outside normal exec approval/allowlist gating. This is by design (plugins are trusted), but represents a boundary that should be documented and monitored. Advisory published to clarify the trust model.
+
+**Impact:** Low — within trusted plugin boundary. Advisory is informational/defense-in-depth.
+
+**Fix:** Pending (documentation and trust model clarification).
+
+### GHSA-2hm8-rqrm-xfjq: Gateway Tool Access Checks Incomplete in DM Flows
+
+**Severity:** LOW (CWE-269, CWE-863)
+**Published:** 2026-02-21
+**Credits:** @Adam55A-code
+
+**Description:** Owner-only gateway tool access checks were not consistently enforced in specific authenticated DM flows, allowing users with lower privilege to access owner-restricted tools in narrow scenarios.
+
+**Impact:** Limited privilege escalation to owner-only tools in specific authenticated DM configurations.
+
+**Fix:** Pending.
 
 ### Relationship to Third-Party Audits
 

@@ -265,7 +265,7 @@
 | [#13737](https://github.com/openclaw/openclaw/pull/13737) | (Docker privilege hardening) | LOW | OPEN | UID/GID remap in Dockerfile; Greptile flags GID collision not detected (silently reuses existing group) |
 | [#13290](https://github.com/openclaw/openclaw/pull/13290) | (openclaw/trust#1) | LOW | OPEN | Security warnings in TOOLS.md templates and system-prompt docs that workspace files enter model context |
 | [#15390](https://github.com/openclaw/openclaw/pull/15390) | (OC-02 RCE via HTTP gateway) | CRITICAL | MERGED | `DEFAULT_GATEWAY_HTTP_TOOL_DENY` at `tools-invoke-http.ts:43-52` blocks sessions_spawn + 3 others; merged 2026-02-13; ALREADY SYNCED |
-| [#15384](https://github.com/openclaw/openclaw/pull/15384) | (OC-01 shell injection) | CRITICAL | CLOSED | Closed 2026-02-13; #8186 still OPEN with same fix; local `docker.ts:377-378` still vulnerable |
+| [#15384](https://github.com/openclaw/openclaw/pull/15384) | (OC-01 shell injection) | CRITICAL | CLOSED | Closed 2026-02-13; #8186 still OPEN with same fix; local `docker.ts:387-388` still vulnerable |
 | [#15314](https://github.com/openclaw/openclaw/pull/15314) | [#15313](https://github.com/openclaw/openclaw/issues/15313) (HIGH) | HIGH | CLOSED | Closed 2026-02-13; #3926 still OPEN with same fix; local `DEFAULT_BROWSER_EVALUATE_ENABLED` still true |
 | [#13073](https://github.com/openclaw/openclaw/pull/13073) | [#10090](https://github.com/openclaw/openclaw/issues/10090) (HIGH) | HIGH | MERGED | Credential redaction completion; `zod-schema.sensitive.ts` and schema hint updates; merged 2026-02-13; SYNC NEEDED |
 | [#4026](https://github.com/openclaw/openclaw/pull/4026) | (symlink race) | HIGH | MERGED | `SandboxFsBridge` routes file ops through `docker exec`; merged 2026-02-13; SYNC NEEDED |
@@ -490,7 +490,7 @@
 **Note:** This PR was closed without merge. The same vulnerability is still addressed by [#8186](https://github.com/openclaw/openclaw/pull/8186) which remains OPEN.
 
 **Local Validation:**
-- `src/agents/sandbox/docker.ts:377-378` — `cfg.setupCommand` passed directly to `["exec", "-i", name, "sh", "-lc", cfg.setupCommand]` with only `?.trim()` check
+- `src/agents/sandbox/docker.ts:387-388` — `cfg.setupCommand` passed directly to `["exec", "-i", name, "sh", "-lc", cfg.setupCommand]` with only `?.trim()` check
 - No `validateSetupCommand` function exists locally
 
 **Local Impact:** NOT AFFECTED (PR closed) — vulnerability remains; monitor #8186 for fix.
@@ -902,8 +902,8 @@
 **Greptile Review:** 25 files reviewed, 2 comments. 1 inline comment on `src/gateway/net.ts:183` about bitwise left shift on negative values needing unsigned right shift for mask calculation.
 
 **Local Validation:**
-- `src/config/types.gateway.ts:79` — `GatewayAuthMode` includes `"trusted-proxy"`
-- `src/config/types.gateway.ts:86` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
+- `src/config/types.gateway.ts:83` — `GatewayAuthMode` includes `"trusted-proxy"`
+- `src/config/types.gateway.ts:90` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
 - `src/gateway/auth.ts:244` — `authorizeTrustedProxy()` function present
 - `src/gateway/auth.ts:300-315` — trusted-proxy auth path in `authorizeGatewayConnect()`
 - `src/security/audit.ts:377-436` — audit integration with critical findings for trusted-proxy
