@@ -15,6 +15,33 @@
 | `openclaw security audit --fix` | Runs `fixSecurityFootguns()` first, then full audit. Report reflects post-fix state. Also accepts `--deep`. |
 | `openclaw security audit --json` | Any mode above with JSON output instead of formatted text. |
 
+### Quick-reference: Most common critical checks
+
+This table summarizes the 18 checks most likely to affect real-world deployments. The full audit includes 70+ check IDs across 14 categories — see the [Check categories](#check-categories-70-check-ids) table below for the complete list.
+
+| Check ID | Severity | Why it matters | Primary fix | Auto-fix? |
+|----------|----------|----------------|-------------|-----------|
+| `fs.state_dir.*` | critical | World-readable config/credentials leak secrets | `chmod 700 ~/.openclaw` | Yes (`--fix`) |
+| `fs.credentials_dir.*` | critical | OAuth tokens, bot tokens exposed | `chmod 700 ~/.openclaw/credentials/` | Yes (`--fix`) |
+| `gateway.bind_no_auth` | critical | Non-loopback bind without authentication | Set `gateway.auth.mode: token` or `password` | No |
+| `gateway.loopback_no_auth` | warn | Loopback bind but auth disabled (local risk) | Set `gateway.auth.mode: token` | No |
+| `gateway.tailscale_funnel` | critical | Public internet exposure via Tailscale Funnel | Disable Funnel, use Serve instead | No |
+| `gateway.control_ui.no_auth` | critical | Control UI accessible without auth | Set `gateway.controlUi.auth: true` | No |
+| `gateway.control_ui.device_auth_disabled` | warn | Device verification bypassed | Remove `dangerouslyDisableDeviceAuth` | No |
+| `hooks.token_reuse_gateway_token` | critical | Hook token same as gateway token (privilege escalation) | Generate separate hook token | No |
+| `hooks.path_root` | critical | Hook handler can access any path | Set `hooks.path` to specific directory | No |
+| `hooks.request_session_key_enabled` | critical | Session key in URL (visible in logs/proxies) | Disable `hooks.requestSessionKey` | No |
+| `browser.control_no_auth` | critical | Browser control server has no auth | Set `browser.control.auth: token` | No |
+| `browser.remote_cdp_http` | critical | Remote browser debug over plain HTTP | Use HTTPS or disable remote CDP | No |
+| `sandbox.dangerous_bind_mount` | critical | Container can access host filesystem | Remove dangerous bind mounts | No |
+| `sandbox.dangerous_network_mode` | critical | Container has full network access | Use bridge/none network mode | No |
+| `tools.elevated.allowFrom.*.wildcard` | critical | Anyone can trigger elevated tools | Replace `*` with specific allowlist | No |
+| `security.exposure.open_groups_with_elevated` | critical | Public groups + dangerous tools = exploitation | Close groups or disable elevated tools | No |
+| `channels.*.dm.policy_open` | warn | Anyone can DM the bot | Set `dm.policy: pairing` or `allowlist` | Partial |
+| `logging.redact_off` | warn | Secrets visible in tool summaries | Set `logging.redactSensitive: tools` | Yes (`--fix`) |
+
+> **Tip:** Run `openclaw security audit --fix` first to auto-resolve safe issues (file permissions, group policy, redaction). Then address remaining critical items manually.
+
 ### Check categories (70+ check IDs)
 
 | # | Category | Check ID prefix | Severities | What it checks |
