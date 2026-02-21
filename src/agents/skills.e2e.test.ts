@@ -338,15 +338,17 @@ describe("applySkillEnvOverrides", () => {
       expect(process.env.NODE_OPTIONS).toBeUndefined();
     } finally {
       restore();
+      expect(process.env.OPENAI_API_KEY).toBeUndefined();
+      expect(process.env.NODE_OPTIONS).toBeUndefined();
       if (originalApiKey === undefined) {
-        expect(process.env.OPENAI_API_KEY).toBeUndefined();
+        delete process.env.OPENAI_API_KEY;
       } else {
-        expect(process.env.OPENAI_API_KEY).toBe(originalApiKey);
+        process.env.OPENAI_API_KEY = originalApiKey;
       }
       if (originalNodeOptions === undefined) {
-        expect(process.env.NODE_OPTIONS).toBeUndefined();
+        delete process.env.NODE_OPTIONS;
       } else {
-        expect(process.env.NODE_OPTIONS).toBe(originalNodeOptions);
+        process.env.NODE_OPTIONS = originalNodeOptions;
       }
     }
   });
@@ -358,7 +360,7 @@ describe("applySkillEnvOverrides", () => {
       dir: skillDir,
       name: "dangerous-env-skill",
       description: "Needs env",
-      metadata: '{"openclaw":{"requires":{"env":["BASH_ENV"]}}}',
+      metadata: '{"openclaw":{"requires":{"env":["BASH_ENV","SHELL"]}}}',
     });
 
     const entries = loadWorkspaceSkillEntries(workspaceDir, {
@@ -366,7 +368,9 @@ describe("applySkillEnvOverrides", () => {
     });
 
     const originalBashEnv = process.env.BASH_ENV;
+    const originalShell = process.env.SHELL;
     delete process.env.BASH_ENV;
+    delete process.env.SHELL;
 
     const restore = applySkillEnvOverrides({
       skills: entries,
@@ -376,6 +380,7 @@ describe("applySkillEnvOverrides", () => {
             "dangerous-env-skill": {
               env: {
                 BASH_ENV: "/tmp/pwn.sh",
+                SHELL: "/tmp/evil-shell",
               },
             },
           },
@@ -385,12 +390,18 @@ describe("applySkillEnvOverrides", () => {
 
     try {
       expect(process.env.BASH_ENV).toBeUndefined();
+      expect(process.env.SHELL).toBeUndefined();
     } finally {
       restore();
       if (originalBashEnv === undefined) {
         expect(process.env.BASH_ENV).toBeUndefined();
       } else {
         expect(process.env.BASH_ENV).toBe(originalBashEnv);
+      }
+      if (originalShell === undefined) {
+        expect(process.env.SHELL).toBeUndefined();
+      } else {
+        expect(process.env.SHELL).toBe(originalShell);
       }
     }
   });
@@ -405,11 +416,13 @@ describe("applySkillEnvOverrides", () => {
       metadata: '{"openclaw":{"requires":{"env":["OPENAI_API_KEY"]}}}',
     });
 
+    const originalApiKey = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = "seed-present";
+
     const snapshot = buildWorkspaceSkillSnapshot(workspaceDir, {
       managedSkillsDir: path.join(workspaceDir, ".managed"),
     });
 
-    const originalApiKey = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
 
     const restore = applySkillEnvOverridesFromSnapshot({
@@ -431,10 +444,11 @@ describe("applySkillEnvOverrides", () => {
       expect(process.env.OPENAI_API_KEY).toBe("snap-secret");
     } finally {
       restore();
+      expect(process.env.OPENAI_API_KEY).toBeUndefined();
       if (originalApiKey === undefined) {
-        expect(process.env.OPENAI_API_KEY).toBeUndefined();
+        delete process.env.OPENAI_API_KEY;
       } else {
-        expect(process.env.OPENAI_API_KEY).toBe(originalApiKey);
+        process.env.OPENAI_API_KEY = originalApiKey;
       }
     }
   });
