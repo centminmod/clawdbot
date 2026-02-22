@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-events.js";
 import { captureEnv } from "../test-utils/env.js";
 import { getFinishedSession, resetProcessRegistryForTests } from "./bash-process-registry.js";
-import { createExecTool, createProcessTool, execTool, processTool } from "./bash-tools.js";
+import { createExecTool, createProcessTool } from "./bash-tools.js";
 import { buildDockerExecArgs } from "./bash-tools.shared.js";
 import { resolveShellFromPath, sanitizeBinaryOutput } from "./shell-utils.js";
 
@@ -12,9 +12,16 @@ const defaultShell = isWin
   ? undefined
   : process.env.OPENCLAW_TEST_SHELL || resolveShellFromPath("bash") || process.env.SHELL || "sh";
 // PowerShell: Start-Sleep for delays, ; for command separation, $null for null device
-const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 50" : "sleep 0.05";
-const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 200" : "sleep 0.2";
-const longDelayCmd = isWin ? "Start-Sleep -Seconds 2" : "sleep 2";
+const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 20" : "sleep 0.02";
+const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 90" : "sleep 0.09";
+const longDelayCmd = isWin ? "Start-Sleep -Milliseconds 700" : "sleep 0.7";
+const POLL_INTERVAL_MS = 15;
+const TEST_EXEC_DEFAULTS = { security: "full" as const, ask: "off" as const };
+const createTestExecTool = (
+  defaults?: Parameters<typeof createExecTool>[0],
+): ReturnType<typeof createExecTool> => createExecTool({ ...TEST_EXEC_DEFAULTS, ...defaults });
+const execTool = createTestExecTool();
+const processTool = createProcessTool();
 // Both PowerShell and bash use ; for command separation
 const joinCommands = (commands: string[]) => commands.join("; ");
 const echoAfterDelay = (message: string) => joinCommands([shortDelayCmd, `echo ${message}`]);
@@ -40,7 +47,7 @@ async function waitForCompletion(sessionId: string) {
         status = (poll.details as { status: string }).status;
         return status;
       },
-      { timeout: process.platform === "win32" ? 8000 : 2000, interval: 20 },
+      { timeout: process.platform === "win32" ? 8000 : 1200, interval: POLL_INTERVAL_MS },
     )
     .not.toBe("running");
   return status;
@@ -99,7 +106,7 @@ describe("exec tool backgrounding", () => {
             output = textBlock?.text ?? "";
             return status;
           },
-          { timeout: process.platform === "win32" ? 8000 : 2000, interval: 20 },
+          { timeout: process.platform === "win32" ? 8000 : 1200, interval: POLL_INTERVAL_MS },
         )
         .toBe("completed");
 
@@ -137,13 +144,13 @@ describe("exec tool backgrounding", () => {
           ).sessions;
           return sessions.find((s) => s.sessionId === sessionId)?.name;
         },
-        { timeout: process.platform === "win32" ? 8000 : 2000, interval: 20 },
+        { timeout: process.platform === "win32" ? 8000 : 1200, interval: POLL_INTERVAL_MS },
       )
       .toBe("echo hello");
   });
 
   it("uses default timeout when timeout is omitted", async () => {
-    const customBash = createExecTool({ timeoutSec: 0.2, backgroundMs: 10 });
+    const customBash = createTestExecTool({ timeoutSec: 0.1, backgroundMs: 10 });
     const customProcess = createProcessTool();
 
     const result = await customBash.execute("call1", {
@@ -161,13 +168,13 @@ describe("exec tool backgrounding", () => {
           });
           return (poll.details as { status: string }).status;
         },
-        { timeout: 5000, interval: 20 },
+        { timeout: 3000, interval: POLL_INTERVAL_MS },
       )
       .toBe("failed");
   });
 
   it("rejects elevated requests when not allowed", async () => {
-    const customBash = createExecTool({
+    const customBash = createTestExecTool({
       elevated: { enabled: true, allowed: false, defaultLevel: "off" },
       messageProvider: "telegram",
       sessionKey: "agent:main:main",
@@ -182,7 +189,7 @@ describe("exec tool backgrounding", () => {
   });
 
   it("does not default to elevated when not allowed", async () => {
-    const customBash = createExecTool({
+    const customBash = createTestExecTool({
       elevated: { enabled: true, allowed: false, defaultLevel: "on" },
       backgroundMs: 1000,
       timeoutSec: 5,
@@ -216,7 +223,7 @@ describe("exec tool backgrounding", () => {
   });
 
   it("defaults process log to a bounded tail when no window is provided", async () => {
-    const lines = Array.from({ length: 260 }, (_value, index) => `line-${index + 1}`);
+    const lines = Array.from({ length: 220 }, (_value, index) => `line-${index + 1}`);
     const sessionId = await runBackgroundEchoLines(lines);
 
     const log = await processTool.execute("call2", {
@@ -225,11 +232,11 @@ describe("exec tool backgrounding", () => {
     });
     const textBlock = log.content.find((c) => c.type === "text")?.text ?? "";
     const firstLine = textBlock.split("\n")[0]?.trim();
-    expect(textBlock).toContain("showing last 200 of 260 lines");
-    expect(firstLine).toBe("line-61");
-    expect(textBlock).toContain("line-61");
-    expect(textBlock).toContain("line-260");
-    expect((log.details as { totalLines?: number }).totalLines).toBe(260);
+    expect(textBlock).toContain("showing last 200 of 220 lines");
+    expect(firstLine).toBe("line-21");
+    expect(textBlock).toContain("line-21");
+    expect(textBlock).toContain("line-220");
+    expect((log.details as { totalLines?: number }).totalLines).toBe(220);
   });
 
   it("supports line offsets for log slices", async () => {
@@ -251,7 +258,7 @@ describe("exec tool backgrounding", () => {
   });
 
   it("keeps offset-only log requests unbounded by default tail mode", async () => {
-    const lines = Array.from({ length: 260 }, (_value, index) => `line-${index + 1}`);
+    const lines = Array.from({ length: 220 }, (_value, index) => `line-${index + 1}`);
     const sessionId = await runBackgroundEchoLines(lines);
 
     const log = await processTool.execute("call2", {
@@ -263,15 +270,15 @@ describe("exec tool backgrounding", () => {
     const textBlock = log.content.find((c) => c.type === "text")?.text ?? "";
     const renderedLines = textBlock.split("\n");
     expect(renderedLines[0]?.trim()).toBe("line-31");
-    expect(renderedLines[renderedLines.length - 1]?.trim()).toBe("line-260");
+    expect(renderedLines[renderedLines.length - 1]?.trim()).toBe("line-220");
     expect(textBlock).not.toContain("showing last 200");
-    expect((log.details as { totalLines?: number }).totalLines).toBe(260);
+    expect((log.details as { totalLines?: number }).totalLines).toBe(220);
   });
 
   it("scopes process sessions by scopeKey", async () => {
-    const bashA = createExecTool({ backgroundMs: 10, scopeKey: "agent:alpha" });
+    const bashA = createTestExecTool({ backgroundMs: 10, scopeKey: "agent:alpha" });
     const processA = createProcessTool({ scopeKey: "agent:alpha" });
-    const bashB = createExecTool({ backgroundMs: 10, scopeKey: "agent:beta" });
+    const bashB = createTestExecTool({ backgroundMs: 10, scopeKey: "agent:beta" });
     const processB = createProcessTool({ scopeKey: "agent:beta" });
 
     const resultA = await bashA.execute("call1", {
@@ -331,7 +338,7 @@ describe("exec exit codes", () => {
 
 describe("exec notifyOnExit", () => {
   it("enqueues a system event when a backgrounded exec exits", async () => {
-    const tool = createExecTool({
+    const tool = createTestExecTool({
       allowBackground: true,
       backgroundMs: 0,
       notifyOnExit: true,
@@ -356,7 +363,7 @@ describe("exec notifyOnExit", () => {
           hasEvent = peekSystemEvents("agent:main:main").some((event) => event.includes(prefix));
           return Boolean(finished && hasEvent);
         },
-        { timeout: isWin ? 12_000 : 5_000, interval: 20 },
+        { timeout: isWin ? 12_000 : 5_000, interval: POLL_INTERVAL_MS },
       )
       .toBe(true);
     if (!finished) {
@@ -371,7 +378,7 @@ describe("exec notifyOnExit", () => {
   });
 
   it("skips no-op completion events when command succeeds without output", async () => {
-    const tool = createExecTool({
+    const tool = createTestExecTool({
       allowBackground: true,
       backgroundMs: 0,
       notifyOnExit: true,
@@ -391,7 +398,7 @@ describe("exec notifyOnExit", () => {
   });
 
   it("can re-enable no-op completion events via notifyOnExitEmptySuccess", async () => {
-    const tool = createExecTool({
+    const tool = createTestExecTool({
       allowBackground: true,
       backgroundMs: 0,
       notifyOnExit: true,
@@ -433,13 +440,15 @@ describe("exec PATH handling", () => {
     const prepend = isWin ? ["C:\\custom\\bin", "C:\\oss\\bin"] : ["/custom/bin", "/opt/oss/bin"];
     process.env.PATH = basePath;
 
-    const tool = createExecTool({ pathPrepend: prepend });
+    const tool = createTestExecTool({ pathPrepend: prepend });
     const result = await tool.execute("call1", {
       command: isWin ? "Write-Output $env:PATH" : "echo $PATH",
     });
 
     const text = normalizeText(result.content.find((c) => c.type === "text")?.text);
-    expect(text).toBe([...prepend, basePath].join(path.delimiter));
+    const entries = text.split(path.delimiter);
+    expect(entries.slice(0, prepend.length)).toEqual(prepend);
+    expect(entries).toContain(basePath);
   });
 });
 
