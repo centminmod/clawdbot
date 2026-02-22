@@ -358,7 +358,7 @@ OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config
 
 **Even worse:** `"host"` shares the host's network namespace directly — no isolation at all.
 
-Source: `src/agents/sandbox/docker.ts:286-287` — `args.push("--network", params.cfg.network)`
+Source: `src/agents/sandbox/docker.ts:289-291` — `args.push("--network", params.cfg.network)`
 
 #### 4b. Linux Capabilities Restoration
 
@@ -408,7 +408,7 @@ Source: `src/agents/sandbox/docker.ts:305-307` — iterates `capDrop` array to b
 - Write persistent files that survive container restarts (if volumes are mounted)
 - Create SUID binaries (though `no-new-privileges` limits exploitation)
 
-Source: `src/agents/sandbox/docker.ts:280` — `if (params.cfg.readOnlyRoot) args.push("--read-only")`
+Source: `src/agents/sandbox/docker.ts:283` — `if (params.cfg.readOnlyRoot) args.push("--read-only")`
 
 #### 4d. Workspace Access Escalation
 
