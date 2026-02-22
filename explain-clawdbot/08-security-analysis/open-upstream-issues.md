@@ -690,7 +690,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `extensions/bluebubbles/src/attachments.ts:27-29` — `sanitizeFilename()` uses only `path.basename()` at :28
 - `extensions/bluebubbles/src/attachments.ts:182-189` — `addFile()` interpolates filename unescaped into `Content-Disposition: form-data; name="${name}"; filename="${fileName}"` at :227
-- `extensions/bluebubbles/src/chat.ts:340-342` — constructs Content-Disposition header with `filename="${filename}"` at :342 with **no sanitization at all**
+- `extensions/bluebubbles/src/chat.ts:302+307` — constructs Content-Disposition header with `filename="${safeFilename}"` (sanitized via `path.basename()` + regex replacement)
 
 ### #10927: Random IDs for External Content Wrapper Tags (Enhancement)
 
