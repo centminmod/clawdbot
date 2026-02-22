@@ -1,8 +1,6 @@
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
+import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { createMockSessionEntry, createTranscriptFixtureSync } from "./chat.test-helpers.js";
 import type { GatewayRequestContext } from "./types.js";
 
 const mockState = vi.hoisted(() => ({
@@ -15,15 +13,11 @@ vi.mock("../session-utils.js", async (importOriginal) => {
   const original = await importOriginal<typeof import("../session-utils.js")>();
   return {
     ...original,
-    loadSessionEntry: () => ({
-      cfg: {},
-      storePath: path.join(path.dirname(mockState.transcriptPath), "sessions.json"),
-      entry: {
+    loadSessionEntry: () =>
+      createMockSessionEntry({
+        transcriptPath: mockState.transcriptPath,
         sessionId: mockState.sessionId,
-        sessionFile: mockState.transcriptPath,
-      },
-      canonicalKey: "main",
-    }),
+      }),
   };
 });
 
@@ -47,19 +41,10 @@ vi.mock("../../auto-reply/dispatch.js", () => ({
 const { chatHandlers } = await import("./chat.js");
 
 function createTranscriptFixture(prefix: string) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  const transcriptPath = path.join(dir, "sess.jsonl");
-  fs.writeFileSync(
-    transcriptPath,
-    `${JSON.stringify({
-      type: "session",
-      version: CURRENT_SESSION_VERSION,
-      id: mockState.sessionId,
-      timestamp: new Date(0).toISOString(),
-      cwd: "/tmp",
-    })}\n`,
-    "utf-8",
-  );
+  const { transcriptPath } = createTranscriptFixtureSync({
+    prefix,
+    sessionId: mockState.sessionId,
+  });
   mockState.transcriptPath = transcriptPath;
 }
 
@@ -108,10 +93,7 @@ function createChatContext(): Pick<
     removeChatRun: vi.fn(),
     dedupe: new Map(),
     registerToolEventRecipient: vi.fn(),
-    logGateway: {
-      warn: vi.fn(),
-      debug: vi.fn(),
-    } as GatewayRequestContext["logGateway"],
+    logGateway: createSubsystemLogger("gateway/server-methods/chat.directive-tags.test"),
   };
 }
 

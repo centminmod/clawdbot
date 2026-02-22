@@ -18,6 +18,8 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+- Channels/Security: fail closed on missing provider group policy config by defaulting runtime group policy to `allowlist` (instead of inheriting `channels.defaults.groupPolicy`) when `channels.<provider>` is absent across message channels, and align runtime + security warnings/docs to the same fallback behavior (Slack, Discord, iMessage, Telegram, WhatsApp, Signal, LINE, Matrix, Mattermost, Google Chat, IRC, Nextcloud Talk, Feishu, and Zalo user flows; plus Discord message/native-command paths). (#23367) Thanks @bmendonca3.
+- CLI/Sessions: pass the configured sessions directory when resolving transcript paths in `agentCommand`, so custom `session.store` locations resume sessions reliably. Thanks @davidrudduck.
 - Gateway/Chat UI: strip inline reply/audio directive tags from non-streaming final webchat broadcasts (including `chat.inject`) while preserving empty-string message content when tags are the entire reply. (#23298) Thanks @SidQin-cyber.
 - Gateway/Restart: fix restart-loop edge cases by keeping `openclaw.mjs -> dist/entry.js` bootstrap detection explicit, reacquiring the gateway lock for in-process restart fallback paths, and tightening restart-loop regression coverage. (#23416) Thanks @jeffwnli.
 - Signal/Monitor: treat user-initiated abort shutdowns as clean exits when auto-started `signal-cli` is terminated, while still surfacing unexpected daemon exits as startup/runtime failures. (#23379) Thanks @frankekn.
@@ -58,10 +60,13 @@ Docs: https://docs.openclaw.ai
 - Gateway/Pairing: treat operator.admin pairing tokens as satisfying operator.write requests so legacy devices stop looping through scope-upgrade prompts introduced in 2026.2.19. (#23125, #23006) Thanks @vignesh07.
 - Gateway/Pairing: treat `operator.admin` as satisfying other `operator.*` scope checks during device-auth verification so local CLI/TUI sessions stop entering pairing-required loops for pairing/approval-scoped commands. (#22062, #22193, #21191) Thanks @Botaccess, @jhartshorn, and @ctbritt.
 - Gateway/Pairing: preserve existing approved token scopes when processing repair pairings that omit `scopes`, preventing empty-scope token regressions on reconnecting clients. (#21906) Thanks @paki81.
+- Gateway/Scopes: include `operator.read` and `operator.write` in default operator connect scope bundles across CLI, Control UI, and macOS clients so write-scoped announce/sub-agent follow-up calls no longer hit `pairing required` disconnects on loopback gateways. (#22582) thanks @YuzuruS.
 - Plugins/CLI: make `openclaw plugins enable` and plugin install/link flows update allowlists via shared plugin-enable policy so enabled plugins are not left disabled by allowlist mismatch. (#23190) Thanks @downwind7clawd-ctrl.
 - Memory/QMD: add optional `memory.qmd.mcporter` search routing so QMD `query/search/vsearch` can run through mcporter keep-alive flows (including multi-collection paths) to reduce cold starts, while keeping searches on agent-scoped QMD state for consistent recall. (#19617) Thanks @nicole-luxe and @vignesh07.
 - Chat/UI: strip inline reply/audio directive tags (`[[reply_to_current]]`, `[[reply_to:<id>]]`, `[[audio_as_voice]]`) from displayed chat history, live chat event output, and session preview snippets so control tags no longer leak into user-visible surfaces.
+- Telegram/Retry: classify undici `TypeError: fetch failed` as recoverable in both polling and send retry paths so transient fetch failures no longer fail fast. (#16699) thanks @Glucksberg.
 - BlueBubbles/DM history: restore DM backfill context with account-scoped rolling history, bounded backfill retries, and safer history payload limits. (#20302) Thanks @Ryan-Haines.
+- BlueBubbles/Private API cache: treat unknown (`null`) private-API cache status as disabled for send/attachment/reply flows to avoid stale-cache 500s, and log a warning when reply/effect features are requested while capability is unknown. (#23459) Thanks @echoVic.
 - BlueBubbles/Webhooks: accept inbound/reaction webhook payloads when BlueBubbles omits `handle` but provides DM `chatGuid`, and harden payload extraction for array/string-wrapped message bodies so valid webhook events no longer get rejected as unparseable. (#23275) Thanks @toph31.
 - Security/Audit: add `openclaw security audit` finding `gateway.nodes.allow_commands_dangerous` for risky `gateway.nodes.allowCommands` overrides, with severity upgraded to critical on remote gateway exposure.
 - Gateway/Control plane: reduce cross-client write limiter contention by adding `connId` fallback keying when device ID and client IP are both unavailable.
@@ -92,6 +97,7 @@ Docs: https://docs.openclaw.ai
 - Cron: persist `delivered` state in cron job records so delivery failures remain visible in status and logs. (#19174) Thanks @simonemacario.
 - Config/Doctor: only repair the OAuth credentials directory when affected channels are configured, avoiding fresh-install noise.
 - Config/Channels: whitelist `channels.modelByChannel` in config validation and exclude it from plugin auto-enable channel detection so model overrides no longer trigger `unknown channel id` validation errors or bogus `modelByChannel` plugin enables. (#23412) Thanks @ProspectOre.
+- Config/Bindings: allow optional `bindings[].comment` in strict config validation so annotated binding entries no longer fail load. (#23458) Thanks @echoVic.
 - Usage/Pricing: correct MiniMax M2.5 pricing defaults to fix inflated cost reporting. (#22755) Thanks @miloudbelarebia.
 - Gateway/Daemon: verify gateway health after daemon restart.
 - Agents/UI text: stop rewriting normal assistant billing/payment language outside explicit error contexts. (#17834) Thanks @niceysam.
