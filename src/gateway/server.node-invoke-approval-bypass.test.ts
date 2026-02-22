@@ -21,6 +21,7 @@ import {
 
 installGatewayTestHooks({ scope: "suite" });
 const NODE_CONNECT_TIMEOUT_MS = 3_000;
+const CONNECT_REQ_TIMEOUT_MS = 2_000;
 
 async function expectNoForwardedInvoke(hasInvoke: () => boolean): Promise<void> {
   // Yield a couple of macrotasks so any accidental async forwarding would fire.
@@ -107,6 +108,7 @@ describe("node.invoke approval bypass", () => {
         token: "secret",
         scopes,
         ...(resolveDevice ? { device: resolveDevice(await nonce) } : {}),
+        timeoutMs: CONNECT_REQ_TIMEOUT_MS,
       });
       return { ws, res };
     };
@@ -166,7 +168,9 @@ describe("node.invoke approval bypass", () => {
 
     const client = new GatewayClient({
       url: `ws://127.0.0.1:${port}`,
-      connectDelayMs: 0,
+      // Keep challenge timeout realistic in tests; 0 maps to a 250ms timeout and can
+      // trigger reconnect backoff loops under load.
+      connectDelayMs: 2_000,
       token: "secret",
       role: "node",
       clientName: GATEWAY_CLIENT_NAMES.NODE_HOST,
