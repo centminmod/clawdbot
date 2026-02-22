@@ -606,7 +606,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/pi-tools.read.ts:286-302` - read tool returns raw content, processes only image MIME
-- `src/logging/redact.ts:13-38,126-139` - redaction patterns exist but NOT applied to read results
+- `src/logging/redact.ts:13-38,128-141` - redaction patterns exist but NOT applied to read results
 
 **Note:** Sandbox path enforcement is the primary control. This is a defense-in-depth gap, not a boundary breach. Low severity because the sandbox boundary itself is correctly enforced.
 
