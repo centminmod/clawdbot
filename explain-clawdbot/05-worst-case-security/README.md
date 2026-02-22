@@ -184,7 +184,7 @@ The security analysis in this guide is based on verified source code review:
 |-----------|-------------|---------------------|
 | Network binding | `src/gateway/net.ts:258-318` | Fallback chain with silent 0.0.0.0 fallback |
 | Authentication | `src/gateway/auth.ts` | Token and password validation |
-| File permissions | `src/config/io.ts:890,998` | 0o700 directories, 0o600 files |
+| File permissions | `src/config/io.ts:975,1091` | 0o700 directories, 0o600 files |
 | SSRF protection | `src/infra/net/ssrf.ts:544-582` | DNS pinning (Mac/VPS only) |
 | Shell execution | `src/agents/bash-tools.exec.ts` | Allowlist and human approval |
 | Security audit | `src/security/audit.ts:347-367` | Critical flag detection |
