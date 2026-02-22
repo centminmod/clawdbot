@@ -9,7 +9,7 @@
 | Issue | Severity | Summary | Local Impact |
 |-------|----------|---------|--------------|
 | [#8512](https://github.com/openclaw/openclaw/issues/8512) | CRITICAL | Plugin HTTP routes bypass gateway authentication | `src/gateway/server/plugins-http.ts:17-59` |
-| [#20683](https://github.com/openclaw/openclaw/issues/20683) | HIGH | Control UI allows token-only auth over HTTP (allowInsecureAuth bypass) | `src/gateway/server/ws-connection/message-handler.ts:340-344` — opt-in but bypasses HTTPS + device pairing; security audit flags as critical at `src/security/audit.ts:350` |
+| [#20683](https://github.com/openclaw/openclaw/issues/20683) | HIGH | Control UI allows token-only auth over HTTP (allowInsecureAuth bypass) | `src/gateway/server/ws-connection/connect-policy.ts:22-33` — opt-in but bypasses HTTPS + device pairing; security audit flags as critical at `src/security/audit.ts:350` |
 | [#17936](https://github.com/openclaw/openclaw/issues/17936) | HIGH | message/sendAttachment exfiltrates local files when sandbox disabled | `src/infra/outbound/message-action-params.ts:240-241` — `normalizeSandboxMediaParams()` skips path validation when `sandboxRoot` absent; default sandbox-off mode is affected |
 | [#20305](https://github.com/openclaw/openclaw/issues/20305) | HIGH | message tool cross-user sends in multi-tenant deployments (no per-agent scoping) | `src/infra/outbound/message-action-runner.ts` — no `allowedRecipients` or per-agent channel filtering; affects deployments with `dmScope: "per-channel-peer"` and 200+ agents |
 | [#3277](https://github.com/openclaw/openclaw/issues/3277) | ~~HIGH~~ FIXED | Path validation bypass via `startsWith` prefix | Fixed upstream (COMPLETED 2026-02-15, consolidated Feb 19 sync 2); `src/infra/archive-path.ts:12,50` - `validateArchiveEntryPath()` + `resolveArchiveOutputPath()` (hardened Feb 15, consolidated to module Feb 19) |
@@ -44,7 +44,7 @@
 | [#5123](https://github.com/openclaw/openclaw/issues/5123) | MEDIUM (WONTFIX) | ReDoS in session filter regex | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/infra/exec-approval-forwarder.ts:53-60` |
 | [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:49-63` |
 | [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); partially mitigated locally (hook token + device pairing use `safeEqualSecret`); `src/infra/node-pairing.ts:277` still uses `===` |
-| [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 (upstream FIXED, local reverted) | Closed upstream COMPLETED (2026-02-16); 0o600 fix applied locally in `ae0b110e4` but accidentally reverted by `9f261f592`; still affects `src/auto-reply/reply/session.ts:92`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts:500` |
+| [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 (upstream FIXED, local reverted) | Closed upstream COMPLETED (2026-02-16); 0o600 fix applied locally in `ae0b110e4` but accidentally reverted by `9f261f592`; still affects `src/auto-reply/reply/session.ts:96`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts:500` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | MEDIUM | web_fetch hidden text prompt injection | `src/agents/tools/web-fetch-utils.ts:59-61` |
 | [#8592](https://github.com/openclaw/openclaw/issues/8592) | MEDIUM | No detection of encoded/obfuscated commands | `src/infra/exec-safety.ts:1-44` |
 | [#8588](https://github.com/openclaw/openclaw/issues/8588) | MEDIUM | Sensitive config files accessible when sandbox is home dir | `src/agents/sandbox/context.ts:42-49` (workspaceAccess=rw) |
@@ -83,7 +83,7 @@
 | [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:484-497`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | HIGH | Gateway auth has no rate limiting (CWE-307) | `src/gateway/auth.ts` — no brute-force protection; ~645 attempts/sec; fix PR [#13680](https://github.com/openclaw/openclaw/pull/13680) pending; relates to #8594 |
-| [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:186-250`) now handles full-form IPv4-mapped IPv6 via `extractIpv4FromEmbeddedIpv6()` at `:145-158` |
+| [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:335`) now handles full-form IPv4-mapped IPv6 via `extractIpv4FromEmbeddedIpv6()` at `:271` |
 | [#11738](https://github.com/openclaw/openclaw/issues/11738) | HIGH | Canvas authorization IP co-tenancy bypass | `src/gateway/server-http.ts:100-105` — `hasAuthorizedWsClientForIp()` trusts any request from same IP as authenticated WS client; bypasses auth in NAT/proxy environments |
 | [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH | HTTP API session keys lack ownership validation | `src/gateway/http-utils.ts:71-73` — `x-openclaw-session-key` header accepted as-is with no ownership check; cross-user session access in multi-user deployments |
 | [#11024](https://github.com/openclaw/openclaw/issues/11024) | ~~HIGH~~ FIXED | Gmail push endpoint embeds auth token in URL query string | Fixed upstream (COMPLETED 2026-02-14); `src/hooks/gmail-setup-utils.ts:315` |
@@ -374,7 +374,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Upstream status:** FIXED — closed as COMPLETED 2026-02-16; commit `ae0b110e4` added `mode: 0o600` to all three write paths.
 
 **Local status:** NOT FIXED — the 0o600 fix was applied in `ae0b110e4` but accidentally reverted by `9f261f592 revert: PR 18288 accidental merge`. Three sites remain unpatched:
-- `src/auto-reply/reply/session.ts:92` - `fs.writeFileSync(sessionFile, ..., "utf-8")` (no mode)
+- `src/auto-reply/reply/session.ts:96` - `fs.writeFileSync(sessionFile, ..., "utf-8")` (no mode)
 - `src/agents/pi-embedded-runner/session-manager-init.ts` - no mode on session file reset
 - `src/gateway/server-methods/sessions.ts:500` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
 
@@ -928,7 +928,7 @@ All changes take effect immediately via automatic restart.
 
 **Vulnerability:** ~~The `isPrivateIpAddress()` function does not recognize IPv4-compatible IPv6 addresses like `::127.0.0.1` or `::7f00:1` as private/loopback.~~ **FIXED by `c0c0e0f9a`** (Feb 15 sync 11).
 
-**Fix details:** `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:186-250`) was completely rewritten to use proper hextet-level IPv6 parsing via `parseIpv6Hextets()` (`:84-143`). New `extractIpv4FromEmbeddedIpv6()` (`:145-158`) handles IPv4-mapped (`::ffff:a.b.c.d`), IPv4-compatible (`::a.b.c.d`), and full-form variants (`0000:0000:0000:0000:0000:ffff:7f00:0001`). New test file `ssrf.test.ts` covers all bypass variants. Pre-resolution and post-resolution checks at `resolvePinnedHostnameWithPolicy()` (`:330-382`) both use the fixed function.
+**Fix details:** `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:335`) was completely rewritten to use proper hextet-level IPv6 parsing via `parseIpv6Hextets()` (`:149-270`). New `extractIpv4FromEmbeddedIpv6()` (`:271`) handles IPv4-mapped (`::ffff:a.b.c.d`), IPv4-compatible (`::a.b.c.d`), and full-form variants (`0000:0000:0000:0000:0000:ffff:7f00:0001`). New test file `ssrf.test.ts` covers all bypass variants. Pre-resolution and post-resolution checks at `resolvePinnedHostnameWithPolicy()` (`:496`) both use the fixed function.
 
 ### #11738: Canvas Authorization IP Co-Tenancy Bypass
 
@@ -1126,9 +1126,9 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** When `gateway.controlUi.allowInsecureAuth: true` is configured, the gateway bypasses two security layers: (1) the HTTPS/localhost enforcement block for Control UI connections, and (2) the device identity verification and pairing requirement. Any client presenting a valid token can connect over unencrypted HTTP. Tokens in transit are fully plaintext-exposed to MITM attackers.
 
 **Affected code:**
-- `src/gateway/server/ws-connection/message-handler.ts:340-344` — `allowInsecureControlUi` + `allowControlUiBypass` flags
-- `src/gateway/server/ws-connection/message-handler.ts:429-437` — HTTPS enforcement block skipped when `allowControlUiBypass = true`
-- `src/gateway/server/ws-connection/message-handler.ts:623` — device pairing requirement skipped
+- `src/gateway/server/ws-connection/connect-policy.ts:22-33` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
+- `src/gateway/server/ws-connection/connect-policy.ts:48-78` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
+- `src/gateway/server/ws-connection/message-handler.ts:618` — device pairing requirement skipped
 - `src/security/audit.ts:348-356` — security audit detects and flags as `severity: "critical"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 
 **Exploit conditions:** Admin must set `allowInsecureAuth: true` (opt-in). Once enabled, passive MITM on the local network can capture the auth token and gain full `operator.admin + operator.approvals + operator.pairing` access.

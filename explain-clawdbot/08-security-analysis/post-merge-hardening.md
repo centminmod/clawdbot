@@ -129,6 +129,7 @@
 - [Feb 22 sync 2 (51 commits, 2 security)](./post-merge-hardening/2026-02-22-sync-2.md)
 - [Feb 22 sync 4 (51 commits, 1 security)](./post-merge-hardening/2026-02-22-sync-4.md)
 - [Feb 22 sync 5 (51 commits, 8 security)](./post-merge-hardening/2026-02-22-sync-5.md)
+- [Feb 22 sync 6 (51 commits, 7 security)](./post-merge-hardening/2026-02-22-sync-6.md)
 
 ## Post-Merge Security Hardening
 
@@ -165,7 +166,7 @@ Five security-relevant changes were introduced:
 
 - **Discord username resolution gating** (`7958ead`, `b01612c`): Username-to-user-ID lookups for outbound DMs are now gated through the directory config (`src/discord/targets.ts:77`), preventing unauthorized directory queries.
 
-- **Telegram session fragmentation fix** (`9154971`): `resolveTelegramForumThreadId()` (`src/telegram/bot/helpers.ts:74-86`) now ignores `message_thread_id` for non-forum groups. Reply threads in regular groups no longer create separate sessions.
+- **Telegram session fragmentation fix** (`9154971`): `resolveTelegramForumThreadId()` (`src/telegram/bot/helpers.ts:77-89`) now ignores `message_thread_id` for non-forum groups. Reply threads in regular groups no longer create separate sessions.
 
 - **Formal security models** (`3bf768a`): New TLA+ machine-checked models document security invariants for pairing, ingress gating, and routing/session-key isolation (`docs/security/formal-verification.md`).
 

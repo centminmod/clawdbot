@@ -83,7 +83,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:103` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:113` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
-| Warned contexts | `src/infra/session-maintenance-warning.ts:14` | **Never pruned** | Low |
+| Warned contexts | `src/infra/session-maintenance-warning.ts:16` | **Never pruned** | Low |
 | Announce queues | `src/agents/subagent-announce-queue.ts:45` | Per-queue cap, **no queue count cap** | Low |
 | Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:13` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
 
@@ -125,7 +125,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Resource | Location | Risk |
 |----------|----------|------|
 | Transcript `.jsonl` files | `src/config/sessions/transcript.ts:60-151` | **No rotation, no size limit** — grows forever per session |
-| Command logger | `src/hooks/bundled/command-logger/handler.ts:42-58` | **No rotation** — `commands.log` grows unbounded |
+| Command logger | `src/hooks/bundled/command-logger/handler.ts:49-62` | **No rotation** — `commands.log` grows unbounded |
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
 | Browser user-data profiles | `src/browser/chrome.ts:62-64` | Full Chromium profile — can reach GBs |
 | SQLite databases | `src/memory/manager.ts:161` | **No VACUUM** — WAL files can bloat |

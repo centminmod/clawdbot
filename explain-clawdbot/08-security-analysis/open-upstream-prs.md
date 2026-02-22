@@ -220,7 +220,7 @@
 | [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:101-122` |
 | [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:12` checks gateway bind + auth |
 | [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:47-89` |
-| [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:446-447` |
+| [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:450-451` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
 | [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:109-155` wraps canvas/A2UI endpoints |
@@ -312,7 +312,7 @@
 **Closes:** (addresses unconfigured reverse proxy auth bypass)
 
 **Changes:**
-- `src/gateway/server/ws-connection/message-handler.ts:210-216` — detects untrusted proxy headers
+- `src/gateway/server/ws-connection/message-handler.ts:160-179` — detects untrusted proxy headers
 - `src/gateway/auth.ts:101-122` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
 - `src/security/audit.ts` — audit detection for misconfigured proxy setup
 
@@ -353,7 +353,7 @@
 **Changes:**
 - `extensions/matrix/src/matrix/monitor/handler.ts` — thread messages get `:thread:${threadRootId}` session key suffix
 
-**Local Impact:** ALREADY SYNCED — thread isolation at `extensions/matrix/src/matrix/monitor/handler.ts:446-447`
+**Local Impact:** ALREADY SYNCED — thread isolation at `extensions/matrix/src/matrix/monitor/handler.ts:450-451`
 
 ### #13182: Split Oversized Security Audit Files
 
@@ -936,7 +936,7 @@
 - `src/config/sessions/transcript.ts:75` — `writeFile(params.sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-helpers/bootstrap.ts:159` — `writeFile(file, ..., "utf-8")` — no `mode: 0o600`
 - `src/gateway/server-methods/chat.ts:306` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
-- `src/auto-reply/reply/session.ts:92` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
+- `src/auto-reply/reply/session.ts:96` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-runner/session-manager-init.ts:46` — `writeFile(params.sessionFile, "", "utf-8")` — no `mode: 0o600`
 - `src/gateway/server-methods/sessions.ts:490` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/session-file-repair.ts:77,81` — `writeFile(..., "utf-8")` — no `mode: 0o600`
