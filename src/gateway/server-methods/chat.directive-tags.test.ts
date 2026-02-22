@@ -93,7 +93,10 @@ function createChatContext(): Pick<
     removeChatRun: vi.fn(),
     dedupe: new Map(),
     registerToolEventRecipient: vi.fn(),
-    logGateway: createSubsystemLogger("gateway/server-methods/chat.directive-tags.test"),
+    logGateway: {
+      warn: vi.fn(),
+      debug: vi.fn(),
+    } as unknown as GatewayRequestContext["logGateway"],
   };
 }
 
