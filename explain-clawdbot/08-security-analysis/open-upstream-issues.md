@@ -348,7 +348,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - `src/security/secret-equal.ts:3-16` - `safeEqualSecret` uses `timingSafeEqual` (correct)
 - `src/gateway/server-http.ts:254` - hook token now uses `safeEqualSecret()` (fixed in Feb 13 sync 4, commit `113ebfd6a`)
 - `src/infra/node-pairing.ts:277` - node token uses direct `===` (vulnerable)
-- `src/infra/device-pairing.ts:400` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
+- `src/infra/device-pairing.ts:485` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
 
 ### #6606: Telegram Webhook Binds to 0.0.0.0 with Optional Secret
 
@@ -590,7 +590,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/sandbox/context.ts:39-46` - `workspaceAccess === "rw"` uses `agentWorkspaceDir` as sandbox root
-- `src/agents/sandbox-paths.ts:33-47` - path escape protection only, no sensitive dir exclusion
+- `src/agents/sandbox-paths.ts:38-52` - path escape protection only, no sensitive dir exclusion
 - `src/agents/sandbox/config.ts:168` - default `workspaceAccess: "none"` (safe)
 
 **Cross-ref:** [PR #16929](https://github.com/openclaw/openclaw/pull/16929) (OPEN) — block sensitive dirs in sandbox

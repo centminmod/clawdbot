@@ -37,7 +37,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager.ts:327+` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:522-691` | Medium | API calls are remote but audio buffer conversion is local CPU work |
 | 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:67` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
-| 14 | **Cron timer loop** — infinite loop for scheduled job processing | `src/cron/service/timer.ts:308` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
+| 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:156` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
 
 ### Other CPU consumers
 
@@ -55,7 +55,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 **Child process stdout/stderr accumulation:**
 - `src/process/exec.ts:133-162` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:826-831` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1398`), configured by `MAX_QMD_OUTPUT_CHARS` (`:35`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
+- `src/memory/qmd-manager.ts:863-868` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1677`), configured by `MAX_QMD_OUTPUT_CHARS` (`:35`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
 
 **Media fetch buffering:**
 - `src/media/fetch.ts:131-140` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
@@ -634,9 +634,9 @@ Source references: defaults at `src/agents/memory-search.ts:76-77`
 | **Voyage** | `voyage-4-large` | 32,000 | 1,024 | Cloud API |
 | **Local** | `embeddinggemma-300M` (GGUF) | varies | ~300 | On-device via `node-llama-cpp` |
 
-Source: model defaults at `src/agents/memory-search.ts:73-75`, local model at `src/memory/embeddings.ts:65-66`
+Source: model defaults at `src/agents/memory-search.ts:73-75`, local model at `src/memory/embeddings.ts:66-67`
 
-**Auto-selection order** (`src/memory/embeddings.ts:137-170`):
+**Auto-selection order** (`src/memory/embeddings.ts:138-202`):
 
 1. **Local** — but only if the model file already exists on disk (won't auto-download)
 2. **OpenAI** — if API key is available
