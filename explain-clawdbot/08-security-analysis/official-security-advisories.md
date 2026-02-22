@@ -1188,6 +1188,138 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 
 **Fix:** Pending.
 
+### GHSA-hff7-ccv5-52f8: Gateway Tokenless Tailscale Auth on HTTP Routes
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** Tokenless Tailscale authentication was incorrectly applied to HTTP routes in the gateway, allowing unauthenticated access in Tailscale network configurations that expected token-based authentication.
+
+**Impact:** Authentication bypass in Tailscale-integrated gateway deployments.
+
+**Fix:** Pending.
+
+### GHSA-45cg-2683-gfmq: Browser Navigation Guard Allowed Non-Network URL Schemes
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** The browser navigation guard did not block non-network URL schemes (e.g., `file://`, `data://`), enabling authenticated browser-tool users to access local file system resources or execute data: URL payloads.
+
+**Impact:** Local file read and potential content injection via browser tool in authenticated sessions.
+
+**Fix:** Pending.
+
+### GHSA-5v6x-rfc3-7qfr: Windows system.run Approval Mismatch on cmd.exe /c Trailing Arguments
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** The Windows `system.run` tool had an approval mismatch when `cmd.exe /c` was invoked with trailing arguments, allowing commands to bypass per-command approval checks in certain invocation patterns.
+
+**Impact:** Approval check bypass for Windows shell execution in specific argument configurations.
+
+**Fix:** Pending.
+
+### GHSA-5mx2-2mgw-x8rm: BlueBubbles Beta Plugin Webhook Auth Hardening
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** The BlueBubbles beta plugin accepted webhook connections without a password (passwordless fallback) when the server was in beta mode, bypassing the authentication requirement and allowing unauthenticated webhook delivery.
+
+**Impact:** Unauthenticated webhook access to BlueBubbles beta plugin endpoints.
+
+**Fix:** Passwordless fallback removed.
+
+### GHSA-62f6-mrcj-v8h5: Runtime /debug Override Path Accepted Prototype-Reserved Keys
+
+**Severity:** LOW
+**Published:** 2026-02-21
+
+**Description:** The runtime `/debug` override path accepted object keys that are reserved by JavaScript prototype chains (e.g., `__proto__`, `constructor`), enabling prototype pollution in debug configuration overrides.
+
+**Impact:** Low — requires authenticated access to debug path; prototype pollution in debug configurations.
+
+**Fix:** Pending.
+
+### GHSA-3cvx-236h-m9fj: Insecure Control UI Auth over Plaintext HTTP
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** The opt-in Control UI configuration allowed authentication over plaintext HTTP, enabling credential interception in local network environments where the Control UI was exposed without TLS.
+
+**Impact:** Credential interception for Control UI access in plaintext HTTP configurations.
+
+**Fix:** Pending.
+
+### GHSA-w9cg-v44m-4qv8: BASH_ENV / ENV Startup-File Injection
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** `BASH_ENV` and `ENV` environment variables were not blocked from being passed to spawned shell commands, allowing an attacker with env injection capability to execute arbitrary code via shell startup files.
+
+**Impact:** Code execution via shell startup file injection in spawned commands. Related to env var blocklist hardening (GHSA-82g8-464f-2mv7).
+
+**Fix:** Pending.
+
+### GHSA-8fmp-37rc-p5g7: Config Env Vars Allowed Startup Env Injection
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** Configuration-derived environment variables were passed into service runtime without filtering, allowing startup environment injection that could alter service behavior or enable code execution.
+
+**Impact:** Startup environment injection into service runtime via config-controlled env vars.
+
+**Fix:** Pending.
+
+### GHSA-2rgf-hm63-5qph: Improper X-Forwarded-For Parsing Behind Trusted Proxies
+
+**Severity:** LOW
+**Published:** 2026-02-21
+
+**Description:** `X-Forwarded-For` parsing behind trusted proxies did not correctly extract the leftmost (client) IP, allowing clients to spoof their IP address in security decisions that relied on `X-Forwarded-For` for rate limiting or access control.
+
+**Impact:** Client IP spoofing in security decisions behind trusted proxy configurations.
+
+**Fix:** Pending.
+
+### GHSA-43x4-g22p-3hrq: Chrome --no-sandbox Disabled OS-Level Browser Sandbox
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** The sandbox browser container launched Chrome with `--no-sandbox`, disabling the OS-level browser sandbox. This eliminated a key defense layer in the sandboxed browsing environment.
+
+**Impact:** Reduced sandbox isolation in browser tool container; OS-level Chrome sandbox removed.
+
+**Fix:** Pending.
+
+### GHSA-25gx-x37c-7pph: Sandbox Browser noVNC Observer Lacked VNC Authentication
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** The noVNC observer in the sandbox browser container did not require VNC authentication, allowing any network-accessible client to observe or interact with the VNC session without credentials.
+
+**Impact:** Unauthenticated VNC session access in sandbox browser noVNC deployments.
+
+**Fix:** Pending.
+
+### GHSA-cjv3-m589-v3rx: Canvas Route Hardening for Mixed-Trust Deployments
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+
+**Description:** Canvas routes lacked sufficient hardening for mixed-trust deployment scenarios where multiple users share a canvas instance. Route access controls did not adequately enforce per-user trust boundaries.
+
+**Impact:** Unauthorized cross-user canvas route access in mixed-trust configurations.
+
+**Fix:** Pending.
+
 ### Relationship to Third-Party Audits
 
 These official CVEs are **distinct from** the two third-party security audits documented below:
