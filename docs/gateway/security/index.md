@@ -84,7 +84,7 @@ If more than one person can DM your bot:
 - **Browser control exposure** (remote nodes, relay ports, remote CDP endpoints).
 - **Local disk hygiene** (permissions, symlinks, config includes, “synced folder” paths).
 - **Plugins** (extensions exist without an explicit allowlist).
-- **Policy drift/misconfig** (sandbox docker settings configured but sandbox mode off; ineffective `gateway.nodes.denyCommands` patterns; global `tools.profile="minimal"` overridden by per-agent profiles; extension plugin tools reachable under permissive tool policy).
+- **Policy drift/misconfig** (sandbox docker settings configured but sandbox mode off; ineffective `gateway.nodes.denyCommands` patterns; dangerous `gateway.nodes.allowCommands` entries; global `tools.profile="minimal"` overridden by per-agent profiles; extension plugin tools reachable under permissive tool policy).
 - **Runtime expectation drift** (for example `tools.exec.host="sandbox"` while sandbox mode is off, which runs directly on the gateway host).
 - **Model hygiene** (warn when configured models look legacy; not a hard block).
 
@@ -126,6 +126,7 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `gateway.loopback_no_auth`                         | critical      | Reverse-proxied loopback may become unauthenticated                       | `gateway.auth.*`, proxy setup                                                                     | no       |
 | `gateway.http.no_auth`                             | warn/critical | Gateway HTTP APIs reachable with `auth.mode="none"`                       | `gateway.auth.mode`, `gateway.http.endpoints.*`                                                   | no       |
 | `gateway.tools_invoke_http.dangerous_allow`        | warn/critical | Re-enables dangerous tools over HTTP API                                  | `gateway.tools.allow`                                                                             | no       |
+| `gateway.nodes.allow_commands_dangerous`           | warn/critical | Enables high-impact node commands (camera/screen/contacts/calendar/SMS)   | `gateway.nodes.allowCommands`                                                                     | no       |
 | `gateway.tailscale_funnel`                         | critical      | Public internet exposure                                                  | `gateway.tailscale.mode`                                                                          | no       |
 | `gateway.control_ui.insecure_auth`                 | warn          | Insecure-auth compatibility toggle enabled                                | `gateway.controlUi.allowInsecureAuth`                                                             | no       |
 | `gateway.control_ui.device_auth_disabled`          | critical      | Disables device identity check                                            | `gateway.controlUi.dangerouslyDisableDeviceAuth`                                                  | no       |
