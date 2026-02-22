@@ -935,7 +935,7 @@
 **Local Validation:**
 - `src/config/sessions/transcript.ts:75` — `writeFile(params.sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-helpers/bootstrap.ts:159` — `writeFile(file, ..., "utf-8")` — no `mode: 0o600`
-- `src/gateway/server-methods/chat.ts:285` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
+- `src/gateway/server-methods/chat.ts:306` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
 - `src/auto-reply/reply/session.ts:92` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-runner/session-manager-init.ts:46` — `writeFile(params.sessionFile, "", "utf-8")` — no `mode: 0o600`
 - `src/gateway/server-methods/sessions.ts:490` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
