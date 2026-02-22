@@ -4,9 +4,11 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
+import type { ReplyPayload } from "../../auto-reply/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import { createTestRegistry } from "../../test-utils/channel-plugins.js";
+import { typedCases } from "../../test-utils/typed-cases.js";
 import {
   ackDelivery,
   computeBackoffMs,
@@ -407,7 +409,7 @@ describe("DirectoryCache", () => {
         ] as const,
         expected: { a: "value-a2", b: undefined, c: "value-c" },
       },
-    ] as const;
+    ];
 
     for (const testCase of cases) {
       const cache = new DirectoryCache<string>(60_000, 2);
@@ -446,7 +448,11 @@ describe("buildOutboundResultEnvelope", () => {
       mediaUrl: null,
       channelId: "C1",
     };
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      input: Parameters<typeof buildOutboundResultEnvelope>[0];
+      expected: unknown;
+    }>([
       {
         name: "flatten delivery by default",
         input: { delivery: whatsappDelivery },
@@ -477,7 +483,7 @@ describe("buildOutboundResultEnvelope", () => {
         input: { delivery: discordDelivery, flattenDelivery: false },
         expected: { delivery: discordDelivery },
       },
-    ] as const;
+    ]);
     for (const testCase of cases) {
       expect(buildOutboundResultEnvelope(testCase.input), testCase.name).toEqual(testCase.expected);
     }
@@ -519,7 +525,7 @@ describe("formatOutboundDeliverySummary", () => {
         },
         expected: "✅ Sent via Discord. Message ID: d1 (channel chan)",
       },
-    ] as const;
+    ];
 
     for (const testCase of cases) {
       expect(formatOutboundDeliverySummary(testCase.channel, testCase.result), testCase.name).toBe(
@@ -581,7 +587,7 @@ describe("buildOutboundDeliveryJson", () => {
           timestamp: 123,
         },
       },
-    ] as const;
+    ];
 
     for (const testCase of cases) {
       expect(buildOutboundDeliveryJson(testCase.input), testCase.name).toEqual(testCase.expected);
@@ -602,7 +608,7 @@ describe("formatGatewaySummary", () => {
         input: { action: "Poll sent", channel: "discord", messageId: "p1" },
         expected: "✅ Poll sent via gateway (discord). Message ID: p1",
       },
-    ] as const;
+    ];
 
     for (const testCase of cases) {
       expect(formatGatewaySummary(testCase.input), testCase.name).toBe(testCase.expected);
@@ -806,7 +812,10 @@ describe("resolveOutboundSessionRoute", () => {
 
 describe("normalizeOutboundPayloadsForJson", () => {
   it("normalizes payloads for JSON output", () => {
-    const cases = [
+    const cases = typedCases<{
+      input: Parameters<typeof normalizeOutboundPayloadsForJson>[0];
+      expected: ReturnType<typeof normalizeOutboundPayloadsForJson>;
+    }>([
       {
         input: [
           { text: "hi" },
@@ -844,10 +853,18 @@ describe("normalizeOutboundPayloadsForJson", () => {
           },
         ],
       },
-    ] as const;
+    ]);
 
     for (const testCase of cases) {
-      expect(normalizeOutboundPayloadsForJson(testCase.input)).toEqual(testCase.expected);
+      const input: ReplyPayload[] = testCase.input.map((payload) =>
+        "mediaUrls" in payload
+          ? ({
+              ...payload,
+              mediaUrls: payload.mediaUrls ? [...payload.mediaUrls] : undefined,
+            } as ReplyPayload)
+          : ({ ...payload } as ReplyPayload),
+      );
+      expect(normalizeOutboundPayloadsForJson(input)).toEqual(testCase.expected);
     }
   });
 });
@@ -862,7 +879,11 @@ describe("normalizeOutboundPayloads", () => {
 
 describe("formatOutboundPayloadLog", () => {
   it("formats text+media and media-only logs", () => {
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      input: Parameters<typeof formatOutboundPayloadLog>[0];
+      expected: string;
+    }>([
       {
         name: "text with media lines",
         input: {
@@ -879,10 +900,16 @@ describe("formatOutboundPayloadLog", () => {
         },
         expected: "MEDIA:https://x.test/a.png",
       },
-    ] as const;
+    ]);
 
     for (const testCase of cases) {
-      expect(formatOutboundPayloadLog(testCase.input), testCase.name).toBe(testCase.expected);
+      expect(
+        formatOutboundPayloadLog({
+          ...testCase.input,
+          mediaUrls: [...testCase.input.mediaUrls],
+        }),
+        testCase.name,
+      ).toBe(testCase.expected);
     }
   });
 });

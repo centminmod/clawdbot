@@ -1,5 +1,6 @@
 import { ChannelType, type Guild } from "@buape/carbon";
 import { describe, expect, it, vi } from "vitest";
+import { typedCases } from "../test-utils/typed-cases.js";
 import {
   allowListMatches,
   buildDiscordMediaPayload,
@@ -637,7 +638,11 @@ describe("discord autoThread name sanitization", () => {
 
 describe("discord reaction notification gating", () => {
   it("applies mode-specific reaction notification rules", () => {
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      input: Parameters<typeof shouldEmitDiscordReactionNotification>[0];
+      expected: boolean;
+    }>([
       {
         name: "unset defaults to own (author is bot)",
         input: {
@@ -705,7 +710,7 @@ describe("discord reaction notification gating", () => {
           botId: "bot-1",
           messageAuthorId: "user-1",
           userId: "user-2",
-          allowlist: [],
+          allowlist: [] as string[],
         },
         expected: false,
       },
@@ -717,16 +722,23 @@ describe("discord reaction notification gating", () => {
           messageAuthorId: "user-1",
           userId: "123",
           userName: "steipete",
-          allowlist: ["123", "other"],
+          allowlist: ["123", "other"] as string[],
         },
         expected: true,
       },
-    ] as const;
+    ]);
 
     for (const testCase of cases) {
-      expect(shouldEmitDiscordReactionNotification(testCase.input), testCase.name).toBe(
-        testCase.expected,
-      );
+      expect(
+        shouldEmitDiscordReactionNotification({
+          ...testCase.input,
+          allowlist:
+            "allowlist" in testCase.input && testCase.input.allowlist
+              ? [...testCase.input.allowlist]
+              : undefined,
+        }),
+        testCase.name,
+      ).toBe(testCase.expected);
     }
   });
 });
@@ -956,7 +968,18 @@ describe("discord reaction notification modes", () => {
   const guild = fakeGuild(guildId, "Mode Guild");
 
   it("applies message-fetch behavior across notification modes and channel types", async () => {
-    const cases = [
+    const cases = typedCases<{
+      name: string;
+      reactionNotifications: "off" | "all" | "allowlist" | "own";
+      users: string[] | undefined;
+      userId: string | undefined;
+      channelType: ChannelType;
+      channelId: string | undefined;
+      parentId: string | undefined;
+      messageAuthorId: string;
+      expectedMessageFetchCalls: number;
+      expectedEnqueueCalls: number;
+    }>([
       {
         name: "off mode",
         reactionNotifications: "off" as const,
@@ -984,7 +1007,7 @@ describe("discord reaction notification modes", () => {
       {
         name: "allowlist mode",
         reactionNotifications: "allowlist" as const,
-        users: ["123"],
+        users: ["123"] as string[],
         userId: "123",
         channelType: ChannelType.GuildText,
         channelId: undefined,
@@ -1017,7 +1040,7 @@ describe("discord reaction notification modes", () => {
         expectedMessageFetchCalls: 0,
         expectedEnqueueCalls: 1,
       },
-    ] as const;
+    ]);
 
     for (const testCase of cases) {
       enqueueSystemEventSpy.mockClear();
@@ -1040,7 +1063,7 @@ describe("discord reaction notification modes", () => {
       const guildEntries = makeEntries({
         [guildId]: {
           reactionNotifications: testCase.reactionNotifications,
-          users: testCase.users,
+          users: testCase.users ? [...testCase.users] : undefined,
         },
       });
       const listener = new DiscordReactionListener(makeReactionListenerParams({ guildEntries }));
