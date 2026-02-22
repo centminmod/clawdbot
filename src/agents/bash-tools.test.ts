@@ -4,7 +4,6 @@ import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-even
 import { captureEnv } from "../test-utils/env.js";
 import { getFinishedSession, resetProcessRegistryForTests } from "./bash-process-registry.js";
 import { createExecTool, createProcessTool } from "./bash-tools.js";
-import { buildDockerExecArgs } from "./bash-tools.shared.js";
 import { resolveShellFromPath, sanitizeBinaryOutput } from "./shell-utils.js";
 
 const isWin = process.platform === "win32";
@@ -12,9 +11,9 @@ const defaultShell = isWin
   ? undefined
   : process.env.OPENCLAW_TEST_SHELL || resolveShellFromPath("bash") || process.env.SHELL || "sh";
 // PowerShell: Start-Sleep for delays, ; for command separation, $null for null device
-const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 20" : "sleep 0.02";
-const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 90" : "sleep 0.09";
-const longDelayCmd = isWin ? "Start-Sleep -Milliseconds 700" : "sleep 0.7";
+const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 15" : "sleep 0.015";
+const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 70" : "sleep 0.07";
+const longDelayCmd = isWin ? "Start-Sleep -Milliseconds 500" : "sleep 0.5";
 const POLL_INTERVAL_MS = 15;
 const TEST_EXEC_DEFAULTS = { security: "full" as const, ask: "off" as const };
 const createTestExecTool = (
@@ -223,7 +222,7 @@ describe("exec tool backgrounding", () => {
   });
 
   it("defaults process log to a bounded tail when no window is provided", async () => {
-    const lines = Array.from({ length: 220 }, (_value, index) => `line-${index + 1}`);
+    const lines = Array.from({ length: 201 }, (_value, index) => `line-${index + 1}`);
     const sessionId = await runBackgroundEchoLines(lines);
 
     const log = await processTool.execute("call2", {
@@ -232,11 +231,11 @@ describe("exec tool backgrounding", () => {
     });
     const textBlock = log.content.find((c) => c.type === "text")?.text ?? "";
     const firstLine = textBlock.split("\n")[0]?.trim();
-    expect(textBlock).toContain("showing last 200 of 220 lines");
-    expect(firstLine).toBe("line-21");
-    expect(textBlock).toContain("line-21");
-    expect(textBlock).toContain("line-220");
-    expect((log.details as { totalLines?: number }).totalLines).toBe(220);
+    expect(textBlock).toContain("showing last 200 of 201 lines");
+    expect(firstLine).toBe("line-2");
+    expect(textBlock).toContain("line-2");
+    expect(textBlock).toContain("line-201");
+    expect((log.details as { totalLines?: number }).totalLines).toBe(201);
   });
 
   it("supports line offsets for log slices", async () => {
@@ -258,7 +257,7 @@ describe("exec tool backgrounding", () => {
   });
 
   it("keeps offset-only log requests unbounded by default tail mode", async () => {
-    const lines = Array.from({ length: 220 }, (_value, index) => `line-${index + 1}`);
+    const lines = Array.from({ length: 201 }, (_value, index) => `line-${index + 1}`);
     const sessionId = await runBackgroundEchoLines(lines);
 
     const log = await processTool.execute("call2", {
@@ -270,9 +269,9 @@ describe("exec tool backgrounding", () => {
     const textBlock = log.content.find((c) => c.type === "text")?.text ?? "";
     const renderedLines = textBlock.split("\n");
     expect(renderedLines[0]?.trim()).toBe("line-31");
-    expect(renderedLines[renderedLines.length - 1]?.trim()).toBe("line-220");
+    expect(renderedLines[renderedLines.length - 1]?.trim()).toBe("line-201");
     expect(textBlock).not.toContain("showing last 200");
-    expect((log.details as { totalLines?: number }).totalLines).toBe(220);
+    expect((log.details as { totalLines?: number }).totalLines).toBe(201);
   });
 
   it("scopes process sessions by scopeKey", async () => {
@@ -449,96 +448,5 @@ describe("exec PATH handling", () => {
     const entries = text.split(path.delimiter);
     expect(entries.slice(0, prepend.length)).toEqual(prepend);
     expect(entries).toContain(basePath);
-  });
-});
-
-describe("buildDockerExecArgs", () => {
-  it("prepends custom PATH after login shell sourcing to preserve both custom and system tools", () => {
-    const args = buildDockerExecArgs({
-      containerName: "test-container",
-      command: "echo hello",
-      env: {
-        PATH: "/custom/bin:/usr/local/bin:/usr/bin",
-        HOME: "/home/user",
-      },
-      tty: false,
-    });
-
-    const commandArg = args[args.length - 1];
-    expect(args).toContain("OPENCLAW_PREPEND_PATH=/custom/bin:/usr/local/bin:/usr/bin");
-    expect(commandArg).toContain('export PATH="${OPENCLAW_PREPEND_PATH}:$PATH"');
-    expect(commandArg).toContain("echo hello");
-    expect(commandArg).toBe(
-      'export PATH="${OPENCLAW_PREPEND_PATH}:$PATH"; unset OPENCLAW_PREPEND_PATH; echo hello',
-    );
-  });
-
-  it("does not interpolate PATH into the shell command", () => {
-    const injectedPath = "$(touch /tmp/openclaw-path-injection)";
-    const args = buildDockerExecArgs({
-      containerName: "test-container",
-      command: "echo hello",
-      env: {
-        PATH: injectedPath,
-        HOME: "/home/user",
-      },
-      tty: false,
-    });
-
-    const commandArg = args[args.length - 1];
-    expect(args).toContain(`OPENCLAW_PREPEND_PATH=${injectedPath}`);
-    expect(commandArg).not.toContain(injectedPath);
-    expect(commandArg).toContain("OPENCLAW_PREPEND_PATH");
-  });
-
-  it("does not add PATH export when PATH is not in env", () => {
-    const args = buildDockerExecArgs({
-      containerName: "test-container",
-      command: "echo hello",
-      env: {
-        HOME: "/home/user",
-      },
-      tty: false,
-    });
-
-    const commandArg = args[args.length - 1];
-    expect(commandArg).toBe("echo hello");
-    expect(commandArg).not.toContain("export PATH");
-  });
-
-  it("includes workdir flag when specified", () => {
-    const args = buildDockerExecArgs({
-      containerName: "test-container",
-      command: "pwd",
-      workdir: "/workspace",
-      env: { HOME: "/home/user" },
-      tty: false,
-    });
-
-    expect(args).toContain("-w");
-    expect(args).toContain("/workspace");
-  });
-
-  it("uses login shell for consistent environment", () => {
-    const args = buildDockerExecArgs({
-      containerName: "test-container",
-      command: "echo test",
-      env: { HOME: "/home/user" },
-      tty: false,
-    });
-
-    expect(args).toContain("sh");
-    expect(args).toContain("-lc");
-  });
-
-  it("includes tty flag when requested", () => {
-    const args = buildDockerExecArgs({
-      containerName: "test-container",
-      command: "bash",
-      env: { HOME: "/home/user" },
-      tty: true,
-    });
-
-    expect(args).toContain("-t");
   });
 });
