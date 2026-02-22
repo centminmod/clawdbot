@@ -46,7 +46,10 @@ describe("tui command handlers", () => {
     const renderOrders = requestRender.mock.invocationCallOrder;
     expect(renderOrders.some((order) => order > sendingOrder)).toBe(true);
 
-    resolveSend?.({ runId: "r1" });
+    if (typeof resolveSend !== "function") {
+      throw new Error("expected sendChat to be pending");
+    }
+    (resolveSend as (value: { runId: string }) => void)({ runId: "r1" });
     await pending;
     expect(setActivityStatus).toHaveBeenCalledWith("waiting");
   });
