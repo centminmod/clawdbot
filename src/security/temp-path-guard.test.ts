@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import ts from "typescript";
@@ -104,6 +105,48 @@ async function listTsFiles(dir: string): Promise<string[]> {
   return out;
 }
 
+function parsePathList(stdout: string): Set<string> {
+  const out = new Set<string>();
+  for (const line of stdout.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+    out.add(path.resolve(trimmed));
+  }
+  return out;
+}
+
+function prefilterLikelyTmpdirJoinFiles(root: string): Set<string> | null {
+  const commonArgs = [
+    "--files-with-matches",
+    "--glob",
+    "*.ts",
+    "--glob",
+    "*.tsx",
+    "--glob",
+    "!**/*.test.ts",
+    "--glob",
+    "!**/*.test.tsx",
+    "--glob",
+    "!**/*.e2e.ts",
+    "--glob",
+    "!**/*.e2e.tsx",
+    "--glob",
+    "!**/*.d.ts",
+    "--no-messages",
+  ];
+  const candidateCall = spawnSync(
+    "rg",
+    [...commonArgs, "path\\s*\\.\\s*join\\s*\\(\\s*os\\s*\\.\\s*tmpdir\\s*\\(", root],
+    { encoding: "utf8" },
+  );
+  if (candidateCall.error || (candidateCall.status !== 0 && candidateCall.status !== 1)) {
+    return null;
+  }
+  return parsePathList(candidateCall.stdout);
+}
+
 describe("temp path guard", () => {
   it("skips test helper filename variants", () => {
     expect(shouldSkip("src/commands/test-helpers.ts")).toBe(true);
@@ -139,7 +182,8 @@ describe("temp path guard", () => {
 
     for (const root of RUNTIME_ROOTS) {
       const absRoot = path.join(repoRoot, root);
-      const files = await listTsFiles(absRoot);
+      const rgPrefiltered = prefilterLikelyTmpdirJoinFiles(absRoot);
+      const files = rgPrefiltered ? [...rgPrefiltered] : await listTsFiles(absRoot);
       for (const file of files) {
         const relativePath = path.relative(repoRoot, file);
         if (shouldSkip(relativePath)) {
