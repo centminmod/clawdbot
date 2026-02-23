@@ -540,10 +540,10 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 | Setting | Config path | Required value | Why |
 |---|---|---|---|
 | Bind mode | `gateway.bind` | `"lan"` or `gateway.customBindHost` | Must not be `"loopback"` — Cloudflare needs to reach the Gateway's port |
-| Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:113-115`), unless `auth.mode="trusted-proxy"` |
+| Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:119`), unless `auth.mode="trusted-proxy"` |
 | Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:235-277`) |
 
-**Source:** `src/config/types.gateway.ts:321`
+**Source:** `src/config/types.gateway.ts:327`
 ```typescript
 /**
  * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection
