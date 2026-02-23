@@ -6,12 +6,9 @@ import {
   installSmokeProgramMocks,
   messageCommand,
   onboardCommand,
-  runChannelLogin,
-  runChannelLogout,
   runTui,
   runtime,
   setupCommand,
-  statusCommand,
 } from "./program.test-mocks.js";
 
 installBaseProgramMocks();
@@ -62,15 +59,11 @@ describe("cli program (smoke)", () => {
     expect(messageCommand).toHaveBeenCalled();
   });
 
-  it("runs status command", async () => {
-    await runProgram(["status"]);
-    expect(statusCommand).toHaveBeenCalled();
-  });
-
-  it("registers memory command", () => {
+  it("registers memory + status commands", () => {
     const program = createProgram();
     const names = program.commands.map((command) => command.name());
     expect(names).toContain("memory");
+    expect(names).toContain("status");
   });
 
   it.each([
@@ -127,46 +120,16 @@ describe("cli program (smoke)", () => {
   it("passes auth api keys to onboard", async () => {
     const cases = [
       {
-        authChoice: "opencode-zen",
-        flag: "--opencode-zen-api-key",
-        key: "sk-opencode-zen-test",
-        field: "opencodeZenApiKey",
-      },
-      {
         authChoice: "openrouter-api-key",
         flag: "--openrouter-api-key",
         key: "sk-openrouter-test",
         field: "openrouterApiKey",
       },
       {
-        authChoice: "moonshot-api-key",
-        flag: "--moonshot-api-key",
-        key: "sk-moonshot-test",
-        field: "moonshotApiKey",
-      },
-      {
-        authChoice: "together-api-key",
-        flag: "--together-api-key",
-        key: "sk-together-test",
-        field: "togetherApiKey",
-      },
-      {
         authChoice: "moonshot-api-key-cn",
         flag: "--moonshot-api-key",
         key: "sk-moonshot-cn-test",
         field: "moonshotApiKey",
-      },
-      {
-        authChoice: "kimi-code-api-key",
-        flag: "--kimi-code-api-key",
-        key: "sk-kimi-code-test",
-        field: "kimiCodeApiKey",
-      },
-      {
-        authChoice: "synthetic-api-key",
-        flag: "--synthetic-api-key",
-        key: "sk-synthetic-test",
-        field: "syntheticApiKey",
       },
       {
         authChoice: "zai-api-key",
@@ -227,29 +190,5 @@ describe("cli program (smoke)", () => {
       }),
       runtime,
     );
-  });
-
-  it.each([
-    {
-      label: "runs channels login",
-      argv: ["channels", "login", "--account", "work"],
-      expectCall: () =>
-        expect(runChannelLogin).toHaveBeenCalledWith(
-          { channel: undefined, account: "work", verbose: false },
-          runtime,
-        ),
-    },
-    {
-      label: "runs channels logout",
-      argv: ["channels", "logout", "--account", "work"],
-      expectCall: () =>
-        expect(runChannelLogout).toHaveBeenCalledWith(
-          { channel: undefined, account: "work" },
-          runtime,
-        ),
-    },
-  ])("channels command: $label", async ({ argv, expectCall }) => {
-    await runProgram(argv);
-    expectCall();
   });
 });

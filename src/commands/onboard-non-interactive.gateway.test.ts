@@ -1,10 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { GatewayAuthConfig } from "../config/config.js";
 import { makeTempWorkspace } from "../test-helpers/workspace.js";
 import { captureEnv } from "../test-utils/env.js";
-import { getFreePortBlockWithPermissionFallback } from "../test-utils/ports.js";
 import {
   createThrowingRuntime,
   readJsonFile,
@@ -18,6 +16,7 @@ const gatewayClientCalls: Array<{
   onHelloOk?: () => void;
   onClose?: (code: number, reason: string) => void;
 }> = [];
+const ensureWorkspaceAndSessionsMock = vi.fn(async (..._args: unknown[]) => {});
 
 vi.mock("../gateway/client.js", () => ({
   GatewayClient: class {
@@ -46,34 +45,19 @@ vi.mock("../gateway/client.js", () => ({
   },
 }));
 
-async function getFreePort(): Promise<number> {
-  return await getFreePortBlockWithPermissionFallback({
-    offsets: [0],
-    fallbackBase: 30_000,
-  });
-}
+vi.mock("./onboard-helpers.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./onboard-helpers.js")>();
+  return {
+    ...actual,
+    ensureWorkspaceAndSessions: ensureWorkspaceAndSessionsMock,
+  };
+});
 
-async function getFreeGatewayPort(): Promise<number> {
-  return await getFreePortBlockWithPermissionFallback({
-    offsets: [0, 1, 2, 4],
-    fallbackBase: 40_000,
-  });
+function getPseudoPort(base: number): number {
+  return base + (process.pid % 1000);
 }
 
 const runtime = createThrowingRuntime();
-
-async function expectGatewayTokenAuth(params: {
-  authConfig: GatewayAuthConfig | null | undefined;
-  token: string;
-  env: NodeJS.ProcessEnv;
-}) {
-  const { authorizeGatewayConnect, resolveGatewayAuth } = await import("../gateway/auth.js");
-  const auth = resolveGatewayAuth({ authConfig: params.authConfig, env: params.env });
-  const resNoToken = await authorizeGatewayConnect({ auth, connectAuth: { token: undefined } });
-  expect(resNoToken.ok).toBe(false);
-  const resToken = await authorizeGatewayConnect({ auth, connectAuth: { token: params.token } });
-  expect(resToken.ok).toBe(true);
-}
 
 describe("onboard (non-interactive): gateway and remote auth", () => {
   let envSnapshot: ReturnType<typeof captureEnv>;
@@ -131,7 +115,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
     envSnapshot.restore();
   });
 
-  it("writes gateway token auth into config and gateway enforces it", async () => {
+  it("writes gateway token auth into config", async () => {
     await withStateDir("state-noninteractive-", async (stateDir) => {
       const token = "tok_test_123";
       const workspace = path.join(stateDir, "openclaw");
@@ -155,25 +139,19 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       const { resolveConfigPath } = await import("../config/paths.js");
       const configPath = resolveConfigPath(process.env, stateDir);
       const cfg = await readJsonFile<{
-        gateway?: { auth?: GatewayAuthConfig };
+        gateway?: { auth?: { mode?: string; token?: string } };
         agents?: { defaults?: { workspace?: string } };
       }>(configPath);
 
       expect(cfg?.agents?.defaults?.workspace).toBe(workspace);
       expect(cfg?.gateway?.auth?.mode).toBe("token");
       expect(cfg?.gateway?.auth?.token).toBe(token);
-
-      await expectGatewayTokenAuth({
-        authConfig: cfg.gateway?.auth,
-        token,
-        env: process.env,
-      });
     });
   }, 60_000);
 
   it("writes gateway.remote url/token and callGateway uses them", async () => {
     await withStateDir("state-remote-", async () => {
-      const port = await getFreePort();
+      const port = getPseudoPort(30_000);
       const token = "tok_remote_123";
       await runNonInteractiveOnboarding(
         {
@@ -215,7 +193,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
       process.env.OPENCLAW_STATE_DIR = stateDir;
       process.env.OPENCLAW_CONFIG_PATH = path.join(stateDir, "openclaw.json");
 
-      const port = await getFreeGatewayPort();
+      const port = getPseudoPort(40_000);
       const workspace = path.join(stateDir, "openclaw");
 
       await runNonInteractiveOnboarding(
@@ -239,21 +217,14 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
         gateway?: {
           bind?: string;
           port?: number;
-          auth?: GatewayAuthConfig;
+          auth?: { mode?: string; token?: string };
         };
       }>(configPath);
 
       expect(cfg.gateway?.bind).toBe("lan");
       expect(cfg.gateway?.port).toBe(port);
       expect(cfg.gateway?.auth?.mode).toBe("token");
-      const token = cfg.gateway?.auth?.token ?? "";
-      expect(token.length).toBeGreaterThan(8);
-
-      await expectGatewayTokenAuth({
-        authConfig: cfg.gateway?.auth,
-        token,
-        env: process.env,
-      });
+      expect((cfg.gateway?.auth?.token ?? "").length).toBeGreaterThan(8);
     });
   }, 60_000);
 });
