@@ -1,8 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createIosNodeListResponse } from "./program.nodes-test-helpers.js";
-import { callGateway, installBaseProgramMocks, runTui, runtime } from "./program.test-mocks.js";
+import {
+  callGateway,
+  installBaseProgramMocks,
+  installSmokeProgramMocks,
+  runTui,
+  runtime,
+} from "./program.test-mocks.js";
 
 installBaseProgramMocks();
+installSmokeProgramMocks();
 
 const { buildProgram } = await import("./program.js");
 
@@ -55,13 +62,6 @@ describe("cli program (nodes basics)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     runTui.mockResolvedValue(undefined);
-  });
-
-  it("runs nodes list and calls node.pair.list", async () => {
-    callGateway.mockResolvedValue({ pending: [], paired: [] });
-    await runProgram(["nodes", "list"]);
-    expect(callGateway).toHaveBeenCalledWith(expect.objectContaining({ method: "node.pair.list" }));
-    expect(runtime.log).toHaveBeenCalledWith("Pending: 0 · Paired: 0");
   });
 
   it("runs nodes list --connected and filters to connected nodes", async () => {

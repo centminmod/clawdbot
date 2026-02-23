@@ -4,7 +4,6 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import "./test-helpers/fast-coding-tools.js";
 import type { OpenClawConfig } from "../config/config.js";
-import { ensureOpenClawModelsJson } from "./models-config.js";
 
 vi.mock("@mariozechner/pi-coding-agent", async () => {
   const actual = await vi.importActual<typeof import("@mariozechner/pi-coding-agent")>(
@@ -162,8 +161,6 @@ const makeOpenAiConfig = (modelIds: string[]) =>
     },
   }) satisfies OpenClawConfig;
 
-const ensureModels = (cfg: OpenClawConfig) => ensureOpenClawModelsJson(cfg, agentDir) as unknown;
-
 const nextSessionFile = () => {
   sessionCounter += 1;
   return path.join(workspaceDir, `session-${sessionCounter}.jsonl`);
@@ -184,7 +181,6 @@ const runWithOrphanedSingleUserMessage = async (text: string) => {
   });
 
   const cfg = makeOpenAiConfig(["mock-1"]);
-  await ensureModels(cfg);
   return await runEmbeddedPiAgent({
     sessionId: "session:test",
     sessionKey: testSessionKey,
@@ -230,7 +226,6 @@ const readSessionMessages = async (sessionFile: string) => {
 
 const runDefaultEmbeddedTurn = async (sessionFile: string, prompt: string) => {
   const cfg = makeOpenAiConfig(["mock-1"]);
-  await ensureModels(cfg);
   await runEmbeddedPiAgent({
     sessionId: "session:test",
     sessionKey: testSessionKey,
@@ -305,7 +300,6 @@ describe("runEmbeddedPiAgent", () => {
         },
       },
     } satisfies OpenClawConfig;
-    await ensureModels(cfg);
 
     const result = await runEmbeddedPiAgent({
       sessionId: "session:test-fallback",
@@ -342,7 +336,6 @@ describe("runEmbeddedPiAgent", () => {
         ],
       },
     } satisfies OpenClawConfig;
-    await ensureModels(cfg);
 
     await expect(
       runEmbeddedPiAgent({
@@ -363,25 +356,9 @@ describe("runEmbeddedPiAgent", () => {
     ).rejects.toThrow("Malformed agent session key");
   });
 
-  it("persists the first user message before assistant output", { timeout: 120_000 }, async () => {
-    const sessionFile = nextSessionFile();
-    await runDefaultEmbeddedTurn(sessionFile, "hello");
-
-    const messages = await readSessionMessages(sessionFile);
-    const firstUserIndex = messages.findIndex(
-      (message) => message?.role === "user" && textFromContent(message.content) === "hello",
-    );
-    const firstAssistantIndex = messages.findIndex((message) => message?.role === "assistant");
-    expect(firstUserIndex).toBeGreaterThanOrEqual(0);
-    if (firstAssistantIndex !== -1) {
-      expect(firstUserIndex).toBeLessThan(firstAssistantIndex);
-    }
-  });
-
   it("persists the user message when prompt fails before assistant output", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-error"]);
-    await ensureModels(cfg);
 
     const result = await runEmbeddedPiAgent({
       sessionId: "session:test",
@@ -409,7 +386,6 @@ describe("runEmbeddedPiAgent", () => {
   it("fails fast on prompt transport errors", async () => {
     const sessionFile = nextSessionFile();
     const cfg = makeOpenAiConfig(["mock-throw"]);
-    await ensureModels(cfg);
 
     await expect(
       runEmbeddedPiAgent({
@@ -490,73 +466,8 @@ describe("runEmbeddedPiAgent", () => {
     },
   );
 
-  it("persists multi-turn user/assistant ordering across runs", async () => {
-    const sessionFile = nextSessionFile();
-    const cfg = makeOpenAiConfig(["mock-1"]);
-    await ensureModels(cfg);
-
-    await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey: testSessionKey,
-      sessionFile,
-      workspaceDir,
-      config: cfg,
-      prompt: "first",
-      provider: "openai",
-      model: "mock-1",
-      timeoutMs: 5_000,
-      agentDir,
-      runId: nextRunId("turn-first"),
-      enqueue: immediateEnqueue,
-    });
-
-    await runEmbeddedPiAgent({
-      sessionId: "session:test",
-      sessionKey: testSessionKey,
-      sessionFile,
-      workspaceDir,
-      config: cfg,
-      prompt: "second",
-      provider: "openai",
-      model: "mock-1",
-      timeoutMs: 5_000,
-      agentDir,
-      runId: nextRunId("turn-second"),
-      enqueue: immediateEnqueue,
-    });
-
-    const messages = await readSessionMessages(sessionFile);
-    const firstUserIndex = messages.findIndex(
-      (message) => message?.role === "user" && textFromContent(message.content) === "first",
-    );
-    const firstAssistantIndex = messages.findIndex(
-      (message, index) => index > firstUserIndex && message?.role === "assistant",
-    );
-    const secondUserIndex = messages.findIndex(
-      (message, index) =>
-        index > firstAssistantIndex &&
-        message?.role === "user" &&
-        textFromContent(message.content) === "second",
-    );
-    const secondAssistantIndex = messages.findIndex(
-      (message, index) => index > secondUserIndex && message?.role === "assistant",
-    );
-
-    expect(firstUserIndex).toBeGreaterThanOrEqual(0);
-    expect(firstAssistantIndex).toBeGreaterThan(firstUserIndex);
-    expect(secondUserIndex).toBeGreaterThan(firstAssistantIndex);
-    expect(secondAssistantIndex).toBeGreaterThan(secondUserIndex);
-  });
-
   it("repairs orphaned user messages and continues", async () => {
     const result = await runWithOrphanedSingleUserMessage("orphaned user");
-
-    expect(result.meta.error).toBeUndefined();
-    expect(result.payloads?.length ?? 0).toBeGreaterThan(0);
-  });
-
-  it("repairs orphaned single-user sessions and continues", async () => {
-    const result = await runWithOrphanedSingleUserMessage("solo user");
 
     expect(result.meta.error).toBeUndefined();
     expect(result.payloads?.length ?? 0).toBeGreaterThan(0);

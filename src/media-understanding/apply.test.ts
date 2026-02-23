@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveApiKeyForProvider } from "../agents/model-auth.js";
 import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -29,9 +29,7 @@ vi.mock("../process/exec.js", () => ({
   runExec: vi.fn(),
 }));
 
-async function loadApply() {
-  return await import("./apply.js");
-}
+let applyMediaUnderstanding: typeof import("./apply.js").applyMediaUnderstanding;
 
 const TEMP_MEDIA_PREFIX = "openclaw-media-";
 const tempMediaDirs: string[] = [];
@@ -92,6 +90,21 @@ function createMediaDisabledConfig(): OpenClawConfig {
   };
 }
 
+function createMediaDisabledConfigWithAllowedMimes(allowedMimes: string[]): OpenClawConfig {
+  return {
+    ...createMediaDisabledConfig(),
+    gateway: {
+      http: {
+        endpoints: {
+          responses: {
+            files: { allowedMimes },
+          },
+        },
+      },
+    },
+  };
+}
+
 async function createTempMediaFile(params: { fileName: string; content: Buffer | string }) {
   const dir = await createTempMediaDir();
   const mediaPath = path.join(dir, params.fileName);
@@ -122,7 +135,6 @@ async function applyWithDisabledMedia(params: {
   mediaType?: string;
   cfg?: OpenClawConfig;
 }) {
-  const { applyMediaUnderstanding } = await loadApply();
   const ctx: MsgContext = {
     Body: params.body,
     MediaPath: params.mediaPath,
@@ -135,9 +147,23 @@ async function applyWithDisabledMedia(params: {
   return { ctx, result };
 }
 
+function expectFileNotApplied(params: {
+  ctx: MsgContext;
+  result: { appliedFile: boolean };
+  body: string;
+}) {
+  expect(params.result.appliedFile).toBe(false);
+  expect(params.ctx.Body).toBe(params.body);
+  expect(params.ctx.Body).not.toContain("<file");
+}
+
 describe("applyMediaUnderstanding", () => {
   const mockedResolveApiKey = vi.mocked(resolveApiKeyForProvider);
   const mockedFetchRemoteMedia = vi.mocked(fetchRemoteMedia);
+
+  beforeAll(async () => {
+    ({ applyMediaUnderstanding } = await import("./apply.js"));
+  });
 
   beforeEach(() => {
     mockedResolveApiKey.mockClear();
@@ -158,7 +184,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("sets Transcript and replaces Body when audio transcription succeeds", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx();
     const result = await applyMediaUnderstanding({
       ctx,
@@ -177,7 +202,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("skips file blocks for text-like audio when transcription succeeds", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx({
       fileName: "data.mp3",
       mediaType: "audio/mpeg",
@@ -196,7 +220,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("keeps caption for command parsing when audio has user text", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx({
       body: "<media:audio> /capture status",
     });
@@ -216,7 +239,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("handles URL-only attachments for audio transcription", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx: MsgContext = {
       Body: "<media:audio>",
       MediaUrl: "https://example.com/note.ogg",
@@ -256,7 +278,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("skips audio transcription when attachment exceeds maxBytes", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx({
       fileName: "large.wav",
       mediaType: "audio/wav",
@@ -287,7 +308,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("falls back to CLI model when provider fails", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const ctx = await createAudioCtx();
     const cfg: OpenClawConfig = {
       tools: {
@@ -332,7 +352,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses CLI image understanding and preserves caption for commands", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const imagePath = await createTempMediaFile({
       fileName: "photo.jpg",
       content: "image-bytes",
@@ -380,7 +399,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses shared media models list when capability config is missing", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const imagePath = await createTempMediaFile({
       fileName: "shared.jpg",
       content: "image-bytes",
@@ -422,7 +440,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("uses active model when enabled and models are missing", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const audioPath = await createTempMediaFile({
       fileName: "fallback.ogg",
       content: Buffer.from([0, 255, 0, 1, 2, 3, 4, 5, 6]),
@@ -460,7 +477,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("handles multiple audio attachments when attachment mode is all", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const dir = await createTempMediaDir();
     const audioBytes = Buffer.from([200, 201, 202, 203, 204, 205, 206, 207, 208]);
     const audioPathA = path.join(dir, "note-a.ogg");
@@ -504,7 +520,6 @@ describe("applyMediaUnderstanding", () => {
   });
 
   it("orders mixed media outputs as image, audio, video", async () => {
-    const { applyMediaUnderstanding } = await loadApply();
     const dir = await createTempMediaDir();
     const imagePath = path.join(dir, "photo.jpg");
     const audioPath = path.join(dir, "note.ogg");
@@ -627,9 +642,7 @@ describe("applyMediaUnderstanding", () => {
       mediaType: "audio/mpeg",
     });
 
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:audio>");
-    expect(ctx.Body).not.toContain("<file");
+    expectFileNotApplied({ ctx, result, body: "<media:audio>" });
   });
 
   it("does not reclassify PDF attachments as text/plain", async () => {
@@ -639,18 +652,7 @@ describe("applyMediaUnderstanding", () => {
       content: pseudoPdf,
     });
 
-    const cfg: OpenClawConfig = {
-      ...createMediaDisabledConfig(),
-      gateway: {
-        http: {
-          endpoints: {
-            responses: {
-              files: { allowedMimes: ["text/plain"] },
-            },
-          },
-        },
-      },
-    };
+    const cfg = createMediaDisabledConfigWithAllowedMimes(["text/plain"]);
 
     const { ctx, result } = await applyWithDisabledMedia({
       body: "<media:file>",
@@ -659,9 +661,7 @@ describe("applyMediaUnderstanding", () => {
       cfg,
     });
 
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:file>");
-    expect(ctx.Body).not.toContain("<file");
+    expectFileNotApplied({ ctx, result, body: "<media:file>" });
   });
 
   it("respects configured allowedMimes for text-like attachments", async () => {
@@ -671,27 +671,14 @@ describe("applyMediaUnderstanding", () => {
       content: tsvText,
     });
 
-    const cfg: OpenClawConfig = {
-      ...createMediaDisabledConfig(),
-      gateway: {
-        http: {
-          endpoints: {
-            responses: {
-              files: { allowedMimes: ["text/plain"] },
-            },
-          },
-        },
-      },
-    };
+    const cfg = createMediaDisabledConfigWithAllowedMimes(["text/plain"]);
     const { ctx, result } = await applyWithDisabledMedia({
       body: "<media:file>",
       mediaPath: tsvPath,
       cfg,
     });
 
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:file>");
-    expect(ctx.Body).not.toContain("<file");
+    expectFileNotApplied({ ctx, result, body: "<media:file>" });
   });
 
   it("escapes XML special characters in filenames to prevent injection", async () => {
@@ -824,9 +811,7 @@ describe("applyMediaUnderstanding", () => {
       mediaType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    expect(result.appliedFile).toBe(false);
-    expect(ctx.Body).toBe("<media:file>");
-    expect(ctx.Body).not.toContain("<file");
+    expectFileNotApplied({ ctx, result, body: "<media:file>" });
   });
 
   it("keeps vendor +json attachments eligible for text extraction", async () => {

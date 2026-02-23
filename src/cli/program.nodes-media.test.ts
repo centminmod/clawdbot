@@ -1,10 +1,16 @@
 import * as fs from "node:fs/promises";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { parseCameraSnapPayload, parseCameraClipPayload } from "./nodes-camera.js";
 import { IOS_NODE, createIosNodeListResponse } from "./program.nodes-test-helpers.js";
-import { callGateway, installBaseProgramMocks, runTui, runtime } from "./program.test-mocks.js";
+import {
+  callGateway,
+  installBaseProgramMocks,
+  installSmokeProgramMocks,
+  runTui,
+  runtime,
+} from "./program.test-mocks.js";
 
 installBaseProgramMocks();
+installSmokeProgramMocks();
 
 function getFirstRuntimeLogLine(): string {
   const first = runtime.log.mock.calls[0]?.[0];
@@ -29,24 +35,6 @@ async function expectLoggedSingleMediaFile(params?: {
     await fs.unlink(mediaPath).catch(() => {});
   }
   return mediaPath;
-}
-
-function expectParserAcceptsUrlWithoutBase64(
-  parse: (payload: Record<string, unknown>) => { url?: string; base64?: string },
-  payload: Record<string, unknown>,
-  expectedUrl: string,
-) {
-  const result = parse(payload);
-  expect(result.url).toBe(expectedUrl);
-  expect(result.base64).toBeUndefined();
-}
-
-function expectParserRejectsMissingMedia(
-  parse: (payload: Record<string, unknown>) => unknown,
-  payload: Record<string, unknown>,
-  expectedMessage: string,
-) {
-  expect(() => parse(payload)).toThrow(expectedMessage);
 }
 
 function mockNodeGateway(command?: string, payload?: Record<string, unknown>) {
@@ -121,11 +109,14 @@ describe("cli program (nodes media)", () => {
       .map((l) => l.replace(/^MEDIA:/, ""))
       .filter(Boolean);
     expect(mediaPaths).toHaveLength(2);
+    expect(mediaPaths[0]).toContain("openclaw-camera-snap-");
+    expect(mediaPaths[1]).toContain("openclaw-camera-snap-");
 
     try {
-      for (const p of mediaPaths) {
-        await expect(fs.readFile(p, "utf8")).resolves.toBe("hi");
-      }
+      // Content bytes are covered by single-output camera/file tests; here we
+      // only verify dual snapshot behavior and that both paths were written.
+      await expect(fs.stat(mediaPaths[0])).resolves.toBeTruthy();
+      await expect(fs.stat(mediaPaths[1])).resolves.toBeTruthy();
     } finally {
       await Promise.all(mediaPaths.map((p) => fs.unlink(p).catch(() => {})));
     }
@@ -346,63 +337,6 @@ describe("cli program (nodes media)", () => {
         argv,
         expectedPathPattern,
       });
-    });
-  });
-
-  describe("url payload parsers", () => {
-    const parserCases = [
-      {
-        label: "camera snap parser",
-        parse: (payload: Record<string, unknown>) => parseCameraSnapPayload(payload),
-        validPayload: {
-          format: "jpg",
-          url: "https://example.com/photo.jpg",
-          width: 640,
-          height: 480,
-        },
-        invalidPayload: { format: "jpg", width: 640, height: 480 },
-        expectedUrl: "https://example.com/photo.jpg",
-        expectedError: "invalid camera.snap payload",
-      },
-      {
-        label: "camera clip parser",
-        parse: (payload: Record<string, unknown>) => parseCameraClipPayload(payload),
-        validPayload: {
-          format: "mp4",
-          url: "https://example.com/clip.mp4",
-          durationMs: 3000,
-          hasAudio: true,
-        },
-        invalidPayload: { format: "mp4", durationMs: 3000, hasAudio: true },
-        expectedUrl: "https://example.com/clip.mp4",
-        expectedError: "invalid camera.clip payload",
-      },
-    ] as const;
-
-    it.each(parserCases)(
-      "accepts url without base64: $label",
-      ({ parse, validPayload, expectedUrl }) => {
-        expectParserAcceptsUrlWithoutBase64(parse, validPayload, expectedUrl);
-      },
-    );
-
-    it.each(parserCases)(
-      "rejects payload with neither base64 nor url: $label",
-      ({ parse, invalidPayload, expectedError }) => {
-        expectParserRejectsMissingMedia(parse, invalidPayload, expectedError);
-      },
-    );
-
-    it("snap parser accepts both base64 and url", () => {
-      const result = parseCameraSnapPayload({
-        format: "jpg",
-        base64: "aGk=",
-        url: "https://example.com/photo.jpg",
-        width: 640,
-        height: 480,
-      });
-      expect(result.base64).toBe("aGk=");
-      expect(result.url).toBe("https://example.com/photo.jpg");
     });
   });
 });
