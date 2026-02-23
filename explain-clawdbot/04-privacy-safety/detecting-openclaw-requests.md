@@ -89,7 +89,7 @@ HTTP-Referer: https://openclaw.ai
 X-Title: OpenClaw Web Search
 ```
 
-**Source:** `src/agents/tools/web-search.ts:503-504`
+**Source:** `src/agents/tools/web-search.ts:509-510`
 ```typescript
 "HTTP-Referer": "https://openclaw.ai",
 "X-Title": "OpenClaw Web Search",
@@ -184,7 +184,7 @@ Accept: application/json
 X-Subscription-Token: <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:683-687`
+**Source:** `src/agents/tools/web-search.ts:685-689`
 ```typescript
 headers: {
   Accept: "application/json",
@@ -203,7 +203,7 @@ Content-Type: application/json
 Authorization: Bearer <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:550-555`
+**Source:** `src/agents/tools/web-search.ts:554-559`
 ```typescript
 headers: {
   "Content-Type": "application/json",
@@ -346,7 +346,7 @@ export type GatewayClientInfo = {
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
 | `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:8` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:504` | Perplexity search |
+| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:510` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
 
 ### Recommendation
