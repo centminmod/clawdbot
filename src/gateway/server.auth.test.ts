@@ -3,6 +3,7 @@ import { WebSocket } from "ws";
 import { withEnvAsync } from "../test-utils/env.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { buildDeviceAuthPayload } from "./device-auth.js";
+import { ConnectErrorDetailCodes } from "./protocol/connect-error-details.js";
 import { PROTOCOL_VERSION } from "./protocol/index.js";
 import { getHandshakeTimeoutMs } from "./server-constants.js";
 import {
@@ -716,6 +717,9 @@ describe("gateway server auth/connect", () => {
       });
       expect(res.ok).toBe(false);
       expect(res.error?.message ?? "").toContain("secure context");
+      expect((res.error?.details as { code?: string } | undefined)?.code).toBe(
+        ConnectErrorDetailCodes.CONTROL_UI_DEVICE_IDENTITY_REQUIRED,
+      );
       ws.close();
     });
   });
@@ -898,6 +902,9 @@ describe("gateway server auth/connect", () => {
         });
         expect(res.ok).toBe(false);
         expect(res.error?.message ?? "").toContain("pairing required");
+        expect((res.error?.details as { code?: string } | undefined)?.code).toBe(
+          ConnectErrorDetailCodes.PAIRING_REQUIRED,
+        );
         ws.close();
       });
     } finally {
@@ -1004,6 +1011,9 @@ describe("gateway server auth/connect", () => {
     expect(res2.ok).toBe(false);
     expect(res2.error?.message ?? "").toContain("gateway token mismatch");
     expect(res2.error?.message ?? "").not.toContain("device token mismatch");
+    expect((res2.error?.details as { code?: string } | undefined)?.code).toBe(
+      ConnectErrorDetailCodes.AUTH_TOKEN_MISMATCH,
+    );
 
     ws2.close();
     await server.close();
@@ -1023,6 +1033,9 @@ describe("gateway server auth/connect", () => {
     });
     expect(res2.ok).toBe(false);
     expect(res2.error?.message ?? "").toContain("device token mismatch");
+    expect((res2.error?.details as { code?: string } | undefined)?.code).toBe(
+      ConnectErrorDetailCodes.AUTH_DEVICE_TOKEN_MISMATCH,
+    );
 
     ws2.close();
     await server.close();
@@ -1148,6 +1161,72 @@ describe("gateway server auth/connect", () => {
     pairing = await listDevicePairing();
     expect(pairing.pending.filter((entry) => entry.deviceId === identity.deviceId)).toEqual([]);
     expect(await getPairedDevice(identity.deviceId)).toBeNull();
+    ws2.close();
+    await server.close();
+    restoreGatewayToken(prevToken);
+  });
+
+  test("auto-approves loopback scope upgrades for control ui clients", async () => {
+    const { mkdtemp } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const { buildDeviceAuthPayload } = await import("./device-auth.js");
+    const { loadOrCreateDeviceIdentity, publicKeyRawBase64UrlFromPem, signDevicePayload } =
+      await import("../infra/device-identity.js");
+    const { approveDevicePairing, getPairedDevice, listDevicePairing, requestDevicePairing } =
+      await import("../infra/device-pairing.js");
+    const { server, ws, port, prevToken } = await startServerWithClient("secret");
+    const identityDir = await mkdtemp(join(tmpdir(), "openclaw-device-token-scope-"));
+    const identity = loadOrCreateDeviceIdentity(join(identityDir, "device.json"));
+    const devicePublicKey = publicKeyRawBase64UrlFromPem(identity.publicKeyPem);
+    const buildDevice = (scopes: string[], nonce: string) => {
+      const signedAtMs = Date.now();
+      const payload = buildDeviceAuthPayload({
+        deviceId: identity.deviceId,
+        clientId: CONTROL_UI_CLIENT.id,
+        clientMode: CONTROL_UI_CLIENT.mode,
+        role: "operator",
+        scopes,
+        signedAtMs,
+        token: "secret",
+        nonce,
+      });
+      return {
+        id: identity.deviceId,
+        publicKey: devicePublicKey,
+        signature: signDevicePayload(identity.privateKeyPem, payload),
+        signedAt: signedAtMs,
+        nonce,
+      };
+    };
+    const seeded = await requestDevicePairing({
+      deviceId: identity.deviceId,
+      publicKey: devicePublicKey,
+      role: "operator",
+      scopes: ["operator.read"],
+      clientId: CONTROL_UI_CLIENT.id,
+      clientMode: CONTROL_UI_CLIENT.mode,
+      displayName: "loopback-control-ui-upgrade",
+      platform: CONTROL_UI_CLIENT.platform,
+    });
+    await approveDevicePairing(seeded.request.requestId);
+
+    ws.close();
+
+    const ws2 = await openWs(port, { origin: originForPort(port) });
+    const nonce2 = await readConnectChallengeNonce(ws2);
+    const upgraded = await connectReq(ws2, {
+      token: "secret",
+      scopes: ["operator.admin"],
+      client: { ...CONTROL_UI_CLIENT },
+      device: buildDevice(["operator.admin"], nonce2),
+    });
+    expect(upgraded.ok).toBe(true);
+    const pending = await listDevicePairing();
+    expect(pending.pending.filter((entry) => entry.deviceId === identity.deviceId)).toEqual([]);
+    const updated = await getPairedDevice(identity.deviceId);
+    expect(updated?.tokens?.operator?.scopes).toContain("operator.admin");
+
     ws2.close();
     await server.close();
     restoreGatewayToken(prevToken);

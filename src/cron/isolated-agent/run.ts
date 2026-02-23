@@ -270,6 +270,8 @@ export async function runCronIsolatedAgentTurn(params: {
     sessionKey: agentSessionKey,
     agentId,
     nowMs: now,
+    // Isolated cron runs must not carry prior turn context across executions.
+    forceNew: params.job.sessionTarget === "isolated",
   });
   const runSessionId = cronSession.sessionEntry.sessionId;
   const runSessionKey = baseSessionKey.startsWith("cron:")
@@ -499,6 +501,7 @@ export async function runCronIsolatedAgentTurn(params: {
           messageChannel,
           agentAccountId: resolvedDelivery.accountId,
           sessionFile,
+          agentDir,
           workspaceDir,
           config: cfgWithAgentDefaults,
           skillsSnapshot,
@@ -654,7 +657,13 @@ export async function runCronIsolatedAgentTurn(params: {
     // follows the same system-message injection path as subagent completions.
     // Keep direct outbound delivery only for structured payloads (media/channel
     // data), which cannot be represented by the shared announce flow.
-    if (deliveryPayloadHasStructuredContent) {
+    //
+    // Forum/topic targets should also use direct delivery. Announce flow can
+    // be swallowed by ANNOUNCE_SKIP/NO_REPLY in the target agent turn, which
+    // silently drops cron output for topic-bound sessions.
+    const useDirectDelivery =
+      deliveryPayloadHasStructuredContent || resolvedDelivery.threadId != null;
+    if (useDirectDelivery) {
       try {
         const payloadsForDelivery =
           deliveryPayloads.length > 0
