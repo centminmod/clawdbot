@@ -58,7 +58,7 @@ This is a "practical navigation guide" for new contributors/readers.
 
 - `src/entry.ts` — CLI entry (spawns/sets env, then loads `src/cli/run-main.ts`)
 - `src/cli/` — CLI command definitions
-- `src/commands/` — command implementations (280 files)
+- `src/commands/` — command implementations (296 files)
 
 ### Gateway
 
@@ -77,7 +77,7 @@ This is a "practical navigation guide" for new contributors/readers.
 
 - `src/auto-reply/` — reply pipeline
 - `src/auto-reply/reply/agent-runner.ts` — core agent-turn orchestrator
-- `src/agents/` — agent framework (602 files, 10 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
+- `src/agents/` — agent framework (637 files, 10 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
 
 ### Routing
 
@@ -96,19 +96,19 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 
 | Directory | Files (approx.) | Purpose |
 |-----------|-----------------|---------|
-| `src/agents/` | ~602 | Agent framework, tools, sandbox, auth profiles, skills |
-| `src/gateway/` | ~257 | Gateway server, WS runtime, RPC handlers, config validation |
-| `src/auto-reply/` | ~228 | Reply pipeline, agent turn orchestration |
-| `src/cli/` | ~220 | CLI command definitions and parsing |
-| `src/commands/` | ~280 | CLI command implementations |
-| `src/infra/` | ~265 | Infrastructure: networking, SSRF guards, exec safety, archiving |
-| `src/config/` | ~159 | Configuration schema, types, validation, migrations |
-| `src/browser/` | ~109 | Browser automation (CDP/Puppeteer) |
-| `src/channels/` | ~107 | Shared channel logic, identities, allowlists, registry |
-| `src/memory/` | ~81 | Memory/context management, QMD |
-| `src/cron/` | ~65 | Cron job scheduling |
-| `src/plugins/` | ~57 | Plugin runtime and loading |
-| `src/media-understanding/` | ~43 | Image/audio/video understanding via AI |
+| `src/agents/` | ~637 | Agent framework, tools, sandbox, auth profiles, skills |
+| `src/gateway/` | ~279 | Gateway server, WS runtime, RPC handlers, config validation |
+| `src/auto-reply/` | ~223 | Reply pipeline, agent turn orchestration |
+| `src/cli/` | ~253 | CLI command definitions and parsing |
+| `src/commands/` | ~296 | CLI command implementations |
+| `src/infra/` | ~293 | Infrastructure: networking, SSRF guards, exec safety, archiving |
+| `src/config/` | ~183 | Configuration schema, types, validation, migrations |
+| `src/browser/` | ~116 | Browser automation (CDP/Puppeteer) |
+| `src/channels/` | ~134 | Shared channel logic, identities, allowlists, registry |
+| `src/memory/` | ~84 | Memory/context management, QMD |
+| `src/cron/` | ~70 | Cron job scheduling |
+| `src/plugins/` | ~60 | Plugin runtime and loading |
+| `src/media-understanding/` | ~47 | Image/audio/video understanding via AI |
 | `src/tui/` | ~38 | Terminal UI |
 | `src/daemon/` | — | Background daemon process |
 | `src/hooks/` | — | Lifecycle hooks system |

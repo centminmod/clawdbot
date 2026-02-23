@@ -374,7 +374,7 @@ The special hostname `model-runner.docker.internal` only works from within Docke
 
 ```bash
 # Use localhost with the exposed port instead
-openclaw config set provider.baseUrl http://localhost:12434/v1
+openclaw config set models.providers.dmr.baseUrl http://localhost:12434/v1
 ```
 
 ---
@@ -403,8 +403,8 @@ For the most private setup:
 openclaw config set gateway.bind loopback
 
 # Use local model
-openclaw config set provider.baseUrl http://model-runner.docker.internal/v1
-openclaw config set provider.model glm-4.7-flash
+openclaw config set models.providers.dmr.baseUrl http://model-runner.docker.internal/v1
+openclaw config set models.providers.dmr.models '[{ "id": "glm-4.7-flash" }]'
 
 # Enable Docker sandbox for tool execution
 openclaw config set agents.defaults.sandbox.mode "all"
@@ -426,8 +426,8 @@ Combined with FileVault/LUKS disk encryption, this keeps all AI processing and d
 
 ### OpenClaw Configuration
 
-- [ ] `provider.baseUrl` points to Model Runner
-- [ ] `provider.model` matches a pulled model
+- [ ] `models.providers.dmr.baseUrl` points to Model Runner
+- [ ] `models.providers.dmr.models` includes the target model
 - [ ] `gateway.bind` set to `loopback`
 - [ ] DM policy is `allowlist` or `pairing`
 
