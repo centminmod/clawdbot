@@ -178,12 +178,46 @@ describe("isContextOverflowError", () => {
     }
   });
 
+  it("matches Kimi 'model token limit' context overflow errors", () => {
+    const samples = [
+      "Invalid request: Your request exceeded model token limit: 262144 (requested: 291351)",
+      "error, status code: 400, message: Invalid request: Your request exceeded model token limit: 262144 (requested: 291351)",
+      "Your request exceeded model token limit",
+    ];
+    for (const sample of samples) {
+      expect(isContextOverflowError(sample)).toBe(true);
+    }
+  });
+
+  it("matches exceed/context/max_tokens overflow variants", () => {
+    const samples = [
+      "input length and max_tokens exceed context limit (i.e 156321 + 48384 > 200000)",
+      "This request exceeds the model's maximum context length",
+      "LLM request rejected: max_tokens would exceed context window",
+      "input length would exceed context budget for this model",
+    ];
+    for (const sample of samples) {
+      expect(isContextOverflowError(sample)).toBe(true);
+    }
+  });
+
   it("ignores normal conversation text mentioning context overflow", () => {
     // These are legitimate conversation snippets, not error messages
     expect(isContextOverflowError("Let's investigate the context overflow bug")).toBe(false);
     expect(isContextOverflowError("The mystery context overflow errors are strange")).toBe(false);
     expect(isContextOverflowError("We're debugging context overflow issues")).toBe(false);
     expect(isContextOverflowError("Something is causing context overflow messages")).toBe(false);
+  });
+
+  it("excludes reasoning-required invalid-request errors", () => {
+    const samples = [
+      "400 Reasoning is mandatory for this endpoint and cannot be disabled.",
+      '{"type":"error","error":{"type":"invalid_request_error","message":"Reasoning is mandatory for this endpoint and cannot be disabled."}}',
+      "This model requires reasoning to be enabled",
+    ];
+    for (const sample of samples) {
+      expect(isContextOverflowError(sample)).toBe(false);
+    }
   });
 });
 
@@ -263,6 +297,17 @@ describe("isLikelyContextOverflowError", () => {
       expect(isLikelyContextOverflowError(sample)).toBe(false);
     }
   });
+
+  it("excludes reasoning-required invalid-request errors", () => {
+    const samples = [
+      "400 Reasoning is mandatory for this endpoint and cannot be disabled.",
+      '{"type":"error","error":{"type":"invalid_request_error","message":"Reasoning is mandatory for this endpoint and cannot be disabled."}}',
+      "This endpoint requires reasoning",
+    ];
+    for (const sample of samples) {
+      expect(isLikelyContextOverflowError(sample)).toBe(false);
+    }
+  });
 });
 
 describe("isTransientHttpError", () => {
@@ -270,12 +315,12 @@ describe("isTransientHttpError", () => {
     expect(isTransientHttpError("500 Internal Server Error")).toBe(true);
     expect(isTransientHttpError("502 Bad Gateway")).toBe(true);
     expect(isTransientHttpError("503 Service Unavailable")).toBe(true);
+    expect(isTransientHttpError("504 Gateway Timeout")).toBe(true);
     expect(isTransientHttpError("521 <!DOCTYPE html><html></html>")).toBe(true);
     expect(isTransientHttpError("529 Overloaded")).toBe(true);
   });
 
   it("returns false for non-retryable or non-http text", () => {
-    expect(isTransientHttpError("504 Gateway Timeout")).toBe(false);
     expect(isTransientHttpError("429 Too Many Requests")).toBe(false);
     expect(isTransientHttpError("network timeout")).toBe(false);
   });
