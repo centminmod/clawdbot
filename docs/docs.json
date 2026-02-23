@@ -92,6 +92,10 @@
       "destination": "/providers/moonshot"
     },
     {
+      "source": "/mistral",
+      "destination": "/providers/mistral"
+    },
+    {
       "source": "/openrouter",
       "destination": "/providers/openrouter"
     },
@@ -897,6 +901,7 @@
                   "channels/imessage",
                   "channels/bluebubbles",
                   "channels/msteams",
+                  "channels/synology-chat",
                   "channels/line",
                   "channels/matrix",
                   "channels/nextcloud-talk",
@@ -1066,6 +1071,7 @@
                   "providers/bedrock",
                   "providers/vercel-ai-gateway",
                   "providers/moonshot",
+                  "providers/mistral",
                   "providers/minimax",
                   "providers/opencode",
                   "providers/glm",

@@ -29,7 +29,7 @@ Background sessions are scoped per agent; `process` only sees sessions from the 
 
 Notes:
 
-- `host` defaults to `sandbox` when sandbox runtime is active, and defaults to `gateway` otherwise.
+- `host` defaults to `sandbox`.
 - `elevated` is ignored when sandboxing is off (exec already runs on the host).
 - `gateway`/`node` approvals are controlled by `~/.openclaw/exec-approvals.json`.
 - `node` requires a paired node (companion app or headless node host).
@@ -49,12 +49,13 @@ Notes:
 
 - `tools.exec.notifyOnExit` (default: true): when true, backgrounded exec sessions enqueue a system event and request a heartbeat on exit.
 - `tools.exec.approvalRunningNoticeMs` (default: 10000): emit a single “running” notice when an approval-gated exec runs longer than this (0 disables).
-- `tools.exec.host` (default: runtime-aware: `sandbox` when sandbox runtime is active, `gateway` otherwise)
+- `tools.exec.host` (default: `sandbox`)
 - `tools.exec.security` (default: `deny` for sandbox, `allowlist` for gateway + node when unset)
 - `tools.exec.ask` (default: `on-miss`)
 - `tools.exec.node` (default: unset)
 - `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs (gateway + sandbox only).
 - `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries. For behavior details, see [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
+- `tools.exec.safeBinTrustedDirs`: additional explicit directories trusted for `safeBins` path checks. `PATH` entries are never auto-trusted.
 - `tools.exec.safeBinProfiles`: optional custom argv policy per safe bin (`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`).
 
 Example:
@@ -130,6 +131,7 @@ Redirections remain unsupported.
 Use the two controls for different jobs:
 
 - `tools.exec.safeBins`: small, stdin-only stream filters.
+- `tools.exec.safeBinTrustedDirs`: explicit extra trusted directories for safe-bin executable paths.
 - `tools.exec.safeBinProfiles`: explicit argv policy for custom safe bins.
 - allowlist: explicit trust for executable paths.
 

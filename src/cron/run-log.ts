@@ -19,13 +19,34 @@ export type CronRunLogEntry = {
   nextRunAtMs?: number;
 } & CronRunTelemetry;
 
+function assertSafeCronRunLogJobId(jobId: string): string {
+  const trimmed = jobId.trim();
+  if (!trimmed) {
+    throw new Error("invalid cron run log job id");
+  }
+  if (trimmed.includes("/") || trimmed.includes("\\") || trimmed.includes("\0")) {
+    throw new Error("invalid cron run log job id");
+  }
+  return trimmed;
+}
+
 export function resolveCronRunLogPath(params: { storePath: string; jobId: string }) {
   const storePath = path.resolve(params.storePath);
   const dir = path.dirname(storePath);
-  return path.join(dir, "runs", `${params.jobId}.jsonl`);
+  const runsDir = path.resolve(dir, "runs");
+  const safeJobId = assertSafeCronRunLogJobId(params.jobId);
+  const resolvedPath = path.resolve(runsDir, `${safeJobId}.jsonl`);
+  if (!resolvedPath.startsWith(`${runsDir}${path.sep}`)) {
+    throw new Error("invalid cron run log job id");
+  }
+  return resolvedPath;
 }
 
 const writesByPath = new Map<string, Promise<void>>();
+
+export function getPendingCronRunLogWriteCountForTests() {
+  return writesByPath.size;
+}
 
 async function pruneIfNeeded(filePath: string, opts: { maxBytes: number; keepLines: number }) {
   const stat = await fs.stat(filePath).catch(() => null);
@@ -63,7 +84,13 @@ export async function appendCronRunLog(
       });
     });
   writesByPath.set(resolved, next);
-  await next;
+  try {
+    await next;
+  } finally {
+    if (writesByPath.get(resolved) === next) {
+      writesByPath.delete(resolved);
+    }
+  }
 }
 
 export async function readCronRunLogEntries(

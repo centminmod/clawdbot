@@ -215,7 +215,7 @@ export function parseToolsBySenderTypedKey(
 export type GroupToolPolicyBySenderConfig = Record<string, GroupToolPolicyConfig>;
 
 export type ExecToolConfig = {
-  /** Exec host routing (default: sandbox with sandbox runtime, otherwise gateway). */
+  /** Exec host routing (default: sandbox). */
   host?: "sandbox" | "gateway" | "node";
   /** Exec security mode (default: deny). */
   security?: "deny" | "allowlist" | "full";
@@ -227,6 +227,8 @@ export type ExecToolConfig = {
   pathPrepend?: string[];
   /** Safe stdin-only binaries that can run without allowlist entries. */
   safeBins?: string[];
+  /** Extra explicit directories trusted for safeBins path checks (never derived from PATH). */
+  safeBinTrustedDirs?: string[];
   /** Optional custom safe-bin profiles for entries in tools.exec.safeBins. */
   safeBinProfiles?: Record<string, SafeBinProfileFixture>;
   /** Default time (ms) before an exec command auto-backgrounds. */
@@ -312,7 +314,7 @@ export type MemorySearchConfig = {
     sessionMemory?: boolean;
   };
   /** Embedding provider mode. */
-  provider?: "openai" | "gemini" | "local" | "voyage";
+  provider?: "openai" | "gemini" | "local" | "voyage" | "mistral";
   remote?: {
     baseUrl?: string;
     apiKey?: string;
@@ -331,7 +333,7 @@ export type MemorySearchConfig = {
     };
   };
   /** Fallback behavior when embeddings fail. */
-  fallback?: "openai" | "gemini" | "local" | "voyage" | "none";
+  fallback?: "openai" | "gemini" | "local" | "voyage" | "mistral" | "none";
   /** Embedding model id (remote) or alias (local). */
   model?: string;
   /** Local embedding settings (node-llama-cpp). */

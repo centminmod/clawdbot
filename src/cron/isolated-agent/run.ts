@@ -156,10 +156,19 @@ export async function runCronIsolatedAgentTurn(params: {
   job: CronJob;
   message: string;
   abortSignal?: AbortSignal;
+  signal?: AbortSignal;
   sessionKey: string;
   agentId?: string;
   lane?: string;
 }): Promise<RunCronAgentTurnResult> {
+  const abortSignal = params.abortSignal ?? params.signal;
+  const isAborted = () => abortSignal?.aborted === true;
+  const abortReason = () => {
+    const reason = abortSignal?.reason;
+    return typeof reason === "string" && reason.trim()
+      ? reason.trim()
+      : "cron: job execution timed out";
+  };
   const isFastTestEnv = process.env.OPENCLAW_TEST_FAST === "1";
   const defaultAgentId = resolveDefaultAgentId(params.cfg);
   const requestedAgentId =
@@ -473,8 +482,8 @@ export async function runCronIsolatedAgentTurn(params: {
       agentDir,
       fallbacksOverride: resolveAgentModelFallbacksOverride(params.cfg, agentId),
       run: (providerOverride, modelOverride) => {
-        if (params.abortSignal?.aborted) {
-          throw new Error("cron: isolated run aborted");
+        if (abortSignal?.aborted) {
+          throw new Error(abortReason());
         }
         if (isCliProvider(providerOverride, cfgWithAgentDefaults)) {
           const cliSessionId = getCliSessionId(cronSession.sessionEntry, providerOverride);
@@ -517,7 +526,7 @@ export async function runCronIsolatedAgentTurn(params: {
           runId: cronSession.sessionEntry.sessionId,
           requireExplicitMessageTarget: true,
           disableMessageTool: deliveryRequested,
-          abortSignal: params.abortSignal,
+          abortSignal,
         });
       },
     });
@@ -527,6 +536,10 @@ export async function runCronIsolatedAgentTurn(params: {
     runEndedAt = Date.now();
   } catch (err) {
     return withRunSession({ status: "error", error: String(err) });
+  }
+
+  if (isAborted()) {
+    return withRunSession({ status: "error", error: abortReason() });
   }
 
   const payloads = runResult.payloads ?? [];
@@ -584,6 +597,10 @@ export async function runCronIsolatedAgentTurn(params: {
     }
     await persistSessionEntry();
   }
+
+  if (isAborted()) {
+    return withRunSession({ status: "error", error: abortReason(), ...telemetry });
+  }
   const firstText = payloads[0]?.text ?? "";
   let summary = pickSummaryFromPayloads(payloads) ?? pickSummaryFromOutput(firstText);
   let outputText = pickLastNonEmptyTextFromPayloads(payloads);
@@ -618,29 +635,26 @@ export async function runCronIsolatedAgentTurn(params: {
   // `true` means we confirmed at least one outbound send reached the target.
   // Keep this strict so timer fallback can safely decide whether to wake main.
   let delivered = skipMessagingToolDelivery;
+  const failDeliveryTarget = (error: string) =>
+    withRunSession({
+      status: "error",
+      error,
+      errorKind: "delivery-target",
+      summary,
+      outputText,
+      ...telemetry,
+    });
   if (deliveryRequested && !skipHeartbeatDelivery && !skipMessagingToolDelivery) {
     if (resolvedDelivery.error) {
       if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: resolvedDelivery.error.message,
-          summary,
-          outputText,
-          ...telemetry,
-        });
+        return failDeliveryTarget(resolvedDelivery.error.message);
       }
       logWarn(`[cron:${params.job.id}] ${resolvedDelivery.error.message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
     }
     const failOrWarnMissingDeliveryField = (message: string) => {
       if (!deliveryBestEffort) {
-        return withRunSession({
-          status: "error",
-          error: message,
-          summary,
-          outputText,
-          ...telemetry,
-        });
+        return failDeliveryTarget(message);
       }
       logWarn(`[cron:${params.job.id}] ${message}`);
       return withRunSession({ status: "ok", summary, outputText, ...telemetry });
@@ -672,6 +686,9 @@ export async function runCronIsolatedAgentTurn(params: {
               ? [{ text: synthesizedText }]
               : [];
         if (payloadsForDelivery.length > 0) {
+          if (isAborted()) {
+            return withRunSession({ status: "error", error: abortReason(), ...telemetry });
+          }
           const deliveryResults = await deliverOutboundPayloads({
             cfg: cfgWithAgentDefaults,
             channel: resolvedDelivery.channel,
@@ -683,6 +700,7 @@ export async function runCronIsolatedAgentTurn(params: {
             identity,
             bestEffort: deliveryBestEffort,
             deps: createOutboundSendDeps(params.deps),
+            abortSignal,
           });
           delivered = deliveryResults.length > 0;
         }
@@ -765,6 +783,9 @@ export async function runCronIsolatedAgentTurn(params: {
         return withRunSession({ status: "ok", summary, outputText, delivered: true, ...telemetry });
       }
       try {
+        if (isAborted()) {
+          return withRunSession({ status: "error", error: abortReason(), ...telemetry });
+        }
         const didAnnounce = await runSubagentAnnounceFlow({
           childSessionKey: agentSessionKey,
           childRunId: `${params.job.id}:${runSessionId}`,
@@ -785,6 +806,7 @@ export async function runCronIsolatedAgentTurn(params: {
           endedAt: runEndedAt,
           outcome: { status: "ok" },
           announceType: "cron job",
+          signal: abortSignal,
         });
         if (didAnnounce) {
           delivered = true;

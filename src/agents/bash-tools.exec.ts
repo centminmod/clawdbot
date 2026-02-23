@@ -172,6 +172,7 @@ export function createExecTool(
   } = resolveExecSafeBinRuntimePolicy({
     local: {
       safeBins: defaults?.safeBins,
+      safeBinTrustedDirs: defaults?.safeBinTrustedDirs,
       safeBinProfiles: defaults?.safeBinProfiles,
     },
   });
@@ -299,7 +300,7 @@ export function createExecTool(
       if (elevatedRequested) {
         logInfo(`exec: elevated command ${truncateMiddle(params.command, 120)}`);
       }
-      const configuredHost = defaults?.host ?? (defaults?.sandbox ? "sandbox" : "gateway");
+      const configuredHost = defaults?.host ?? "sandbox";
       const sandboxHostConfigured = defaults?.host === "sandbox";
       const requestedHost = normalizeExecHost(params.host) ?? null;
       let host: ExecHost = requestedHost ?? configuredHost;
@@ -441,8 +442,12 @@ export function createExecTool(
         execCommandOverride = gatewayResult.execCommandOverride;
       }
 
-      const effectiveTimeout =
-        typeof params.timeout === "number" ? params.timeout : defaultTimeoutSec;
+      const explicitTimeoutSec = typeof params.timeout === "number" ? params.timeout : null;
+      const backgroundTimeoutBypass =
+        allowBackground && explicitTimeoutSec === null && (backgroundRequested || yieldRequested);
+      const effectiveTimeout = backgroundTimeoutBypass
+        ? null
+        : (explicitTimeoutSec ?? defaultTimeoutSec);
       const getWarningText = () => (warnings.length ? `${warnings.join("\n")}\n\n` : "");
       const usePty = params.pty === true && !sandbox;
 

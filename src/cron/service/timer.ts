@@ -72,8 +72,8 @@ export async function executeJobCoreWithTimeout(
       executeJobCore(state, job, runAbortController.signal),
       new Promise<never>((_, reject) => {
         timeoutId = setTimeout(() => {
-          runAbortController.abort(new Error("cron: job execution timed out"));
-          reject(new Error("cron: job execution timed out"));
+          runAbortController.abort(timeoutErrorMessage());
+          reject(new Error(timeoutErrorMessage()));
         }, jobTimeoutMs);
       }),
     ]);
@@ -90,6 +90,16 @@ function resolveRunConcurrency(state: CronServiceState): number {
     return 1;
   }
   return Math.max(1, Math.floor(raw));
+}
+function timeoutErrorMessage(): string {
+  return "cron: job execution timed out";
+}
+
+function isAbortError(err: unknown): boolean {
+  if (!(err instanceof Error)) {
+    return false;
+  }
+  return err.name === "AbortError" || err.message === timeoutErrorMessage();
 }
 /**
  * Exponential backoff delays (in ms) indexed by consecutive error count.
@@ -354,14 +364,15 @@ export async function onTimer(state: CronServiceState) {
         const result = await executeJobCoreWithTimeout(state, job);
         return { jobId: id, ...result, startedAt, endedAt: state.deps.nowMs() };
       } catch (err) {
+        const errorText = isAbortError(err) ? timeoutErrorMessage() : String(err);
         state.deps.log.warn(
           { jobId: id, jobName: job.name, timeoutMs: jobTimeoutMs ?? null },
-          `cron: job failed: ${String(err)}`,
+          `cron: job failed: ${errorText}`,
         );
         return {
           jobId: id,
           status: "error",
-          error: String(err),
+          error: errorText,
           startedAt,
           endedAt: state.deps.nowMs(),
         };
@@ -536,7 +547,7 @@ export async function runMissedJobs(
     const startedAt = state.deps.nowMs();
     emit(state, { jobId: candidate.job.id, action: "started", runAtMs: startedAt });
     try {
-      const result = await executeJobCore(state, candidate.job);
+      const result = await executeJobCoreWithTimeout(state, candidate.job);
       outcomes.push({
         jobId: candidate.jobId,
         status: result.status,
@@ -596,6 +607,35 @@ export async function executeJobCore(
   job: CronJob,
   abortSignal?: AbortSignal,
 ): Promise<CronRunOutcome & CronRunTelemetry & { delivered?: boolean }> {
+  const resolveAbortError = () => ({
+    status: "error" as const,
+    error: timeoutErrorMessage(),
+  });
+  const waitWithAbort = async (ms: number) => {
+    if (!abortSignal) {
+      await new Promise<void>((resolve) => setTimeout(resolve, ms));
+      return;
+    }
+    if (abortSignal.aborted) {
+      return;
+    }
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(() => {
+        abortSignal.removeEventListener("abort", onAbort);
+        resolve();
+      }, ms);
+      const onAbort = () => {
+        clearTimeout(timer);
+        abortSignal.removeEventListener("abort", onAbort);
+        resolve();
+      };
+      abortSignal.addEventListener("abort", onAbort, { once: true });
+    });
+  };
+
+  if (abortSignal?.aborted) {
+    return resolveAbortError();
+  }
   if (job.sessionTarget === "main") {
     const text = resolveJobPayloadTextForMain(job);
     if (!text) {
@@ -615,13 +655,15 @@ export async function executeJobCore(
     });
     if (job.wakeMode === "now" && state.deps.runHeartbeatOnce) {
       const reason = `cron:${job.id}`;
-      const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
       const maxWaitMs = state.deps.wakeNowHeartbeatBusyMaxWaitMs ?? 2 * 60_000;
       const retryDelayMs = state.deps.wakeNowHeartbeatBusyRetryDelayMs ?? 250;
       const waitStartedAt = state.deps.nowMs();
 
       let heartbeatResult: HeartbeatRunResult;
       for (;;) {
+        if (abortSignal?.aborted) {
+          return resolveAbortError();
+        }
         heartbeatResult = await state.deps.runHeartbeatOnce({
           reason,
           agentId: job.agentId,
@@ -633,7 +675,13 @@ export async function executeJobCore(
         ) {
           break;
         }
+        if (abortSignal?.aborted) {
+          return resolveAbortError();
+        }
         if (state.deps.nowMs() - waitStartedAt > maxWaitMs) {
+          if (abortSignal?.aborted) {
+            return resolveAbortError();
+          }
           state.deps.requestHeartbeatNow({
             reason,
             agentId: job.agentId,
@@ -641,7 +689,7 @@ export async function executeJobCore(
           });
           return { status: "ok", summary: text };
         }
-        await delay(retryDelayMs);
+        await waitWithAbort(retryDelayMs);
       }
 
       if (heartbeatResult.status === "ran") {
@@ -652,6 +700,9 @@ export async function executeJobCore(
         return { status: "error", error: heartbeatResult.reason, summary: text };
       }
     } else {
+      if (abortSignal?.aborted) {
+        return resolveAbortError();
+      }
       state.deps.requestHeartbeatNow({
         reason: `cron:${job.id}`,
         agentId: job.agentId,
@@ -665,7 +716,7 @@ export async function executeJobCore(
     return { status: "skipped", error: "isolated job requires payload.kind=agentTurn" };
   }
   if (abortSignal?.aborted) {
-    return { status: "error", error: "cron: job execution aborted" };
+    return resolveAbortError();
   }
 
   const res = await state.deps.runIsolatedAgentJob({
@@ -673,6 +724,10 @@ export async function executeJobCore(
     message: job.payload.message,
     abortSignal,
   });
+
+  if (abortSignal?.aborted) {
+    return { status: "error", error: timeoutErrorMessage() };
+  }
 
   // Post a short summary back to the main session — but only when the
   // isolated run did NOT already deliver its output to the target channel.
@@ -682,7 +737,9 @@ export async function executeJobCore(
   // See: https://github.com/openclaw/openclaw/issues/15692
   const summaryText = res.summary?.trim();
   const deliveryPlan = resolveCronDeliveryPlan(job);
-  if (summaryText && deliveryPlan.requested && !res.delivered) {
+  const suppressMainSummary =
+    res.status === "error" && res.errorKind === "delivery-target" && deliveryPlan.requested;
+  if (summaryText && deliveryPlan.requested && !res.delivered && !suppressMainSummary) {
     const prefix = "Cron";
     const label =
       res.status === "error" ? `${prefix} (error): ${summaryText}` : `${prefix}: ${summaryText}`;

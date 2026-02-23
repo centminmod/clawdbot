@@ -26,6 +26,8 @@ function startMonitorWebChannel(params: {
   sleep: ReturnType<typeof vi.fn>;
   signal?: AbortSignal;
   heartbeatSeconds?: number;
+  messageTimeoutMs?: number;
+  watchdogCheckMs?: number;
   reconnect?: { initialMs: number; maxMs: number; maxAttempts: number; factor: number };
 }) {
   const runtime = createRuntime();
@@ -39,6 +41,8 @@ function startMonitorWebChannel(params: {
     params.signal ?? controller.signal,
     {
       heartbeatSeconds: params.heartbeatSeconds ?? 1,
+      messageTimeoutMs: params.messageTimeoutMs,
+      watchdogCheckMs: params.watchdogCheckMs,
       reconnect: params.reconnect ?? { initialMs: 10, maxMs: 10, maxAttempts: 3, factor: 1.1 },
       sleep: params.sleep,
     },
@@ -152,10 +156,18 @@ describe("web auto-reply", () => {
         listenerFactory,
         sleep,
         heartbeatSeconds: 60,
+        messageTimeoutMs: 30,
+        watchdogCheckMs: 5,
       });
 
       await Promise.resolve();
       expect(listenerFactory).toHaveBeenCalledTimes(1);
+      await vi.waitFor(
+        () => {
+          expect(capturedOnMessage).toBeTypeOf("function");
+        },
+        { timeout: 500, interval: 5 },
+      );
 
       const reply = vi.fn().mockResolvedValue(undefined);
       const sendComposing = vi.fn();
@@ -175,12 +187,14 @@ describe("web auto-reply", () => {
         }),
       );
 
-      await vi.advanceTimersByTimeAsync(31 * 60 * 1000);
+      await vi.advanceTimersByTimeAsync(200);
       await Promise.resolve();
-
-      await vi.advanceTimersByTimeAsync(1);
-      await Promise.resolve();
-      expect(listenerFactory).toHaveBeenCalledTimes(2);
+      await vi.waitFor(
+        () => {
+          expect(listenerFactory).toHaveBeenCalledTimes(2);
+        },
+        { timeout: 500, interval: 5 },
+      );
 
       controller.abort();
       closeResolvers[1]?.({ status: 499, isLoggedOut: false });
