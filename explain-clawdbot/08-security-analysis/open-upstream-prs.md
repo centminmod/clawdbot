@@ -439,7 +439,7 @@
 - `src/agents/pi-embedded-runner/model.ts` — new opus 4.6 forward-compat model handling
 - `src/agents/pi-embedded-runner/model.test.ts` — test coverage
 
-**Local Impact:** SYNC NEEDED — local `attempt.ts:765-782` has the orphaned user-message repair path but may lack the sanitization fix
+**Local Impact:** SYNC NEEDED — local `attempt.ts:1057-1068` has the orphaned user-message repair path but may lack the sanitization fix
 
 ### #13474: Distinguish Webhooks from Internal Hooks in Audit Summary
 
@@ -523,7 +523,7 @@
 - `src/agents/pi-embedded-runner/run/attempt.ts` — uses `Agent.transformContext` hook to run `sanitizeAntigravityThinkingBlocks` before every API call (not just at session load)
 
 **Local Validation:**
-- `src/agents/pi-embedded-runner/run/attempt.ts:1067` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
+- `src/agents/pi-embedded-runner/run/attempt.ts:1068` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
 - No `transformContext` hook usage in local `pi-embedded-runner` (grep confirmed)
 - `src/agents/pi-embedded-runner/google.ts:72` — `sanitizeAntigravityThinkingBlocks` function exists but only called from `attempt.ts:993` and `google.ts:459`
 
@@ -938,7 +938,7 @@
 - `src/gateway/server-methods/chat.ts:306` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
 - `src/auto-reply/reply/session.ts:96` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-runner/session-manager-init.ts:46` — `writeFile(params.sessionFile, "", "utf-8")` — no `mode: 0o600`
-- `src/gateway/server-methods/sessions.ts:490` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
+- `src/gateway/server-methods/sessions.ts:492` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/session-file-repair.ts:77,81` — `writeFile(..., "utf-8")` — no `mode: 0o600`
 - Note: `src/config/sessions/store.ts:619,634` already uses `{ mode: 0o600 }` for sessions.json
 

@@ -196,7 +196,7 @@ Every path through which the AI can modify system state:
 **Source references:**
 - Gateway tool owner-only policy and write actions: `src/agents/tools/gateway-tool.ts:31-38,72,175-214`
 - Gateway call least-privilege scopes: `src/agents/tools/gateway.ts:147`
-- Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:35-62,102-127`
+- Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:37-64,102-127`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
 - Cron tool: `src/gateway/server-methods/cron.ts:73-97`
 - Agent files: `src/gateway/server-methods/agents.ts:467-519`
@@ -1021,7 +1021,7 @@ openclaw doctor                  # Interactive mode
 openclaw doctor --non-interactive  # CI/CD mode (no prompts)
 ```
 
-Source: `src/commands/doctor.ts:66-315`
+Source: `src/commands/doctor.ts:67-326`
 
 ### `openclaw status`
 

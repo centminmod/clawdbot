@@ -44,7 +44,7 @@
 | [#5123](https://github.com/openclaw/openclaw/issues/5123) | MEDIUM (WONTFIX) | ReDoS in session filter regex | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/infra/exec-approval-forwarder.ts:53-60` |
 | [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:49-63` |
 | [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); partially mitigated locally (hook token + device pairing use `safeEqualSecret`); `src/infra/node-pairing.ts:277` still uses `===` |
-| [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 (upstream FIXED, local reverted) | Closed upstream COMPLETED (2026-02-16); 0o600 fix applied locally in `ae0b110e4` but accidentally reverted by `9f261f592`; still affects `src/auto-reply/reply/session.ts:96`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts:500` |
+| [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 (upstream FIXED, local reverted) | Closed upstream COMPLETED (2026-02-16); 0o600 fix applied locally in `ae0b110e4` but accidentally reverted by `9f261f592`; still affects `src/auto-reply/reply/session.ts:96`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts:502` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | MEDIUM | web_fetch hidden text prompt injection | `src/agents/tools/web-fetch-utils.ts:59-61` |
 | [#8592](https://github.com/openclaw/openclaw/issues/8592) | MEDIUM | No detection of encoded/obfuscated commands | `src/infra/exec-safety.ts:1-44` |
 | [#8588](https://github.com/openclaw/openclaw/issues/8588) | MEDIUM | Sensitive config files accessible when sandbox is home dir | `src/agents/sandbox/context.ts:42-49` (workspaceAccess=rw) |
@@ -61,7 +61,7 @@
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | HIGH | Weak UUID: Math.random() fallback + tool call IDs | `ui/src/ui/uuid.ts:23-33` (fallback), `src/auto-reply/reply/get-reply-inline-actions.ts:191` (toolCallId) |
 | [#7139](https://github.com/openclaw/openclaw/issues/7139) | MEDIUM | Default config: sandbox off, plaintext creds | `src/agents/sandbox/config.ts:166` (mode="off"), gateway loopback is safe; creds 0o600 |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM | Orphaned tool_use blocks from backgrounded exec | `src/agents/session-transcript-repair.ts:212-364` (reactive repair, not proactive) |
-| [#11900](https://github.com/openclaw/openclaw/issues/11900) | MEDIUM | Context files (USER.md, SOUL.md) loaded for all senders | `src/agents/bootstrap-files.ts:43-60` — no `senderIsOwner` check; `attempt.ts:277` calls unconditionally |
+| [#11900](https://github.com/openclaw/openclaw/issues/11900) | MEDIUM | Context files (USER.md, SOUL.md) loaded for all senders | `src/agents/bootstrap-files.ts:44-70` — no `senderIsOwner` check; `attempt.ts:339` calls unconditionally |
 | [#12571](https://github.com/openclaw/openclaw/issues/12571) | MEDIUM | Session isolation leak in cron jobs after ~24h | `src/cron/service/jobs.ts` — isolated sessions leak to main session after extended runtime |
 | [#11832](https://github.com/openclaw/openclaw/issues/11832) | MEDIUM | Per-agent tools.exec config not applied | `src/auto-reply/reply/get-reply-directives.ts:66-81` — `resolveExecOverrides()` ignores `agentCfg` |
 | [#12541](https://github.com/openclaw/openclaw/issues/12541) | LOW | Voice-call webhook spoofing via signature bypass config | `extensions/voice-call/src/config.ts` — `skipSignatureVerification` config disables HMAC-SHA256 verification; opt-in, not default |
@@ -94,7 +94,7 @@
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:126-142` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
-| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts:502-524` — `/extension` path now requires `relayAuthToken` (same as `/cdp`) |
+| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts:492-516` — `/extension` path now requires `relayAuthToken` (same as `/cdp`) |
 | [#10992](https://github.com/openclaw/openclaw/issues/10992) | MEDIUM | Sub-agents bypass exec approvals for safeBins commands | `src/agents/bash-tools.exec.ts:137,265-277,333` — safeBins allowlist bypasses approval workflow for sub-agents |
 | [#15990](https://github.com/openclaw/openclaw/issues/15990) | MEDIUM | Context compaction leaks content between sessions | `src/agents/pi-embedded-runner/compact.ts` — cross-session data bleed during compaction; relates to #12571/#14117 |
 | [#12542](https://github.com/openclaw/openclaw/issues/12542) | MEDIUM | Diagnostics-OTEL exports unredacted session/chat IDs | `extensions/diagnostics-otel/src/service.ts:391,427-494` — no redaction pipeline; requires opt-in config |
@@ -376,7 +376,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Local status:** NOT FIXED — the 0o600 fix was applied in `ae0b110e4` but accidentally reverted by `9f261f592 revert: PR 18288 accidental merge`. Three sites remain unpatched:
 - `src/auto-reply/reply/session.ts:96` - `fs.writeFileSync(sessionFile, ..., "utf-8")` (no mode)
 - `src/agents/pi-embedded-runner/session-manager-init.ts` - no mode on session file reset
-- `src/gateway/server-methods/sessions.ts:500` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
+- `src/gateway/server-methods/sessions.ts:502` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
 
 ### #8516: Browser Download/Trace Endpoints Arbitrary File Write
 
@@ -504,7 +504,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/config/io.ts:905-1138` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), but resolved values still leak for paths that change
 - `src/config/env-substitution.ts:83-89` - `substituteString` is a one-way transformation
-- `src/commands/doctor.ts:285` - `writeConfigFile(cfg)` writes env-resolved config back to disk
+- `src/commands/doctor.ts:298` - `writeConfigFile(cfg)` writes env-resolved config back to disk
 
 **Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:461-475`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
 
@@ -721,8 +721,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **CWE:** CWE-200 (Exposure of Sensitive Information)
 
 **Affected code:**
-- `src/agents/bootstrap-files.ts:43-60` — `resolveBootstrapContextForRun()` loads all bootstrap files unconditionally
-- `src/agents/pi-embedded-runner/run/attempt.ts:344` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
+- `src/agents/bootstrap-files.ts:44-70` — `resolveBootstrapContextForRun()` loads all bootstrap files unconditionally
+- `src/agents/pi-embedded-runner/run/attempt.ts:339` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
 - `src/agents/pi-embedded-runner/run/attempt.ts:363` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
 
 **Impact:** Non-owner senders on public channels receive responses shaped by the owner's personal context files (personality, preferences, private notes). The content is not directly exposed but indirectly leaks through response behavior. Tool access is correctly gated by `senderIsOwner`, but context/personality files are not.
@@ -735,7 +735,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/auto-reply/reply/get-reply-directives.ts:66-81` — `resolveExecOverrides()` reads from `directives` (inline `!exec=docker`) and `sessionEntry` only
 - `src/auto-reply/reply/get-reply-directives.ts:93` — `agentCfg: AgentDefaults` is in scope but not consulted for exec settings
-- `src/agents/pi-embedded-runner/run/attempt.ts:365` — `execOverrides` passed to tool creation, but populated only from directives/session
+- `src/agents/pi-embedded-runner/run/attempt.ts:366` — `execOverrides` passed to tool creation, but populated only from directives/session
 
 **Impact:** If an operator configures per-agent exec restrictions (e.g., `agents.mybot.tools.exec.host = "docker"` for sandboxed execution), those restrictions are silently ignored. The agent runs with global exec defaults. Global config still applies; only per-agent overrides are lost.
 
@@ -1056,9 +1056,9 @@ All changes take effect immediately via automatic restart.
 **Fix:** The `/extension` upgrade path now requires the same `relayAuthToken` check as `/cdp`. Both paths call `getRelayAuthTokenFromRequest()` and reject with HTTP 401 if the token is absent or mismatched.
 
 **Affected code (current):**
-- `src/browser/extension-relay.ts:496-498` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
-- `src/browser/extension-relay.ts:502-524` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
-- `src/browser/extension-relay.ts:527-541` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
+- `src/browser/extension-relay.ts:487-490` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
+- `src/browser/extension-relay.ts:492-516` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
+- `src/browser/extension-relay.ts:517-529` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
 
 ### #10992: Sub-Agents Bypass Exec Approvals for safeBins Commands
 

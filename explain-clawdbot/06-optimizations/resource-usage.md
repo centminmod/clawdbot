@@ -27,7 +27,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:34-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
 | 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:90-136` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
-| 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:235-336` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
+| 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:373-555` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
 | 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
 | 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/input-files.ts:244-279` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
 | 7 | **Full AX tree traversal** — `Accessibility.getFullAXTree` on complex browser pages | `src/browser/cdp.ts:251-264` | Medium-High | Like reading every element on a web page aloud for accessibility — hundreds of elements on complex pages |
@@ -47,7 +47,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - WhatsApp monitor — persistent connection with keepalive
 
 **Browser extension WebSocket pings:**
-- `src/browser/extension-relay.ts:549` — periodic ping/pong to keep connections alive
+- `src/browser/extension-relay.ts:539` — periodic ping/pong to keep connections alive
 
 **Crypto operations:**
 - HMAC signature verification for webhooks
@@ -569,7 +569,7 @@ At the start of every session, OpenClaw loads `MEMORY.md` (or `memory.md`) from 
 - Loading: `src/agents/workspace.ts:441-495` — reads file contents into `WorkspaceBootstrapFile[]`
 - Filtering: `src/agents/workspace.ts:499-507` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
 - Context building: `src/agents/pi-embedded-helpers/bootstrap.ts:187-239` — trims to `bootstrapMaxChars` (default 20,000 chars) using head/tail strategy with `totalMaxChars` cap (default 24,000)
-- Orchestration: `src/agents/bootstrap-files.ts:25-66` — wires resolution → filtering → context building
+- Orchestration: `src/agents/bootstrap-files.ts:44-70` — wires resolution → filtering → context building
 
 > **Correction vs. third-party articles:** Some sources claim MEMORY.md is "never injected in group chats, for privacy." This is inaccurate. Bootstrap injection happens for all non-subagent sessions regardless of chat type. What *is* suppressed in groups is memory search *citations* (see F5).
 
