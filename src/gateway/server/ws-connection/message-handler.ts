@@ -355,17 +355,23 @@ export function attachGatewayWsMessageHandler(params: {
         });
         const device = controlUiAuthPolicy.device;
 
-        let { authResult, authOk, authMethod, sharedAuthOk, deviceTokenCandidate } =
-          await resolveConnectAuthState({
-            resolvedAuth,
-            connectAuth: connectParams.auth,
-            hasDeviceIdentity: Boolean(device),
-            req: upgradeReq,
-            trustedProxies,
-            allowRealIpFallback,
-            rateLimiter,
-            clientIp,
-          });
+        let {
+          authResult,
+          authOk,
+          authMethod,
+          sharedAuthOk,
+          deviceTokenCandidate,
+          deviceTokenCandidateSource,
+        } = await resolveConnectAuthState({
+          resolvedAuth,
+          connectAuth: connectParams.auth,
+          hasDeviceIdentity: Boolean(device),
+          req: upgradeReq,
+          trustedProxies,
+          allowRealIpFallback,
+          rateLimiter,
+          clientIp,
+        });
         const rejectUnauthorized = (failedAuth: GatewayAuthResult) => {
           markHandshakeFailure("unauthorized", {
             authMode: resolvedAuth.mode,
@@ -532,7 +538,11 @@ export function attachGatewayWsMessageHandler(params: {
               authMethod = "device-token";
               rateLimiter?.reset(clientIp, AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN);
             } else {
-              authResult = { ok: false, reason: "device_token_mismatch" };
+              const mismatchReason =
+                deviceTokenCandidateSource === "explicit-device-token"
+                  ? "device_token_mismatch"
+                  : (authResult.reason ?? "device_token_mismatch");
+              authResult = { ok: false, reason: mismatchReason };
               rateLimiter?.recordFailure(clientIp, AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN);
             }
           }
@@ -542,7 +552,13 @@ export function attachGatewayWsMessageHandler(params: {
           return;
         }
 
-        const skipPairing = shouldSkipControlUiPairing(controlUiAuthPolicy, sharedAuthOk);
+        // Shared token/password auth is already gateway-level trust for operator clients.
+        // In that case, don't force device pairing on first connect.
+        const skipPairingForOperatorSharedAuth =
+          role === "operator" && sharedAuthOk && !isControlUi && !isWebchat;
+        const skipPairing =
+          shouldSkipControlUiPairing(controlUiAuthPolicy, sharedAuthOk) ||
+          skipPairingForOperatorSharedAuth;
         if (device && devicePublicKey && !skipPairing) {
           const formatAuditList = (items: string[] | undefined): string => {
             if (!items || items.length === 0) {

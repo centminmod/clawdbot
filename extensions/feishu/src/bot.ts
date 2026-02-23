@@ -412,7 +412,7 @@ async function resolveFeishuMediaList(params: {
 
     // For message media, always use messageResource API
     // The image.get API is only for images uploaded via im/v1/images, not for message attachments
-    const fileKey = mediaKeys.imageKey || mediaKeys.fileKey;
+    const fileKey = mediaKeys.fileKey || mediaKeys.imageKey;
     if (!fileKey) {
       return [];
     }
@@ -522,6 +522,7 @@ export async function handleFeishuMessage(params: {
 
   let ctx = parseFeishuMessageEvent(event, botOpenId);
   const isGroup = ctx.chatType === "group";
+  const senderUserId = event.sender.sender_id.user_id?.trim() || undefined;
 
   // Resolve sender display name (best-effort) so the agent can attribute messages correctly.
   const senderResult = await resolveFeishuSenderName({
@@ -601,6 +602,7 @@ export async function handleFeishuMessage(params: {
         groupPolicy: "allowlist",
         allowFrom: senderAllowFrom,
         senderId: ctx.senderOpenId,
+        senderIds: [senderUserId],
         senderName: ctx.senderName,
       });
       if (!senderAllowed) {
@@ -653,6 +655,7 @@ export async function handleFeishuMessage(params: {
     const dmAllowed = resolveFeishuAllowlistMatch({
       allowFrom: effectiveDmAllowFrom,
       senderId: ctx.senderOpenId,
+      senderIds: [senderUserId],
       senderName: ctx.senderName,
     }).allowed;
 
@@ -690,10 +693,13 @@ export async function handleFeishuMessage(params: {
       return;
     }
 
-    const commandAllowFrom = isGroup ? (groupConfig?.allowFrom ?? []) : effectiveDmAllowFrom;
+    const commandAllowFrom = isGroup
+      ? (groupConfig?.allowFrom ?? configAllowFrom)
+      : effectiveDmAllowFrom;
     const senderAllowedForCommands = resolveFeishuAllowlistMatch({
       allowFrom: commandAllowFrom,
       senderId: ctx.senderOpenId,
+      senderIds: [senderUserId],
       senderName: ctx.senderName,
     }).allowed;
     const commandAuthorized = shouldComputeCommandAuthorized

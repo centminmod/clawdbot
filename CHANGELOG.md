@@ -2,6 +2,8 @@
 
 Docs: https://docs.openclaw.ai
 
+## Unreleased
+
 ## 2026.2.22 (Unreleased)
 
 ### Changes
@@ -12,6 +14,7 @@ Docs: https://docs.openclaw.ai
 - Docs/Subagents: make thread-bound session guidance channel-first instead of Discord-specific, and list thread-supporting channels explicitly. (#23589) Thanks @osolmaz.
 - Channels/Config: unify channel preview streaming config handling with a shared resolver and canonical migration path.
 - Gateway/Auth: refactor gateway credential resolution and websocket auth handshake paths to use shared typed auth contexts, including explicit `auth.deviceToken` support in connect frames and tests.
+- Gateway/Auth: unify call/probe/status/auth credential-source precedence on shared resolver helpers, with table-driven parity coverage across gateway entrypoints.
 - Discord/Allowlist: canonicalize resolved Discord allowlist names to IDs and split resolution flow for clearer fail-closed behavior.
 - Memory/FTS: add Korean stop-word filtering and particle-aware keyword extraction (including mixed Korean/English stems) for query expansion in FTS-only search mode. (#18899) Thanks @ruypang.
 - Memory/FTS: add Japanese-aware query expansion tokenization and stop-word filtering (including mixed-script terms like ASCII + katakana) for FTS-only search mode. Thanks @vincentkoc.
@@ -28,6 +31,18 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+- Config/Memory: allow `"mistral"` in `agents.defaults.memorySearch.provider` and `agents.defaults.memorySearch.fallback` schema validation. (#14934) Thanks @ThomsenDrake.
+- Security/Feishu: enforce ID-only allowlist matching for DM/group sender authorization, normalize Feishu ID prefixes during checks, and ignore mutable display names so display-name collisions cannot satisfy allowlist entries. This ships in the next npm release. Thanks @jiseoung for reporting.
+- Feishu/Commands: in group chats, command authorization now falls back to top-level `channels.feishu.allowFrom` when per-group `allowFrom` is not set, so `/command` no longer gets blocked by an unintended empty allowlist. (#23756)
+- Feishu/Plugins: restore bundled Feishu SDK availability for global installs and strip `openclaw: workspace:*` from plugin `devDependencies` during plugin-version sync so npm-installed Feishu plugins do not fail dependency install. (#23611, #23645, #23603)
+- Plugins/Install: strip `workspace:*` devDependency entries from copied plugin manifests before `npm install --omit=dev`, preventing `EUNSUPPORTEDPROTOCOL` install failures for npm-published channel plugins (including Feishu and MS Teams).
+- Config/Channels: auto-enable built-in channels by writing `channels.<id>.enabled=true` (not `plugins.entries.<id>`), and stop adding built-ins to `plugins.allow`, preventing `plugins.entries.telegram: plugin not found` validation failures.
+- Config/Channels: when `plugins.allow` is active, auto-enable/enable flows now also allowlist configured built-in channels so `channels.<id>.enabled=true` cannot remain blocked by restrictive plugin allowlists.
+- Plugins/Discovery: ignore scanned extension backup/disabled directory patterns (for example `.backup-*`, `.bak`, `.disabled*`) and move updater backup directories under `.openclaw-install-backups`, preventing duplicate plugin-id collisions from archived copies.
+- Dev tooling: prevent `CLAUDE.md` symlink target regressions by excluding CLAUDE symlink sentinels from `oxfmt` and marking them `-text` in `.gitattributes`, so formatter/EOL normalization cannot reintroduce trailing-newline targets. Thanks @vincentkoc.
+- Cron: honor `cron.maxConcurrentRuns` in the timer loop so due jobs can execute up to the configured parallelism instead of always running serially. (#11595) Thanks @Takhoffman.
+- Agents/Compaction: restore embedded compaction safeguard/context-pruning extension loading in production by wiring bundled extension factories into the resource loader instead of runtime file-path resolution. (#22349) Thanks @Glucksberg.
+- Feishu/Media: for inbound video messages that include both `file_key` (video) and `image_key` (thumbnail), prefer `file_key` when downloading media so video attachments are saved instead of silently failing on thumbnail keys. (#23633)
 - Hooks/Cron: suppress duplicate main-session events for delivered hook turns and mark `SILENT_REPLY_TOKEN` (`NO_REPLY`) early exits as delivered to prevent hook context pollution. (#20678) Thanks @JonathanWorks.
 - Providers/OpenRouter: inject `cache_control` on system prompts for OpenRouter Anthropic models to improve prompt-cache reuse. (#17473) Thanks @rrenamed.
 - Installer/Smoke tests: remove legacy `OPENCLAW_USE_GUM` overrides from docker install-smoke runs so tests exercise installer auto TTY detection behavior directly.
@@ -44,11 +59,16 @@ Docs: https://docs.openclaw.ai
 - Telegram/Polling: clear Telegram webhooks (`deleteWebhook`) before starting long-poll `getUpdates`, including retry handling for transient cleanup failures.
 - Telegram/Webhook: add `channels.telegram.webhookPort` config support and pass it through plugin startup wiring to the monitor listener.
 - Telegram/Media: send a user-facing Telegram reply when media download fails (non-size errors) instead of silently dropping the message.
+- Agents/Media: route tool-result `MEDIA:` extraction through shared parser validation so malformed prose like `MEDIA:-prefixed ...` is no longer treated as a local file path (prevents Telegram ENOENT tool-error overrides). (#18780) Thanks @HOYALIM.
 - Logging: cap single log-file size with `logging.maxFileBytes` (default 500 MB) and suppress additional writes after cap hit to prevent disk exhaustion from repeated error storms.
 - Memory/Remote HTTP: centralize remote memory HTTP calls behind a shared guarded helper (`withRemoteHttpResponse`) so embeddings and batch flows use one request/release path.
 - Memory/Embeddings: apply configured remote-base host pinning (`allowedHostnames`) across OpenAI/Voyage/Gemini embedding requests to keep private/self-hosted endpoints working without cross-host drift. (#18198) Thanks @ianpcook.
 - Memory/Batch: route OpenAI/Voyage/Gemini batch upload/create/status/download requests through the same guarded HTTP path for consistent SSRF policy enforcement.
-- Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703)
+- Install/Discord Voice: make `@discordjs/opus` an optional dependency so `openclaw` install/update no longer hard-fails when native Opus builds fail, while keeping `opusscript` as the runtime fallback decoder for Discord voice flows. (#23737, #23733, #23703) Thanks @jeadland, @Sheetaa, and @Breakyman.
+- Slack/Upload: resolve bare user IDs (U-prefix) to DM channel IDs via `conversations.open` before calling `files.uploadV2`, which rejects non-channel IDs. `chat.postMessage` tolerates user IDs directly, but `files.uploadV2` → `completeUploadExternal` validates `channel_id` against `^[CGDZ][A-Z0-9]{8,}$`, causing `invalid_arguments` when agents reply with media to DM conversations.
+- Browser/Relay: treat extension websocket as connected only when `OPEN`, allow reconnect when a stale `CLOSING/CLOSED` extension socket lingers, and guard stale socket message/close handlers so late events cannot clear active relay state; includes regression coverage for live-duplicate `409` rejection and immediate reconnect-after-close races. (#15099, #18698, #20688)
+- Browser/Extension Relay: refactor the MV3 worker to preserve debugger attachments across relay drops, auto-reconnect with bounded backoff+jitter, persist and rehydrate attached tab state via `chrome.storage.session`, recover from `target_closed` navigation detaches, guard stale socket handlers, enforce per-tab operation locks and per-request timeouts, and add lifecycle keepalive/badge refresh hooks (`alarms`, `webNavigation`). (#15099, #6175, #8468, #9807)
+- Browser/Remote CDP: extend stale-target recovery so `ensureTabAvailable()` now reuses the sole available tab for remote CDP profiles (same behavior as extension profiles) while preserving strict `tab not found` errors when multiple tabs exist; includes remote-profile regression tests. (#15989)
 - Signal/RPC: guard malformed Signal RPC JSON responses with a clear status-scoped error and add regression coverage for invalid JSON responses. (#22995) Thanks @adhitShet.
 - Gateway/Subagents: guard gateway and subagent session-key/message trim paths against undefined inputs to prevent early `Cannot read properties of undefined (reading 'trim')` crashes during subagent spawn and wait flows.
 - Agents/Workspace: guard `resolveUserPath` against undefined/null input to prevent `Cannot read properties of undefined (reading 'trim')` crashes when workspace paths are missing in embedded runner flows.
@@ -63,6 +83,11 @@ Docs: https://docs.openclaw.ai
 - Channels/Delivery: remove hardcoded WhatsApp delivery fallbacks; require explicit/session channel context or auto-pick the sole configured channel when unambiguous. (#23357) Thanks @lbo728.
 - ACP/Gateway: wait for gateway hello before opening ACP requests, and fail fast on pre-hello connect failures to avoid startup hangs and early `gateway not connected` request races. (#23390) Thanks @janckerchen.
 - Gateway/Auth: preserve `OPENCLAW_GATEWAY_PASSWORD` env override precedence for remote gateway call credentials after shared resolver refactors, preventing stale configured remote passwords from overriding runtime secret rotation.
+- Gateway/Auth: preserve shared-token `gateway token mismatch` auth errors when `auth.token` fallback device-token checks fail, and reserve `device token mismatch` guidance for explicit `auth.deviceToken` failures.
+- Gateway/Tools: when agent tools pass an allowlisted `gatewayUrl` override, resolve local override tokens from env/config fallback but keep remote overrides strict to `gateway.remote.token`, preventing local token leakage to remote targets.
+- Gateway/Client: keep cached device-auth tokens on `device token mismatch` closes when the client used explicit shared token/password credentials, avoiding accidental pairing-token churn during explicit-auth failures.
+- Node host/Exec: keep strict Windows allowlist behavior for `cmd.exe /c` shell-wrapper runs, and return explicit approval guidance when blocked (`SYSTEM_RUN_DENIED: allowlist miss`).
+- Control UI: show pairing-required guidance (commands + mobile tokenized URL reminder) when the dashboard disconnects with `1008 pairing required`.
 - Security/Audit: add `openclaw security audit` detection for open group policies that expose runtime/filesystem tools without sandbox/workspace guards (`security.exposure.open_groups_with_runtime_or_fs`).
 - Security/Audit: make `gateway.real_ip_fallback_enabled` severity conditional for loopback trusted-proxy setups (warn for loopback-only `trustedProxies`, critical when non-loopback proxies are trusted). (#23428) Thanks @bmendonca3.
 - Security/Exec env: block request-scoped `HOME` and `ZDOTDIR` overrides in host exec env sanitizers (Node + macOS), preventing shell startup-file execution before allowlist-evaluated command bodies. This ships in the next npm release. Thanks @tdjackey for reporting.
@@ -77,11 +102,15 @@ Docs: https://docs.openclaw.ai
 - Telegram/Network: default Node 22+ DNS result ordering to `ipv4first` for Telegram fetch paths and add `OPENCLAW_TELEGRAM_DNS_RESULT_ORDER`/`channels.telegram.network.dnsResultOrder` overrides to reduce IPv6-path fetch failures. (#5405) Thanks @Glucksberg.
 - Telegram/Forward bursts: coalesce forwarded text+media updates through a dedicated forward lane debounce window that works with default inbound debounce config, while keeping forwarded control commands immediate. (#19476) thanks @napetrov.
 - Telegram/Streaming: preserve archived draft preview mapping after flush and clean superseded reasoning preview bubbles so multi-message preview finals no longer cross-edit or orphan stale messages under send/rotation races. (#23202) Thanks @obviyus.
+- Telegram/Replies: scope messaging-tool text/media dedupe to same-target sends only, so cross-target tool sends can no longer silently suppress Telegram final replies.
+- Telegram/Replies: normalize `file://` and local-path media variants during messaging dedupe so equivalent media paths do not produce duplicate Telegram replies.
 - Telegram/Replies: extract forwarded-origin context from unified reply targets (`reply_to_message` and `external_reply`) so forward+comment metadata is preserved across partial reply shapes. (#9720) thanks @mcaxtr.
 - Telegram/Polling: persist a safe update-offset watermark bounded by pending updates so crash/restart cannot skip queued lower `update_id` updates after out-of-order completion. (#23284) thanks @frankekn.
 - Telegram/Polling: force-restart stuck runner instances when recoverable unhandled network rejections escape the polling task path, so polling resumes instead of silently stalling. (#19721) Thanks @jg-noncelogic.
 - Slack/Slash commands: preserve the Bolt app receiver when registering external select options handlers so monitor startup does not crash on runtimes that require bound `app.options` calls. (#23209) Thanks @0xgaia.
 - Slack/Telegram slash sessions: await session metadata persistence before dispatch so first-turn native slash runs do not race session-origin metadata updates. (#23065) thanks @hydro13.
+- Slack/Queue routing: preserve string `thread_ts` values through collect-mode queue drain and DM `deliveryContext` updates so threaded follow-ups do not leak to the main channel when Slack thread IDs are strings. (#11934) Thanks @sandieman2 and @vincentkoc.
+- Telegram/Native commands: set `ctx.Provider="telegram"` for native slash-command context so elevated gate checks resolve provider correctly (fixes `provider (ctx.Provider)` failures in `/elevated` flows). (#23748) Thanks @serhii12.
 - Agents/Ollama: preserve unsafe integer tool-call arguments as exact strings during NDJSON parsing, preventing large numeric IDs from being rounded before tool execution. (#23170) Thanks @BestJoester.
 - Cron/Gateway: keep `cron.list` and `cron.status` responsive during startup catch-up by avoiding a long-held cron lock while missed jobs execute. (#23106) Thanks @jayleekr.
 - Gateway/Config reload: compare array-valued config paths structurally during diffing so unchanged `memory.qmd.paths` and `memory.qmd.scope.rules` no longer trigger false restart-required reloads. (#23185) Thanks @rex05ai.
@@ -96,6 +125,7 @@ Docs: https://docs.openclaw.ai
 - Agents/Fallbacks: treat JSON payloads with `type: "api_error"` + `"Internal server error"` as transient failover errors so Anthropic 500-style failures trigger model fallback. (#23193) Thanks @jarvis-lane.
 - Agents/Google: sanitize non-base64 `thought_signature`/`thoughtSignature` values from assistant replay transcripts for native Google Gemini requests while preserving valid signatures and tool-call order. (#23457) Thanks @echoVic.
 - Agents/Transcripts: validate assistant tool-call names (syntax/length + registered tool allowlist) before transcript persistence and during replay sanitization so malformed failover tool names no longer poison sessions with repeated provider HTTP 400 errors. (#23324) Thanks @johnsantry.
+- Agents/Mistral: sanitize tool-call IDs in the embedded agent loop and generate strict provider-safe pending tool-call IDs, preventing Mistral strict9 `HTTP 400` failures on tool continuations. (#23698) Thanks @echoVic.
 - Agents/Compaction: strip stale assistant usage snapshots from pre-compaction turns when replaying history after a compaction summary so context-token estimation no longer reuses pre-compaction totals and immediately re-triggers destructive follow-up compactions. (#19127) Thanks @tedwatson.
 - Agents/Replies: emit a default completion acknowledgement (`✅ Done.`) when runs execute tools successfully but return no final assistant text, preventing silent no-reply turns after tool-only completions. (#22834) Thanks @Oldshue.
 - Agents/Subagents: honor `tools.subagents.tools.alsoAllow` and explicit subagent `allow` entries when resolving built-in subagent deny defaults, so explicitly granted tools (for example `sessions_send`) are no longer blocked unless re-denied in `tools.subagents.tools.deny`. (#23359) Thanks @goren-beehero.
@@ -128,6 +158,7 @@ Docs: https://docs.openclaw.ai
 - Security/macOS app beta: enforce path-only `system.run` allowlist matching (drop basename matches like `echo`), migrate legacy basename entries to last resolved paths when available, and harden shell-chain handling to fail closed on unsafe parse/control syntax (including quoted command substitution/backticks). This is an optional allowlist-mode feature; default installs remain deny-by-default. This ships in the next npm release. Thanks @tdjackey for reporting.
 - Security/Agents: auto-generate and persist a dedicated `commands.ownerDisplaySecret` when `commands.ownerDisplay=hash`, remove gateway token fallback from owner-ID prompt hashing across CLI and embedded agent runners, and centralize owner-display secret resolution in one shared helper. This ships in the next npm release. Thanks @aether-ai-agent for reporting.
 - Security/SSRF: expand IPv4 fetch guard blocking to include RFC special-use/non-global ranges (including benchmarking, TEST-NET, multicast, and reserved/broadcast blocks), centralize range checks into a single CIDR policy table, and reuse one shared host/IP classifier across literal + DNS checks to reduce classifier drift. This ships in the next npm release. Thanks @princeeismond-dot for reporting.
+- Security/SSRF: block RFC2544 benchmarking range (`198.18.0.0/15`) across direct and embedded-IP paths, and normalize IPv6 dotted-quad transition literals (for example `::127.0.0.1`, `64:ff9b::8.8.8.8`) in shared IP parsing/classification.
 - Security/Archive: block zip symlink escapes during archive extraction.
 - Security/Media sandbox: keep tmp media allowance for absolute tmp paths only and enforce symlink-escape checks before sandbox-validated reads, preventing tmp symlink exfiltration and relative `../` sandbox escapes when sandboxes live under tmp. (#17892) Thanks @dashed.
 - Browser/Upload: accept canonical in-root upload paths when the configured uploads directory is a symlink alias (for example `/tmp` -> `/private/tmp` on macOS), so browser upload validation no longer rejects valid files during client->server revalidation. (#23300, #23222, #22848) Thanks @bgaither4, @parkerati, and @Nabsku.
@@ -313,7 +344,6 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
-- Dev tooling: prevent `CLAUDE.md` symlink target regressions by excluding CLAUDE symlink sentinels from `oxfmt` and marking them `-text` in `.gitattributes`, so formatter/EOL normalization cannot reintroduce trailing-newline targets.
 - Agents/Streaming: keep assistant partial streaming active during reasoning streams, handle native `thinking_*` stream events consistently, dedupe mixed reasoning-end signals, and clear stale mutating tool errors after same-target retry success. (#20635) Thanks @obviyus.
 - iOS/Chat: use a dedicated iOS chat session key for ChatSheet routing to avoid cross-client session collisions with main-session traffic. (#21139) thanks @mbelinky.
 - iOS/Chat: auto-resync chat history after reconnect sequence gaps, clear stale pending runs, and avoid dead-end manual refresh errors after transient disconnects. (#21135) thanks @mbelinky.

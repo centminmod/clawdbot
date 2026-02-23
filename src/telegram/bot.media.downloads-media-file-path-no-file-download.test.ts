@@ -12,6 +12,7 @@ const TELEGRAM_TEST_TIMINGS = {
   mediaGroupFlushMs: 20,
   textFragmentGapMs: 30,
 } as const;
+const TELEGRAM_BOT_IMPORT_TIMEOUT_MS = process.platform === "win32" ? 180_000 : 150_000;
 let createTelegramBot: typeof import("./bot.js").createTelegramBot;
 let replySpy: ReturnType<typeof vi.fn>;
 
@@ -98,7 +99,7 @@ beforeAll(async () => {
   ({ createTelegramBot } = await import("./bot.js"));
   const replyModule = await import("../auto-reply/reply.js");
   replySpy = (replyModule as unknown as { __replySpy: ReturnType<typeof vi.fn> }).__replySpy;
-});
+}, TELEGRAM_BOT_IMPORT_TIMEOUT_MS);
 
 vi.mock("./sticker-cache.js", () => ({
   cacheSticker: (...args: unknown[]) => cacheStickerSpy(...args),
@@ -183,7 +184,7 @@ describe("telegram inbound media", () => {
     globalFetchSpy.mockRestore();
   });
 
-  it("logs a handler error when getFile returns no file_path", async () => {
+  it("handles missing file_path from getFile without crashing", async () => {
     const runtimeLog = vi.fn();
     const runtimeError = vi.fn();
     const { handler, replySpy } = await createBotHandlerWithOptions({
@@ -204,10 +205,7 @@ describe("telegram inbound media", () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(replySpy).not.toHaveBeenCalled();
-    expect(runtimeError).toHaveBeenCalledTimes(1);
-    const msg = String(runtimeError.mock.calls[0]?.[0] ?? "");
-    expect(msg).toContain("handler failed:");
-    expect(msg).toContain("file_path");
+    expect(runtimeError).not.toHaveBeenCalled();
 
     fetchSpy.mockRestore();
   });

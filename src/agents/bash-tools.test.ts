@@ -11,9 +11,9 @@ const defaultShell = isWin
   ? undefined
   : process.env.OPENCLAW_TEST_SHELL || resolveShellFromPath("bash") || process.env.SHELL || "sh";
 // PowerShell: Start-Sleep for delays, ; for command separation, $null for null device
-const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 8" : "sleep 0.008";
-const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 30" : "sleep 0.03";
-const longDelayCmd = isWin ? "Start-Sleep -Milliseconds 120" : "sleep 0.12";
+const shortDelayCmd = isWin ? "Start-Sleep -Milliseconds 4" : "sleep 0.004";
+const yieldDelayCmd = isWin ? "Start-Sleep -Milliseconds 16" : "sleep 0.016";
+const longDelayCmd = isWin ? "Start-Sleep -Milliseconds 72" : "sleep 0.072";
 const POLL_INTERVAL_MS = 15;
 const TEST_EXEC_DEFAULTS = { security: "full" as const, ask: "off" as const };
 const createTestExecTool = (
@@ -147,9 +147,9 @@ describe("exec tool backgrounding", () => {
     isWin ? 15_000 : 5_000,
   );
 
-  it("supports explicit background", async () => {
+  it("supports explicit background and derives session name from the command", async () => {
     const result = await execTool.execute("call1", {
-      command: echoAfterDelay("later"),
+      command: "echo hello",
       background: true,
     });
 
@@ -157,32 +157,14 @@ describe("exec tool backgrounding", () => {
     const sessionId = (result.details as { sessionId: string }).sessionId;
 
     const list = await processTool.execute("call2", { action: "list" });
-    const sessions = (list.details as { sessions: Array<{ sessionId: string }> }).sessions;
+    const sessions = (list.details as { sessions: Array<{ sessionId: string; name?: string }> })
+      .sessions;
     expect(sessions.some((s) => s.sessionId === sessionId)).toBe(true);
-  });
-
-  it("derives a session name from the command", async () => {
-    const result = await execTool.execute("call1", {
-      command: "echo hello",
-      background: true,
-    });
-    const sessionId = (result.details as { sessionId: string }).sessionId;
-    await expect
-      .poll(
-        async () => {
-          const list = await processTool.execute("call2", { action: "list" });
-          const sessions = (
-            list.details as { sessions: Array<{ sessionId: string; name?: string }> }
-          ).sessions;
-          return sessions.find((s) => s.sessionId === sessionId)?.name;
-        },
-        { timeout: process.platform === "win32" ? 8000 : 1200, interval: POLL_INTERVAL_MS },
-      )
-      .toBe("echo hello");
+    expect(sessions.find((s) => s.sessionId === sessionId)?.name).toBe("echo hello");
   });
 
   it("uses default timeout when timeout is omitted", async () => {
-    const customBash = createTestExecTool({ timeoutSec: 0.08, backgroundMs: 10 });
+    const customBash = createTestExecTool({ timeoutSec: 0.05, backgroundMs: 10 });
     const customProcess = createProcessTool();
 
     const result = await customBash.execute("call1", {
@@ -200,7 +182,7 @@ describe("exec tool backgrounding", () => {
           });
           return (poll.details as { status: string }).status;
         },
-        { timeout: 1500, interval: POLL_INTERVAL_MS },
+        { timeout: 1000, interval: POLL_INTERVAL_MS },
       )
       .toBe("failed");
   });
@@ -254,7 +236,7 @@ describe("exec tool backgrounding", () => {
     expect(status).toBe("completed");
   });
 
-  it("defaults process log to a bounded tail when no window is provided", async () => {
+  it("applies default tail only when no explicit log window is provided", async () => {
     const lines = Array.from({ length: 201 }, (_value, index) => `line-${index + 1}`);
     const sessionId = await runBackgroundEchoLines(lines);
 
@@ -299,7 +281,6 @@ describe("exec tool backgrounding", () => {
     expect(textBlock).not.toContain("showing last 200");
     expect((log.details as { totalLines?: number }).totalLines).toBe(201);
   });
-
   it("scopes process sessions by scopeKey", async () => {
     const bashA = createTestExecTool({ backgroundMs: 10, scopeKey: "agent:alpha" });
     const processA = createProcessTool({ scopeKey: "agent:alpha" });
@@ -399,39 +380,42 @@ describe("exec notifyOnExit", () => {
     expect(hasEvent).toBe(true);
   });
 
-  it("skips no-op completion events when command succeeds without output", async () => {
-    const tool = createTestExecTool({
-      allowBackground: true,
-      backgroundMs: 0,
-      notifyOnExit: true,
-      sessionKey: "agent:main:main",
-    });
+  it("handles no-op completion events based on notifyOnExitEmptySuccess", async () => {
+    for (const testCase of [
+      {
+        label: "default behavior skips no-op completion events",
+        notifyOnExitEmptySuccess: false,
+      },
+      {
+        label: "explicitly enabling no-op completion emits completion events",
+        notifyOnExitEmptySuccess: true,
+      },
+    ]) {
+      resetSystemEventsForTest();
+      const tool = createTestExecTool({
+        allowBackground: true,
+        backgroundMs: 0,
+        notifyOnExit: true,
+        ...(testCase.notifyOnExitEmptySuccess ? { notifyOnExitEmptySuccess: true } : {}),
+        sessionKey: "agent:main:main",
+      });
 
-    await runBackgroundAndWaitForCompletion({
-      tool,
-      callId: "call2",
-      command: shortDelayCmd,
-    });
-    expect(peekSystemEvents("agent:main:main")).toEqual([]);
-  });
-
-  it("can re-enable no-op completion events via notifyOnExitEmptySuccess", async () => {
-    const tool = createTestExecTool({
-      allowBackground: true,
-      backgroundMs: 0,
-      notifyOnExit: true,
-      notifyOnExitEmptySuccess: true,
-      sessionKey: "agent:main:main",
-    });
-
-    await runBackgroundAndWaitForCompletion({
-      tool,
-      callId: "call3",
-      command: shortDelayCmd,
-    });
-    const events = peekSystemEvents("agent:main:main");
-    expect(events.length).toBeGreaterThan(0);
-    expect(events.some((event) => event.includes("Exec completed"))).toBe(true);
+      await runBackgroundAndWaitForCompletion({
+        tool,
+        callId: "call-noop",
+        command: shortDelayCmd,
+      });
+      const events = peekSystemEvents("agent:main:main");
+      if (!testCase.notifyOnExitEmptySuccess) {
+        expect(events, testCase.label).toEqual([]);
+      } else {
+        expect(events.length, testCase.label).toBeGreaterThan(0);
+        expect(
+          events.some((event) => event.includes("Exec completed")),
+          testCase.label,
+        ).toBe(true);
+      }
+    }
   });
 });
 
