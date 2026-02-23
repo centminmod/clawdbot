@@ -182,10 +182,10 @@ The security analysis in this guide is based on verified source code review:
 
 | Component | Source File | Key Security Control |
 |-----------|-------------|---------------------|
-| Network binding | `src/gateway/net.ts:258-318` | Fallback chain with silent 0.0.0.0 fallback |
+| Network binding | `src/gateway/net.ts:221-279` | Fallback chain with silent 0.0.0.0 fallback |
 | Authentication | `src/gateway/auth.ts` | Token and password validation |
 | File permissions | `src/config/io.ts:975,1091` | 0o700 directories, 0o600 files |
-| SSRF protection | `src/infra/net/ssrf.ts:544-582` | DNS pinning (Mac/VPS only) |
+| SSRF protection | `src/infra/net/ssrf.ts:241-293` | DNS pinning (Mac/VPS only) |
 | Shell execution | `src/agents/bash-tools.exec.ts` | Allowlist and human approval |
 | Security audit | `src/security/audit.ts:347-367` | Critical flag detection |
 
