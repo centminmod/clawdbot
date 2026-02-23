@@ -61,6 +61,79 @@ describe("resolveExtraParams", () => {
 
     expect(result).toBeUndefined();
   });
+
+  it("returns per-agent params when agentId matches", () => {
+    const result = resolveExtraParams({
+      cfg: {
+        agents: {
+          list: [
+            {
+              id: "risk-reviewer",
+              params: { cacheRetention: "none" },
+            },
+          ],
+        },
+      },
+      provider: "anthropic",
+      modelId: "claude-opus-4-6",
+      agentId: "risk-reviewer",
+    });
+
+    expect(result).toEqual({ cacheRetention: "none" });
+  });
+
+  it("merges per-agent params over global model defaults", () => {
+    const result = resolveExtraParams({
+      cfg: {
+        agents: {
+          defaults: {
+            models: {
+              "anthropic/claude-opus-4-6": {
+                params: {
+                  temperature: 0.5,
+                  cacheRetention: "long",
+                },
+              },
+            },
+          },
+          list: [
+            {
+              id: "risk-reviewer",
+              params: { cacheRetention: "none" },
+            },
+          ],
+        },
+      },
+      provider: "anthropic",
+      modelId: "claude-opus-4-6",
+      agentId: "risk-reviewer",
+    });
+
+    expect(result).toEqual({
+      temperature: 0.5,
+      cacheRetention: "none",
+    });
+  });
+
+  it("ignores per-agent params when agentId does not match", () => {
+    const result = resolveExtraParams({
+      cfg: {
+        agents: {
+          list: [
+            {
+              id: "risk-reviewer",
+              params: { cacheRetention: "none" },
+            },
+          ],
+        },
+      },
+      provider: "anthropic",
+      modelId: "claude-opus-4-6",
+      agentId: "main",
+    });
+
+    expect(result).toBeUndefined();
+  });
 });
 
 describe("applyExtraParamsToAgent", () => {
@@ -149,6 +222,73 @@ describe("applyExtraParamsToAgent", () => {
       "X-Title": "OpenClaw",
       "X-Custom": "1",
     });
+  });
+
+  it("disables prompt caching for non-Anthropic Bedrock models", () => {
+    const { calls, agent } = createOptionsCaptureAgent();
+
+    applyExtraParamsToAgent(agent, undefined, "amazon-bedrock", "amazon.nova-micro-v1");
+
+    const model = {
+      api: "openai-completions",
+      provider: "amazon-bedrock",
+      id: "amazon.nova-micro-v1",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+
+    void agent.streamFn?.(model, context, {});
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.cacheRetention).toBe("none");
+  });
+
+  it("keeps Anthropic Bedrock models eligible for provider-side caching", () => {
+    const { calls, agent } = createOptionsCaptureAgent();
+
+    applyExtraParamsToAgent(agent, undefined, "amazon-bedrock", "us.anthropic.claude-sonnet-4-5");
+
+    const model = {
+      api: "openai-completions",
+      provider: "amazon-bedrock",
+      id: "us.anthropic.claude-sonnet-4-5",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+
+    void agent.streamFn?.(model, context, {});
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.cacheRetention).toBeUndefined();
+  });
+
+  it("passes through explicit cacheRetention for Anthropic Bedrock models", () => {
+    const { calls, agent } = createOptionsCaptureAgent();
+    const cfg = {
+      agents: {
+        defaults: {
+          models: {
+            "amazon-bedrock/us.anthropic.claude-opus-4-6-v1": {
+              params: {
+                cacheRetention: "long",
+              },
+            },
+          },
+        },
+      },
+    };
+
+    applyExtraParamsToAgent(agent, cfg, "amazon-bedrock", "us.anthropic.claude-opus-4-6-v1");
+
+    const model = {
+      api: "openai-completions",
+      provider: "amazon-bedrock",
+      id: "us.anthropic.claude-opus-4-6-v1",
+    } as Model<"openai-completions">;
+    const context: Context = { messages: [] };
+
+    void agent.streamFn?.(model, context, {});
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.cacheRetention).toBe("long");
   });
 
   it("adds Anthropic 1M beta header when context1m is enabled for Opus/Sonnet", () => {
