@@ -2,10 +2,21 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
-import { listRuntimeSourceFiles, shouldSkipRuntimeSourcePath } from "../test-utils/repo-scan.js";
 
-const RUNTIME_ROOTS = ["src", "extensions"] as const;
-const QUICK_TMPDIR_JOIN_PATTERN = /\bpath\.join\s*\(\s*os\.tmpdir\s*\(\s*\)/;
+const RUNTIME_ROOTS = ["src", "extensions"];
+const SKIP_PATTERNS = [
+  /\.test\.tsx?$/,
+  /\.test-helpers\.tsx?$/,
+  /\.test-utils\.tsx?$/,
+  /\.e2e\.tsx?$/,
+  /\.d\.ts$/,
+  /[\\/](?:__tests__|tests)[\\/]/,
+  /[\\/][^\\/]*test-helpers(?:\.[^\\/]+)?\.ts$/,
+];
+
+function shouldSkip(relativePath: string): boolean {
+  return SKIP_PATTERNS.some((pattern) => pattern.test(relativePath));
+}
 
 function isIdentifierNamed(node: ts.Node, name: string): node is ts.Identifier {
   return ts.isIdentifier(node) && node.text === name;
@@ -71,11 +82,33 @@ function hasDynamicTmpdirJoin(source: string, filePath = "fixture.ts"): boolean 
   return found;
 }
 
+async function listTsFiles(dir: string): Promise<string[]> {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const out: string[] = [];
+  for (const entry of entries) {
+    if (entry.name === "node_modules" || entry.name === "dist" || entry.name.startsWith(".")) {
+      continue;
+    }
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...(await listTsFiles(fullPath)));
+      continue;
+    }
+    if (!entry.isFile()) {
+      continue;
+    }
+    if (fullPath.endsWith(".ts") || fullPath.endsWith(".tsx")) {
+      out.push(fullPath);
+    }
+  }
+  return out;
+}
+
 describe("temp path guard", () => {
   it("skips test helper filename variants", () => {
-    expect(shouldSkipRuntimeSourcePath("src/commands/test-helpers.ts")).toBe(true);
-    expect(shouldSkipRuntimeSourcePath("src/commands/sessions.test-helpers.ts")).toBe(true);
-    expect(shouldSkipRuntimeSourcePath("src\\commands\\sessions.test-helpers.ts")).toBe(true);
+    expect(shouldSkip("src/commands/test-helpers.ts")).toBe(true);
+    expect(shouldSkip("src/commands/sessions.test-helpers.ts")).toBe(true);
+    expect(shouldSkip("src\\commands\\sessions.test-helpers.ts")).toBe(true);
   });
 
   it("detects dynamic and ignores static fixtures", () => {
@@ -104,21 +137,21 @@ describe("temp path guard", () => {
     const repoRoot = process.cwd();
     const offenders: string[] = [];
 
-    const files = await listRuntimeSourceFiles(repoRoot, {
-      roots: RUNTIME_ROOTS,
-      extensions: [".ts", ".tsx"],
-    });
-    for (const file of files) {
-      const relativePath = path.relative(repoRoot, file);
-      const source = await fs.readFile(file, "utf-8");
-      if (!QUICK_TMPDIR_JOIN_PATTERN.test(source)) {
-        continue;
-      }
-      if (hasDynamicTmpdirJoin(source, relativePath)) {
-        offenders.push(relativePath);
+    for (const root of RUNTIME_ROOTS) {
+      const absRoot = path.join(repoRoot, root);
+      const files = await listTsFiles(absRoot);
+      for (const file of files) {
+        const relativePath = path.relative(repoRoot, file);
+        if (shouldSkip(relativePath)) {
+          continue;
+        }
+        const source = await fs.readFile(file, "utf8");
+        if (hasDynamicTmpdirJoin(source, relativePath)) {
+          offenders.push(relativePath);
+        }
       }
     }
 
     expect(offenders).toEqual([]);
-  }, 240_000);
+  });
 });
