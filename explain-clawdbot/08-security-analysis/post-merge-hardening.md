@@ -146,6 +146,7 @@
 - [Feb 23 sync 9 (4 commits, 0 security)](./post-merge-hardening/2026-02-23-sync-9.md)
 - [Feb 23 sync 10 (10 commits, 1 security)](./post-merge-hardening/2026-02-23-sync-10.md)
 - [Feb 23 sync 11 (49 commits, 4 security)](./post-merge-hardening/2026-02-23-sync-11.md)
+- [Feb 23 sync 12 (1 commit, 0 security)](./post-merge-hardening/2026-02-23-sync-12.md)
 
 ## Post-Merge Security Hardening
 
