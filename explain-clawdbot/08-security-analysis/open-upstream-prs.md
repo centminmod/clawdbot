@@ -217,9 +217,9 @@
 
 | PR # | Fixes Issue(s) | Issue Severity | PR Status | Notes |
 |------|---------------|----------------|-----------|-------|
-| [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:101-122` |
+| [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:124-145` |
 | [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:12` checks gateway bind + auth |
-| [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:47-89` |
+| [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:81-138` |
 | [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:450-451` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
@@ -313,10 +313,10 @@
 
 **Changes:**
 - `src/gateway/server/ws-connection/message-handler.ts:160-179` — detects untrusted proxy headers
-- `src/gateway/auth.ts:101-122` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
+- `src/gateway/auth.ts:124-145` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
 - `src/security/audit.ts` — audit detection for misconfigured proxy setup
 
-**Local Impact:** ALREADY SYNCED — `isLocalDirectRequest()` at `src/gateway/auth.ts:101-122` checks `hasForwarded` and `remoteIsTrustedProxy`
+**Local Impact:** ALREADY SYNCED — `isLocalDirectRequest()` at `src/gateway/auth.ts:124-145` checks `hasForwarded` and `remoteIsTrustedProxy`
 
 ### #2016: Add Gateway Network Exposure Check to Doctor
 
@@ -339,10 +339,10 @@
 
 **Changes:**
 - `src/media/parse.ts:36-64` — `isValidMedia()` refactored to accept all local path types (absolute, tilde, traversal, Windows, bare filenames); security validation deferred to load layer
-- `src/web/media.ts:47-89` — new `assertLocalMediaAllowed()` validates local paths against allowed directory roots (`/tmp`, `~/.openclaw/media`, `~/.openclaw/agents`), resolves symlinks
+- `src/web/media.ts:81-138` — new `assertLocalMediaAllowed()` validates local paths against allowed directory roots (`/tmp`, `~/.openclaw/media`, `~/.openclaw/agents`), resolves symlinks
 - `src/media/parse.test.ts` — test coverage updated for new path acceptance + load-time validation
 
-**Local Impact:** ALREADY SYNCED — LFI defense now two-layer: `isValidMedia()` at `src/media/parse.ts:36-64` accepts paths, `assertLocalMediaAllowed()` at `src/web/media.ts:47-89` enforces directory root guards
+**Local Impact:** ALREADY SYNCED — LFI defense now two-layer: `isValidMedia()` at `src/media/parse.ts:36-64` accepts paths, `assertLocalMediaAllowed()` at `src/web/media.ts:81-138` enforces directory root guards
 
 ### #8241: Matrix Thread Session Isolation
 
@@ -523,7 +523,7 @@
 - `src/agents/pi-embedded-runner/run/attempt.ts` — uses `Agent.transformContext` hook to run `sanitizeAntigravityThinkingBlocks` before every API call (not just at session load)
 
 **Local Validation:**
-- `src/agents/pi-embedded-runner/run/attempt.ts:1035` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
+- `src/agents/pi-embedded-runner/run/attempt.ts:1067` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
 - No `transformContext` hook usage in local `pi-embedded-runner` (grep confirmed)
 - `src/agents/pi-embedded-runner/google.ts:72` — `sanitizeAntigravityThinkingBlocks` function exists but only called from `attempt.ts:993` and `google.ts:459`
 
@@ -543,7 +543,7 @@
 **Greptile Review:** Notes queue draining logic may drop `extraSystemPrompt` when messages are combined or summarized.
 
 **Local Validation:**
-- `src/agents/subagent-announce.ts:908-923` — `statsLine` (token counts, session IDs, file paths, costs) in user-visible `message`; `Findings:` heading and `Summarize this naturally` instructions also exposed
+- `src/agents/subagent-announce.ts:1137-1154` — `statsLine` (token counts, session IDs, file paths, costs) in user-visible `message`; `Findings:` heading and `Summarize this naturally` instructions also exposed
 - No `extraSystemPrompt` field in local `AnnounceQueueItem`
 
 **Local Impact:** OPEN/PENDING — PR not yet merged. Internal stats and instructions leak to users.
@@ -904,8 +904,8 @@
 **Local Validation:**
 - `src/config/types.gateway.ts:83` — `GatewayAuthMode` includes `"trusted-proxy"`
 - `src/config/types.gateway.ts:90` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
-- `src/gateway/auth.ts:244` — `authorizeTrustedProxy()` function present
-- `src/gateway/auth.ts:300-315` — trusted-proxy auth path in `authorizeGatewayConnect()`
+- `src/gateway/auth.ts:321` — `authorizeTrustedProxy()` function present
+- `src/gateway/auth.ts:364-388` — trusted-proxy auth path in `authorizeGatewayConnect()`
 - `src/security/audit.ts:377-436` — audit integration with critical findings for trusted-proxy
 - `src/config/zod-schema.ts:435` — Zod validation for trusted-proxy mode
 - 10+ test files with trusted-proxy coverage

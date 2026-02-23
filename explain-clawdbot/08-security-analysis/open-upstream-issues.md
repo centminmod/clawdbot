@@ -94,7 +94,7 @@
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:126-142` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
-| [#16059](https://github.com/openclaw/openclaw/issues/16059) | MEDIUM | Extension relay /extension WebSocket unauthenticated | `src/browser/extension-relay.ts:454-478` — loopback-only but Origin check bypassable; /cdp has token auth, /extension does not |
+| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts:502-524` — `/extension` path now requires `relayAuthToken` (same as `/cdp`) |
 | [#10992](https://github.com/openclaw/openclaw/issues/10992) | MEDIUM | Sub-agents bypass exec approvals for safeBins commands | `src/agents/bash-tools.exec.ts:137,265-277,333` — safeBins allowlist bypasses approval workflow for sub-agents |
 | [#15990](https://github.com/openclaw/openclaw/issues/15990) | MEDIUM | Context compaction leaks content between sessions | `src/agents/pi-embedded-runner/compact.ts` — cross-session data bleed during compaction; relates to #12571/#14117 |
 | [#12542](https://github.com/openclaw/openclaw/issues/12542) | MEDIUM | Diagnostics-OTEL exports unredacted session/chat IDs | `extensions/diagnostics-otel/src/service.ts:391,427-494` — no redaction pipeline; requires opt-in config |
@@ -662,7 +662,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/infra/device-auth-store.ts:92-119` — read at :100 (`readStore`), mutate :102-116, write at :117 (`writeStore`) with **no lock between read and write**
-- Called from `src/gateway/client.ts:254` during device authentication
+- Called from `src/gateway/client.ts:248-253` during device authentication
 
 ### #10331: Session Store Stale Cache Inside Write Lock
 
@@ -722,8 +722,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/bootstrap-files.ts:43-60` — `resolveBootstrapContextForRun()` loads all bootstrap files unconditionally
-- `src/agents/pi-embedded-runner/run/attempt.ts:342` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
-- `src/agents/pi-embedded-runner/run/attempt.ts:361` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
+- `src/agents/pi-embedded-runner/run/attempt.ts:344` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
+- `src/agents/pi-embedded-runner/run/attempt.ts:363` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
 
 **Impact:** Non-owner senders on public channels receive responses shaped by the owner's personal context files (personality, preferences, private notes). The content is not directly exposed but indirectly leaks through response behavior. Tool access is correctly gated by `senderIsOwner`, but context/personality files are not.
 
@@ -735,7 +735,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/auto-reply/reply/get-reply-directives.ts:66-81` — `resolveExecOverrides()` reads from `directives` (inline `!exec=docker`) and `sessionEntry` only
 - `src/auto-reply/reply/get-reply-directives.ts:93` — `agentCfg: AgentDefaults` is in scope but not consulted for exec settings
-- `src/agents/pi-embedded-runner/run/attempt.ts:363` — `execOverrides` passed to tool creation, but populated only from directives/session
+- `src/agents/pi-embedded-runner/run/attempt.ts:365` — `execOverrides` passed to tool creation, but populated only from directives/session
 
 **Impact:** If an operator configures per-agent exec restrictions (e.g., `agents.mybot.tools.exec.host = "docker"` for sandboxed execution), those restrictions are silently ignored. The agent runs with global exec defaults. Global config still applies; only per-agent overrides are lost.
 
@@ -1048,17 +1048,17 @@ All changes take effect immediately via automatic restart.
 
 ### #16059: Extension Relay /extension WebSocket Unauthenticated
 
-**Severity:** MEDIUM
+**Severity:** ~~MEDIUM~~ **FIXED** (Feb 23 sync 15, commit [`40494d67f`](https://github.com/openclaw/openclaw/commit/40494d67f))
 **CWE:** CWE-306 (Missing Authentication for Critical Function)
 
-**Vulnerability:** The browser extension relay server's `/extension` WebSocket endpoint accepts connections with only a loopback address check and a bypassable Origin header check. Unlike the `/cdp` WebSocket endpoint on the same server (which requires a cryptographic `relayAuthToken`), the `/extension` path has no token-based authentication. Any local process can connect as the Chrome extension by omitting the Origin header, allowing it to intercept CDP commands, inject forged responses, and impersonate the browser extension.
+**Vulnerability:** ~~The browser extension relay server's `/extension` WebSocket endpoint accepts connections with only a loopback address check and a bypassable Origin header check. Unlike the `/cdp` WebSocket endpoint on the same server (which requires a cryptographic `relayAuthToken`), the `/extension` path has no token-based authentication. Any local process can connect as the Chrome extension by omitting the Origin header, allowing it to intercept CDP commands, inject forged responses, and impersonate the browser extension.~~
 
-**Affected code:**
-- `src/browser/extension-relay.ts:454-478` -- WebSocket upgrade handler: `/extension` path has no token check
-- `src/browser/extension-relay.ts:464-468` -- Origin check: `if (origin && !origin.startsWith("chrome-extension://"))` only rejects non-chrome-extension origins that are present; missing Origin header passes through
-- `src/browser/extension-relay.ts:481-486` -- `/cdp` path correctly requires `relayAuthToken` via `RELAY_AUTH_HEADER`
+**Fix:** The `/extension` upgrade path now requires the same `relayAuthToken` check as `/cdp`. Both paths call `getRelayAuthTokenFromRequest()` and reject with HTTP 401 if the token is absent or mismatched.
 
-**Mitigation:** Loopback-only binding at line 459 (`isLoopbackAddress(remote)`) limits attack surface to local processes. Not exploitable from the network.
+**Affected code (current):**
+- `src/browser/extension-relay.ts:496-498` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
+- `src/browser/extension-relay.ts:502-524` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
+- `src/browser/extension-relay.ts:527-541` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
 
 ### #10992: Sub-Agents Bypass Exec Approvals for safeBins Commands
 
@@ -1128,7 +1128,7 @@ All changes take effect immediately via automatic restart.
 **Affected code:**
 - `src/gateway/server/ws-connection/connect-policy.ts:22-33` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
 - `src/gateway/server/ws-connection/connect-policy.ts:48-78` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
-- `src/gateway/server/ws-connection/message-handler.ts:618` — device pairing requirement skipped
+- `src/gateway/server/ws-connection/message-handler.ts:559-562` — `skipPairing` gate: device pairing requirement skipped when `allowInsecureAuth` configured
 - `src/security/audit.ts:348-356` — security audit detects and flags as `severity: "critical"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 
 **Exploit conditions:** Admin must set `allowInsecureAuth: true` (opt-in). Once enabled, passive MITM on the local network can capture the auth token and gain full `operator.admin + operator.approvals + operator.pairing` access.

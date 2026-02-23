@@ -47,7 +47,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - WhatsApp monitor — persistent connection with keepalive
 
 **Browser extension WebSocket pings:**
-- `src/browser/extension-relay.ts:503` — periodic ping/pong to keep connections alive
+- `src/browser/extension-relay.ts:549` — periodic ping/pong to keep connections alive
 
 **Crypto operations:**
 - HMAC signature verification for webhooks
@@ -84,7 +84,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:113` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
 | Warned contexts | `src/infra/session-maintenance-warning.ts:16` | **Never pruned** | Low |
-| Announce queues | `src/agents/subagent-announce-queue.ts:45` | Per-queue cap, **no queue count cap** | Low |
+| Announce queues | `src/agents/subagent-announce-queue.ts:46` | Per-queue cap, **no queue count cap** | Low |
 | Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:13` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
 
 > *Session store cache:* Like photocopying an entire filing cabinet every time you check one folder — works, but wastes desk space.
