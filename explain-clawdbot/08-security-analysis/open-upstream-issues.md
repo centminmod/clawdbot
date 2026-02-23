@@ -104,6 +104,29 @@
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | NOT APPLICABLE | Skill removal without notification | ClawHub platform moderation issue, not a codebase vulnerability |
 | [#11879](https://github.com/openclaw/openclaw/issues/11879) | NOT APPLICABLE | Malicious ClawHub skill exfiltrating to Feishu | Ecosystem/marketplace issue; 13,981 installs; relates to #10890 (Skill Security Framework) |
 
+## AI Agent Reliability & Safety Issues
+
+> **Scope:** Issues where the AI agent fails to follow instructions, misuses tools, loses context, or acts autonomously against user intent. These complement security vulnerabilities above -- security issues stay in the security table; this table tracks **behavioral reliability** risks.
+>
+> **Cross-references:** Issues appearing in both tables are linked. The security table tracks the vulnerability; this table tracks the agent behavior failure mode.
+>
+> **Why this matters:** Real-world incidents (e.g., AI agent deleting user's inbox despite "confirm before acting" instruction) show that instruction adherence, context preservation, and tool-call safety are security-critical properties. Context compaction can silently remove safety instructions. Runaway loops can burn tokens or take destructive actions. Tool calls can execute before safety checks complete.
+
+| Issue | Severity | Category | Summary | Local Impact |
+|-------|----------|----------|---------|--------------|
+
+*(Table populated on first skill run)*
+
+### Category Tags
+
+- **CONTEXT_MGMT** -- Context loss, compaction removing instructions, cross-session leakage, stale state
+- **AUTONOMY_CONTROL** -- Agent cannot be stopped, enters runaway loops, unbounded tool-call chains
+- **TOOL_CALL** -- Tool calls executed incorrectly, unauthorized, before safety checks, or with unintended side effects
+- **HALLUCINATION** -- Agent fabricates information, outputs incorrect data, creates fake user messages
+- **PERSONA_DRIFT** -- Agent ignores persona/SOUL.md files, identity corruption after compaction, bootstrap not loaded
+- **INSTRUCTION_ADHERENCE** -- Agent ignores explicit user instructions (e.g., "confirm before acting")
+- **APPROVAL_WORKFLOW** -- Approval gates bypassed, delayed, or non-functional
+
 ### #10646: Weak UUID / Math.random() in Tool Call IDs
 
 **Vulnerability:** Two distinct Math.random() usages in security-relevant contexts.
