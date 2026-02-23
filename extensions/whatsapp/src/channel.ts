@@ -19,7 +19,8 @@ import {
   readStringParam,
   resolveDefaultWhatsAppAccountId,
   resolveWhatsAppOutboundTarget,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   resolveWhatsAppAccount,
   resolveWhatsAppGroupRequireMention,
   resolveWhatsAppGroupToolPolicy,
@@ -143,13 +144,11 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> = {
       };
     },
     collectWarnings: ({ account, cfg }) => {
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-      const { groupPolicy } = resolveRuntimeGroupPolicy({
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+      const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.whatsapp !== undefined,
         groupPolicy: account.groupPolicy,
         defaultGroupPolicy,
-        configuredFallbackPolicy: "allowlist",
-        missingProviderFallbackPolicy: "allowlist",
       });
       if (groupPolicy !== "open") {
         return [];

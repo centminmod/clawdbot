@@ -1,5 +1,9 @@
 import { loadConfig } from "../../config/config.js";
-import { resolveRuntimeGroupPolicy } from "../../config/runtime-group-policy.js";
+import {
+  resolveOpenProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
+} from "../../config/runtime-group-policy.js";
 import { logVerbose } from "../../globals.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
@@ -26,12 +30,10 @@ function resolveWhatsAppRuntimeGroupPolicy(params: {
   groupPolicy: "open" | "allowlist" | "disabled";
   providerMissingFallbackApplied: boolean;
 } {
-  return resolveRuntimeGroupPolicy({
+  return resolveOpenProviderRuntimeGroupPolicy({
     providerConfigPresent: params.providerConfigPresent,
     groupPolicy: params.groupPolicy,
     defaultGroupPolicy: params.defaultGroupPolicy,
-    configuredFallbackPolicy: "open",
-    missingProviderFallbackPolicy: "allowlist",
   });
 }
 
@@ -99,17 +101,18 @@ export async function checkInboundAccessControl(params: {
   // - "open": groups bypass allowFrom, only mention-gating applies
   // - "disabled": block all group messages entirely
   // - "allowlist": only allow group messages from senders in groupAllowFrom/allowFrom
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
   const { groupPolicy, providerMissingFallbackApplied } = resolveWhatsAppRuntimeGroupPolicy({
     providerConfigPresent: cfg.channels?.whatsapp !== undefined,
     groupPolicy: account.groupPolicy,
     defaultGroupPolicy,
   });
-  if (providerMissingFallbackApplied) {
-    logVerbose(
-      'whatsapp: channels.whatsapp is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
-    );
-  }
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "whatsapp",
+    accountId: account.accountId,
+    log: (message) => logVerbose(message),
+  });
   if (params.group && groupPolicy === "disabled") {
     logVerbose("Blocked group message (groupPolicy: disabled)");
     return {

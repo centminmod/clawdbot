@@ -18,7 +18,8 @@ import {
   resolveIMessageAccount,
   resolveIMessageGroupRequireMention,
   resolveIMessageGroupToolPolicy,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   setAccountEnabledInConfigSection,
   type ChannelPlugin,
   type ResolvedIMessageAccount,
@@ -98,13 +99,11 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount> = {
       };
     },
     collectWarnings: ({ account, cfg }) => {
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-      const { groupPolicy } = resolveRuntimeGroupPolicy({
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+      const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.imessage !== undefined,
         groupPolicy: account.config.groupPolicy,
         defaultGroupPolicy,
-        configuredFallbackPolicy: "allowlist",
-        missingProviderFallbackPolicy: "allowlist",
       });
       if (groupPolicy !== "open") {
         return [];

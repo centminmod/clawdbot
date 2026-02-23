@@ -1,8 +1,11 @@
 import { format } from "node:util";
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
   mergeAllowlist,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   summarizeMapping,
+  warnMissingProviderGroupPolicyFallbackOnce,
   type RuntimeEnv,
 } from "openclaw/plugin-sdk";
 import { resolveMatrixTargets } from "../../resolve-targets.js";
@@ -247,21 +250,20 @@ export async function monitorMatrixProvider(opts: MonitorMatrixOpts = {}): Promi
   setActiveMatrixClient(client, opts.accountId);
 
   const mentionRegexes = core.channel.mentions.buildMentionRegexes(cfg);
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy(
-    {
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+  const { groupPolicy: groupPolicyRaw, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
       providerConfigPresent: cfg.channels?.matrix !== undefined,
       groupPolicy: accountConfig.groupPolicy,
       defaultGroupPolicy,
-      configuredFallbackPolicy: "allowlist",
-      missingProviderFallbackPolicy: "allowlist",
-    },
-  );
-  if (providerMissingFallbackApplied) {
-    logVerboseMessage(
-      'matrix: channels.matrix is missing; defaulting groupPolicy to "allowlist" (room messages blocked until explicitly configured).',
-    );
-  }
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "matrix",
+    accountId: account.accountId,
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.room,
+    log: (message) => logVerboseMessage(message),
+  });
   const groupPolicy = allowlistOnly && groupPolicyRaw === "open" ? "allowlist" : groupPolicyRaw;
   const replyToMode = opts.replyToMode ?? accountConfig.replyToMode ?? "off";
   const threadReplies = accountConfig.threadReplies ?? "inbound";

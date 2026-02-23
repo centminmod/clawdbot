@@ -1,8 +1,11 @@
 import {
+  GROUP_POLICY_BLOCKED_LABEL,
   createReplyPrefixOptions,
   logInboundDrop,
   resolveControlCommandGate,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
+  warnMissingProviderGroupPolicyFallbackOnce,
   type OpenClawConfig,
   type RuntimeEnv,
 } from "openclaw/plugin-sdk";
@@ -20,7 +23,6 @@ import { sendMessageIrc } from "./send.js";
 import type { CoreConfig, IrcInboundMessage } from "./types.js";
 
 const CHANNEL_ID = "irc" as const;
-const warnedMissingProviderGroupPolicy = new Set<string>();
 
 const escapeIrcRegexLiteral = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -86,20 +88,20 @@ export async function handleIrcInbound(params: {
     : message.senderNick;
 
   const dmPolicy = account.config.dmPolicy ?? "pairing";
-  const defaultGroupPolicy = config.channels?.defaults?.groupPolicy;
-  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
-    providerConfigPresent: config.channels?.irc !== undefined,
-    groupPolicy: account.config.groupPolicy,
-    defaultGroupPolicy,
-    configuredFallbackPolicy: "allowlist",
-    missingProviderFallbackPolicy: "allowlist",
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(config);
+  const { groupPolicy, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent: config.channels?.irc !== undefined,
+      groupPolicy: account.config.groupPolicy,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "irc",
+    accountId: account.accountId,
+    blockedLabel: GROUP_POLICY_BLOCKED_LABEL.channel,
+    log: (message) => runtime.log?.(message),
   });
-  if (providerMissingFallbackApplied && !warnedMissingProviderGroupPolicy.has(account.accountId)) {
-    warnedMissingProviderGroupPolicy.add(account.accountId);
-    runtime.log?.(
-      'irc: channels.irc is missing; defaulting groupPolicy to "allowlist" (channel messages blocked until explicitly configured).',
-    );
-  }
 
   const configAllowFrom = normalizeIrcAllowlist(account.config.allowFrom);
   const configGroupAllowFrom = normalizeIrcAllowlist(account.config.groupAllowFrom);

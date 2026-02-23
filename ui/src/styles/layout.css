@@ -262,9 +262,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
+  gap: 6px;
+  min-width: 28px;
   height: 28px;
-  padding: 0;
+  padding: 0 4px;
   border: 1px solid transparent;
   border-radius: var(--radius);
   background: none;
@@ -289,13 +290,24 @@
 }
 
 .topbar-redact--active {
+  border-radius: var(--radius-full);
+  padding: 4px 10px;
   color: var(--warn);
+  background: var(--warn-subtle);
 }
 
 .topbar-redact--active:hover {
   color: var(--warn);
-  background: var(--warn-subtle);
-  border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+  background: color-mix(in srgb, var(--warn-subtle) 80%, var(--warn) 10%);
+}
+
+.topbar-redact__label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Topbar theme toggle sizing */
@@ -710,7 +722,7 @@
 .content--chat {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   overflow: hidden;
   padding-bottom: 0;
 }
@@ -724,8 +736,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  padding: 4px 0;
+  gap: 12px;
+  padding: 2px 0;
   overflow: hidden;
   transform-origin: top center;
   transition:
@@ -733,7 +745,7 @@
     transform var(--shell-focus-duration) var(--shell-focus-ease),
     max-height var(--shell-focus-duration) var(--shell-focus-ease),
     padding var(--shell-focus-duration) var(--shell-focus-ease);
-  max-height: 80px;
+  max-height: 64px;
 }
 
 .shell--chat-focus .content-header {
@@ -745,24 +757,25 @@
 }
 
 .page-title {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.15;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
   color: var(--text-strong);
 }
 
 .page-sub {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 400;
-  margin-top: 6px;
+  margin-top: 2px;
   letter-spacing: -0.01em;
 }
 
 .page-meta {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
 }
 
 /* Chat view header adjustments */
@@ -770,7 +783,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .content--chat .content-header > div:first-child {

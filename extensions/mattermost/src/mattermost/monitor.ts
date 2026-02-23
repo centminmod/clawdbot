@@ -16,8 +16,10 @@ import {
   DEFAULT_GROUP_HISTORY_LIMIT,
   recordPendingHistoryEntryIfEnabled,
   resolveControlCommandGate,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   resolveChannelMediaMaxBytes,
+  warnMissingProviderGroupPolicyFallbackOnce,
   type HistoryEntry,
 } from "openclaw/plugin-sdk";
 import { getMattermostRuntime } from "../runtime.js";
@@ -243,19 +245,19 @@ export async function monitorMattermostProvider(opts: MonitorMattermostOpts = {}
     cfg.messages?.groupChat?.historyLimit ?? DEFAULT_GROUP_HISTORY_LIMIT,
   );
   const channelHistories = new Map<string, HistoryEntry[]>();
-  const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-  const { groupPolicy, providerMissingFallbackApplied } = resolveRuntimeGroupPolicy({
-    providerConfigPresent: cfg.channels?.mattermost !== undefined,
-    groupPolicy: account.config.groupPolicy,
-    defaultGroupPolicy,
-    configuredFallbackPolicy: "allowlist",
-    missingProviderFallbackPolicy: "allowlist",
+  const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+  const { groupPolicy, providerMissingFallbackApplied } =
+    resolveAllowlistProviderRuntimeGroupPolicy({
+      providerConfigPresent: cfg.channels?.mattermost !== undefined,
+      groupPolicy: account.config.groupPolicy,
+      defaultGroupPolicy,
+    });
+  warnMissingProviderGroupPolicyFallbackOnce({
+    providerMissingFallbackApplied,
+    providerKey: "mattermost",
+    accountId: account.accountId,
+    log: (message) => logVerboseMessage(message),
   });
-  if (providerMissingFallbackApplied) {
-    logVerboseMessage(
-      'mattermost: channels.mattermost is missing; defaulting groupPolicy to "allowlist" (group messages blocked until explicitly configured).',
-    );
-  }
 
   const fetchWithAuth: FetchLike = (input, init) => {
     const headers = new Headers(init?.headers);

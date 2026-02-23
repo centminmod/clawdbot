@@ -4,7 +4,8 @@ import {
   formatPairingApproveHint,
   getChatChannelMeta,
   PAIRING_APPROVED_MESSAGE,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   setAccountEnabledInConfigSection,
   deleteAccountFromConfigSection,
   type ChannelPlugin,
@@ -135,13 +136,11 @@ export const ircPlugin: ChannelPlugin<ResolvedIrcAccount, IrcProbe> = {
     },
     collectWarnings: ({ account, cfg }) => {
       const warnings: string[] = [];
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-      const { groupPolicy } = resolveRuntimeGroupPolicy({
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+      const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.irc !== undefined,
         groupPolicy: account.config.groupPolicy,
         defaultGroupPolicy,
-        configuredFallbackPolicy: "allowlist",
-        missingProviderFallbackPolicy: "allowlist",
       });
       if (groupPolicy === "open") {
         warnings.push(

@@ -11,7 +11,8 @@ import {
   PAIRING_APPROVED_MESSAGE,
   resolveChannelMediaMaxBytes,
   resolveGoogleChatGroupRequireMention,
-  resolveRuntimeGroupPolicy,
+  resolveAllowlistProviderRuntimeGroupPolicy,
+  resolveDefaultGroupPolicy,
   setAccountEnabledInConfigSection,
   type ChannelDock,
   type ChannelMessageActionAdapter,
@@ -199,13 +200,11 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
     },
     collectWarnings: ({ account, cfg }) => {
       const warnings: string[] = [];
-      const defaultGroupPolicy = cfg.channels?.defaults?.groupPolicy;
-      const { groupPolicy } = resolveRuntimeGroupPolicy({
+      const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
+      const { groupPolicy } = resolveAllowlistProviderRuntimeGroupPolicy({
         providerConfigPresent: cfg.channels?.googlechat !== undefined,
         groupPolicy: account.config.groupPolicy,
         defaultGroupPolicy,
-        configuredFallbackPolicy: "allowlist",
-        missingProviderFallbackPolicy: "allowlist",
       });
       if (groupPolicy === "open") {
         warnings.push(
