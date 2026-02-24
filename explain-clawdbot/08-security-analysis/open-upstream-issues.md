@@ -116,7 +116,6 @@
 
 | Issue | Severity | Category | Summary | Local Impact |
 |-------|----------|----------|---------|--------------|
-
 | [#7903](https://github.com/openclaw/openclaw/issues/7903) | CRITICAL | AUTONOMY_CONTROL | Self-talk detection runs AFTER tool execution, not before | `src/auto-reply/` — no pre-execution self-talk check; safety validation occurs post-action |
 | [#24884](https://github.com/openclaw/openclaw/issues/24884) | HIGH | CONTEXT_MGMT | Orphaned tool_use IDs after context compaction break all providers | `src/agents/session-transcript-repair.ts` — `repairToolUseResultPairing()` insufficient for compaction scenarios; cross-ref #9875 |
 | [#24852](https://github.com/openclaw/openclaw/issues/24852) | HIGH | PERSONA_DRIFT | Subagent sessions don't load SOUL.md/workspace files | `src/agents/bootstrap-files.ts:72` — `resolveBootstrapContextForRun()` requires `workspaceDir`; spawned sessions may not receive it; cross-ref #11900 |
