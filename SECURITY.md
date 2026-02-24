@@ -38,6 +38,8 @@ For fastest triage, include all of the following:
 - Tested version details (OpenClaw version and/or commit SHA).
 - Reproducible PoC against latest `main` or latest released version.
 - Demonstrated impact tied to OpenClaw's documented trust boundaries.
+- For exposed-secret reports: proof the credential is OpenClaw-owned (or grants access to OpenClaw-operated infrastructure/services).
+- Explicit statement that the report does not rely on adversarial operators sharing one gateway host/config.
 - Scope check explaining why the report is **not** covered by the Out of Scope section below.
 
 Reports that miss these requirements may be closed as `invalid` or `no-action`.
@@ -49,6 +51,7 @@ These are frequently reported but are typically closed with no code change:
 - Prompt-injection-only chains without a boundary bypass (prompt injection is out of scope).
 - Operator-intended local features (for example TUI local `!` shell) presented as remote injection.
 - Reports that assume per-user multi-tenant authorization on a shared gateway host/config.
+- ReDoS/DoS claims that require trusted operator configuration input (for example catastrophic regex in `sessionFilter` or `logging.redactPatterns`) without a trust-boundary bypass.
 - Missing HSTS findings on default local/loopback deployments.
 - Slack webhook signature findings when HTTP mode already uses signing-secret verification.
 - Discord inbound webhook signature findings for paths not used by this repo's Discord integration.
@@ -73,13 +76,27 @@ The best way to help the project right now is by sending PRs.
 
 When patching a GHSA via `gh api`, include `X-GitHub-Api-Version: 2022-11-28` (or newer). Without it, some fields (notably CVSS) may not persist even if the request returns 200.
 
+## Operator Trust Model (Important)
+
+OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boundary.
+
+- Authenticated Gateway callers are treated as trusted operators for that gateway instance.
+- Session identifiers (`sessionKey`, session IDs, labels) are routing controls, not per-user authorization boundaries.
+- If one operator can view data from another operator on the same gateway, that is expected in this trust model.
+- OpenClaw can technically run multiple gateway instances on one machine, but recommended operations are clean separation by trust boundary.
+- Recommended mode: one user per machine/host (or VPS), one gateway for that user, and one or more agents inside that gateway.
+- If multiple users need OpenClaw, use one VPS (or host/OS user boundary) per user.
+- For advanced setups, multiple gateways on one machine are possible, but only with strict isolation and are not the recommended default.
+
 ## Out of Scope
 
 - Public Internet Exposure
 - Using OpenClaw in ways that the docs recommend not to
-- Deployments where mutually untrusted/adversarial operators share one gateway host and config
+- Deployments where mutually untrusted/adversarial operators share one gateway host and config (for example, reports expecting per-operator isolation for `sessions.list`, `sessions.preview`, `chat.history`, or similar control-plane reads)
 - Prompt injection attacks
 - Reports that require write access to trusted local state (`~/.openclaw`, workspace files like `MEMORY.md` / `memory/*.md`)
+- Reports that depend on trusted operator-supplied configuration values to trigger availability impact (for example custom regex patterns). These may still be fixed as defense-in-depth hardening, but are not security-boundary bypasses.
+- Exposed secrets that are third-party/user-controlled credentials (not OpenClaw-owned and not granting access to OpenClaw-operated infrastructure/services) without demonstrated OpenClaw impact
 
 ## Deployment Assumptions
 
@@ -89,6 +106,7 @@ OpenClaw security guidance assumes:
 - Anyone who can modify `~/.openclaw` state/config (including `openclaw.json`) is effectively a trusted operator.
 - A single Gateway shared by mutually untrusted people is **not a recommended setup**. Use separate gateways (or at minimum separate OS users/hosts) per trust boundary.
 - Authenticated Gateway callers are treated as trusted operators. Session identifiers (for example `sessionKey`) are routing controls, not per-user authorization boundaries.
+- Multiple gateway instances can run on one machine, but the recommended model is clean per-user isolation (prefer one host/VPS per user).
 
 ## Workspace Memory Trust Boundary
 
