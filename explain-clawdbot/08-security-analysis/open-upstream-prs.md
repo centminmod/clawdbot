@@ -276,7 +276,7 @@
 | [#15360](https://github.com/openclaw/openclaw/pull/15360) | [#6669](https://github.com/openclaw/openclaw/issues/6669) | LOW | CLOSED | Subagent announce leakage (closed 2026-02-20; statsLine still in user-visible message locally; issue #6669 unresolved) |
 | [#15296](https://github.com/openclaw/openclaw/pull/15296) | (config secret hardening) | MEDIUM | OPEN | No `--show-secrets` opt-in for CLI `config get`; gateway `config.get` returns unredacted by default |
 | [#8757](https://github.com/openclaw/openclaw/pull/8757) | (MS Teams SSRF redirect) | MEDIUM | CLOSED | Closed without merge 2026-02-13; MS Teams redirect validation SSRF fix; no replacement PR identified |
-| [#13129](https://github.com/openclaw/openclaw/pull/13129) | (dmScope UX) | LOW | MERGED | Uses `formatCliCommand()` for dmScope remediation; local `audit.ts:603` already uses it; ALREADY SYNCED |
+| [#13129](https://github.com/openclaw/openclaw/pull/13129) | (dmScope UX) | LOW | MERGED | Uses `formatCliCommand()` for dmScope remediation; local `audit.ts:594` already uses it; ALREADY SYNCED |
 | [#13184](https://github.com/openclaw/openclaw/pull/13184) | (standalone bind hardening) | LOW | MERGED | Default standalone servers to loopback bind; local `webhook.ts:41` and `canvas-host/server.ts:452` already default to `127.0.0.1`; ALREADY SYNCED |
 | [#13185](https://github.com/openclaw/openclaw/pull/13185) | (error info leakage) | MEDIUM | MERGED | Sanitize error responses across gateway HTTP; local `tools-invoke-http.ts:382-384` returns generic "tool execution failed"; ALREADY SYNCED |
 | [#13767](https://github.com/openclaw/openclaw/pull/13767) | [#13756](https://github.com/openclaw/openclaw/issues/13756) | MEDIUM | MERGED | Reject "undefined"/"null" token strings; local `onboard-helpers.ts:79` already rejects; ALREADY SYNCED |
@@ -699,7 +699,7 @@
 **Changes:**
 - `src/security/audit.ts` — uses `formatCliCommand('openclaw config set session.dmScope "per-channel-peer"')` in audit warning remediation text
 
-**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:603`, `src/commands/doctor-security.ts:131`, `src/commands/onboard-channels.ts:198,254`
+**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:594`, `src/commands/doctor-security.ts:131`, `src/commands/onboard-channels.ts:198,254`
 
 ### #13184: Default Standalone Servers to Loopback Bind
 
@@ -902,12 +902,12 @@
 **Greptile Review:** 25 files reviewed, 2 comments. 1 inline comment on `src/gateway/net.ts:183` about bitwise left shift on negative values needing unsigned right shift for mask calculation.
 
 **Local Validation:**
-- `src/config/types.gateway.ts:83` — `GatewayAuthMode` includes `"trusted-proxy"`
-- `src/config/types.gateway.ts:90` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
+- `src/config/types.gateway.ts:88` — `GatewayAuthMode` includes `"trusted-proxy"`
+- `src/config/types.gateway.ts:95` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
 - `src/gateway/auth.ts:321` — `authorizeTrustedProxy()` function present
 - `src/gateway/auth.ts:364-388` — trusted-proxy auth path in `authorizeGatewayConnect()`
-- `src/security/audit.ts:377-436` — audit integration with critical findings for trusted-proxy
-- `src/config/zod-schema.ts:468` — Zod validation for trusted-proxy mode
+- `src/security/audit.ts:475-490` — audit integration with critical findings for trusted-proxy
+- `src/config/zod-schema.ts:469` — Zod validation for trusted-proxy mode
 - 10+ test files with trusted-proxy coverage
 
 **Local Impact:** ALREADY SYNCED — full trusted-proxy auth infrastructure present locally
