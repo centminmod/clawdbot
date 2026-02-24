@@ -141,6 +141,8 @@ Docs:
 - https://docs.openclaw.ai/gateway/sandboxing
 
 > **Why this matters for prompt injection:** Limiting tools reduces the damage a successful injection can do. See [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) for 30 examples of how attackers exploit tool access.
+>
+> **Important context:** OpenClaw's `SECURITY.md` treats prompt injection as "out of scope" for bug reports — but this does NOT mean it's not a risk. See [The Out-of-Scope Paradox](../05-worst-case-security/prompt-injection-attacks.md#the-out-of-scope-paradox) for why hardening against injection is essential despite the policy.
 
 ---
 

@@ -51,7 +51,9 @@ Often they just need to:
 
 This is the practical form of **prompt injection**.
 
-📚 **For 27 real attack examples with defenses, see: [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md)**
+📚 **For 30 real attack examples with defenses, see: [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md)**
+
+> **Policy vs. practice:** OpenClaw's `SECURITY.md` treats prompt injection as out of scope for bug reports. For a critical analysis of what this means for users, see [The Out-of-Scope Paradox](../05-worst-case-security/prompt-injection-attacks.md#the-out-of-scope-paradox).
 
 Official security doc (source of truth): https://docs.openclaw.ai/gateway/security
 
@@ -186,7 +188,7 @@ ClawHub is a third-party skills marketplace for OpenClaw. In Feb 2026, **341 mal
 
 **Caveat:** Neither scanner can detect social engineering (the ClawHavoc attack vector used fake "prerequisite" commands) or prompt injection payloads. A clean scan is not a guarantee of safety.
 
-> **See also:** [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) -- 27 examples of how injection payloads work in practice.
+> **See also:** [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) -- 30 examples of how injection payloads work in practice.
 
 **Additional mitigations for ClawHub:**
 - Check VirusTotal scan status on ClawHub skill page before installing

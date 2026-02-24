@@ -263,7 +263,7 @@ Enable Docker sandbox for code execution tools:
 
 This isolates any successful prompt injection to the container environment.
 
-> **See:** [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) for 27 examples of the attack patterns sandbox isolation defends against.
+> **See:** [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) for 30 examples of the attack patterns sandbox isolation defends against.
 
 ---
 

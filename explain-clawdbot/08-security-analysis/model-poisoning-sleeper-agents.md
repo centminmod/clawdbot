@@ -214,7 +214,7 @@ These are different threats that can combine:
 
 **Plain English:** "Prompt injection is someone slipping a note to your assistant. A sleeper agent is your assistant being a secret double agent from the start. The worst case: someone slips a note that activates the double agent."
 
-📚 **For the full prompt injection attack catalog (27 examples with defenses), see: [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md)**
+📚 **For the full prompt injection attack catalog (30 examples with defenses), see: [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md)**
 
 ---
 

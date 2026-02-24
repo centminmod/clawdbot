@@ -1481,4 +1481,4 @@ Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-
 - [ ] Gateway token >= 32 chars
 - [ ] Token rotation schedule active
 
-> **See also:** [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) -- 27 attack examples. Internet-facing VPS deployments have a larger prompt injection surface than local setups.
+> **See also:** [Prompt Injection Attacks](../05-worst-case-security/prompt-injection-attacks.md) -- 30 attack examples. Internet-facing VPS deployments have a larger prompt injection surface than local setups.

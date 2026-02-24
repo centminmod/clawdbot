@@ -49,6 +49,7 @@
    - [#30: Gradual Security Degradation](#-attack-30-gradual-security-degradation)
 7. [Defense Strategies](#defense-strategies)
 8. [Testing Your Defenses](#testing-your-defenses)
+9. [The Out-of-Scope Paradox](#the-out-of-scope-paradox)
 
 ---
 
@@ -1388,6 +1389,136 @@ openclaw config get tools.shell.allowlist
 - [ ] **Workspace .md files audited for hidden content** (see [Hardening #12](../04-privacy-safety/hardening-checklist.md#12-audit-workspace-md-files-for-hidden-content))
 - [ ] **Gateway tool removed** to prevent AI config self-modification (see [Hardening #13](../04-privacy-safety/hardening-checklist.md#13-never-let-ai-modify-security-critical-config))
 - [ ] **Tested with safe payloads above**
+
+---
+
+## The Out-of-Scope Paradox
+
+> **The Analogy:** Your home insurance policy says "arson is not covered." That doesn't mean arson isn't a risk — it means the insurance company won't pay if it happens. You still need smoke detectors, locked doors, and a fire extinguisher. The same logic applies here.
+
+OpenClaw's `SECURITY.md` explicitly lists **"Prompt injection attacks"** as out of scope for security vulnerability reports. Yet this document catalogs 30 real attack patterns, external audits measure a 91.3% injection success rate, and a real-world supply chain compromise (Clinejection) demonstrated prompt injection reaching production systems. This creates a tension that deserves honest analysis.
+
+This section presents both sides, then gives you a clear verdict.
+
+### What OpenClaw's Security Policy Says
+
+From [`SECURITY.md`](../../SECURITY.md) (lines 91-98), the "Out of Scope" list includes:
+
+> - Prompt injection attacks
+> - Reports that require write access to trusted local state (`~/.openclaw`, workspace files like `MEMORY.md` / `memory/*.md`)
+
+This sits within a broader **Operator Trust Model** (lines 79-89):
+
+> OpenClaw does **not** model one gateway as a multi-tenant, adversarial user boundary.
+>
+> Authenticated Gateway callers are treated as trusted operators for that gateway instance.
+
+This is a deliberate, documented architectural decision — not an oversight. The project explicitly chose where to draw trust boundaries.
+
+### Arguments For "Out of Scope" (The Developer Position)
+
+The developers' position has real technical merit. Here are the six core arguments:
+
+| # | Argument | Key Point |
+|---|----------|-----------|
+| 1 | Industry-wide problem | Every LLM-powered application is vulnerable; no code fix exists that eliminates prompt injection |
+| 2 | Unfixability | Even frontier models get tricked; accepting reports would create endless unfixable "CVEs" |
+| 3 | Operator trust model | Anyone with Gateway access is already a trusted operator; injection is one of many things a trusted operator could do directly |
+| 4 | Tool restrictions are the real defense | Allowlists, sandboxing, and permission boundaries limit blast radius regardless of whether injection succeeds |
+| 5 | Industry precedent | ChatGPT, GitHub Copilot, Claude API — none treat prompt injection as a traditional security vulnerability |
+| 6 | Report quality gate | Without scope limits, automated scanners would flood the project with low-signal reports |
+
+**Why these arguments work:**
+
+**Argument 1 (industry-wide)** is factually correct. No LLM vendor has solved prompt injection at the model level. OpenAI, Anthropic, and Google all acknowledge this in their documentation. Holding OpenClaw to a standard that no one in the industry can meet is unreasonable for a bug bounty scope.
+
+**Argument 2 (unfixability)** follows from Argument 1. If the project accepted "I sent the model a prompt injection and it worked" as a valid vulnerability report, they would receive hundreds of reports that no code change can fix. The ZeroLeeks audit is a perfect example: 21/23 injection attempts succeeded (91.3%), but [our analysis](../08-security-analysis/zeroleeks-audit.md) found 0/34 were exploitable in the sense of bypassing an actual defense boundary.
+
+**Argument 3 (operator trust)** reflects OpenClaw's architecture. The Gateway is not a multi-tenant SaaS — it is a single-operator system on your own hardware. If someone already has authenticated access to send messages to your bot, they could also SSH into the machine directly in the intended deployment model.
+
+**Argument 4 (tool restrictions)** is the strongest argument. Even if an attacker tricks the model into *wanting* to run `rm -rf /`, the command won't execute if it's not on the allowlist. Defense-in-depth at the tool layer is independent of whether the model gets confused. This is documented throughout this guide — see [Defense Strategies](#defense-strategies) and the [Hardening Checklist](../04-privacy-safety/hardening-checklist.md).
+
+**Argument 5 (precedent)** holds in 2026. No major AI platform treats prompt injection as a CVE-trackable vulnerability class. The industry consensus is that it's an application-level risk to be mitigated, not a bug to be patched.
+
+**Argument 6 (report quality)** is a practical concern. The three external audits evaluated in this documentation — [Issue #1796](../08-security-analysis/issue-1796-argus-audit.md) (0/8 exploitable), [Medium article](../08-security-analysis/medium-article-audit.md) (0/8 exploitable), [ZeroLeeks](../08-security-analysis/zeroleeks-audit.md) (0/34 exploitable) — collectively claimed dozens of critical vulnerabilities that were not exploitable as described. Accepting prompt injection as in-scope would multiply this noise.
+
+### Arguments Against "Out of Scope" (The User/Researcher Position)
+
+Users and security researchers have equally valid concerns. Here are the eight core arguments:
+
+| # | Argument | Evidence |
+|---|----------|----------|
+| 1 | Defenses demonstrably fail | [ZeroLeeks](../08-security-analysis/zeroleeks-audit.md): 91.3% injection success, 84.6% system prompt extraction |
+| 2 | Real-world harm proven | [Clinejection](../08-security-analysis/cline-supply-chain-attack.md): prompt injection initiated a chain that reached ~4,000 developers |
+| 3 | Unique blast radius | OpenClaw grants shell, file system, config, messaging, and automation — far beyond chatbot text output |
+| 4 | Trust boundary bypass | Attacks [#27](#-attack-27-persistent-memory-injection)-[#30](#-attack-30-gradual-security-degradation): injection modifies trusted state (`MEMORY.md`, config) that persists across sessions |
+| 5 | Theory vs. practice gap | Indirect injection reaches "trusted operators" via web pages, emails, malicious skills, and shared links |
+| 6 | Open defense gaps | [3 legitimate defense-in-depth gaps remain open](../08-security-analysis/post-merge-hardening.md#legitimate-gaps-status), including bootstrap `.md` file scanning |
+| 7 | False sense of security | Users reading "out of scope" may skip system prompt hardening, tool restriction, and workspace auditing |
+| 8 | Other frameworks acknowledge it | LangChain, AutoGPT, and LlamaIndex all list prompt injection as a primary threat in their security docs |
+
+**Why these arguments work:**
+
+**Argument 1 (defenses fail)** is the elephant in the room. ZeroLeeks achieved 91.3% injection success and 84.6% system prompt extraction. Our [analysis](../08-security-analysis/zeroleeks-audit.md) correctly notes these aren't *exploitable* in the traditional sense (the "secrets" extracted are public source code). But the success rate demonstrates that the model *does follow injected instructions* — the question is only what damage those instructions can cause in a given deployment.
+
+**Argument 2 (real-world harm)** is the strongest empirical evidence. The [Clinejection attack](../08-security-analysis/cline-supply-chain-attack.md) (Feb 2026) used prompt injection against a Claude-powered triage bot to initiate a supply chain compromise that reached ~4,000 developers. While OpenClaw was the benign payload (not the attack vector), the attack chain proves that prompt injection against AI-powered tools can cause real-world harm at scale.
+
+**Argument 3 (blast radius)** distinguishes OpenClaw from a chatbot. When ChatGPT gets prompt-injected, the worst case is usually inappropriate text output. When OpenClaw gets prompt-injected, the worst case includes shell execution, file system access, config modification, outbound messaging on real accounts, and scheduled automation. The 30 attacks in this document demonstrate this difference.
+
+**Argument 4 (trust boundary bypass)** is the most technically subtle. Attacks #27-#30 show how injection can modify *trusted state* — `MEMORY.md` files, config values, bootstrap files — that persists across sessions and is loaded as *system-level* context in future conversations. This means a single successful injection can permanently alter the bot's behavior without the operator noticing. The [AI Self-Misconfiguration](./ai-self-misconfiguration.md) guide covers this in depth.
+
+**Argument 5 (theory vs. practice)** challenges the operator trust model. The model assumes that anyone sending messages is a trusted operator. But in practice, the bot reads content from *untrusted sources* — web pages fetched via tools, email attachments, shared links, marketplace skills, and even carefully crafted messages from paired users who may not be fully trusted. Indirect injection (Attacks [#5](#-attack-5-malicious-web-page)-[#7](#-attack-7-malicious-shared-link-preview), [#26](#-attack-26-indirect-email-injection-via-html-comments)) reaches the model through these channels without the operator sending anything malicious themselves.
+
+**Argument 6 (open gaps)** refers to the [3 remaining defense-in-depth gaps](../08-security-analysis/post-merge-hardening.md#legitimate-gaps-status) tracked in our post-merge hardening log. The most significant is **bootstrap/memory `.md` content scanning**: nine workspace bootstrap files are injected into the system prompt (up to 20,000 chars each) via `loadWorkspaceBootstrapFiles()` with no content validation, and `memory/*.md` files are accessed without content scanning. The built-in skill scanner (`src/security/skill-scanner.ts`) only covers JS/TS files.
+
+**Argument 7 (false sense of security)** is a communication problem. A user who reads "out of scope" in `SECURITY.md` might reasonably conclude: "The developers have determined prompt injection isn't a real risk for this software." They might then skip the hardening steps in this document, leave tools at `"full"` security, and never audit their workspace `.md` files. The policy language doesn't distinguish between "we can't fix the underlying problem" and "the problem doesn't apply to you."
+
+**Argument 8 (industry comparison)** shows that while no platform treats injection as a *CVE*, security-conscious AI frameworks do treat it as a *documented primary threat*. LangChain's security docs list injection as the #1 risk. AutoGPT's README warns about it prominently. The "out of scope for bug bounty" decision is standard; the lack of prominent user-facing warnings is less standard.
+
+### Reconciling Both Positions
+
+The core insight is that "out of scope" conflates two different things:
+
+**(A) Preventing injection payloads from being sent to the model** — This is genuinely impossible. You cannot filter all malicious prompts from reaching the LLM. Every mitigation has bypasses. The developers are correct that accepting reports for this would be unproductive.
+
+**(B) Ensuring injection attacks fail even when they reach the model** — This is defense-in-depth, and it *is* achievable through tool restrictions, content isolation, config protection, and session boundaries. Some of these defenses already exist in OpenClaw (envelope format, external content wrapping, allowlists). Some have [known gaps](../08-security-analysis/post-merge-hardening.md#legitimate-gaps-status).
+
+OpenClaw provides significant (B)-type defenses — but labels the entire category using (A)-type reasoning. The result is that genuine defense-layer bugs (like missing content scanning on bootstrap `.md` files) get classified as "out of scope" even though they represent fixable boundary failures.
+
+### Verdict for Users
+
+> **Bottom line:** The developers' position is technically defensible for bug bounty scope. But if you're running OpenClaw, treat prompt injection as your #1 practical security risk — because the blast radius of a successful injection far exceeds that of any other AI assistant platform.
+
+**What to do right now:**
+
+| Priority | Action | Reference |
+|----------|--------|-----------|
+| 1 | Set tool security to `"allowlist"` | [Hardening #7](../04-privacy-safety/hardening-checklist.md#7-minimize-tool-blast-radius) |
+| 2 | Remove the `gateway` tool | [AI Self-Misconfiguration](./ai-self-misconfiguration.md#1-remove-the-gateway-tool) |
+| 3 | Add anti-injection rules to your system prompt | [Defense Strategies](#defense-strategies) |
+| 4 | Audit workspace `.md` files for hidden content | [Attack #27](#-attack-27-persistent-memory-injection), [Hardening #12](../04-privacy-safety/hardening-checklist.md#12-audit-workspace-md-files-for-hidden-content) |
+| 5 | Run `openclaw security audit --deep` | [Security Audit Reference](../08-security-analysis/security-audit-command-reference.md) |
+| 6 | Treat external content as data, never as instructions | [Attack #5](#-attack-5-malicious-web-page)-[#7](#-attack-7-malicious-shared-link-preview) |
+| 7 | Test your defenses with the safe payloads in this guide | [Testing Your Defenses](#testing-your-defenses) |
+
+### What "In Scope" Would Look Like
+
+Not all prompt injection reports are equal. Here is what *would* represent a genuine security boundary bypass, versus what correctly stays out of scope:
+
+**Would be valid security reports (defense boundary failures):**
+
+- External content wrapping fails to apply in a specific code path (the defense layer has a bug)
+- Injection from an untrusted context (fetched web page, unpaired sender) reaches trusted tool execution without passing through the allowlist
+- Config self-modification via injection bypasses both the `gateway` tool deny list and the `configWrites: false` gate (Attacks [#28](#-attack-28-config-self-modification-via-gateway-tool)-[#29](#-attack-29-config-self-modification-via-shell))
+- Bootstrap `.md` content injected into the system prompt causes the model to bypass tool restrictions (the scanning gap from [Argument 6](#arguments-against-out-of-scope-the-userresearcher-position))
+
+**Correctly out of scope (unfixable model behavior):**
+
+- "I sent the model a prompt injection and it followed my instructions" — without demonstrating a defense boundary bypass
+- System prompt extraction where the "secret" is public source code (the ZeroLeeks scenario)
+- The model ignoring system prompt instructions in response to a cleverly worded user message (this is a model limitation, not a software bug)
+
+The distinction is clear: **if a defense mechanism exists and an attacker bypasses it, that's a bug. If no defense mechanism can exist because of fundamental LLM limitations, that's correctly out of scope.**
 
 ---
 

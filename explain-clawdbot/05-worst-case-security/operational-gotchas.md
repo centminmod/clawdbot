@@ -661,7 +661,7 @@ openclaw config get agents.defaults.workspace
 ## See Also
 
 - [Misconfiguration Examples](./misconfiguration-examples.md) — Technical misconfigurations and how to fix them
-- [Prompt Injection Attacks](./prompt-injection-attacks.md) — 27 attack examples that exploit the operational issues described here
+- [Prompt Injection Attacks](./prompt-injection-attacks.md) — 30 attack examples that exploit the operational issues described here
 - [Cross-Cutting Vulnerabilities](./cross-cutting.md) — Risks that affect all deployment types
 - [Incident Response](./incident-response.md) — What to do when something goes wrong
 - [AI Self-Misconfiguration](./ai-self-misconfiguration.md#when-markdown-instructions-arent-enough) — Why .md instructions aren't safety guarantees

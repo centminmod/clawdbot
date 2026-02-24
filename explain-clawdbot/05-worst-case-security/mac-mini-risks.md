@@ -301,7 +301,7 @@ openclaw config set tools.shell.allowlist '["git status", "npm test", "ls -la"]'
 openclaw config set tools.shell.security ask
 ```
 
-> **See also:** [Prompt Injection Attacks](./prompt-injection-attacks.md) -- 27 examples of how attackers craft messages to trigger unintended tool execution.
+> **See also:** [Prompt Injection Attacks](./prompt-injection-attacks.md) -- 30 examples of how attackers craft messages to trigger unintended tool execution.
 
 ---
 
