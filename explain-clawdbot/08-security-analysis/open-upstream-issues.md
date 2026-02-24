@@ -83,7 +83,7 @@
 | [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:484-497`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | ~~HIGH~~ FIXED | Gateway auth has no rate limiting (CWE-307) | Fixed upstream (COMPLETED); `src/gateway/auth.ts` — rate limiting added |
-| [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:100`) now handles full-form IPv4-mapped IPv6 via `extractEmbeddedIpv4FromIpv6()` at `src/shared/net/ip.ts:266` |
+| [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:108`) now handles full-form IPv4-mapped IPv6 via `extractEmbeddedIpv4FromIpv6()` at `src/shared/net/ip.ts:266` |
 | [#11738](https://github.com/openclaw/openclaw/issues/11738) | HIGH | Canvas authorization IP co-tenancy bypass | `src/gateway/server-http.ts:100-105` — `hasAuthorizedWsClientForIp()` trusts any request from same IP as authenticated WS client; bypasses auth in NAT/proxy environments |
 | [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH (WONTFIX) | HTTP API session keys lack ownership validation | Closed upstream as NOT_PLANNED; still affects local code at `src/gateway/http-utils.ts:71-73` — `x-openclaw-session-key` header accepted as-is with no ownership check |
 | [#11024](https://github.com/openclaw/openclaw/issues/11024) | ~~HIGH~~ FIXED | Gmail push endpoint embeds auth token in URL query string | Fixed upstream (COMPLETED 2026-02-14); `src/hooks/gmail-setup-utils.ts:315` |
@@ -968,7 +968,7 @@ All changes take effect immediately via automatic restart.
 
 **Vulnerability:** ~~The `isPrivateIpAddress()` function does not recognize IPv4-compatible IPv6 addresses like `::127.0.0.1` or `::7f00:1` as private/loopback.~~ **FIXED by `c0c0e0f9a`** (Feb 15 sync 11).
 
-**Fix details:** `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:100`) uses hextet-level IPv6 parsing via `parseIpv6WithEmbeddedIpv4()` (`src/shared/net/ip.ts:87`). `extractEmbeddedIpv4FromIpv6()` (`src/shared/net/ip.ts:266`) handles IPv4-mapped (`::ffff:a.b.c.d`), IPv4-compatible (`::a.b.c.d`), and full-form variants (`0000:0000:0000:0000:0000:ffff:7f00:0001`). New test file `ssrf.test.ts` covers all bypass variants. Pre-resolution and post-resolution checks at `resolvePinnedHostnameWithPolicy()` (`src/infra/net/ssrf.ts:246`) both use the fixed function.
+**Fix details:** `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:108`) uses hextet-level IPv6 parsing via `parseIpv6WithEmbeddedIpv4()` (`src/shared/net/ip.ts:87`). `extractEmbeddedIpv4FromIpv6()` (`src/shared/net/ip.ts:266`) handles IPv4-mapped (`::ffff:a.b.c.d`), IPv4-compatible (`::a.b.c.d`), and full-form variants (`0000:0000:0000:0000:0000:ffff:7f00:0001`). New test file `ssrf.test.ts` covers all bypass variants. Pre-resolution and post-resolution checks at `resolvePinnedHostnameWithPolicy()` (`src/infra/net/ssrf.ts:276`) both use the fixed function.
 
 ### #11738: Canvas Authorization IP Co-Tenancy Bypass
 
@@ -1167,7 +1167,7 @@ All changes take effect immediately via automatic restart.
 
 **Affected code:**
 - `src/gateway/server/ws-connection/connect-policy.ts:22-33` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
-- `src/gateway/server/ws-connection/connect-policy.ts:48-78` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
+- `src/gateway/server/ws-connection/connect-policy.ts:52-86` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
 - `src/gateway/server/ws-connection/message-handler.ts:564-569` — `skipPairing` gate: device pairing requirement skipped when `allowInsecureAuth` configured
 - `src/security/audit.ts:431-441` — security audit detects and flags as `severity: "critical"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 

@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39).
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56).
 
 ### Advisory Summary
 
@@ -153,6 +153,22 @@
 | [GHSA-4cqv-h74h-93j4](https://github.com/openclaw/openclaw/security/advisories/GHSA-4cqv-h74h-93j4) | MEDIUM | Discord allowFrom slug-collision authorization bypass | - | >= v2026.2.22 | @tdjackey |
 | [GHSA-jxrq-8fm4-9p58](https://github.com/openclaw/openclaw/security/advisories/GHSA-jxrq-8fm4-9p58) | MEDIUM | Zip extraction symlink traversal could write outside destination | - | >= v2026.2.22 | @tdjackey |
 | [GHSA-4gc7-qcvf-38wg](https://github.com/openclaw/openclaw/security/advisories/GHSA-4gc7-qcvf-38wg) | MEDIUM | Non-default configuration: manually adding sort to tools.exec.safeBins could bypass allowlist approval via --compress-program | - | >= v2026.2.22 | @tdjackey |
+| [GHSA-8j9w-9pm5-pv8m](https://github.com/openclaw/openclaw/security/advisories/GHSA-8j9w-9pm5-pv8m) | MEDIUM | DUPLICATE: safeBins denied flags bypass via GNU long-option abbreviations | - | pending | @jiseoung |
+| [GHSA-7jx5-9fjg-hp4m](https://github.com/openclaw/openclaw/security/advisories/GHSA-7jx5-9fjg-hp4m) | MEDIUM | ACP permission auto-approval bypass via untrusted tool metadata | - | pending | @nedlir |
+| [GHSA-796m-2973-wc5q](https://github.com/openclaw/openclaw/security/advisories/GHSA-796m-2973-wc5q) | HIGH | exec allowlist/safeBins policy-runtime mismatch via env -S wrapper interpretation | - | pending | @jiseoung |
+| [GHSA-gwqp-86q6-w47g](https://github.com/openclaw/openclaw/security/advisories/GHSA-gwqp-86q6-w47g) | MEDIUM | exec allow-always bypass via unrecognized shell wrappers (busybox/toybox sh -c) | - | pending | @jiseoung |
+| [GHSA-2ch6-x3g4-7759](https://github.com/openclaw/openclaw/security/advisories/GHSA-2ch6-x3g4-7759) | MEDIUM | commands.allowFrom accepted conversation identifiers via ctx.From | - | pending | @jiseoung |
+| [GHSA-vqx8-9xxw-f2m7](https://github.com/openclaw/openclaw/security/advisories/GHSA-vqx8-9xxw-f2m7) | MEDIUM | Voice-call Twilio webhook replay bypass via randomized event ID deduplication | - | pending | @jiseoung |
+| [GHSA-q6qf-4p5j-r25g](https://github.com/openclaw/openclaw/security/advisories/GHSA-q6qf-4p5j-r25g) | MEDIUM | Image tool bypasses tools.fs.workspaceOnly on sandbox mount paths | - | Feb 25 sync 2 | @tdjackey |
+| [GHSA-h9xm-j4qg-fvpg](https://github.com/openclaw/openclaw/security/advisories/GHSA-h9xm-j4qg-fvpg) | MEDIUM | Experimental apply_patch may bypass workspace-only checks in opt-in sandbox mounts | - | pending | @tdjackey |
+| [GHSA-48wf-g7cp-gr3m](https://github.com/openclaw/openclaw/security/advisories/GHSA-48wf-g7cp-gr3m) | MEDIUM | Allowlist exec-guard bypass via env -S | - | pending | @tdjackey |
+| [GHSA-6x2m-hqfw-hvpj](https://github.com/openclaw/openclaw/security/advisories/GHSA-6x2m-hqfw-hvpj) | MEDIUM | Node exec approvals could be replayed across nodes | - | pending | @tdjackey |
+| [GHSA-2j9j-gf59-p4p5](https://github.com/openclaw/openclaw/security/advisories/GHSA-2j9j-gf59-p4p5) | LOW | iOS deep link (openclaw://agent) can trigger gateway agent requests without local confirmation | - | pending | @GCXWLP |
+| [GHSA-3c6h-g97w-fg78](https://github.com/openclaw/openclaw/security/advisories/GHSA-3c6h-g97w-fg78) | HIGH | tools.exec.safeBins sort long-option abbreviation bypass skips exec approval in allowlist mode | - | Feb 25 sync 2 | @tdjackey |
+| [GHSA-p4wh-cr8m-gm6c](https://github.com/openclaw/openclaw/security/advisories/GHSA-p4wh-cr8m-gm6c) | MEDIUM | Shell-env trusted-prefix fallback allows attacker-controlled binary execution via $SHELL | - | pending | @tdjackey |
+| [GHSA-7ff8-xjh3-mgh6](https://github.com/openclaw/openclaw/security/advisories/GHSA-7ff8-xjh3-mgh6) | MEDIUM | Non-default autoAllowSkills setting could bypass on-miss exec prompt | - | pending | @tdjackey |
+| [GHSA-2ww6-868g-2c56](https://github.com/openclaw/openclaw/security/advisories/GHSA-2ww6-868g-2c56) | MEDIUM | HTML injection via unvalidated image MIME type in data-URL interpolation | - | Feb 25 sync 2 | @allsmog |
+| [GHSA-r294-2894-92j3](https://github.com/openclaw/openclaw/security/advisories/GHSA-r294-2894-92j3) | MEDIUM | Stored XSS in exported session HTML viewer via markdown/raw-HTML rendering | - | pending | @allsmog |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -1347,6 +1363,198 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Description:** Canvas routes lacked sufficient hardening for mixed-trust deployment scenarios where multiple users share a canvas instance. Route access controls did not adequately enforce per-user trust boundaries.
 
 **Impact:** Unauthorized cross-user canvas route access in mixed-trust configurations.
+
+**Fix:** Pending.
+
+### GHSA-8j9w-9pm5-pv8m: safeBins Denied Flags Bypass via GNU Long-Option Abbreviations (DUPLICATE)
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @jiseoung
+
+**Description:** DUPLICATE of GHSA-3c6h-g97w-fg78. The `safeBins` allowlist analysis did not account for GNU long-option prefix abbreviations — GNU tools accept any unambiguous prefix of a long option (e.g., `--com` for `--compress-program`). Denied flags could be bypassed by passing abbreviated forms not explicitly matched.
+
+**Impact:** `safeBins` file-write or exec-approval bypass via abbreviated long-option flags.
+
+**Fix:** Pending (see GHSA-3c6h-g97w-fg78 for primary advisory).
+
+### GHSA-7jx5-9fjg-hp4m: ACP Permission Auto-Approval Bypass via Untrusted Tool Metadata
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @nedlir
+
+**Description:** The ACP (Agent Control Protocol) auto-approval flow trusted tool metadata from incoming requests when deciding whether to auto-approve a tool invocation. An ACP client could craft a tool metadata payload that satisfied the auto-approval heuristic for a tool it should not have been permitted to auto-invoke.
+
+**Impact:** Unauthorized auto-approval of restricted tools via crafted ACP tool metadata.
+
+**Fix:** Pending.
+
+### GHSA-796m-2973-wc5q: exec allowlist/safeBins Policy-Runtime Mismatch via env -S
+
+**Severity:** HIGH
+**Published:** 2026-02-24
+**Credits:** @jiseoung
+
+**Description:** The `env -S` flag (split-string interpretation) caused a mismatch between exec allowlist policy evaluation and runtime execution. The allowlist would parse the command using standard argument splitting, while the shell executed via `env -S` with different word splitting, allowing commands to pass the allowlist check but execute differently at runtime.
+
+**Impact:** Exec allowlist bypass — commands could be crafted to pass policy evaluation but execute differently, bypassing approved command restrictions.
+
+**Fix:** Pending.
+
+### GHSA-gwqp-86q6-w47g: exec allow-always Bypass via Shell Wrappers (busybox/toybox sh -c)
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @jiseoung
+
+**Description:** The exec allow-always policy did not recognize busybox or toybox `sh -c` as shell wrappers, allowing commands wrapped in these multiplexer shells to bypass allow-always enforcement checks.
+
+**Impact:** Exec approval bypass via busybox/toybox shell wrapper invocations.
+
+**Fix:** Pending.
+
+### GHSA-2ch6-x3g4-7759: commands.allowFrom Accepted Conversation Identifiers via ctx.From
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @jiseoung
+
+**Description:** The `commands.allowFrom` authorization check accepted conversation-context identifiers from `ctx.From` rather than requiring stable user identifiers. In channels where `ctx.From` reflects a mutable conversation or channel identifier rather than a stable user identity, this could be manipulated to match allowlisted values.
+
+**Impact:** Authorization bypass in specific channel configurations where conversation identifiers are controllable by attackers.
+
+**Fix:** Pending.
+
+### GHSA-vqx8-9xxw-f2m7: Voice-Call Twilio Webhook Replay Bypass
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @jiseoung
+
+**Description:** The voice-call extension's Twilio webhook deduplication used event IDs that were randomly generated per parse rather than derived from the original Twilio event. This meant replayed webhook requests would produce different event IDs on each parse, bypassing the deduplication guard intended to prevent replay attacks.
+
+**Impact:** Webhook replay attacks on voice-call Twilio integrations; replayed call events could trigger duplicate agent actions.
+
+**Fix:** Pending.
+
+### GHSA-q6qf-4p5j-r25g: Image Tool Bypasses tools.fs.workspaceOnly on Sandbox Mounts
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** The image tool did not enforce `tools.fs.workspaceOnly` restrictions when the path resolved to a sandbox mount point. Files accessible via sandbox mounts but outside the defined workspace could be read and exfiltrated via the image tool.
+
+**Impact:** Workspace boundary bypass — out-of-workspace images accessible through sandbox mounts could be read and sent to the conversation.
+
+**Fix:** Commit `370d11554` — `tools.fs.workspaceOnly` now enforced uniformly across all path resolution paths including sandbox mounts. See [Feb 25 sync 2](./post-merge-hardening/2026-02-25-sync-2.md).
+
+### GHSA-h9xm-j4qg-fvpg: Experimental apply_patch Bypass in Opt-In Sandbox Mounts
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** The experimental `apply_patch` tool in opt-in sandbox mount configurations could bypass workspace-only checks. This is off by default and only affects deployments that have explicitly opted into experimental sandbox mount features.
+
+**Impact:** Workspace boundary bypass via `apply_patch` in non-default opt-in sandbox mount configurations.
+
+**Fix:** Pending.
+
+### GHSA-48wf-g7cp-gr3m: Allowlist exec-guard Bypass via env -S
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** The allowlist exec-guard could be bypassed using `env -S` (split-string) invocations. The exec-guard's allowlist analysis did not properly account for `env -S` argument parsing semantics, allowing crafted invocations to pass the guard while executing restricted commands.
+
+**Impact:** Exec allowlist bypass enabling execution of blocked commands via `env -S` argument splitting.
+
+**Fix:** Pending.
+
+### GHSA-6x2m-hqfw-hvpj: Node exec Approvals Replayed Across Nodes
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** Exec approval tokens in node-based execution did not include node-specific identity, allowing an approval granted for one node to be replayed against a different node. This could permit command execution on an unintended node using a legitimately obtained approval.
+
+**Impact:** Approval replay across nodes — an approval granted for Node A could authorize execution on Node B.
+
+**Fix:** Pending.
+
+### GHSA-2j9j-gf59-p4p5: iOS Deep Link Triggers Gateway Requests Without Confirmation
+
+**Severity:** LOW
+**Published:** 2026-02-24
+**Credits:** @GCXWLP
+
+**Description:** The `openclaw://agent` iOS deep link scheme could trigger gateway agent requests without presenting a local confirmation dialog to the user. An attacker could craft a malicious link that, when opened on an iOS device, sends agent commands to the user's gateway without explicit user confirmation.
+
+**Impact:** Unauthorized agent command dispatch via crafted iOS deep links. Requires the victim to open a malicious link on their device.
+
+**Fix:** Pending.
+
+### GHSA-3c6h-g97w-fg78: safeBins Sort Long-Option Abbreviation Bypass
+
+**Severity:** HIGH
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** The `tools.exec.safeBins` allowlist analysis for `sort` did not account for GNU long-option prefix abbreviations. The `--compress-program` option (which can execute arbitrary commands) could be passed as `--compress-prog` or `--compress-p`, bypassing the blocked long-option check and allowing exec approval to be skipped in allowlist mode.
+
+**Impact:** Exec approval bypass — `sort --compress-prog=<command>` could execute arbitrary commands without triggering the approval gate, bypassing the allowlist safety mechanism.
+
+**Fix:** Commit `0f0b2c025` — `matchAllowlist()` in `src/infra/exec-command-resolution.ts` now enforces exact option matching and rejects prefix abbreviations for blocked flags. See [Feb 25 sync 2](./post-merge-hardening/2026-02-25-sync-2.md).
+
+### GHSA-p4wh-cr8m-gm6c: Shell-env Trusted-Prefix Fallback Allows Attacker-Controlled Binary via $SHELL
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** The shell-env trusted-prefix fallback mechanism resolved the shell binary via the `$SHELL` environment variable. An attacker who could influence `$SHELL` (e.g., via env injection) could point it to an attacker-controlled binary that would be executed with elevated trust in the fallback path.
+
+**Impact:** Attacker-controlled binary execution via `$SHELL` manipulation in shell-env fallback configurations.
+
+**Fix:** Pending.
+
+### GHSA-7ff8-xjh3-mgh6: Non-Default autoAllowSkills Bypass of On-Miss exec Prompt
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @tdjackey
+
+**Description:** When the non-default `autoAllowSkills` setting was enabled, the on-miss exec prompt (shown when an exec command is not in the allowlist) could be bypassed. Skills marked for auto-allow could invoke exec commands that would otherwise trigger user confirmation.
+
+**Impact:** Exec confirmation bypass for skills in non-default `autoAllowSkills` configurations.
+
+**Fix:** Pending.
+
+### GHSA-2ww6-868g-2c56: HTML Injection via Unvalidated Image MIME Type in data-URL
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @allsmog
+
+**Description:** When constructing data-URLs for image content, the MIME type was taken from image metadata without validation. An attacker who could influence image metadata could inject arbitrary MIME types, leading to HTML injection when the data-URL was rendered in a browser context.
+
+**Impact:** HTML injection via crafted image MIME type; potential for content spoofing or XSS in browser-based conversation views.
+
+**Fix:** Commits `ebb568089` (image URL allowlisting — blocks attacker-influenced image sources) and `e5836283a` (safe URL centralization — centralizes URL construction through `resolveSafeExternalUrl()`). See [Feb 25 sync 2](./post-merge-hardening/2026-02-25-sync-2.md).
+
+### GHSA-r294-2894-92j3: Stored XSS in Exported Session HTML Viewer
+
+**Severity:** MEDIUM
+**Published:** 2026-02-24
+**Credits:** @allsmog
+
+**Description:** Session export to HTML format used markdown/raw-HTML rendering without sufficient sanitization. Stored content in session transcripts (e.g., agent responses containing HTML or script tags) could be rendered as active HTML when the exported session file was opened in a browser.
+
+**Impact:** Stored XSS in exported session HTML files; malicious script execution when victims open exported session files.
 
 **Fix:** Pending.
 
