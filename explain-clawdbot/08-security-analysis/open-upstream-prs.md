@@ -238,7 +238,7 @@
 | [#13182](https://github.com/openclaw/openclaw/pull/13182) | (refactor) | LOW | MERGED | Barrel re-export at `src/security/audit-extra.ts` → `.sync.ts` + `.async.ts` |
 | [#13680](https://github.com/openclaw/openclaw/pull/13680) | (CWE-307 brute force) | MEDIUM | CLOSED | Superseded by #15035 (MERGED); rate limiter at `src/gateway/auth-rate-limit.ts` ALREADY SYNCED |
 | [#13521](https://github.com/openclaw/openclaw/pull/13521) | [#13116](https://github.com/openclaw/openclaw/issues/13116) (HIGH) | HIGH | OPEN | Fail-close webhook secret enforcement; related to #13170 and #13117 |
-| [#13474](https://github.com/openclaw/openclaw/pull/13474) | [#13466](https://github.com/openclaw/openclaw/issues/13466) (LOW) | LOW | MERGED | Split `hooks:` → `hooks.webhooks:` + `hooks.internal:` at `audit-extra.sync.ts:389-391`; merged 2026-02-13; ALREADY SYNCED |
+| [#13474](https://github.com/openclaw/openclaw/pull/13474) | [#13466](https://github.com/openclaw/openclaw/issues/13466) (LOW) | LOW | MERGED | Split `hooks:` → `hooks.webhooks:` + `hooks.internal:` at `audit-extra.sync.ts:357-359`; merged 2026-02-13; ALREADY SYNCED |
 | [#8718](https://github.com/openclaw/openclaw/pull/8718) | [#8696](https://github.com/openclaw/openclaw/issues/8696) (HIGH) | HIGH | OPEN | Sanitizes download filenames to prevent path traversal (CWE-22) |
 | [#13787](https://github.com/openclaw/openclaw/pull/13787) | [#13786](https://github.com/openclaw/openclaw/issues/13786) (HIGH) | HIGH | MERGED | Loopback bypass in BlueBubbles webhook auth (CVSS 8.6); related to #11742; merged 2026-02-12 |
 | [#13777](https://github.com/openclaw/openclaw/pull/13777) | [#13683](https://github.com/openclaw/openclaw/issues/13683) (HIGH) | HIGH | OPEN | Sandboxed agent credential exfil via `openclaw config get` — no redaction in CLI path |
@@ -265,7 +265,7 @@
 | [#13737](https://github.com/openclaw/openclaw/pull/13737) | (Docker privilege hardening) | LOW | OPEN | UID/GID remap in Dockerfile; Greptile flags GID collision not detected (silently reuses existing group) |
 | [#13290](https://github.com/openclaw/openclaw/pull/13290) | (openclaw/trust#1) | LOW | OPEN | Security warnings in TOOLS.md templates and system-prompt docs that workspace files enter model context |
 | [#15390](https://github.com/openclaw/openclaw/pull/15390) | (OC-02 RCE via HTTP gateway) | CRITICAL | MERGED | `DEFAULT_GATEWAY_HTTP_TOOL_DENY` at `tools-invoke-http.ts:43-52` blocks sessions_spawn + 3 others; merged 2026-02-13; ALREADY SYNCED |
-| [#15384](https://github.com/openclaw/openclaw/pull/15384) | (OC-01 shell injection) | CRITICAL | CLOSED | Closed 2026-02-13; #8186 still OPEN with same fix; local `docker.ts:387-388` still vulnerable |
+| [#15384](https://github.com/openclaw/openclaw/pull/15384) | (OC-01 shell injection) | CRITICAL | CLOSED | Closed 2026-02-13; #8186 still OPEN with same fix; local `docker.ts:412-413` still vulnerable |
 | [#15314](https://github.com/openclaw/openclaw/pull/15314) | [#15313](https://github.com/openclaw/openclaw/issues/15313) (HIGH) | HIGH | CLOSED | Closed 2026-02-13; #3926 still OPEN with same fix; local `DEFAULT_BROWSER_EVALUATE_ENABLED` still true |
 | [#13073](https://github.com/openclaw/openclaw/pull/13073) | [#10090](https://github.com/openclaw/openclaw/issues/10090) (HIGH) | HIGH | MERGED | Credential redaction completion; `zod-schema.sensitive.ts` and schema hint updates; merged 2026-02-13; SYNC NEEDED |
 | [#4026](https://github.com/openclaw/openclaw/pull/4026) | (symlink race) | HIGH | MERGED | `SandboxFsBridge` routes file ops through `docker exec`; merged 2026-02-13; SYNC NEEDED |
@@ -284,7 +284,7 @@
 | [#14661](https://github.com/openclaw/openclaw/pull/14661) | (canvas IP auth) | MEDIUM | MERGED | Canvas IP auth restricted to private networks; local `server-http.ts:150` uses `isPrivateOrLoopbackAddress()`; ALREADY SYNCED |
 | [#15592](https://github.com/openclaw/openclaw/pull/15592) | (log injection) | LOW | MERGED | Sanitize WebSocket log headers; local `ws-connection.ts:40-54` has `sanitizeLogValue()`; ALREADY SYNCED |
 | [#15604](https://github.com/openclaw/openclaw/pull/15604) | (link-understanding SSRF) | MEDIUM | MERGED | Block private/loopback/metadata IPs in link-understanding; local `detect.ts:35-42` has `isBlockedHost()`; ALREADY SYNCED |
-| [#15615](https://github.com/openclaw/openclaw/pull/15615) | (PATH shadow attack) | MEDIUM | OPEN | Restrict PATH override to exact match; local `runner.ts:230-233` allows prepending via `endsWith()` |
+| [#15615](https://github.com/openclaw/openclaw/pull/15615) | (PATH shadow attack) | MEDIUM | OPEN | Restrict PATH override to exact match; local `sanitizeEnv()` removed from `runner.ts`; PATH overrides now blocked entirely in `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts` (`blockPathOverrides: true`) |
 | [#15652](https://github.com/openclaw/openclaw/pull/15652) | (browser path traversal) | MEDIUM | MERGED | Constrain browser trace/download output paths; local `path-output.ts` has `resolvePathWithinRoot()`; ALREADY SYNCED |
 | [#15608](https://github.com/openclaw/openclaw/pull/15608) | (rate-limit state reset) | LOW | CLOSED | Superseded by #15848 (MERGED); NOT AFFECTED |
 | [#15848](https://github.com/openclaw/openclaw/pull/15848) | (rate-limit state pruning) | LOW | MERGED | Prune expired hook auth failure entries; local `server-http.ts:209-226` has prune-then-evict logic; ALREADY SYNCED |
@@ -451,7 +451,7 @@
 - `src/security/audit-extra.sync.ts` — splits `hooks:` summary into `hooks.webhooks:` and `hooks.internal:` in attack surface output
 - `src/security/audit-extra.sync.test.ts` — updated test coverage
 
-**Local Impact:** ALREADY SYNCED — `hooks.webhooks:` at `src/security/audit-extra.sync.ts:389` and `hooks.internal:` at line 391 already present in local code
+**Local Impact:** ALREADY SYNCED — `hooks.webhooks:` at `src/security/audit-extra.sync.ts:357` and `hooks.internal:` at line 359 already present in local code
 
 ### #15390: OC-02 Block sessions_spawn via HTTP Gateway + Fix ACP Auto-Approval
 
@@ -807,11 +807,9 @@
 **Greptile Review:** Confidence 4/5. Flags that empty or undefined PATH overrides are silently ignored, which may leave inherited PATH in effect.
 
 **Local Validation:**
-- `src/node-host/runner.ts:221-234` — local `sanitizeEnv()` has the vulnerable pattern:
-  - Line 226: `if (!basePath || trimmed === basePath)` — exact match OK
-  - Lines 230-233: `if (trimmed.endsWith(suffix))` — allows prepending arbitrary directories
+- `src/node-host/runner.ts:221-234` — `sanitizeEnv()` was removed from `runner.ts`; replaced by `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts` which blocks PATH overrides entirely (`blockPathOverrides: true`). The old `endsWith()` check no longer exists.
 
-**Local Impact:** OPEN/PENDING — PR not yet merged. Local `sanitizeEnv()` at `runner.ts:230-233` allows PATH prepending.
+**Local Impact:** OPEN/PENDING — PR not yet merged upstream. Local `sanitizeEnv()` was refactored away; `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts` now blocks PATH overrides unconditionally.
 
 ### #15652: Constrain Browser Trace/Download Output Paths to OpenClaw Temp Roots
 
