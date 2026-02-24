@@ -75,7 +75,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 **What the code actually does:**
 
-1. **Audit framework** (`src/security/audit.ts:1-80`, `src/security/audit-extra.ts`) — 65+ security checks across 12 categories (filesystem permissions, secrets in config, attack surface, exposure matrix, hooks hardening, model hygiene, plugin trust, etc.)
+1. **Audit framework** (`src/security/audit.ts:1-81`, `src/security/audit-extra.ts`) — 65+ security checks across 12 categories (filesystem permissions, secrets in config, attack surface, exposure matrix, hooks hardening, model hygiene, plugin trust, etc.)
 2. **Install-time skill scanning** (`src/security/skill-scanner.ts:38-47`) — regex-based scanning of `.js`/`.ts` files at skill install time
 3. **Loopback default** (`src/gateway/server-runtime-config.ts:50`) — gateway binds to 127.0.0.1 by default
 4. **Mandatory auth enforcement** (`src/gateway/server-runtime-config.ts:124`) — throws error if binding to non-loopback without auth credentials

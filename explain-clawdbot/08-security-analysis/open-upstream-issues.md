@@ -16,7 +16,7 @@
 | [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH (WONTFIX) | Browser control server DNS rebinding | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/server.ts:59`; no Host header validation |
 | [#4950](https://github.com/openclaw/openclaw/issues/4950) | HIGH (WONTFIX) | Arbitrary JS execution via browser evaluate (default on) | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true` |
 | [#4995](https://github.com/openclaw/openclaw/issues/4995) | HIGH | iMessage dmPolicy auto-responds with pairing codes | `src/imessage/monitor/monitor-provider.ts:142,247-278` |
-| [#5052](https://github.com/openclaw/openclaw/issues/5052) | HIGH | Config validation fail-open returns `{}` | `src/config/io.ts:736,739` - security settings reset |
+| [#5052](https://github.com/openclaw/openclaw/issues/5052) | HIGH | Config validation fail-open returns `{}` | `src/config/io.ts:848,851` - security settings reset |
 | [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH (WONTFIX) | Browser file upload arbitrary read | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/pw-tools-core.interactions.ts:531` |
 | [#5995](https://github.com/openclaw/openclaw/issues/5995) | HIGH | Secrets exposed in session transcripts | `config.get` now redacted via `redactConfigSnapshot()` (PR #9858); transcripts still expose by design |
 | [#6606](https://github.com/openclaw/openclaw/issues/6606) | HIGH (WONTFIX) | Telegram webhook binds to 0.0.0.0 with optional secret | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/telegram/webhook.ts:31,41,42-48` |
@@ -31,9 +31,9 @@
 | [#9435](https://github.com/openclaw/openclaw/issues/9435) | ~~HIGH~~ FIXED | Gateway auth token exposed in URL query params | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token acceptance removed from `src/gateway/hooks.ts`, dashboard URL no longer passes `?token=` |
 | [#9512](https://github.com/openclaw/openclaw/issues/9512) | ~~HIGH~~ FIXED | Skill download archive path traversal | Fixed upstream (COMPLETED 2026-02-14); `src/agents/skills-install.ts:331,342` — now calls `extractArchiveSafe()` |
 | [#9517](https://github.com/openclaw/openclaw/issues/9517) | ~~HIGH~~ FIXED | Gateway canvas host auth bypass | Fixed in PR [#9518](https://github.com/openclaw/openclaw/pull/9518) — new `authorizeCanvasRequest()` at `src/gateway/server-http.ts:109-155` |
-| [#9627](https://github.com/openclaw/openclaw/issues/9627) | HIGH | Config secrets exposed in JSON after update/doctor | `src/config/io.ts:905-1138` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`) |
-| [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:905-1138` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
-| [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:905-1138` |
+| [#9627](https://github.com/openclaw/openclaw/issues/9627) | HIGH | Config secrets exposed in JSON after update/doctor | `src/config/io.ts:1016-1253` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`) |
+| [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:1016-1253` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
+| [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:1016-1253` |
 | [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:96-106` |
 | [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID | validateHostEnv skips baseEnv (by design) | `src/agents/bash-tools.exec-runtime.ts:34` (definition) + `src/agents/bash-tools.exec.ts:330` (call) |
 | [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID (CLOSED) | Fullwidth marker bypass (fold is length-preserving) | Closed upstream (COMPLETED 2026-02-15); `src/security/external-content.ts:127-167` |
@@ -90,7 +90,7 @@
 | [#11811](https://github.com/openclaw/openclaw/issues/11811) | ~~HIGH~~ FIXED | MSTeams attachment fetch follows redirects before allowlist checks (SSRF) | Fixed upstream (COMPLETED); `extensions/msteams/src/attachments/download.ts:93` |
 | [#15906](https://github.com/openclaw/openclaw/issues/15906) | HIGH | RCE via rogue gateway impersonation (mDNS discovery spoofing) | `apps/android/.../GatewayDiscovery.kt:148-162` (TLS fingerprint stored but not enforced); `apps/macos/.../ShellExecutor.swift:14-32` (unrestricted command exec); partial mitigation via device pairing nonce/challenge |
 | [#15950](https://github.com/openclaw/openclaw/issues/15950) | ~~HIGH~~ FIXED | Android production build permits cleartext traffic globally | Fixed upstream (COMPLETED); `apps/android/.../network_security_config.xml:4` |
-| [#14875](https://github.com/openclaw/openclaw/issues/14875) | ~~HIGH~~ FIXED | Feishu channel hardcodes CommandAuthorized bypassing access groups | Fixed upstream (COMPLETED 2026-02-13); `extensions/feishu/src/bot.ts:818,906` |
+| [#14875](https://github.com/openclaw/openclaw/issues/14875) | ~~HIGH~~ FIXED | Feishu channel hardcodes CommandAuthorized bypassing access groups | Fixed upstream (COMPLETED 2026-02-13); `extensions/feishu/src/bot.ts:877,965` |
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:126-142` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
@@ -181,7 +181,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** When config validation fails, the entire config including `dmPolicy`, `allowFrom`, and all security settings are silently reset to `{}`. The bot will respond to ANY sender.
 
-**Affected code:** `src/config/io.ts:736,739`
+**Affected code:** `src/config/io.ts:848,851`
 
 **Detection aid (sync 10):** The forensic config write audit (`748d6821d`) flags writes where `hasMetaBefore` is false or `gatewayModeAfter` is null when it was previously set — both indicators that config was silently replaced with `{}`. The `suspicious` field in `$STATE_DIR/logs/config-audit.jsonl` will contain `"missing-meta-before-write"` or `"gateway-mode-removed"` when this fail-open triggers during a subsequent write.
 
@@ -519,9 +519,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Severity:** LOW (partially affected)
 **CWE:** CWE-276 (Incorrect Default Permissions)
 
-**Vulnerability:** Code correctly uses `mode: 0o700` for directory creation (`src/config/io.ts:975`), but when installed via `sudo`, the directory inherits root ownership. Subsequent user-space operations may create group-writable files.
+**Vulnerability:** Code correctly uses `mode: 0o700` for directory creation (`src/config/io.ts:1087`), but when installed via `sudo`, the directory inherits root ownership. Subsequent user-space operations may create group-writable files.
 
-**Note:** This is an operational issue (sudo usage), not a code bug. `src/security/audit.ts:160-177` already detects group-writable state directories.
+**Note:** This is an operational issue (sudo usage), not a code bug. `src/security/audit.ts:161-178` already detects group-writable state directories.
 
 ### #9435: Gateway Auth Token Exposed in URL Query Params
 
@@ -542,11 +542,11 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** When `openclaw doctor` or `openclaw config set` writes the config file, environment variable references (`${VAR}`) are resolved to plaintext values. The write-back serializes resolved secrets to disk in cleartext JSON, destroying the original `${VAR}` references.
 
 **Affected code:**
-- `src/config/io.ts:905-1138` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), but resolved values still leak for paths that change
+- `src/config/io.ts:1016-1253` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), but resolved values still leak for paths that change
 - `src/config/env-substitution.ts:83-89` - `substituteString` is a one-way transformation
 - `src/commands/doctor.ts:298` - `writeConfigFile(cfg)` writes env-resolved config back to disk
 
-**Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:462-476`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
+**Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:484-531`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
 
 ### #9813: Gateway Expands ${ENV_VAR} on Meta Writeback (DUPLICATE of #9627)
 
@@ -558,7 +558,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Same root cause as #9627. When the gateway updates `meta.lastTouchedAt` in the config file, the writeback path resolves `${ENV_VAR}` references to plaintext values, destroying the original references.
 
 **Affected code:**
-- `src/config/io.ts:905-1138` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), partially mitigating meta writeback expansion
+- `src/config/io.ts:1016-1253` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), partially mitigating meta writeback expansion
 
 **Our analysis:** This is the same `writeConfigFile` code path documented in #9627. The trigger differs (gateway meta writeback vs `doctor`/`config set`), but the underlying bug — env var expansion on write — is identical. Closed as COMPLETED upstream on 2026-02-13 (duplicate closed, root cause tracked in #9627 which remains OPEN).
 
@@ -950,8 +950,8 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** The Feishu channel extension unconditionally sets `CommandAuthorized: true` for every inbound message, bypassing the access group command gating system. All 16 other channel implementations (Discord, Mattermost, Matrix, Zalo, ZaloUser, BlueBubbles, WhatsApp, Google Chat, IRC, Nextcloud Talk, MSTeams, Telegram, Slack, iMessage) properly compute this value dynamically via `resolveCommandAuthorizedFromAuthorizers`.
 
 **Affected code:**
-- `extensions/feishu/src/bot.ts:818` — `CommandAuthorized: true` hardcoded in permission error context
-- `extensions/feishu/src/bot.ts:906` — `CommandAuthorized: true` hardcoded in main message context
+- `extensions/feishu/src/bot.ts:877` — `CommandAuthorized: true` hardcoded in permission error context
+- `extensions/feishu/src/bot.ts:965` — `CommandAuthorized: true` hardcoded in main message context
 - Zero imports of `resolveCommandAuthorizedFromAuthorizers` in the Feishu extension
 
 **Verification:**
@@ -1169,7 +1169,7 @@ All changes take effect immediately via automatic restart.
 - `src/gateway/server/ws-connection/connect-policy.ts:22-33` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
 - `src/gateway/server/ws-connection/connect-policy.ts:48-78` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
 - `src/gateway/server/ws-connection/message-handler.ts:564-569` — `skipPairing` gate: device pairing requirement skipped when `allowInsecureAuth` configured
-- `src/security/audit.ts:430-440` — security audit detects and flags as `severity: "critical"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
+- `src/security/audit.ts:431-441` — security audit detects and flags as `severity: "critical"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 
 **Exploit conditions:** Admin must set `allowInsecureAuth: true` (opt-in). Once enabled, passive MITM on the local network can capture the auth token and gain full `operator.admin + operator.approvals + operator.pairing` access.
 

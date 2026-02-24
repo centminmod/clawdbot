@@ -238,7 +238,7 @@
 | [#13182](https://github.com/openclaw/openclaw/pull/13182) | (refactor) | LOW | MERGED | Barrel re-export at `src/security/audit-extra.ts` → `.sync.ts` + `.async.ts` |
 | [#13680](https://github.com/openclaw/openclaw/pull/13680) | (CWE-307 brute force) | MEDIUM | CLOSED | Superseded by #15035 (MERGED); rate limiter at `src/gateway/auth-rate-limit.ts` ALREADY SYNCED |
 | [#13521](https://github.com/openclaw/openclaw/pull/13521) | [#13116](https://github.com/openclaw/openclaw/issues/13116) (HIGH) | HIGH | OPEN | Fail-close webhook secret enforcement; related to #13170 and #13117 |
-| [#13474](https://github.com/openclaw/openclaw/pull/13474) | [#13466](https://github.com/openclaw/openclaw/issues/13466) (LOW) | LOW | MERGED | Split `hooks:` → `hooks.webhooks:` + `hooks.internal:` at `audit-extra.sync.ts:357-359`; merged 2026-02-13; ALREADY SYNCED |
+| [#13474](https://github.com/openclaw/openclaw/pull/13474) | [#13466](https://github.com/openclaw/openclaw/issues/13466) (LOW) | LOW | MERGED | Split `hooks:` → `hooks.webhooks:` + `hooks.internal:` at `audit-extra.sync.ts:488-490`; merged 2026-02-13; ALREADY SYNCED |
 | [#8718](https://github.com/openclaw/openclaw/pull/8718) | [#8696](https://github.com/openclaw/openclaw/issues/8696) (HIGH) | HIGH | OPEN | Sanitizes download filenames to prevent path traversal (CWE-22) |
 | [#13787](https://github.com/openclaw/openclaw/pull/13787) | [#13786](https://github.com/openclaw/openclaw/issues/13786) (HIGH) | HIGH | MERGED | Loopback bypass in BlueBubbles webhook auth (CVSS 8.6); related to #11742; merged 2026-02-12 |
 | [#13777](https://github.com/openclaw/openclaw/pull/13777) | [#13683](https://github.com/openclaw/openclaw/issues/13683) (HIGH) | HIGH | OPEN | Sandboxed agent credential exfil via `openclaw config get` — no redaction in CLI path |
@@ -276,7 +276,7 @@
 | [#15360](https://github.com/openclaw/openclaw/pull/15360) | [#6669](https://github.com/openclaw/openclaw/issues/6669) | LOW | CLOSED | Subagent announce leakage (closed 2026-02-20; statsLine still in user-visible message locally; issue #6669 unresolved) |
 | [#15296](https://github.com/openclaw/openclaw/pull/15296) | (config secret hardening) | MEDIUM | OPEN | No `--show-secrets` opt-in for CLI `config get`; gateway `config.get` returns unredacted by default |
 | [#8757](https://github.com/openclaw/openclaw/pull/8757) | (MS Teams SSRF redirect) | MEDIUM | CLOSED | Closed without merge 2026-02-13; MS Teams redirect validation SSRF fix; no replacement PR identified |
-| [#13129](https://github.com/openclaw/openclaw/pull/13129) | (dmScope UX) | LOW | MERGED | Uses `formatCliCommand()` for dmScope remediation; local `audit.ts:594` already uses it; ALREADY SYNCED |
+| [#13129](https://github.com/openclaw/openclaw/pull/13129) | (dmScope UX) | LOW | MERGED | Uses `formatCliCommand()` for dmScope remediation; local `audit.ts:595` already uses it; ALREADY SYNCED |
 | [#13184](https://github.com/openclaw/openclaw/pull/13184) | (standalone bind hardening) | LOW | MERGED | Default standalone servers to loopback bind; local `webhook.ts:41` and `canvas-host/server.ts:452` already default to `127.0.0.1`; ALREADY SYNCED |
 | [#13185](https://github.com/openclaw/openclaw/pull/13185) | (error info leakage) | MEDIUM | MERGED | Sanitize error responses across gateway HTTP; local `tools-invoke-http.ts:382-384` returns generic "tool execution failed"; ALREADY SYNCED |
 | [#13767](https://github.com/openclaw/openclaw/pull/13767) | [#13756](https://github.com/openclaw/openclaw/issues/13756) | MEDIUM | MERGED | Reject "undefined"/"null" token strings; local `onboard-helpers.ts:79` already rejects; ALREADY SYNCED |
@@ -451,7 +451,7 @@
 - `src/security/audit-extra.sync.ts` — splits `hooks:` summary into `hooks.webhooks:` and `hooks.internal:` in attack surface output
 - `src/security/audit-extra.sync.test.ts` — updated test coverage
 
-**Local Impact:** ALREADY SYNCED — `hooks.webhooks:` at `src/security/audit-extra.sync.ts:357` and `hooks.internal:` at line 359 already present in local code
+**Local Impact:** ALREADY SYNCED — `hooks.webhooks:` at `src/security/audit-extra.sync.ts:488` and `hooks.internal:` at line 490 already present in local code
 
 ### #15390: OC-02 Block sessions_spawn via HTTP Gateway + Fix ACP Auto-Approval
 
@@ -699,7 +699,7 @@
 **Changes:**
 - `src/security/audit.ts` — uses `formatCliCommand('openclaw config set session.dmScope "per-channel-peer"')` in audit warning remediation text
 
-**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:594`, `src/commands/doctor-security.ts:131`, `src/commands/onboard-channels.ts:198,254`
+**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:595`, `src/commands/doctor-security.ts:131`, `src/commands/onboard-channels.ts:198,254`
 
 ### #13184: Default Standalone Servers to Loopback Bind
 
@@ -904,7 +904,7 @@
 - `src/config/types.gateway.ts:95` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
 - `src/gateway/auth.ts:321` — `authorizeTrustedProxy()` function present
 - `src/gateway/auth.ts:364-388` — trusted-proxy auth path in `authorizeGatewayConnect()`
-- `src/security/audit.ts:475-490` — audit integration with critical findings for trusted-proxy
+- `src/security/audit.ts:476-491` — audit integration with critical findings for trusted-proxy
 - `src/config/zod-schema.ts:469` — Zod validation for trusted-proxy mode
 - 10+ test files with trusted-proxy coverage
 
