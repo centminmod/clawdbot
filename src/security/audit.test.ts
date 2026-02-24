@@ -15,7 +15,8 @@ const isWindows = process.platform === "win32";
 function stubChannelPlugin(params: {
   id: "discord" | "slack" | "telegram";
   label: string;
-  resolveAccount: (cfg: OpenClawConfig) => unknown;
+  resolveAccount: (cfg: OpenClawConfig, accountId: string | null | undefined) => unknown;
+  listAccountIds?: (cfg: OpenClawConfig) => string[];
 }): ChannelPlugin {
   return {
     id: params.id,
@@ -31,11 +32,15 @@ function stubChannelPlugin(params: {
     },
     security: {},
     config: {
-      listAccountIds: (cfg) => {
-        const enabled = Boolean((cfg.channels as Record<string, unknown> | undefined)?.[params.id]);
-        return enabled ? ["default"] : [];
-      },
-      resolveAccount: (cfg) => params.resolveAccount(cfg),
+      listAccountIds:
+        params.listAccountIds ??
+        ((cfg) => {
+          const enabled = Boolean(
+            (cfg.channels as Record<string, unknown> | undefined)?.[params.id],
+          );
+          return enabled ? ["default"] : [];
+        }),
+      resolveAccount: (cfg, accountId) => params.resolveAccount(cfg, accountId),
       isEnabled: () => true,
       isConfigured: () => true,
     },
@@ -45,19 +50,46 @@ function stubChannelPlugin(params: {
 const discordPlugin = stubChannelPlugin({
   id: "discord",
   label: "Discord",
-  resolveAccount: (cfg) => ({ config: cfg.channels?.discord ?? {} }),
+  listAccountIds: (cfg) => {
+    const ids = Object.keys(cfg.channels?.discord?.accounts ?? {});
+    return ids.length > 0 ? ids : ["default"];
+  },
+  resolveAccount: (cfg, accountId) => {
+    const resolvedAccountId = typeof accountId === "string" && accountId ? accountId : "default";
+    const base = cfg.channels?.discord ?? {};
+    const account = cfg.channels?.discord?.accounts?.[resolvedAccountId] ?? {};
+    return { config: { ...base, ...account } };
+  },
 });
 
 const slackPlugin = stubChannelPlugin({
   id: "slack",
   label: "Slack",
-  resolveAccount: (cfg) => ({ config: cfg.channels?.slack ?? {} }),
+  listAccountIds: (cfg) => {
+    const ids = Object.keys(cfg.channels?.slack?.accounts ?? {});
+    return ids.length > 0 ? ids : ["default"];
+  },
+  resolveAccount: (cfg, accountId) => {
+    const resolvedAccountId = typeof accountId === "string" && accountId ? accountId : "default";
+    const base = cfg.channels?.slack ?? {};
+    const account = cfg.channels?.slack?.accounts?.[resolvedAccountId] ?? {};
+    return { config: { ...base, ...account } };
+  },
 });
 
 const telegramPlugin = stubChannelPlugin({
   id: "telegram",
   label: "Telegram",
-  resolveAccount: (cfg) => ({ config: cfg.channels?.telegram ?? {} }),
+  listAccountIds: (cfg) => {
+    const ids = Object.keys(cfg.channels?.telegram?.accounts ?? {});
+    return ids.length > 0 ? ids : ["default"];
+  },
+  resolveAccount: (cfg, accountId) => {
+    const resolvedAccountId = typeof accountId === "string" && accountId ? accountId : "default";
+    const base = cfg.channels?.telegram ?? {};
+    const account = cfg.channels?.telegram?.accounts?.[resolvedAccountId] ?? {};
+    return { config: { ...base, ...account } };
+  },
 });
 
 function successfulProbeResult(url: string) {
@@ -1104,6 +1136,38 @@ describe("security audit", () => {
     expect(finding?.detail).toContain("tools.exec.applyPatch.workspaceOnly=false");
   });
 
+  it("flags non-loopback Control UI without allowed origins", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "lan",
+        auth: { mode: "token", token: "very-long-browser-token-0123456789" },
+      },
+    };
+
+    const res = await audit(cfg);
+    expectFinding(res, "gateway.control_ui.allowed_origins_required", "critical");
+  });
+
+  it("flags dangerous host-header origin fallback and suppresses missing allowed-origins finding", async () => {
+    const cfg: OpenClawConfig = {
+      gateway: {
+        bind: "lan",
+        auth: { mode: "token", token: "very-long-browser-token-0123456789" },
+        controlUi: {
+          dangerouslyAllowHostHeaderOriginFallback: true,
+        },
+      },
+    };
+
+    const res = await audit(cfg);
+    expectFinding(res, "gateway.control_ui.host_header_origin_fallback", "critical");
+    expectNoFinding(res, "gateway.control_ui.allowed_origins_required");
+    const flags = res.findings.find((f) => f.checkId === "config.insecure_or_dangerous_flags");
+    expect(flags?.detail ?? "").toContain(
+      "gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true",
+    );
+  });
+
   it("scores X-Real-IP fallback risk by gateway exposure", async () => {
     const trustedProxyCfg = (trustedProxies: string[]): OpenClawConfig => ({
       gateway: {
@@ -1497,6 +1561,116 @@ describe("security audit", () => {
         "~/.openclaw/credentials/discord-allowFrom.json:team.owner",
       );
       expect(finding?.detail).not.toContain("<@123456789012345678>");
+    });
+  });
+
+  it("marks Discord name-based allowlists as break-glass when dangerous matching is enabled", async () => {
+    await withChannelSecurityStateDir(async () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          discord: {
+            enabled: true,
+            token: "t",
+            dangerouslyAllowNameMatching: true,
+            allowFrom: ["Alice#1234"],
+          },
+        },
+      };
+
+      const res = await runSecurityAudit({
+        config: cfg,
+        includeFilesystem: false,
+        includeChannelSecurity: true,
+        plugins: [discordPlugin],
+      });
+
+      const finding = res.findings.find(
+        (entry) => entry.checkId === "channels.discord.allowFrom.name_based_entries",
+      );
+      expect(finding).toBeDefined();
+      expect(finding?.severity).toBe("info");
+      expect(finding?.detail).toContain("out-of-scope");
+      expect(res.findings).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            checkId: "channels.discord.allowFrom.dangerous_name_matching_enabled",
+            severity: "info",
+          }),
+        ]),
+      );
+    });
+  });
+
+  it("audits non-default Discord accounts for dangerous name matching", async () => {
+    await withChannelSecurityStateDir(async () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          discord: {
+            enabled: true,
+            token: "t",
+            accounts: {
+              alpha: { token: "a" },
+              beta: {
+                token: "b",
+                dangerouslyAllowNameMatching: true,
+              },
+            },
+          },
+        },
+      };
+
+      const res = await runSecurityAudit({
+        config: cfg,
+        includeFilesystem: false,
+        includeChannelSecurity: true,
+        plugins: [discordPlugin],
+      });
+
+      expect(res.findings).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            checkId: "channels.discord.allowFrom.dangerous_name_matching_enabled",
+            title: expect.stringContaining("(account: beta)"),
+            severity: "info",
+          }),
+        ]),
+      );
+    });
+  });
+
+  it("audits name-based allowlists on non-default Discord accounts", async () => {
+    await withChannelSecurityStateDir(async () => {
+      const cfg: OpenClawConfig = {
+        channels: {
+          discord: {
+            enabled: true,
+            token: "t",
+            accounts: {
+              alpha: {
+                token: "a",
+                allowFrom: ["123456789012345678"],
+              },
+              beta: {
+                token: "b",
+                allowFrom: ["Alice#1234"],
+              },
+            },
+          },
+        },
+      };
+
+      const res = await runSecurityAudit({
+        config: cfg,
+        includeFilesystem: false,
+        includeChannelSecurity: true,
+        plugins: [discordPlugin],
+      });
+
+      const finding = res.findings.find(
+        (entry) => entry.checkId === "channels.discord.allowFrom.name_based_entries",
+      );
+      expect(finding).toBeDefined();
+      expect(finding?.detail).toContain("channels.discord.accounts.beta.allowFrom:Alice#1234");
     });
   });
 
