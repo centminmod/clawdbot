@@ -144,8 +144,8 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 |----------|-------|----------|
 | Media files | 2min TTL auto-cleanup | `src/media/store.ts:16,94-130` |
 | Rolling logs | 24h age pruning | `src/logging/logger.ts:18,284` |
-| Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:768` |
-| Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:26-57` |
+| Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:299-302` |
+| Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:78-79` |
 | TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:21,500-512` |
 | Pairing requests | 3/channel, 1h TTL | `src/pairing/pairing-store.ts:14-15` |
 

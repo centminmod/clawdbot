@@ -907,7 +907,7 @@
 - `src/gateway/auth.ts:321` — `authorizeTrustedProxy()` function present
 - `src/gateway/auth.ts:364-388` — trusted-proxy auth path in `authorizeGatewayConnect()`
 - `src/security/audit.ts:377-436` — audit integration with critical findings for trusted-proxy
-- `src/config/zod-schema.ts:435` — Zod validation for trusted-proxy mode
+- `src/config/zod-schema.ts:468` — Zod validation for trusted-proxy mode
 - 10+ test files with trusted-proxy coverage
 
 **Local Impact:** ALREADY SYNCED — full trusted-proxy auth infrastructure present locally

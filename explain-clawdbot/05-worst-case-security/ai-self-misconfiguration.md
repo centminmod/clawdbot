@@ -638,7 +638,7 @@ openclaw config get models.providers
 # - https://api.openai.com (OpenAI)
 ```
 
-**How to fix:** Remove or correct `baseUrl` entries. API keys in the config are redacted via `__OPENCLAW_REDACTED__` in `config.get` responses (`src/config/redact-snapshot.ts:42,273-310`), but this only prevents the AI from reading keys — it doesn't prevent it from changing the `baseUrl` to route them elsewhere.
+**How to fix:** Remove or correct `baseUrl` entries. API keys in the config are redacted via `__OPENCLAW_REDACTED__` in `config.get` responses (`src/config/redact-snapshot.ts:42,276-313`), but this only prevents the AI from reading keys — it doesn't prevent it from changing the `baseUrl` to route them elsewhere.
 
 **Does `openclaw security audit` catch this?** No — does not validate provider URLs against known-good endpoints.
 
@@ -910,7 +910,7 @@ No single change looks catastrophic. Together, they give anyone on the network u
 
 ### Schema-Valid but Unsafe Values
 
-OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:682`). This means:
+OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:715`). This means:
 - **Unknown top-level keys are rejected** — the AI can't add random keys
 - **Type errors are caught** — wrong types for known keys fail validation
 - **Semantic security errors pass** — `gateway.bind: "lan"` is a valid value for a known key, even though it's dangerous
@@ -1044,7 +1044,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 |-----------|-------------|--------|
 | **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:3` |
 | **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:152-459` |
-| **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:42,273-310` |
+| **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:42,276-313` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:34-51` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:805-894` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:467-519` |
@@ -1052,8 +1052,8 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:484` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
-| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:682` |
-| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:461-475` (audit helpers), `:1037-1137` (audit record builder + append) |
+| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:715` |
+| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:462-476` (audit helpers), `:1038-1138` (audit record builder + append) |
 
 ---
 

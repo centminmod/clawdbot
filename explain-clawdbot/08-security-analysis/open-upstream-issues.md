@@ -41,8 +41,8 @@
 | [#4940](https://github.com/openclaw/openclaw/issues/4940) | MEDIUM | commands.restart bypass via exec tool | `src/agents/bash-tools.exec.ts` (no commands.restart check — remains open) |
 | [#5120](https://github.com/openclaw/openclaw/issues/5120) | ~~MEDIUM~~ FIXED | Webhook token accepted via query parameters | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token extraction removed from `src/gateway/hooks.ts` (note: upstream issue still OPEN) |
 | [#5122](https://github.com/openclaw/openclaw/issues/5122) | ~~MEDIUM~~ WONTFIX | readJsonBody() Slowloris DoS (no read timeout) | Closed upstream as NOT_PLANNED (2026-02-17); local mitigation remains: `src/gateway/hooks.ts:177-194` delegates to `readJsonBodyWithLimit()` with 30s timeout (commit `3cbcba10c`) |
-| [#5123](https://github.com/openclaw/openclaw/issues/5123) | MEDIUM (WONTFIX) | ReDoS in session filter regex | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/infra/exec-approval-forwarder.ts:53-60` |
-| [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:49-63` |
+| [#5123](https://github.com/openclaw/openclaw/issues/5123) | ~~MEDIUM (WONTFIX)~~ FIXED LOCALLY | ReDoS in session filter regex | Closed upstream NOT_PLANNED (2026-02-17); fixed locally by `a2dfe9879` (Feb 24 sync 7): `matchSessionFilter()` now uses `compileSafeRegex()` at `src/infra/exec-approval-forwarder.ts:54-62` |
+| [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:50-60` |
 | [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); partially mitigated locally (hook token + device pairing use `safeEqualSecret`); `src/infra/node-pairing.ts:277` still uses `===` |
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | MEDIUM | Session transcripts 644 instead of 600 (upstream FIXED, local reverted) | Closed upstream COMPLETED (2026-02-16); 0o600 fix applied locally in `ae0b110e4` but accidentally reverted by `9f261f592`; still affects `src/auto-reply/reply/session.ts:96`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts:502` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | ~~MEDIUM~~ FIXED | web_fetch hidden text prompt injection | Fixed upstream (COMPLETED); `src/agents/tools/web-fetch-utils.ts:59-61` |
@@ -353,13 +353,15 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 ### #5123: ReDoS in Session Filter Regex
 
-**Severity:** MEDIUM
+**Status: FIXED LOCALLY** — `a2dfe9879` (Feb 24 sync 7) changes `matchSessionFilter()` to use `compileSafeRegex()` from new `src/security/safe-regex.ts`, preventing nested quantifier patterns from causing catastrophic backtracking. Upstream closed NOT_PLANNED (2026-02-17).
+
+**Severity:** ~~MEDIUM~~ FIXED LOCALLY
 **CWE:** CWE-1333 (Inefficient Regular Expression Complexity)
 
-**Vulnerability:** User-supplied strings are compiled into regexes via `new RegExp()` without safeguards. Malicious patterns can cause catastrophic backtracking.
+**Vulnerability:** User-supplied strings were compiled into regexes via `new RegExp()` without safeguards. Malicious patterns could cause catastrophic backtracking.
 
-**Affected code:**
-- `src/infra/exec-approval-forwarder.ts:53-60` - `matchSessionFilter()` compiles arbitrary user regex
+**Affected code (historical — now mitigated):**
+- `src/infra/exec-approval-forwarder.ts:54-62` - `matchSessionFilter()` now uses `compileSafeRegex()` (was `new RegExp()`, fixed Feb 24 sync 7)
 - `src/discord/monitor/exec-approvals.ts:395` - now uses `buildGatewayConnectionDetails()` (refactored Feb 15 sync 2, shifted by Discord CV2 rewrite Feb 16 sync 2)
 
 ### #5124: ReDoS in Log Redaction Patterns
@@ -371,7 +373,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** Log redaction `parsePattern()` compiles arbitrary regex patterns that could cause catastrophic backtracking on large log entries.
 
-**Affected code:** `src/logging/redact.ts:49-63` - `parsePattern()` compiles arbitrary regex for log processing.
+**Affected code:** `src/logging/redact.ts:50-60` - `parsePattern()` compiles arbitrary regex for log processing.
 
 ### #6021: Timing Attack in Non-Gateway Token Comparisons
 
@@ -544,7 +546,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - `src/config/env-substitution.ts:83-89` - `substituteString` is a one-way transformation
 - `src/commands/doctor.ts:298` - `writeConfigFile(cfg)` writes env-resolved config back to disk
 
-**Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:461-475`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
+**Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:462-476`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
 
 ### #9813: Gateway Expands ${ENV_VAR} on Meta Writeback (DUPLICATE of #9627)
 
@@ -644,7 +646,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/pi-tools.read.ts:286-302` - read tool returns raw content, processes only image MIME
-- `src/logging/redact.ts:13-38,128-141` - redaction patterns exist but NOT applied to read results
+- `src/logging/redact.ts:14-39,125-138` - redaction patterns exist but NOT applied to read results
 
 **Note:** Sandbox path enforcement is the primary control. This is a defense-in-depth gap, not a boundary breach. Low severity because the sandbox boundary itself is correctly enforced.
 
@@ -835,7 +837,7 @@ All changes take effect immediately via automatic restart.
 
 **Correct implementation (for comparison):**
 - `src/gateway/server-methods/config.ts:214` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
-- `src/config/redact-snapshot.ts:273-275` — `redactConfigObject()` is exported and available for use in CLI
+- `src/config/redact-snapshot.ts:276-278` — `redactConfigObject()` is exported and available for use in CLI
 
 **Relationship to existing issues:**
 - #9627: Config *write-back* destroys `${VAR}` references (different attack: disk persistence)
