@@ -283,7 +283,7 @@ Each agent can have its own sandbox configuration controlling:
 
 Agent-specific settings override global defaults. Resolution order: agent config -> global agent defaults -> built-in defaults.
 
-Source: `src/agents/sandbox/config.ts:149` (`resolveSandboxConfigForAgent()`)
+Source: `src/agents/sandbox/config.ts:170` (`resolveSandboxConfigForAgent()`)
 
 ### Tool policies per agent
 
