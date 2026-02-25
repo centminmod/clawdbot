@@ -20,6 +20,7 @@
 - Social Media Coverage
   - **Overview** (this file)
   - [Lex Fridman Podcast #491 — Peter Steinberger interview](./lex-fridman-interview.md)
+  - [Matthew Berman — Autonomous OpenClaw Workflow (16 chapters)](./matthew-berman-workflow.md)
 - Reference
   - [Commands + troubleshooting](../99-reference/commands-and-troubleshooting.md)
 
@@ -36,3 +37,4 @@ Notable media coverage, interviews, and community content about OpenClaw. This s
 | Video | Guest / Host | Date | Duration | Topics |
 |-------|-------------|------|----------|--------|
 | [Lex Fridman Podcast #491](./lex-fridman-interview.md) | Peter Steinberger / Lex Fridman | Feb 2026 | ~3 hr 15 min | Origin story, name change saga, security, agentic engineering, model comparison, future of programming |
+| [Matthew Berman — Autonomous OpenClaw Workflow](./matthew-berman-workflow.md) | Matthew Berman | Feb 2026 | 39 min 59 sec | AI employee persona, sponsorship inbox pipeline, HubSpot CRM, prompt injection defense, multi-model drift, context optimization, cron scheduling, cost management, wearables |
