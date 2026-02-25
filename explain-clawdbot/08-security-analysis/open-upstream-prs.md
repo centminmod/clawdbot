@@ -936,8 +936,8 @@
 - `src/gateway/server-methods/chat.ts:306` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
 - `src/auto-reply/reply/session.ts:96` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-runner/session-manager-init.ts:46` — `writeFile(params.sessionFile, "", "utf-8")` — no `mode: 0o600`
-- `src/gateway/server-methods/sessions.ts:492` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
+- `src/gateway/server-methods/sessions.ts:486` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/session-file-repair.ts:77,81` — `writeFile(..., "utf-8")` — no `mode: 0o600`
-- Note: `src/config/sessions/store.ts:619,634` already uses `{ mode: 0o600 }` for sessions.json
+- Note: `src/config/sessions/store.ts:821,836` already uses `{ mode: 0o600 }` for sessions.json
 
 **Local Impact:** OPEN/PENDING — PR not yet merged. 7+ local transcript write paths use default world-readable permissions.

@@ -70,7 +70,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 | Cache | Location | Bound | Risk |
 |-------|----------|-------|------|
-| Session store cache | `src/config/sessions/store.ts:40` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
+| Session store cache | `src/config/sessions/store.ts:44` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
 | Discord presence cache | `src/discord/monitor/presence-cache.ts:9` | 5000/account LRU | Low |
 | Telegram sent message cache | `src/telegram/sent-message-cache.ts:13` | 24h TTL, 100/chat | Low-Medium |
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
@@ -144,7 +144,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 |----------|-------|----------|
 | Media files | 2min TTL auto-cleanup | `src/media/store.ts:16,94-130` |
 | Rolling logs | 24h age pruning | `src/logging/logger.ts:18,284` |
-| Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:299-302` |
+| Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:303-305` |
 | Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:78-79` |
 | TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:21,500-512` |
 | Pairing requests | 3/channel, 1h TTL | `src/pairing/pairing-store.ts:14-15` |

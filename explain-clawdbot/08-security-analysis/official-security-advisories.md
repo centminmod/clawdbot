@@ -1570,6 +1570,150 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 
 **Fix:** Pending.
 
+### GHSA-534w-2vm4-89xr: Zalo group sender allowlist bypass permits unauthorized GROUP dispatch
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** A missing group-sender authorization check in the Zalo plugin allowed unauthorized `GROUP` messages to enter agent dispatch paths in configurations intended to restrict group traffic. Group access checks were not consistently enforced before dispatch for Zalo `GROUP` messages.
+
+**Impact:** Unauthorized senders could trigger agent processing through the Zalo `GROUP` message path, bypassing group allowlist restrictions.
+
+**Fix:** Commit `b4010a0b6` adds explicit runtime group-policy evaluation (`groupPolicy`, `groupAllowFrom`, fallback to `allowFrom`) and fail-closed behavior for missing provider config. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-gw85-xp4q-5gp9: Synology Chat dmPolicy=allowlist failed open on empty allowedUserIds
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** In the optional `synology-chat` channel plugin (`>= 2026.2.22, <= 2026.2.23`), when `dmPolicy` was `allowlist` and `allowedUserIds` was empty/unset, the policy resolved as allow-all, granting unauthorized senders access to agent dispatch.
+
+**Impact:** Unauthorized Synology Chat senders could trigger downstream agent and tool actions when `allowedUserIds` was empty under `allowlist` mode.
+
+**Fix:** Commits `0ee30361b` and `7655c0cb3` fix the allowlist fail-open condition. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-5gj7-jf77-q2q2: safeBins static default trusted dirs allow writable-dir binary hijack
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** The `safeBins` exec allowlist included package-manager paths (`/opt/homebrew/bin`, `/usr/local/bin`) in its default trusted directories. An attacker who could place a same-name binary (e.g., `jq`) in those user-managed directories could bypass the safe-bin evaluation and execute attacker-controlled code.
+
+**Impact:** Exec allowlist bypass leading to command execution in the OpenClaw runtime context, conditional on write access to trusted bin directories.
+
+**Fix:** Commit `b67e600bf` restricts default trusted directories to immutable system paths (`/bin`, `/usr/bin`) and requires explicit opt-in for package-manager paths via `tools.exec.safeBinTrustedDirs`. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-33hm-cq8r-wc49: Temporary path handling could write outside OpenClaw temp boundary
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** Sandbox media local-path validation accepted absolute paths under host `os.tmpdir()` even when outside the active `sandboxRoot`. Outbound attachment hydration consumed these as already-validated, enabling out-of-sandbox host tmp file reads and exfiltration through attachment delivery.
+
+**Impact:** Confidentiality impact: attacker-controlled media references could read and attach host tmp files outside the sandbox workspace boundary.
+
+**Fix:** Commits `d3da67c7a`, `79a7b3d22`, and `def993dbd` restrict sandbox tmp-path acceptance to OpenClaw-managed temp roots. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-fqcm-97m6-w7rm: Message action attachment hydration bypasses local media root checks when sandboxRoot is unset
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @GCXWLP
+
+**Description:** `sendAttachment` and `setGroupIcon` message actions could hydrate media from local absolute paths when `sandboxRoot` was unset, bypassing intended local media root checks, allowing reads of arbitrary host files reachable by the runtime user.
+
+**Impact:** Arbitrary local file reads via message action attachment paths when `sandboxRoot` is unconfigured.
+
+**Fix:** Commit `270ab03e3` enforces media root checks regardless of `sandboxRoot`. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-6rcp-vxwf-3mfp: system.run shell-wrapper positional argv carriers could execute hidden commands under misleading approval text
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** For shell-wrapper forms (e.g., `/bin/sh -c ...`), command-text binding could focus on inline shell payload text while runtime execution still used the full argv vector. Positional argv carriers after the inline payload could therefore execute under incomplete operator-visible display context.
+
+**Impact:** Hidden command execution under misleading approval text in `system.run` shell-wrapper invocations.
+
+**Fix:** Commits `0f0a680d3` and `55cf92578` bind approval/display command text to full formatted argv for shell-wrapper carrier forms and validate `rawCommand`/argv consistency. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-m8v2-6wwh-r4gc: Sandbox bind validation could bypass allowed-root and blocked-path checks via symlink-parent missing-leaf paths
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** `validateBindMounts` relied on full-path `realpath` only when the full source path already existed. For missing-leaf paths, parent symlink traversal was not fully canonicalized before allowed-root and blocked-path checks, allowing a bind source path that looked inside an allowed root to resolve outside that root once the missing leaf was created.
+
+**Impact:** Sandbox bind source boundary enforcement weakened; could allow access to blocked runtime paths via symlink-parent missing-leaf patterns.
+
+**Fix:** Commit `b5787e4ab` canonicalizes through the nearest existing ancestor and re-checks against both allowed source roots and blocked runtime paths. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-27cr-4p5m-74rj: Workspace-only sandbox guard mismatch for @-prefixed absolute paths
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** When `tools.fs.workspaceOnly=true`, certain `@`-prefixed absolute paths (e.g., `@/etc/passwd`) could pass validation before canonicalization while runtime path handling normalized the prefix differently, permitting reads outside the workspace boundary in affected tool paths.
+
+**Impact:** Workspace boundary bypass for `@`-prefixed absolute paths when `tools.fs.workspaceOnly` is enabled (non-default).
+
+**Fix:** Commit `9ef0fc2ff` aligns `@`-prefix normalization with canonicalization used at runtime. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-h656-5vcf-cm23: Telegram: Unauthorized Senders Trigger Media Download and Disk Write Before Access Check
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @v8hid
+
+**Description:** In Telegram DM mode, inbound media was downloaded and written to disk before sender authorization checks completed. An unauthorized sender could trigger inbound media download/write activity (including media groups) even when DM access should be denied.
+
+**Impact:** Unauthorized senders could trigger disk write activity and media download before being rejected by DM access control.
+
+**Fix:** Commit `9514201fb` moves DM authorization before media download/write paths execute, including media-group handling. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-ww6v-v748-x7g9: Sandbox network isolation bypass via docker.network=container:<id>
+
+**Severity:** LOW
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** Sandbox network hardening blocked `network=host` but allowed `network=container:<id>`, letting a sandbox join another container's network namespace and reach services in that namespace. Requires trusted-operator configuration path (`agents.defaults.sandbox.docker.network`).
+
+**Impact:** Sandbox network isolation bypass allowing namespace-join to another container's network (requires operator config access).
+
+**Fix:** Commits `14b6eea6e` and `5552f9073` block namespace-join style network modes including `container:<id>` and enforce strict allowlisting. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-ccg8-46r6-9qgj: Dispatch-wrapper depth-cap mismatch can bypass shell-wrapper approval gating in system.run allowlist mode
+
+**Severity:** MEDIUM
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** A wrapper-depth parsing mismatch in `system.run` allowed nested transparent dispatch wrappers (e.g., repeated `/usr/bin/env`) to suppress shell-wrapper detection while still matching allowlist resolution. In `security=allowlist` + `ask=on-miss`, this could bypass the expected approval prompt for shell execution.
+
+**Impact:** Approval-boundary bypass for shell execution via nested wrapper depth overflow in `system.run` allowlist mode.
+
+**Fix:** Commit `57c9a1818` adds regression coverage for depth-overflow wrapper chains and correctly denies approval bypass. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-9f72-qcpw-2hxc: Native prompt image auto-load did not honor tools.fs.workspaceOnly in sandboxed runs
+
+**Severity:** HIGH
+**Published:** 2026-02-25
+**Credits:** @tdjackey
+
+**Description:** In sandboxed runs with `tools.fs.workspaceOnly=true`, native prompt image auto-load (`detectAndLoadPromptImages` / `loadImageFromRef`) resolved and read sandbox paths without applying the workspace-root assertion used by file tools. Out-of-workspace mounted paths (e.g., `/agent/secret.png`) could be loaded as vision model inputs, leaking sandbox-accessible file contents.
+
+**Impact:** Confidentiality impact: out-of-workspace files readable via vision model path when `tools.fs.workspaceOnly=true` and sandbox mode are both active. Severity HIGH due to silent data exfiltration through model input.
+
+**Fix:** Commit `370d11554` applies workspace-root assertion to prompt image loading path when `tools.fs.workspaceOnly` is set. Patched in `openclaw >= 2026.2.24`.
+
 ### Relationship to Third-Party Audits
 
 These official CVEs are **distinct from** the two third-party security audits documented below:
