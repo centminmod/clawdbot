@@ -44,10 +44,10 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 **What the code actually does:**
 
-1. **File permissions** (`src/infra/fs-safe.ts:57-58`) — files opened with `O_NOFOLLOW` on non-Windows platforms, blocking symlink-based exfiltration
-2. **Symlink protection** (`src/infra/fs-safe.ts:67-68, 74-77`) — double-checked via `isSymlinkOpenError()` catch and explicit `lstat().isSymbolicLink()` check
+1. **File permissions** (`src/infra/fs-safe.ts:39-40`) — files opened with `O_NOFOLLOW` on non-Windows platforms, blocking symlink-based exfiltration
+2. **Symlink protection** (`src/infra/fs-safe.ts:52-53, 60-61`) — double-checked via `isSymlinkOpenError()` catch and explicit `lstat().isSymbolicLink()` check
 3. **Path traversal prevention** (`src/pairing/pairing-store.ts:53-62`) — `safeChannelKey()` strips `../`, `/`, `\`, and other path traversal characters
-4. **Root escape prevention** (`src/infra/fs-safe.ts:53-54`) — `openFileWithinRoot()` verifies resolved path stays within root directory
+4. **Root escape prevention** (`src/infra/fs-safe.ts:89-106`) — `openFileWithinRoot()` verifies resolved path stays within root directory
 5. **Known gap:** credentials are stored as JSON without encryption at rest (acknowledged; mitigated by 0o600 and OS-level controls)
 
 **Verdict:** PARTIALLY TRUE — plaintext storage is a real defense-in-depth gap (also flagged by CVE-2026-25253, now patched for the path traversal vector). The file permission enforcement and symlink blocking are robust, but encryption at rest would be stronger.
