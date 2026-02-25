@@ -61,6 +61,7 @@
 - **Social media coverage:**
   - [Overview](./09-social-media-coverage/README.md)
   - [Lex Fridman Podcast #491 — Peter Steinberger interview](./09-social-media-coverage/lex-fridman-interview.md)
+  - [Matthew Berman — Autonomous OpenClaw Workflow (16 chapters)](./09-social-media-coverage/matthew-berman-workflow.md)
 
 ---
 
