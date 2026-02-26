@@ -1,10 +1,9 @@
-import { resolveEnvApiKey } from "../agents/model-auth.js";
+import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
 import {
-  formatApiKeyPreview,
-  normalizeApiKeyInput,
-  validateApiKeyInput,
-} from "./auth-choice.api-key.js";
-import { createAuthChoiceAgentModelNoter } from "./auth-choice.apply-helpers.js";
+  createAuthChoiceAgentModelNoter,
+  ensureApiKeyFromOptionEnvOrPrompt,
+  normalizeSecretInputModeInput,
+} from "./auth-choice.apply-helpers.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { applyDefaultModelChoice } from "./auth-choice.default-model.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
@@ -24,6 +23,7 @@ import {
 export async function applyAuthChoiceOpenAI(
   params: ApplyAuthChoiceParams,
 ): Promise<ApplyAuthChoiceResult | null> {
+  const requestedSecretInputMode = normalizeSecretInputModeInput(params.opts?.secretInputMode);
   const noteAgentModel = createAuthChoiceAgentModelNoter(params);
   let authChoice = params.authChoice;
   if (authChoice === "apiKey" && params.opts?.tokenProvider === "openai") {
@@ -50,35 +50,21 @@ export async function applyAuthChoiceOpenAI(
       return { config: nextConfig, agentModelOverride };
     };
 
-    const envKey = resolveEnvApiKey("openai");
-    if (envKey) {
-      const useExisting = await params.prompter.confirm({
-        message: `Use existing OPENAI_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
-        initialValue: true,
-      });
-      if (useExisting) {
-        await setOpenaiApiKey(envKey.apiKey, params.agentDir);
-        nextConfig = applyAuthProfileConfig(nextConfig, {
-          profileId: "openai:default",
-          provider: "openai",
-          mode: "api_key",
-        });
-        return await applyOpenAiDefaultModelChoice();
-      }
-    }
-
-    let key: string | undefined;
-    if (params.opts?.token && params.opts?.tokenProvider === "openai") {
-      key = params.opts.token;
-    } else {
-      key = await params.prompter.text({
-        message: "Enter OpenAI API key",
-        validate: validateApiKeyInput,
-      });
-    }
-
-    const trimmed = normalizeApiKeyInput(String(key));
-    await setOpenaiApiKey(trimmed, params.agentDir);
+    await ensureApiKeyFromOptionEnvOrPrompt({
+      token: params.opts?.token,
+      tokenProvider: params.opts?.tokenProvider,
+      secretInputMode: requestedSecretInputMode,
+      config: nextConfig,
+      expectedProviders: ["openai"],
+      provider: "openai",
+      envLabel: "OPENAI_API_KEY",
+      promptMessage: "Enter OpenAI API key",
+      normalize: normalizeApiKeyInput,
+      validate: validateApiKeyInput,
+      prompter: params.prompter,
+      setCredential: async (apiKey, mode) =>
+        setOpenaiApiKey(apiKey, params.agentDir, { secretInputMode: mode }),
+    });
     nextConfig = applyAuthProfileConfig(nextConfig, {
       profileId: "openai:default",
       provider: "openai",

@@ -338,24 +338,20 @@ function applyLegacyStore(store: AuthProfileStore, legacy: LegacyAuthStore): voi
   }
 }
 
-function loadCoercedStoreWithExternalSync(authPath: string): AuthProfileStore | null {
+function loadCoercedStore(authPath: string): AuthProfileStore | null {
   const raw = loadJsonFile(authPath);
-  const store = coerceAuthStore(raw);
-  if (!store) {
-    return null;
-  }
-  // Sync from external CLI tools on every load.
-  const synced = syncExternalCliCredentials(store);
-  if (synced) {
-    saveJsonFile(authPath, store);
-  }
-  return store;
+  return coerceAuthStore(raw);
 }
 
 export function loadAuthProfileStore(): AuthProfileStore {
   const authPath = resolveAuthStorePath();
-  const asStore = loadCoercedStoreWithExternalSync(authPath);
+  const asStore = loadCoercedStore(authPath);
   if (asStore) {
+    // Sync from external CLI tools on every load.
+    const synced = syncExternalCliCredentials(asStore);
+    if (synced) {
+      saveJsonFile(authPath, asStore);
+    }
     return asStore;
   }
   const legacyRaw = loadJsonFile(resolveLegacyAuthStorePath());
@@ -381,7 +377,7 @@ function loadAuthProfileStoreForAgent(
 ): AuthProfileStore {
   const readOnly = options?.readOnly === true;
   const authPath = resolveAuthStorePath(agentDir);
-  const asStore = loadCoercedStoreWithExternalSync(authPath);
+  const asStore = loadCoercedStore(authPath);
   if (asStore) {
     // Runtime secret activation must remain read-only:
     // sync external CLI credentials in-memory, but never persist while readOnly.
@@ -418,7 +414,8 @@ function loadAuthProfileStoreForAgent(
   const mergedOAuth = mergeOAuthFileIntoStore(store);
   // Keep external CLI credentials visible in runtime even during read-only loads.
   const syncedCli = syncExternalCliCredentials(store);
-  const shouldWrite = !readOnly && (legacy !== null || mergedOAuth || syncedCli);
+  const forceReadOnly = process.env.OPENCLAW_AUTH_STORE_READONLY === "1";
+  const shouldWrite = !readOnly && !forceReadOnly && (legacy !== null || mergedOAuth || syncedCli);
   if (shouldWrite) {
     saveJsonFile(authPath, store);
   }

@@ -1,5 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
+import { coerceSecretRef } from "../config/types.secrets.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   DEFAULT_COPILOT_API_BASE_URL,
@@ -357,10 +358,24 @@ function resolveApiKeyFromProfiles(params: {
       continue;
     }
     if (cred.type === "api_key") {
-      return cred.key;
+      if (cred.key?.trim()) {
+        return cred.key;
+      }
+      const keyRef = coerceSecretRef(cred.keyRef);
+      if (keyRef?.source === "env" && keyRef.id.trim()) {
+        return keyRef.id.trim();
+      }
+      continue;
     }
     if (cred.type === "token") {
-      return cred.token;
+      if (cred.token?.trim()) {
+        return cred.token;
+      }
+      const tokenRef = coerceSecretRef(cred.tokenRef);
+      if (tokenRef?.source === "env" && tokenRef.id.trim()) {
+        return tokenRef.id.trim();
+      }
+      continue;
     }
   }
   return undefined;
@@ -465,6 +480,7 @@ function buildMinimaxProvider(): ProviderConfig {
   return {
     baseUrl: MINIMAX_PORTAL_BASE_URL,
     api: "anthropic-messages",
+    authHeader: true,
     models: [
       buildMinimaxTextModel({
         id: MINIMAX_DEFAULT_MODEL_ID,
@@ -500,6 +516,7 @@ function buildMinimaxPortalProvider(): ProviderConfig {
   return {
     baseUrl: MINIMAX_PORTAL_BASE_URL,
     api: "anthropic-messages",
+    authHeader: true,
     models: [
       buildMinimaxTextModel({
         id: MINIMAX_DEFAULT_MODEL_ID,
@@ -1017,7 +1034,13 @@ export async function resolveImplicitCopilotProvider(params: {
     const profileId = listProfilesForProvider(authStore, "github-copilot")[0];
     const profile = profileId ? authStore.profiles[profileId] : undefined;
     if (profile && profile.type === "token") {
-      selectedGithubToken = profile.token;
+      selectedGithubToken = profile.token?.trim() ?? "";
+      if (!selectedGithubToken) {
+        const tokenRef = coerceSecretRef(profile.tokenRef);
+        if (tokenRef?.source === "env" && tokenRef.id.trim()) {
+          selectedGithubToken = (env[tokenRef.id] ?? process.env[tokenRef.id] ?? "").trim();
+        }
+      }
     }
   }
 

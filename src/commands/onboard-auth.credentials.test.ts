@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  setByteplusApiKey,
   setCloudflareAiGatewayConfig,
   setMoonshotApiKey,
   setOpenaiApiKey,
+  setVolcengineApiKey,
 } from "./onboard-auth.js";
 import {
   createAuthTestLifecycle,
@@ -18,6 +20,8 @@ describe("onboard auth credentials secret refs", () => {
     "MOONSHOT_API_KEY",
     "OPENAI_API_KEY",
     "CLOUDFLARE_AI_GATEWAY_API_KEY",
+    "VOLCANO_ENGINE_API_KEY",
+    "BYTEPLUS_API_KEY",
   ]);
 
   afterEach(async () => {
@@ -40,7 +44,7 @@ describe("onboard auth credentials secret refs", () => {
     expect(parsed.profiles?.["moonshot:default"]?.keyRef).toBeUndefined();
   });
 
-  it("stores env-backed moonshot key as keyRef in ref mode", async () => {
+  it("stores env-backed moonshot key as keyRef when secret-input-mode=ref", async () => {
     const env = await setupAuthTestEnv("openclaw-onboard-auth-credentials-ref-");
     lifecycle.setStateDir(env.stateDir);
     process.env.MOONSHOT_API_KEY = "sk-moonshot-env";
@@ -51,7 +55,7 @@ describe("onboard auth credentials secret refs", () => {
       profiles?: Record<string, { key?: string; keyRef?: unknown }>;
     }>(env.agentDir);
     expect(parsed.profiles?.["moonshot:default"]).toMatchObject({
-      keyRef: { source: "env", id: "MOONSHOT_API_KEY" },
+      keyRef: { source: "env", provider: "default", id: "MOONSHOT_API_KEY" },
     });
     expect(parsed.profiles?.["moonshot:default"]?.key).toBeUndefined();
   });
@@ -66,7 +70,7 @@ describe("onboard auth credentials secret refs", () => {
       profiles?: Record<string, { key?: string; keyRef?: unknown }>;
     }>(env.agentDir);
     expect(parsed.profiles?.["moonshot:default"]).toMatchObject({
-      keyRef: { source: "env", id: "MOONSHOT_API_KEY" },
+      keyRef: { source: "env", provider: "default", id: "MOONSHOT_API_KEY" },
     });
     expect(parsed.profiles?.["moonshot:default"]?.key).toBeUndefined();
   });
@@ -100,13 +104,13 @@ describe("onboard auth credentials secret refs", () => {
       profiles?: Record<string, { key?: string; keyRef?: unknown; metadata?: unknown }>;
     }>(env.agentDir);
     expect(parsed.profiles?.["cloudflare-ai-gateway:default"]).toMatchObject({
-      keyRef: { source: "env", id: "CLOUDFLARE_AI_GATEWAY_API_KEY" },
+      keyRef: { source: "env", provider: "default", id: "CLOUDFLARE_AI_GATEWAY_API_KEY" },
       metadata: { accountId: "account-1", gatewayId: "gateway-1" },
     });
     expect(parsed.profiles?.["cloudflare-ai-gateway:default"]?.key).toBeUndefined();
   });
 
-  it("stores env-backed openai key as keyRef", async () => {
+  it("keeps env-backed openai key as plaintext by default", async () => {
     const env = await setupAuthTestEnv("openclaw-onboard-auth-credentials-openai-");
     lifecycle.setStateDir(env.stateDir);
     process.env.OPENAI_API_KEY = "sk-openai-env";
@@ -117,8 +121,48 @@ describe("onboard auth credentials secret refs", () => {
       profiles?: Record<string, { key?: string; keyRef?: unknown }>;
     }>(env.agentDir);
     expect(parsed.profiles?.["openai:default"]).toMatchObject({
-      keyRef: { source: "env", id: "OPENAI_API_KEY" },
+      key: "sk-openai-env",
+    });
+    expect(parsed.profiles?.["openai:default"]?.keyRef).toBeUndefined();
+  });
+
+  it("stores env-backed openai key as keyRef in ref mode", async () => {
+    const env = await setupAuthTestEnv("openclaw-onboard-auth-credentials-openai-ref-");
+    lifecycle.setStateDir(env.stateDir);
+    process.env.OPENAI_API_KEY = "sk-openai-env";
+
+    await setOpenaiApiKey("sk-openai-env", env.agentDir, { secretInputMode: "ref" });
+
+    const parsed = await readAuthProfilesForAgent<{
+      profiles?: Record<string, { key?: string; keyRef?: unknown }>;
+    }>(env.agentDir);
+    expect(parsed.profiles?.["openai:default"]).toMatchObject({
+      keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" },
     });
     expect(parsed.profiles?.["openai:default"]?.key).toBeUndefined();
+  });
+
+  it("stores env-backed volcengine and byteplus keys as keyRef in ref mode", async () => {
+    const env = await setupAuthTestEnv("openclaw-onboard-auth-credentials-volc-byte-");
+    lifecycle.setStateDir(env.stateDir);
+    process.env.VOLCANO_ENGINE_API_KEY = "volcengine-secret";
+    process.env.BYTEPLUS_API_KEY = "byteplus-secret";
+
+    await setVolcengineApiKey("volcengine-secret", env.agentDir, { secretInputMode: "ref" });
+    await setByteplusApiKey("byteplus-secret", env.agentDir, { secretInputMode: "ref" });
+
+    const parsed = await readAuthProfilesForAgent<{
+      profiles?: Record<string, { key?: string; keyRef?: unknown }>;
+    }>(env.agentDir);
+
+    expect(parsed.profiles?.["volcengine:default"]).toMatchObject({
+      keyRef: { source: "env", provider: "default", id: "VOLCANO_ENGINE_API_KEY" },
+    });
+    expect(parsed.profiles?.["volcengine:default"]?.key).toBeUndefined();
+
+    expect(parsed.profiles?.["byteplus:default"]).toMatchObject({
+      keyRef: { source: "env", provider: "default", id: "BYTEPLUS_API_KEY" },
+    });
+    expect(parsed.profiles?.["byteplus:default"]?.key).toBeUndefined();
   });
 });

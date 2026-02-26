@@ -1,24 +1,33 @@
+import path from "node:path";
 import { z } from "zod";
 import { isSafeExecutableValue } from "../infra/exec-safety.js";
+import { isValidFileSecretRefId } from "../secrets/ref-contract.js";
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
 import { sensitive } from "./zod-schema.sensitive.js";
 
 const ENV_SECRET_REF_ID_PATTERN = /^[A-Z][A-Z0-9_]{0,127}$/;
-const FILE_SECRET_REF_SEGMENT_PATTERN = /^(?:[^~]|~0|~1)*$/;
+const SECRET_PROVIDER_ALIAS_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
+const EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/;
+const WINDOWS_ABS_PATH_PATTERN = /^[A-Za-z]:[\\/]/;
+const WINDOWS_UNC_PATH_PATTERN = /^\\\\[^\\]+\\[^\\]+/;
 
-function isValidFileSecretRefId(value: string): boolean {
-  if (!value.startsWith("/")) {
-    return false;
-  }
-  return value
-    .slice(1)
-    .split("/")
-    .every((segment) => FILE_SECRET_REF_SEGMENT_PATTERN.test(segment));
+function isAbsolutePath(value: string): boolean {
+  return (
+    path.isAbsolute(value) ||
+    WINDOWS_ABS_PATH_PATTERN.test(value) ||
+    WINDOWS_UNC_PATH_PATTERN.test(value)
+  );
 }
 
 const EnvSecretRefSchema = z
   .object({
     source: z.literal("env"),
+    provider: z
+      .string()
+      .regex(
+        SECRET_PROVIDER_ALIAS_PATTERN,
+        'Secret reference provider must match /^[a-z][a-z0-9_-]{0,63}$/ (example: "default").',
+      ),
     id: z
       .string()
       .regex(
@@ -31,11 +40,35 @@ const EnvSecretRefSchema = z
 const FileSecretRefSchema = z
   .object({
     source: z.literal("file"),
+    provider: z
+      .string()
+      .regex(
+        SECRET_PROVIDER_ALIAS_PATTERN,
+        'Secret reference provider must match /^[a-z][a-z0-9_-]{0,63}$/ (example: "default").',
+      ),
     id: z
       .string()
       .refine(
         isValidFileSecretRefId,
-        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey").',
+        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey"), or "value" for singleValue mode.',
+      ),
+  })
+  .strict();
+
+const ExecSecretRefSchema = z
+  .object({
+    source: z.literal("exec"),
+    provider: z
+      .string()
+      .regex(
+        SECRET_PROVIDER_ALIAS_PATTERN,
+        'Secret reference provider must match /^[a-z][a-z0-9_-]{0,63}$/ (example: "default").',
+      ),
+    id: z
+      .string()
+      .regex(
+        EXEC_SECRET_REF_ID_PATTERN,
+        'Exec secret reference id must match /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/ (example: "vault/openai/api-key").',
       ),
   })
   .strict();
@@ -43,30 +76,102 @@ const FileSecretRefSchema = z
 export const SecretRefSchema = z.discriminatedUnion("source", [
   EnvSecretRefSchema,
   FileSecretRefSchema,
+  ExecSecretRefSchema,
 ]);
 
 export const SecretInputSchema = z.union([z.string(), SecretRefSchema]);
 
-const SecretsEnvSourceSchema = z
+const SecretsEnvProviderSchema = z
   .object({
-    type: z.literal("env").optional(),
+    source: z.literal("env"),
+    allowlist: z.array(z.string().regex(ENV_SECRET_REF_ID_PATTERN)).max(256).optional(),
   })
   .strict();
 
-const SecretsFileSourceSchema = z
+const SecretsFileProviderSchema = z
   .object({
-    type: z.literal("sops"),
+    source: z.literal("file"),
     path: z.string().min(1),
+    mode: z.union([z.literal("singleValue"), z.literal("json")]).optional(),
     timeoutMs: z.number().int().positive().max(120000).optional(),
+    maxBytes: z
+      .number()
+      .int()
+      .positive()
+      .max(20 * 1024 * 1024)
+      .optional(),
   })
   .strict();
+
+const SecretsExecProviderSchema = z
+  .object({
+    source: z.literal("exec"),
+    command: z
+      .string()
+      .min(1)
+      .refine((value) => isSafeExecutableValue(value), "secrets.providers.*.command is unsafe.")
+      .refine(
+        (value) => isAbsolutePath(value),
+        "secrets.providers.*.command must be an absolute path.",
+      ),
+    args: z.array(z.string().max(1024)).max(128).optional(),
+    timeoutMs: z.number().int().positive().max(120000).optional(),
+    noOutputTimeoutMs: z.number().int().positive().max(120000).optional(),
+    maxOutputBytes: z
+      .number()
+      .int()
+      .positive()
+      .max(20 * 1024 * 1024)
+      .optional(),
+    jsonOnly: z.boolean().optional(),
+    env: z.record(z.string(), z.string()).optional(),
+    passEnv: z.array(z.string().regex(ENV_SECRET_REF_ID_PATTERN)).max(128).optional(),
+    trustedDirs: z
+      .array(
+        z
+          .string()
+          .min(1)
+          .refine((value) => isAbsolutePath(value), "trustedDirs entries must be absolute paths."),
+      )
+      .max(64)
+      .optional(),
+    allowInsecurePath: z.boolean().optional(),
+    allowSymlinkCommand: z.boolean().optional(),
+  })
+  .strict();
+
+export const SecretProviderSchema = z.discriminatedUnion("source", [
+  SecretsEnvProviderSchema,
+  SecretsFileProviderSchema,
+  SecretsExecProviderSchema,
+]);
 
 export const SecretsConfigSchema = z
   .object({
-    sources: z
+    providers: z
       .object({
-        env: SecretsEnvSourceSchema.optional(),
-        file: SecretsFileSourceSchema.optional(),
+        // Keep this as a record so users can define multiple providers per source.
+      })
+      .catchall(SecretProviderSchema)
+      .optional(),
+    defaults: z
+      .object({
+        env: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
+        file: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
+        exec: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
+      })
+      .strict()
+      .optional(),
+    resolution: z
+      .object({
+        maxProviderConcurrency: z.number().int().positive().max(16).optional(),
+        maxRefsPerProvider: z.number().int().positive().max(4096).optional(),
+        maxBatchBytes: z
+          .number()
+          .int()
+          .positive()
+          .max(5 * 1024 * 1024)
+          .optional(),
       })
       .strict()
       .optional(),

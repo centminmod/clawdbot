@@ -5,7 +5,7 @@ import {
   type OAuthProvider,
 } from "@mariozechner/pi-ai";
 import { loadConfig, type OpenClawConfig } from "../../config/config.js";
-import { isSecretRef } from "../../config/types.secrets.js";
+import { coerceSecretRef } from "../../config/types.secrets.js";
 import { withFileLock } from "../../infra/file-lock.js";
 import { refreshQwenPortalCredentials } from "../../providers/qwen-portal-oauth.js";
 import { resolveSecretRefString, type SecretRefResolveCache } from "../../secrets/resolve.js";
@@ -98,6 +98,8 @@ type ResolveApiKeyForProfileParams = {
   profileId: string;
   agentDir?: string;
 };
+
+type SecretDefaults = NonNullable<OpenClawConfig["secrets"]>["defaults"];
 
 function adoptNewerMainOAuthCredential(params: {
   store: AuthProfileStore;
@@ -236,6 +238,57 @@ async function tryResolveOAuthProfile(
   });
 }
 
+async function resolveProfileSecretString(params: {
+  profileId: string;
+  provider: string;
+  value: string | undefined;
+  valueRef: unknown;
+  refDefaults: SecretDefaults | undefined;
+  configForRefResolution: OpenClawConfig;
+  cache: SecretRefResolveCache;
+  inlineFailureMessage: string;
+  refFailureMessage: string;
+}): Promise<string | undefined> {
+  let resolvedValue = params.value?.trim();
+  if (resolvedValue) {
+    const inlineRef = coerceSecretRef(resolvedValue, params.refDefaults);
+    if (inlineRef) {
+      try {
+        resolvedValue = await resolveSecretRefString(inlineRef, {
+          config: params.configForRefResolution,
+          env: process.env,
+          cache: params.cache,
+        });
+      } catch (err) {
+        log.debug(params.inlineFailureMessage, {
+          profileId: params.profileId,
+          provider: params.provider,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  }
+
+  const explicitRef = coerceSecretRef(params.valueRef, params.refDefaults);
+  if (!resolvedValue && explicitRef) {
+    try {
+      resolvedValue = await resolveSecretRefString(explicitRef, {
+        config: params.configForRefResolution,
+        env: process.env,
+        cache: params.cache,
+      });
+    } catch (err) {
+      log.debug(params.refFailureMessage, {
+        profileId: params.profileId,
+        provider: params.provider,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  return resolvedValue;
+}
+
 export async function resolveApiKeyForProfile(
   params: ResolveApiKeyForProfileParams,
 ): Promise<{ apiKey: string; provider: string; email?: string } | null> {
@@ -257,48 +310,39 @@ export async function resolveApiKeyForProfile(
     return null;
   }
 
-  const refResolveCache: SecretRefResolveCache = { fileSecretsPromise: null };
+  const refResolveCache: SecretRefResolveCache = {};
   const configForRefResolution = cfg ?? loadConfig();
+  const refDefaults = configForRefResolution.secrets?.defaults;
 
   if (cred.type === "api_key") {
-    let key = cred.key?.trim();
-    if (!key && isSecretRef(cred.keyRef)) {
-      try {
-        key = await resolveSecretRefString(cred.keyRef, {
-          config: configForRefResolution,
-          env: process.env,
-          cache: refResolveCache,
-        });
-      } catch (err) {
-        log.debug("failed to resolve auth profile api_key ref", {
-          profileId,
-          provider: cred.provider,
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-    }
+    const key = await resolveProfileSecretString({
+      profileId,
+      provider: cred.provider,
+      value: cred.key,
+      valueRef: cred.keyRef,
+      refDefaults,
+      configForRefResolution,
+      cache: refResolveCache,
+      inlineFailureMessage: "failed to resolve inline auth profile api_key ref",
+      refFailureMessage: "failed to resolve auth profile api_key ref",
+    });
     if (!key) {
       return null;
     }
     return buildApiKeyProfileResult({ apiKey: key, provider: cred.provider, email: cred.email });
   }
   if (cred.type === "token") {
-    let token = cred.token?.trim();
-    if (!token && isSecretRef(cred.tokenRef)) {
-      try {
-        token = await resolveSecretRefString(cred.tokenRef, {
-          config: configForRefResolution,
-          env: process.env,
-          cache: refResolveCache,
-        });
-      } catch (err) {
-        log.debug("failed to resolve auth profile token ref", {
-          profileId,
-          provider: cred.provider,
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-    }
+    const token = await resolveProfileSecretString({
+      profileId,
+      provider: cred.provider,
+      value: cred.token,
+      valueRef: cred.tokenRef,
+      refDefaults,
+      configForRefResolution,
+      cache: refResolveCache,
+      inlineFailureMessage: "failed to resolve inline auth profile token ref",
+      refFailureMessage: "failed to resolve auth profile token ref",
+    });
     if (!token) {
       return null;
     }

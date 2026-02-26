@@ -9,6 +9,7 @@ import { formatZonedTimestamp } from "../../infra/format-time/format-datetime.js
 import { resetLogger, setLoggerOverride } from "../../logging.js";
 import { ExecApprovalManager } from "../exec-approval-manager.js";
 import { validateExecApprovalRequestParams } from "../protocol/index.js";
+import { buildSystemRunApprovalBindingV1 } from "../system-run-approval-binding.js";
 import { waitForAgentJob } from "./agent-job.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
@@ -421,6 +422,33 @@ describe("exec approval handlers", () => {
       undefined,
     );
     expect(broadcasts.some((entry) => entry.event === "exec.approval.resolved")).toBe(true);
+  });
+
+  it("stores versioned system.run binding and sorted env keys on approval request", async () => {
+    const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
+    await requestExecApproval({
+      handlers,
+      respond,
+      context,
+      params: {
+        commandArgv: ["echo", "ok"],
+        env: {
+          Z_VAR: "z",
+          A_VAR: "a",
+        },
+      },
+    });
+    const requested = broadcasts.find((entry) => entry.event === "exec.approval.requested");
+    expect(requested).toBeTruthy();
+    const request = (requested?.payload as { request?: Record<string, unknown> })?.request ?? {};
+    expect(request["envKeys"]).toEqual(["A_VAR", "Z_VAR"]);
+    expect(request["systemRunBindingV1"]).toEqual(
+      buildSystemRunApprovalBindingV1({
+        argv: ["echo", "ok"],
+        cwd: "/tmp",
+        env: { A_VAR: "a", Z_VAR: "z" },
+      }).binding,
+    );
   });
 
   it("accepts resolve during broadcast", async () => {
