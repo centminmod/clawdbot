@@ -699,7 +699,7 @@
 **Changes:**
 - `src/security/audit.ts` — uses `formatCliCommand('openclaw config set session.dmScope "per-channel-peer"')` in audit warning remediation text
 
-**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:595`, `src/commands/doctor-security.ts:131`, `src/commands/onboard-channels.ts:198,254`
+**Local Impact:** ALREADY SYNCED — `formatCliCommand()` already at `src/security/audit.ts:595`, `src/commands/doctor-security.ts:134`, `src/commands/onboard-channels.ts:197,252`
 
 ### #13184: Default Standalone Servers to Loopback Bind
 
