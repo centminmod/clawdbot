@@ -565,9 +565,9 @@ Setting up Prometheus/Grafana is beyond the scope of this guide — see the [Pro
 
 At the start of every session, OpenClaw loads `MEMORY.md` (or `memory.md`) from the workspace directory and injects its contents into the AI's first message as a context file. This happens unconditionally for all primary sessions — the only filtering is for subagent sessions, which receive only `AGENTS.md` and `TOOLS.md`.
 
-- Resolution: `src/agents/workspace.ts:404-440` — scans for `MEMORY.md` and `memory.md`, deduplicates
-- Loading: `src/agents/workspace.ts:441-495` — reads file contents into `WorkspaceBootstrapFile[]`
-- Filtering: `src/agents/workspace.ts:499-507` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
+- Resolution: `src/agents/workspace.ts:438-473` — scans for `MEMORY.md` and `memory.md`, deduplicates
+- Loading: `src/agents/workspace.ts:475-531` — reads file contents into `WorkspaceBootstrapFile[]`
+- Filtering: `src/agents/workspace.ts:542-550` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
 - Context building: `src/agents/pi-embedded-helpers/bootstrap.ts:187-239` — trims to `bootstrapMaxChars` (default 20,000 chars) using head/tail strategy with `totalMaxChars` cap (default 24,000)
 - Orchestration: `src/agents/bootstrap-files.ts:44-70` — wires resolution → filtering → context building
 
@@ -588,8 +588,8 @@ The `memory_search` tool description instructs the AI to use it as a "mandatory 
 
 | Resource | Default path | Source |
 |----------|-------------|--------|
-| Workspace directory | `~/.openclaw/workspace/` | `src/agents/workspace.ts:10-19` |
-| Primary memory file | `~/.openclaw/workspace/MEMORY.md` (or `memory.md`) | `src/agents/workspace.ts:30-31` |
+| Workspace directory | `~/.openclaw/workspace/` | `src/agents/workspace.ts:12-21` |
+| Primary memory file | `~/.openclaw/workspace/MEMORY.md` (or `memory.md`) | `src/agents/workspace.ts:32-33` |
 | Memory subdirectory | `~/.openclaw/workspace/memory/*.md` (recursive) | `src/memory/internal.ts:79-146` |
 | SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:123-131` |
 | Additional paths | Configured via `memorySearch.extraPaths[]` | `src/memory/internal.ts:34-46` |

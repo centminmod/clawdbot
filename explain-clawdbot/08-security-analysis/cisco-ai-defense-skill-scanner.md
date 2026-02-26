@@ -29,7 +29,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 **What the code actually does:**
 
-1. **Exec approval system** (`src/infra/exec-approvals.ts:1-50`) — every shell command goes through `requiresExecApproval()` / `evaluateShellAllowlist()` with configurable policies (`deny` / `allowlist` / `full`) and per-agent scoping
+1. **Exec approval system** (`src/infra/exec-approvals.ts:1-54`) — every shell command goes through `requiresExecApproval()` / `evaluateShellAllowlist()` with configurable policies (`deny` / `allowlist` / `full`) and per-agent scoping
 2. **Environment variable blocklist** (`src/agents/bash-tools.exec-runtime.ts:34-51`) — 17 dangerous env vars (`LD_PRELOAD`, `DYLD_INSERT_LIBRARIES`, `NODE_OPTIONS`, `BASH_ENV`, etc.) are blocked, plus prefix-based blocking for `DYLD_*` and `LD_*` (line 52)
 3. **Sanitization enforcement** (`src/agents/bash-tools.exec-runtime.ts:56-80`) — `validateHostEnv()` throws `Security Violation` errors if blocked vars or PATH modifications are detected
 4. **Sandbox support** — Docker exec args (`buildDockerExecArgs`) provide container-level isolation
@@ -170,7 +170,7 @@ The SKILL.md gap extends to **all persistent `.md` files** in the workspace. Two
 
 **Path 1 — Bootstrap files (system prompt injection, high trust):**
 
-Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:441-495`) and injected directly into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:187-239`). They appear as fully trusted context with **no content validation** — only truncation at 20,000 characters per file (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
+Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) and injected directly into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:187-239`). They appear as fully trusted context with **no content validation** — only truncation at 20,000 characters per file (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
 
 | Bootstrap file | Purpose | Max chars | Injection path |
 |----------------|---------|-----------|----------------|
@@ -184,7 +184,7 @@ Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agent
 | `MEMORY.md` | Persistent memory context | 20,000 | System prompt |
 | `memory.md` | Persistent memory context (lowercase variant) | 20,000 | System prompt |
 
-Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85` (truncation limit)
+Source: `src/agents/workspace.ts:32-33` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85` (truncation limit)
 
 **Total unscanned system prompt attack surface: 9 x 20,000 = 180,000 characters.**
 
@@ -194,7 +194,7 @@ Files in `memory/*.md` are **not** loaded by `loadWorkspaceBootstrapFiles()`. Th
 
 **Neither path is scanned by the built-in skill scanner** (`src/security/skill-scanner.ts:38-47`), which only processes JS/TS files.
 
-**Subagent mitigation:** `filterBootstrapFilesForSession()` at `src/agents/workspace.ts:499-507` limits subagents to only `AGENTS.md` + `TOOLS.md`, reducing the bootstrap attack surface from 9 files to 2 in multi-agent setups.
+**Subagent mitigation:** `filterBootstrapFilesForSession()` at `src/agents/workspace.ts:542-550` limits subagents to only `AGENTS.md` + `TOOLS.md`, reducing the bootstrap attack surface from 9 files to 2 in multi-agent setups.
 
 **Risk scenario:** An attacker with workspace write access (via compromised skill, plugin, shared git repo, or social engineering) plants persistent prompt injection in any of these files. The injection persists across sessions and appears as trusted system context, making it significantly harder for the model to reject than runtime injection from user messages or fetched content.
 

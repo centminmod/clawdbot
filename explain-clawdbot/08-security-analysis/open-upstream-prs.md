@@ -223,7 +223,7 @@
 | [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:445-447` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
-| [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:109-155` wraps canvas/A2UI endpoints |
+| [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:168-216` wraps canvas/A2UI endpoints |
 | [#9529](https://github.com/openclaw/openclaw/pull/9529) | [#3277](https://github.com/openclaw/openclaw/issues/3277) (HIGH) | HIGH | OPEN | Validates archive entries against Zip Slip path traversal |
 | [#9513](https://github.com/openclaw/openclaw/pull/9513) | [#9512](https://github.com/openclaw/openclaw/issues/9512) (HIGH) | HIGH | OPEN | Adds path traversal checks to skill download archive extraction |
 | [#11054](https://github.com/openclaw/openclaw/pull/11054) | [#6609](https://github.com/openclaw/openclaw/issues/6609) (HIGH) | HIGH | OPEN | Adds auth token to sandbox browser bridge |
@@ -281,13 +281,13 @@
 | [#13185](https://github.com/openclaw/openclaw/pull/13185) | (error info leakage) | MEDIUM | MERGED | Sanitize error responses across gateway HTTP; local `tools-invoke-http.ts:382-384` returns generic "tool execution failed"; ALREADY SYNCED |
 | [#13767](https://github.com/openclaw/openclaw/pull/13767) | [#13756](https://github.com/openclaw/openclaw/issues/13756) | MEDIUM | MERGED | Reject "undefined"/"null" token strings; local `onboard-helpers.ts:79` already rejects; ALREADY SYNCED |
 | [#14350](https://github.com/openclaw/openclaw/pull/14350) | (security hardening CLI) | MEDIUM | CLOSED | `--harden` flag closed without merge 2026-02-13; no replacement PR |
-| [#14661](https://github.com/openclaw/openclaw/pull/14661) | (canvas IP auth) | MEDIUM | MERGED | Canvas IP auth restricted to private networks; local `server-http.ts:150` uses `isPrivateOrLoopbackAddress()`; ALREADY SYNCED |
+| [#14661](https://github.com/openclaw/openclaw/pull/14661) | (canvas IP auth) | MEDIUM | MERGED | Canvas IP auth restricted to private networks; capability-based canvas auth now at `server-http.ts:144-166`; ALREADY SYNCED |
 | [#15592](https://github.com/openclaw/openclaw/pull/15592) | (log injection) | LOW | MERGED | Sanitize WebSocket log headers; local `ws-connection.ts:40-54` has `sanitizeLogValue()`; ALREADY SYNCED |
 | [#15604](https://github.com/openclaw/openclaw/pull/15604) | (link-understanding SSRF) | MEDIUM | MERGED | Block private/loopback/metadata IPs in link-understanding; local `detect.ts:35-42` has `isBlockedHost()`; ALREADY SYNCED |
 | [#15615](https://github.com/openclaw/openclaw/pull/15615) | (PATH shadow attack) | MEDIUM | OPEN | Restrict PATH override to exact match; local `sanitizeEnv()` removed from `runner.ts`; PATH overrides now blocked entirely in `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts` (`blockPathOverrides: true`) |
 | [#15652](https://github.com/openclaw/openclaw/pull/15652) | (browser path traversal) | MEDIUM | MERGED | Constrain browser trace/download output paths; local `path-output.ts` has `resolvePathWithinRoot()`; ALREADY SYNCED |
 | [#15608](https://github.com/openclaw/openclaw/pull/15608) | (rate-limit state reset) | LOW | CLOSED | Superseded by #15848 (MERGED); NOT AFFECTED |
-| [#15848](https://github.com/openclaw/openclaw/pull/15848) | (rate-limit state pruning) | LOW | MERGED | Prune expired hook auth failure entries; local `server-http.ts:209-226` has prune-then-evict logic; ALREADY SYNCED |
+| [#15848](https://github.com/openclaw/openclaw/pull/15848) | (rate-limit state pruning) | LOW | MERGED | Prune expired hook auth failure entries; local `createAuthRateLimiter` at `server-http.ts:258-265`; ALREADY SYNCED |
 | [#15924](https://github.com/openclaw/openclaw/pull/15924) | (macOS keychain shell injection) | HIGH | MERGED | OC-28; merged 2026-02-14; local `cli-credentials.ts:338-376` uses `execFileSync` with array args; ALREADY SYNCED |
 | [#15940](https://github.com/openclaw/openclaw/pull/15940) | [#1560](https://github.com/openclaw/openclaw/issues/1560) | MEDIUM | MERGED | Trusted-proxy auth mode; merged 2026-02-14; `authorizeTrustedProxy()` + `GatewayTrustedProxyConfig` ALREADY SYNCED |
 | [#16036](https://github.com/openclaw/openclaw/pull/16036) | [#8751](https://github.com/openclaw/openclaw/issues/8751) | MEDIUM | CLOSED | Session transcript 0o644 permissions (closed 2026-02-20; local transcripts still world-readable; issue #8751 unresolved) |
@@ -375,7 +375,7 @@
 
 **Changes:**
 - `src/gateway/hooks.ts` — `extractHookToken()` no longer reads `url.searchParams` for token
-- `src/gateway/server-http.ts:243-249` — returns HTTP 400 when `?token=` query parameter is present
+- `src/gateway/server-http.ts:284-291` — returns HTTP 400 when `?token=` query parameter is present
 - `src/commands/dashboard.ts` — no longer constructs `?token=` URLs
 - `src/commands/onboard-helpers.ts` — no longer passes token in URL
 
@@ -388,9 +388,9 @@
 **Closes:** [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH — canvas host auth bypass)
 
 **Changes:**
-- `src/gateway/server-http.ts:109-155` — new `authorizeCanvasRequest()` function
-- `src/gateway/server-http.ts:527-539` — canvas HTTP handler now auth-wrapped
-- `src/gateway/server-http.ts:596` — canvas WebSocket upgrade now auth-wrapped
+- `src/gateway/server-http.ts:168-216` — new `authorizeCanvasRequest()` function
+- `src/gateway/server-http.ts:586-609` — canvas HTTP handler now auth-wrapped
+- `src/gateway/server-http.ts:670` — canvas WebSocket upgrade now auth-wrapped
 
 **Local Impact:** SYNC NEEDED — local canvas endpoints may still be unauthenticated
 
@@ -748,7 +748,7 @@
 - `src/gateway/server-http.ts` — IP-based auth fallback restricted to private/loopback addresses
 - `src/gateway/net.ts` — `isPrivateOrLoopbackAddress()` utility function
 
-**Local Impact:** ALREADY SYNCED — `server-http.ts:150-155` with `isPrivateOrLoopbackAddress(clientIp)` check; test at `server.canvas-auth.e2e.test.ts:84` confirms behavior
+**Local Impact:** ALREADY SYNCED — capability-based canvas auth now at `server-http.ts:144-166` (IP co-tenancy removed by #11738 fix); test at `server.canvas-auth.e2e.test.ts:84` confirms behavior
 
 ### #15592: Gateway: Sanitize WebSocket Log Headers
 
@@ -857,8 +857,8 @@
 **Greptile Review:** 1 comment. Flags HTTP status regression: `readJsonBody()` timeout case collapsed into 400 instead of 408.
 
 **Local Validation:**
-- `src/gateway/server-http.ts:209-226` — prune expired entries at lines 211-214, drop oldest half at lines 217-225
-- `src/gateway/server-http.ts:233-238` — delete-before-set refreshes insertion order for recently-active clients
+- `src/gateway/server-http.ts:258-265` — `createAuthRateLimiter` configures prune-then-evict logic
+- `src/gateway/auth-rate-limit.ts:203,215` — delete-before-set refreshes insertion order for recently-active clients
 - No `hookAuthFailures.clear()` call exists locally
 
 **Local Impact:** ALREADY SYNCED — all changes from PR #15848 are present in local code

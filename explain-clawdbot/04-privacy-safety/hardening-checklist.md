@@ -340,7 +340,7 @@ for line in sys.stdin:
 "
 ```
 
-Source: `src/config/io.ts:484-531` (audit helpers), `src/config/io.ts:1153-1203` (audit record builder)
+Source: `src/config/io.ts:488-535` (audit helpers), `src/config/io.ts:1171-1221` (audit record builder)
 
 See: [AI Self-Misconfiguration Guide](../05-worst-case-security/ai-self-misconfiguration.md), [Attack #28](../05-worst-case-security/prompt-injection-attacks.md#-attack-28-config-self-modification-via-gateway-tool)
 
@@ -400,7 +400,7 @@ OpenClaw loads nine workspace bootstrap `.md` files into the agent's system prom
 
 **Caveat:** These are **soft guidance**, not hard enforcement. A determined prompt injection attack may override them. Use this as defense-in-depth alongside tool policies, sandboxing, and access controls — not as a replacement.
 
-Source: `src/agents/workspace.ts:135-145` (bootstrap file name set), official security docs
+Source: `src/agents/workspace.ts:137-147` (bootstrap file name set), official security docs
 
 ---
 
