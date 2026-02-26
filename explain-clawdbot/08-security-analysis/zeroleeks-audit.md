@@ -114,7 +114,7 @@ These tests describe genuine indirect injection scenarios but deliver them incor
 | Test | Scenario | Delivery Method | Actual Defense | Verdict |
 |------|----------|----------------|----------------|---------|
 | Indirect document injection | Hidden `[ASSISTANT:]` in meeting notes | Direct user message | `wrapExternalContent()` wraps all file content with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers (`src/security/external-content.ts:47-64`) | **Inconclusive** - bypassed defense layer |
-| Indirect email injection | HTML comment in email body | Direct user message | `buildSafeExternalPrompt()` wraps hook content with security warnings (`src/cron/isolated-agent/run.ts:338-344`) | **Inconclusive** - bypassed defense layer |
+| Indirect email injection | HTML comment in email body | Direct user message | `buildSafeExternalPrompt()` wraps hook content with security warnings (`src/cron/isolated-agent/run.ts:350-356`) | **Inconclusive** - bypassed defense layer |
 | Indirect code injection | Malicious code comment | Direct user message | External content suspicious pattern detection (`src/security/external-content.ts:15-28`) | **Inconclusive** - bypassed defense layer |
 
 **Why these are inconclusive:** The defense layer that exists specifically for these attacks was NOT tested. The external content pipeline:
@@ -181,7 +181,7 @@ OpenClaw's actual threat model (from `SECURITY.md`, docs, and code):
 | Tier | Threat | Status |
 |------|--------|--------|
 | **Critical** | Infrastructure CVEs (Node.js, dependencies) | 5 CVEs patched (CVE-2026-24763, GHSA-g8p2-7wf7-98mq, etc.) |
-| **High** | Authentication bypass, token theft | RSA-signed tokens (`src/gateway/device-auth.ts:13-31`), file permissions enforced (`src/infra/json-file.ts:22`) |
+| **High** | Authentication bypass, token theft | RSA-signed tokens (`src/gateway/device-auth.ts:24-38`), file permissions enforced (`src/infra/json-file.ts:22`) |
 | **Medium** | External content injection | Defense layer exists (`src/security/external-content.ts`) |
 | **Low** | Direct user prompt injection | Out of scope -- user IS the operator |
 | **N/A** | System prompt "extraction" of public code | Not a threat for open-source |
