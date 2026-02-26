@@ -181,7 +181,7 @@ OpenClaw's actual threat model (from `SECURITY.md`, docs, and code):
 | Tier | Threat | Status |
 |------|--------|--------|
 | **Critical** | Infrastructure CVEs (Node.js, dependencies) | 5 CVEs patched (CVE-2026-24763, GHSA-g8p2-7wf7-98mq, etc.) |
-| **High** | Authentication bypass, token theft | RSA-signed tokens (`src/gateway/device-auth.ts:24-38`), file permissions enforced (`src/infra/json-file.ts:22`) |
+| **High** | Authentication bypass, token theft | RSA-signed tokens (`src/gateway/device-auth.ts:34-47`), file permissions enforced (`src/infra/json-file.ts:22`) |
 | **Medium** | External content injection | Defense layer exists (`src/security/external-content.ts`) |
 | **Low** | Direct user prompt injection | Out of scope -- user IS the operator |
 | **N/A** | System prompt "extraction" of public code | Not a threat for open-source |

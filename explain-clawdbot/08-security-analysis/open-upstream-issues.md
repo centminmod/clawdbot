@@ -94,7 +94,7 @@
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:172-176` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
-| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts:492-516` — `/extension` path now requires `relayAuthToken` (same as `/cdp`) |
+| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts:540-563` — `/extension` path now requires `relayAuthToken` (same as `/cdp`) |
 | [#10992](https://github.com/openclaw/openclaw/issues/10992) | ~~MEDIUM~~ FIXED | Sub-agents bypass exec approvals for safeBins commands | Fixed upstream (COMPLETED); `src/agents/bash-tools.exec.ts:137,265-277,333` |
 | [#15990](https://github.com/openclaw/openclaw/issues/15990) | ~~MEDIUM~~ FIXED | Context compaction leaks content between sessions | Fixed upstream (COMPLETED); `src/agents/pi-embedded-runner/compact.ts` — cross-session data bleed fixed; relates to #12571/#14117 |
 | [#12542](https://github.com/openclaw/openclaw/issues/12542) | ~~MEDIUM~~ FIXED | Diagnostics-OTEL exports unredacted session/chat IDs | Fixed upstream (COMPLETED); `extensions/diagnostics-otel/src/service.ts:391,427-494` |
@@ -551,7 +551,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - `src/config/env-substitution.ts:83-89` - `substituteString` is a one-way transformation
 - `src/commands/doctor.ts:298` - `writeConfigFile(cfg)` writes env-resolved config back to disk
 
-**Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:488-535`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
+**Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:489-536`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
 
 ### #9813: Gateway Expands ${ENV_VAR} on Meta Writeback (DUPLICATE of #9627)
 
@@ -1101,9 +1101,9 @@ All changes take effect immediately via automatic restart.
 **Fix:** The `/extension` upgrade path now requires the same `relayAuthToken` check as `/cdp`. Both paths call `getRelayAuthTokenFromRequest()` and reject with HTTP 401 if the token is absent or mismatched.
 
 **Affected code (current):**
-- `src/browser/extension-relay.ts:487-490` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
-- `src/browser/extension-relay.ts:492-516` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
-- `src/browser/extension-relay.ts:517-529` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
+- `src/browser/extension-relay.ts:534-538` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
+- `src/browser/extension-relay.ts:540-563` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
+- `src/browser/extension-relay.ts:565-579` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
 
 ### #10992: Sub-Agents Bypass Exec Approvals for safeBins Commands
 
