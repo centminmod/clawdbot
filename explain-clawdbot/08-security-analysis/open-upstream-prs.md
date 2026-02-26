@@ -277,7 +277,7 @@
 | [#15296](https://github.com/openclaw/openclaw/pull/15296) | (config secret hardening) | MEDIUM | OPEN | No `--show-secrets` opt-in for CLI `config get`; gateway `config.get` returns unredacted by default |
 | [#8757](https://github.com/openclaw/openclaw/pull/8757) | (MS Teams SSRF redirect) | MEDIUM | CLOSED | Closed without merge 2026-02-13; MS Teams redirect validation SSRF fix; no replacement PR identified |
 | [#13129](https://github.com/openclaw/openclaw/pull/13129) | (dmScope UX) | LOW | MERGED | Uses `formatCliCommand()` for dmScope remediation; local `audit.ts:595` already uses it; ALREADY SYNCED |
-| [#13184](https://github.com/openclaw/openclaw/pull/13184) | (standalone bind hardening) | LOW | MERGED | Default standalone servers to loopback bind; local `webhook.ts:41` and `canvas-host/server.ts:452` already default to `127.0.0.1`; ALREADY SYNCED |
+| [#13184](https://github.com/openclaw/openclaw/pull/13184) | (standalone bind hardening) | LOW | MERGED | Default standalone servers to loopback bind; local `webhook.ts:94` and `canvas-host/server.ts:415` already default to `127.0.0.1`; ALREADY SYNCED |
 | [#13185](https://github.com/openclaw/openclaw/pull/13185) | (error info leakage) | MEDIUM | MERGED | Sanitize error responses across gateway HTTP; local `tools-invoke-http.ts:382-384` returns generic "tool execution failed"; ALREADY SYNCED |
 | [#13767](https://github.com/openclaw/openclaw/pull/13767) | [#13756](https://github.com/openclaw/openclaw/issues/13756) | MEDIUM | MERGED | Reject "undefined"/"null" token strings; local `onboard-helpers.ts:79` already rejects; ALREADY SYNCED |
 | [#14350](https://github.com/openclaw/openclaw/pull/14350) | (security hardening CLI) | MEDIUM | CLOSED | `--harden` flag closed without merge 2026-02-13; no replacement PR |
@@ -711,7 +711,7 @@
 - `src/canvas-host/server.ts` — default bind host to `127.0.0.1`
 - `extensions/telegram/src/channel.ts`, `docs/channels/telegram.md` — updated config and documentation
 
-**Local Impact:** ALREADY SYNCED — `src/telegram/webhook.ts:41` has `opts.host ?? "127.0.0.1"`, `src/canvas-host/server.ts:452` has `opts.listenHost?.trim() || "127.0.0.1"`
+**Local Impact:** ALREADY SYNCED — `src/telegram/webhook.ts:94` has `opts.host ?? "127.0.0.1"`, `src/canvas-host/server.ts:415` has `opts.listenHost?.trim() || "127.0.0.1"`
 
 ### #13185: Sanitize Error Responses to Prevent Information Leakage
 
