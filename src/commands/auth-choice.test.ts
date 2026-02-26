@@ -46,6 +46,7 @@ vi.mock("./zai-endpoint-detect.js", () => ({
 
 type StoredAuthProfile = {
   key?: string;
+  keyRef?: { source: string; id: string };
   access?: string;
   refresh?: string;
   provider?: string;
@@ -628,6 +629,9 @@ describe("applyAuthChoice", () => {
       envValue: string;
       profileId: string;
       provider: string;
+      opts?: { secretInputMode?: "ref" };
+      expectedKey?: string;
+      expectedKeyRef?: { source: "env"; id: string };
       expectedModel?: string;
       expectedModelPrefix?: string;
     }> = [
@@ -637,6 +641,7 @@ describe("applyAuthChoice", () => {
         envValue: "sk-synthetic-env",
         profileId: "synthetic:default",
         provider: "synthetic",
+        expectedKey: "sk-synthetic-env",
         expectedModelPrefix: "synthetic/",
       },
       {
@@ -645,6 +650,7 @@ describe("applyAuthChoice", () => {
         envValue: "sk-openrouter-test",
         profileId: "openrouter:default",
         provider: "openrouter",
+        expectedKey: "sk-openrouter-test",
         expectedModel: "openrouter/auto",
       },
       {
@@ -653,6 +659,17 @@ describe("applyAuthChoice", () => {
         envValue: "gateway-test-key",
         profileId: "vercel-ai-gateway:default",
         provider: "vercel-ai-gateway",
+        expectedKey: "gateway-test-key",
+        expectedModel: "vercel-ai-gateway/anthropic/claude-opus-4.6",
+      },
+      {
+        authChoice: "ai-gateway-api-key",
+        envKey: "AI_GATEWAY_API_KEY",
+        envValue: "gateway-ref-key",
+        profileId: "vercel-ai-gateway:default",
+        provider: "vercel-ai-gateway",
+        opts: { secretInputMode: "ref" },
+        expectedKeyRef: { source: "env", id: "AI_GATEWAY_API_KEY" },
         expectedModel: "vercel-ai-gateway/anthropic/claude-opus-4.6",
       },
     ];
@@ -673,6 +690,7 @@ describe("applyAuthChoice", () => {
         prompter,
         runtime,
         setDefaultModel: true,
+        opts: scenario.opts,
       });
 
       expect(confirm).toHaveBeenCalledWith(
@@ -697,7 +715,14 @@ describe("applyAuthChoice", () => {
           ),
         ).toBe(true);
       }
-      expect((await readAuthProfile(scenario.profileId))?.key).toBe(scenario.envValue);
+      const profile = await readAuthProfile(scenario.profileId);
+      if (scenario.expectedKeyRef) {
+        expect(profile?.keyRef).toEqual(scenario.expectedKeyRef);
+        expect(profile?.key).toBeUndefined();
+      } else {
+        expect(profile?.key).toBe(scenario.expectedKey);
+        expect(profile?.keyRef).toBeUndefined();
+      }
     }
   });
 
@@ -916,12 +941,14 @@ describe("applyAuthChoice", () => {
       textValues: string[];
       confirmValue: boolean;
       opts?: {
-        cloudflareAiGatewayAccountId: string;
-        cloudflareAiGatewayGatewayId: string;
-        cloudflareAiGatewayApiKey: string;
+        secretInputMode?: "ref";
+        cloudflareAiGatewayAccountId?: string;
+        cloudflareAiGatewayGatewayId?: string;
+        cloudflareAiGatewayApiKey?: string;
       };
       expectEnvPrompt: boolean;
-      expectedKey: string;
+      expectedKey?: string;
+      expectedKeyRef?: { source: string; id: string };
       expectedMetadata: { accountId: string; gatewayId: string };
     }> = [
       {
@@ -933,6 +960,23 @@ describe("applyAuthChoice", () => {
         expectedMetadata: {
           accountId: "cf-account-id",
           gatewayId: "cf-gateway-id",
+        },
+      },
+      {
+        envGatewayKey: "cf-gateway-ref-key",
+        textValues: ["cf-account-id-ref", "cf-gateway-id-ref"],
+        confirmValue: true,
+        opts: {
+          secretInputMode: "ref",
+        },
+        expectEnvPrompt: true,
+        expectedKeyRef: {
+          source: "env",
+          id: "CLOUDFLARE_AI_GATEWAY_API_KEY",
+        },
+        expectedMetadata: {
+          accountId: "cf-account-id-ref",
+          gatewayId: "cf-gateway-id-ref",
         },
       },
       {
@@ -993,7 +1037,11 @@ describe("applyAuthChoice", () => {
       );
 
       const profile = await readAuthProfile("cloudflare-ai-gateway:default");
-      expect(profile?.key).toBe(scenario.expectedKey);
+      if (scenario.expectedKeyRef) {
+        expect(profile?.keyRef).toEqual(scenario.expectedKeyRef);
+      } else {
+        expect(profile?.key).toBe(scenario.expectedKey);
+      }
       expect(profile?.metadata).toEqual(scenario.expectedMetadata);
     }
     delete process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;

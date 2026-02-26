@@ -3,6 +3,77 @@ import { isSafeExecutableValue } from "../infra/exec-safety.js";
 import { createAllowDenyChannelRulesSchema } from "./zod-schema.allowdeny.js";
 import { sensitive } from "./zod-schema.sensitive.js";
 
+const ENV_SECRET_REF_ID_PATTERN = /^[A-Z][A-Z0-9_]{0,127}$/;
+const FILE_SECRET_REF_SEGMENT_PATTERN = /^(?:[^~]|~0|~1)*$/;
+
+function isValidFileSecretRefId(value: string): boolean {
+  if (!value.startsWith("/")) {
+    return false;
+  }
+  return value
+    .slice(1)
+    .split("/")
+    .every((segment) => FILE_SECRET_REF_SEGMENT_PATTERN.test(segment));
+}
+
+const EnvSecretRefSchema = z
+  .object({
+    source: z.literal("env"),
+    id: z
+      .string()
+      .regex(
+        ENV_SECRET_REF_ID_PATTERN,
+        'Env secret reference id must match /^[A-Z][A-Z0-9_]{0,127}$/ (example: "OPENAI_API_KEY").',
+      ),
+  })
+  .strict();
+
+const FileSecretRefSchema = z
+  .object({
+    source: z.literal("file"),
+    id: z
+      .string()
+      .refine(
+        isValidFileSecretRefId,
+        'File secret reference id must be an absolute JSON pointer (example: "/providers/openai/apiKey").',
+      ),
+  })
+  .strict();
+
+export const SecretRefSchema = z.discriminatedUnion("source", [
+  EnvSecretRefSchema,
+  FileSecretRefSchema,
+]);
+
+export const SecretInputSchema = z.union([z.string(), SecretRefSchema]);
+
+const SecretsEnvSourceSchema = z
+  .object({
+    type: z.literal("env").optional(),
+  })
+  .strict();
+
+const SecretsFileSourceSchema = z
+  .object({
+    type: z.literal("sops"),
+    path: z.string().min(1),
+    timeoutMs: z.number().int().positive().max(120000).optional(),
+  })
+  .strict();
+
+export const SecretsConfigSchema = z
+  .object({
+    sources: z
+      .object({
+        env: SecretsEnvSourceSchema.optional(),
+        file: SecretsFileSourceSchema.optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .optional();
+
 export const ModelApiSchema = z.union([
   z.literal("openai-completions"),
   z.literal("openai-responses"),
@@ -58,7 +129,7 @@ export const ModelDefinitionSchema = z
 export const ModelProviderSchema = z
   .object({
     baseUrl: z.string().min(1),
-    apiKey: z.string().optional().register(sensitive),
+    apiKey: SecretInputSchema.optional().register(sensitive),
     auth: z
       .union([z.literal("api-key"), z.literal("aws-sdk"), z.literal("oauth"), z.literal("token")])
       .optional(),
