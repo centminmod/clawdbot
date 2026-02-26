@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818).
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1.
 
 ### Advisory Summary
 
@@ -181,6 +181,24 @@
 | [GHSA-ww6v-v748-x7g9](https://github.com/openclaw/openclaw/security/advisories/GHSA-ww6v-v748-x7g9) | LOW | sandbox network isolation bypass via docker.network=container:<id> | - | pending | @tdjackey |
 | [GHSA-ccg8-46r6-9qgj](https://github.com/openclaw/openclaw/security/advisories/GHSA-ccg8-46r6-9qgj) | MEDIUM | Dispatch-wrapper depth-cap mismatch can bypass shell-wrapper approval gating in system.run allowlist mode | - | Feb 25 sync 5 (57c9a1818) | @tdjackey |
 | [GHSA-9f72-qcpw-2hxc](https://github.com/openclaw/openclaw/security/advisories/GHSA-9f72-qcpw-2hxc) | HIGH | Native prompt image auto-load did not honor tools.fs.workspaceOnly in sandboxed runs | - | pending | @tdjackey |
+| [GHSA-h97f-6pqj-q452](https://github.com/openclaw/openclaw/security/advisories/GHSA-h97f-6pqj-q452) | LOW | IPv6 multicast SSRF classifier bypass | - | pending | - |
+| [GHSA-r9q5-c7qc-p26w](https://github.com/openclaw/openclaw/security/advisories/GHSA-r9q5-c7qc-p26w) | MEDIUM | Nextcloud Talk webhook replay attack | - | Feb 26 sync 1 (d512163d6) | - |
+| [GHSA-6g25-pc82-vfwp](https://github.com/openclaw/openclaw/security/advisories/GHSA-6g25-pc82-vfwp) | LOW | macOS beta onboarding PKCE verifier storage | - | pending | - |
+| [GHSA-fgvx-58p6-gjwc](https://github.com/openclaw/openclaw/security/advisories/GHSA-fgvx-58p6-gjwc) | MEDIUM | Gateway agents.files symlink escape via path traversal | - | Feb 26 sync 1 (125f4071b) | - |
+| [GHSA-553v-f69r-656j](https://github.com/openclaw/openclaw/security/advisories/GHSA-553v-f69r-656j) | MEDIUM | Unpaired device operator identity bypass | - | Feb 26 sync 1 (8d1481cb4) | - |
+| [GHSA-792q-qw95-f446](https://github.com/openclaw/openclaw/security/advisories/GHSA-792q-qw95-f446) | MEDIUM | Signal reaction notification enqueued before access checks | - | Feb 26 sync 1 (2aa7842ad) | - |
+| [GHSA-qj22-xqjr-v83v](https://github.com/openclaw/openclaw/security/advisories/GHSA-qj22-xqjr-v83v) | MEDIUM | Telegram reaction authorization bypass | - | Feb 26 sync 1 (e56b0cf1a) | - |
+| [GHSA-36h3-7c54-j27r](https://github.com/openclaw/openclaw/security/advisories/GHSA-36h3-7c54-j27r) | MEDIUM | Browser trace/download temp path symlink escape | - | Feb 26 sync 1 (496a76c03) | - |
+| [GHSA-354r-7mfh-7rh2](https://github.com/openclaw/openclaw/security/advisories/GHSA-354r-7mfh-7rh2) | MEDIUM | Discord DM reaction ingress missed authorization checks | - | Feb 26 sync 1 (aedf62ac7) | - |
+| [GHSA-vvgp-4c28-m3jm](https://github.com/openclaw/openclaw/security/advisories/GHSA-vvgp-4c28-m3jm) | MEDIUM | Trusted-proxy Control UI pairing bypass | - | Feb 26 sync 1 (0cc3e8137 + ec45c317f) | - |
+| [GHSA-hwpq-rrpf-pgcq](https://github.com/openclaw/openclaw/security/advisories/GHSA-hwpq-rrpf-pgcq) | HIGH | system.run approval identity mismatch | - | pending | - |
+| [GHSA-3jx4-q2m7-r496](https://github.com/openclaw/openclaw/security/advisories/GHSA-3jx4-q2m7-r496) | HIGH | Browser upload hardlink alias checks workspace bypass | - | Feb 26 sync 1 (ef326f5cd) | - |
+| [GHSA-rm2p-j3r7-4x4j](https://github.com/openclaw/openclaw/security/advisories/GHSA-rm2p-j3r7-4x4j) | LOW | Slack reaction/pin sender-policy consistency gap | - | pending | - |
+| [GHSA-mwcg-wfq3-4gjc](https://github.com/openclaw/openclaw/security/advisories/GHSA-mwcg-wfq3-4gjc) | MEDIUM | system.run approval TOCTOU race | - | pending | - |
+| [GHSA-xmv6-r34m-62p4](https://github.com/openclaw/openclaw/security/advisories/GHSA-xmv6-r34m-62p4) | MEDIUM | Sandbox media fallback tmp symlink bypass | - | pending | - |
+| [GHSA-j26j-7qc4-3mrf](https://github.com/openclaw/openclaw/security/advisories/GHSA-j26j-7qc4-3mrf) | MEDIUM | MS Teams fileConsent conversation binding missing | - | Feb 26 sync 1 (347f7b955) | - |
+| [GHSA-x2ff-j5c2-ggpr](https://github.com/openclaw/openclaw/security/advisories/GHSA-x2ff-j5c2-ggpr) | HIGH | Slack interactive callbacks skip sender authorization checks | - | Feb 26 sync 1 (ce8c67c31) | - |
+| [GHSA-jmmg-jqc7-5qf4](https://github.com/openclaw/openclaw/security/advisories/GHSA-jmmg-jqc7-5qf4) | HIGH | Browser-origin WebSocket auth gap allows non-loopback connections | - | Feb 26 sync 1 (c736f11a1) | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -1713,6 +1731,138 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** Confidentiality impact: out-of-workspace files readable via vision model path when `tools.fs.workspaceOnly=true` and sandbox mode are both active. Severity HIGH due to silent data exfiltration through model input.
 
 **Fix:** Commit `370d11554` applies workspace-root assertion to prompt image loading path when `tools.fs.workspaceOnly` is set. Patched in `openclaw >= 2026.2.24`.
+
+### GHSA-r9q5-c7qc-p26w: Nextcloud Talk Webhook Replay Attack
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The Nextcloud Talk webhook handler did not require per-request replay protection. An attacker who intercepted a signed webhook payload could replay the same request to re-execute the embedded command without re-authorization.
+
+**Impact:** Integrity impact: replay of captured authorized commands to a gateway reachable by the attacker. Requires prior network access to intercept a valid signed webhook payload.
+
+**Fix:** Commit `d512163d6` introduces `createNextcloudTalkReplayGuard()` with nonce tracking and timestamp validation, rejecting replayed requests. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-fgvx-58p6-gjwc: Gateway agents.files Symlink Escape via Path Traversal
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The gateway `agents.files` node tool resolved requested paths without checking for symlink escapes. A crafted symlink inside the agent workspace could redirect file operations to paths outside the intended working tree.
+
+**Impact:** Confidentiality impact: an agent could read files outside its designated workspace via symlink traversal. Requires the ability to create symlinks inside the workspace root.
+
+**Fix:** Commit `125f4071b` adds symlink escape detection to the `agents.files` path resolution, rejecting targets that resolve outside the workspace root. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-553v-f69r-656j: Unpaired Device Operator Identity Bypass
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The gateway operator device authentication flow included a shared-auth pairing exemption that allowed an unpaired device to acquire operator-level identity without completing the pairing handshake, provided the gateway was configured in shared-auth mode.
+
+**Impact:** Authorization impact: an attacker with network access to the gateway could obtain operator-level session identity without completing the intended pairing challenge.
+
+**Fix:** Commit `8d1481cb4` removes the shared-auth pairing exemption, requiring full pairing for all operator device authentications. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-792q-qw95-f446: Signal Reaction Notification Enqueued Before Access Checks
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The Signal channel adapter enqueued reaction notification events before evaluating the sender allowlist and DM access policy. A blocked Signal user could therefore trigger notification processing (and any downstream agent actions) by sending a reaction emoji.
+
+**Impact:** Authorization impact: blocked users could bypass Signal ingress access checks via reaction events. Affects configurations using a strict sender allowlist.
+
+**Fix:** Commit `2aa7842ad` moves the DM/allowlist access check (`resolveDmGroupAccessDecision()`) before the reaction notification enqueue step. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-qj22-xqjr-v83v: Telegram Reaction Authorization Bypass
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The Telegram adapter processed reaction events without verifying the sender against the configured authorization policy. Unauthorized Telegram users could trigger reaction-based automations that should have been gated by `isTelegramEventSenderAuthorized()`.
+
+**Impact:** Authorization impact: unauthorized users could trigger reaction-driven automations on a Telegram bot instance. Requires access to the Telegram group or channel where the bot is active.
+
+**Fix:** Commit `e56b0cf1a` adds `isTelegramEventSenderAuthorized()` enforcement for incoming Telegram reaction events. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-36h3-7c54-j27r: Browser Trace/Download Temp Path Symlink Escape
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The browser tool wrote trace and download artifacts to temporary paths that were resolved without symlink validation. A crafted symlink in the temp directory could redirect writes to arbitrary locations outside the intended temp subtree.
+
+**Impact:** Integrity/confidentiality impact: arbitrary file writes or overwrites via symlink in the trace/download temp path. Requires the ability to pre-plant a symlink in the temp directory.
+
+**Fix:** Commit `496a76c03` hardens the browser trace/download temp path with `resolveWritablePathWithinRoot()` to reject symlink escapes. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-354r-7mfh-7rh2: Discord DM Reaction Ingress Missed Authorization Checks
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** Discord DM reaction events were processed through a separate ingress path that skipped the standard reaction authorization policy applied to guild reactions. Users blocked from reacting to guild messages could still trigger reaction-based automations via DMs.
+
+**Impact:** Authorization impact: DM-based reaction events bypassed the configured reaction ingress authorization policy.
+
+**Fix:** Commit `aedf62ac7` unifies Discord DM and guild reaction ingress through a shared authorization policy guard. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-vvgp-4c28-m3jm: Trusted-Proxy Control UI Pairing Bypass
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The gateway's trusted-proxy configuration for the Control UI omitted the pairing check applied to direct connections. A request arriving via a trusted reverse proxy (e.g., Cloudflare Tunnel) could access Control UI endpoints without completing device pairing.
+
+**Impact:** Authorization impact: paired-device requirement for Control UI access was not enforced for trusted-proxy paths, weakening the pairing security model.
+
+**Fix:** Commits `0cc3e8137` and `ec45c317f` centralize trusted-proxy bypass policy and extend the pairing check to all Control UI paths regardless of proxy trust. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-3jx4-q2m7-r496: Browser Upload Hardlink Alias Checks Workspace Bypass
+
+**Severity:** HIGH
+**Published:** 2026-02-26
+
+**Description:** The browser tool validated upload paths at request time but did not revalidate them at use time. A hardlink or alias created between validation and use could redirect the upload target to a path outside the workspace, bypassing the workspace containment boundary.
+
+**Impact:** Integrity/confidentiality impact: a TOCTOU race using hardlinks or filesystem aliases could redirect browser file uploads to arbitrary paths outside the workspace.
+
+**Fix:** Commit `ef326f5cd` adds a second path validation check immediately before file use, closing the TOCTOU window for hardlink alias attacks. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-j26j-7qc4-3mrf: MS Teams fileConsent Conversation Binding Missing
+
+**Severity:** MEDIUM
+**Published:** 2026-02-26
+
+**Description:** The MS Teams adapter processed `fileConsentCardResponse` (file upload consent) events without verifying that the response came from the same conversation as the original consent request. An attacker in a different Teams conversation could accept or decline a file consent on behalf of another conversation.
+
+**Impact:** Integrity impact: cross-conversation file consent manipulation in MS Teams deployments. Requires the attacker to be a member of the same Teams tenant.
+
+**Fix:** Commit `347f7b955` binds file consent invoke handlers to the originating conversation ID, rejecting cross-conversation consent responses. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-x2ff-j5c2-ggpr: Slack Interactive Callbacks Skip Sender Authorization Checks
+
+**Severity:** HIGH
+**Published:** 2026-02-26
+
+**Description:** Slack interactive system events (button clicks, menu selections, modal submissions) arriving via the Slack Events API were processed without verifying the triggering user against the gateway's sender authorization policy. Any Slack workspace member could trigger interactive automations regardless of their authorization status.
+
+**Impact:** Authorization impact: unauthorized Slack users could trigger interactive event automations. Severity HIGH due to the broad attack surface (any workspace member) and potential for privilege escalation via interactive tool invocations.
+
+**Fix:** Commit `ce8c67c31` gates Slack interactive event processing behind sender authorization checks before dispatching to the event handler. Patched in `openclaw >= 2026.2.26`.
+
+### GHSA-jmmg-jqc7-5qf4: Browser-Origin WebSocket Auth Gap Allows Non-Loopback Connections
+
+**Severity:** HIGH
+**Published:** 2026-02-26
+
+**Description:** The gateway's browser WebSocket authentication chain applied origin validation only to loopback (`localhost`) connections. Non-loopback WebSocket upgrade requests from browser extensions or proxied connections were permitted without the same origin check, allowing a malicious page to establish an authenticated WebSocket session if the gateway was reachable from the browser.
+
+**Impact:** Authorization impact: browser-based attackers reachable to the gateway could bypass origin validation on non-loopback WebSocket connections. Severity HIGH due to browser-accessible attack surface.
+
+**Fix:** Commit `c736f11a1` extends browser origin checks and rate limiting to non-loopback connection paths via `attachGatewayWsMessageHandler()`. Patched in `openclaw >= 2026.2.26`.
 
 ### Relationship to Third-Party Audits
 
