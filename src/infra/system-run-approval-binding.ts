@@ -1,9 +1,6 @@
 import crypto from "node:crypto";
-import type {
-  ExecApprovalRequestPayload,
-  SystemRunApprovalBindingV1,
-} from "../infra/exec-approvals.js";
-import { normalizeEnvVarKey } from "../infra/host-env-security.js";
+import type { SystemRunApprovalBindingV1, SystemRunApprovalPlanV2 } from "./exec-approvals.js";
+import { normalizeEnvVarKey } from "./host-env-security.js";
 
 type NormalizedSystemRunEnvEntry = [key: string, value: string];
 
@@ -17,6 +14,28 @@ function normalizeString(value: unknown): string | null {
 
 function normalizeStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.map((entry) => String(entry)) : [];
+}
+
+export function normalizeSystemRunApprovalPlanV2(value: unknown): SystemRunApprovalPlanV2 | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  const candidate = value as Record<string, unknown>;
+  if (candidate.version !== 2) {
+    return null;
+  }
+  const argv = normalizeStringArray(candidate.argv);
+  if (argv.length === 0) {
+    return null;
+  }
+  return {
+    version: 2,
+    argv,
+    cwd: normalizeString(candidate.cwd),
+    rawCommand: normalizeString(candidate.rawCommand),
+    agentId: normalizeString(candidate.agentId),
+    sessionKey: normalizeString(candidate.sessionKey),
+  };
 }
 
 function normalizeSystemRunEnvEntries(env: unknown): NormalizedSystemRunEnvEntry[] {
@@ -87,14 +106,6 @@ function argvMatches(expectedArgv: string[], actualArgv: string[]): boolean {
     }
   }
   return true;
-}
-
-function readExpectedEnvHash(request: Pick<ExecApprovalRequestPayload, "envHash">): string | null {
-  if (typeof request.envHash !== "string") {
-    return null;
-  }
-  const trimmed = request.envHash.trim();
-  return trimmed ? trimmed : null;
 }
 
 export type SystemRunApprovalMatchResult =
@@ -180,42 +191,12 @@ export function matchSystemRunApprovalBindingV1(params: {
   });
 }
 
-export function matchLegacySystemRunApprovalBinding(params: {
-  request: Pick<
-    ExecApprovalRequestPayload,
-    "command" | "commandArgv" | "cwd" | "agentId" | "sessionKey" | "envHash"
-  >;
-  cmdText: string;
-  argv: string[];
-  binding: {
-    cwd: string | null;
-    agentId: string | null;
-    sessionKey: string | null;
-    env?: unknown;
-  };
+export function missingSystemRunApprovalBindingV1(params: {
+  actualEnvKeys: string[];
 }): SystemRunApprovalMatchResult {
-  const requestedArgv = params.request.commandArgv;
-  if (Array.isArray(requestedArgv)) {
-    if (!argvMatches(requestedArgv, params.argv)) {
-      return requestMismatch();
-    }
-  } else if (!params.cmdText || params.request.command !== params.cmdText) {
-    return requestMismatch();
-  }
-  if ((params.request.cwd ?? null) !== params.binding.cwd) {
-    return requestMismatch();
-  }
-  if ((params.request.agentId ?? null) !== params.binding.agentId) {
-    return requestMismatch();
-  }
-  if ((params.request.sessionKey ?? null) !== params.binding.sessionKey) {
-    return requestMismatch();
-  }
-  const actualEnvBinding = buildSystemRunApprovalEnvBinding(params.binding.env);
-  return matchSystemRunApprovalEnvHash({
-    expectedEnvHash: readExpectedEnvHash(params.request),
-    actualEnvHash: actualEnvBinding.envHash,
-    actualEnvKeys: actualEnvBinding.envKeys,
+  return requestMismatch({
+    requiredBindingVersion: 1,
+    envKeys: params.actualEnvKeys,
   });
 }
 

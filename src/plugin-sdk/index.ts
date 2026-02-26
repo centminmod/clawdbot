@@ -216,6 +216,8 @@ export {
   type SenderGroupAccessReason,
 } from "./group-access.js";
 export { resolveSenderCommandAuthorization } from "./command-auth.js";
+export { createScopedPairingAccess } from "./pairing-access.js";
+export { issuePairingChallenge } from "../pairing/pairing-challenge.js";
 export { handleSlackMessageAction } from "./slack-message-actions.js";
 export { extractToolSend } from "./tool-send.js";
 export {
@@ -409,11 +411,15 @@ export {
 } from "../agents/tools/common.js";
 export { formatDocsLink } from "../terminal/links.js";
 export {
+  DM_GROUP_ACCESS_REASON,
+  readStoreAllowFromForDmPolicy,
   resolveDmAllowState,
   resolveDmGroupAccessDecision,
+  resolveDmGroupAccessWithCommandGate,
   resolveDmGroupAccessWithLists,
   resolveEffectiveAllowFromLists,
 } from "../security/dm-policy-shared.js";
+export type { DmGroupAccessReasonCode } from "../security/dm-policy-shared.js";
 export type { HookEntry } from "../hooks/types.js";
 export { clamp, escapeRegExp, normalizeE164, safeParseJson, sleep } from "../utils.js";
 export { stripAnsi } from "../terminal/ansi.js";
