@@ -312,7 +312,7 @@
 **Closes:** (addresses unconfigured reverse proxy auth bypass)
 
 **Changes:**
-- `src/gateway/server/ws-connection/message-handler.ts:160-179` — detects untrusted proxy headers
+- `src/gateway/server/ws-connection/message-handler.ts:278-315` — detects untrusted proxy headers
 - `src/gateway/auth.ts:124-145` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
 - `src/security/audit.ts` — audit detection for misconfigured proxy setup
 

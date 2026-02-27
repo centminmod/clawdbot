@@ -1173,7 +1173,7 @@ All changes take effect immediately via automatic restart.
 **Affected code:**
 - `src/gateway/server/ws-connection/connect-policy.ts:22-33` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
 - `src/gateway/server/ws-connection/connect-policy.ts:52-86` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
-- `src/gateway/server/ws-connection/message-handler.ts:564-569` — `skipPairing` gate: device pairing requirement skipped when `allowInsecureAuth` configured
+- `src/gateway/server/ws-connection/message-handler.ts:566` — `handleMissingDeviceIdentity()`: device pairing requirement skipped when `allowInsecureAuth` configured
 - `src/security/audit.ts:431-441` — security audit detects and flags as `severity: "critical"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 
 **Exploit conditions:** Admin must set `allowInsecureAuth: true` (opt-in). Once enabled, passive MITM on the local network can capture the auth token and gain full `operator.admin + operator.approvals + operator.pairing` access.
