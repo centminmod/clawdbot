@@ -458,4 +458,24 @@ Source: Official security docs — https://docs.openclaw.ai/gateway/security
 
 ---
 
+## 17) Limit exposed HTTP endpoints
+
+The Gateway's HTTP API surface is controlled by `gateway.http.endpoints`. By default the OpenAI-compatible chat completions endpoint is disabled; verify it stays that way unless you need it.
+
+```bash
+# Check whether the chat completions endpoint is enabled
+openclaw config get gateway.http.endpoints.chatCompletions.enabled
+# Should be: false (or unset)
+```
+
+If you run a reverse proxy that handles TLS, you can also set HSTS and other security headers at the gateway level — though prefer setting them at the proxy when possible:
+
+```bash
+openclaw config set gateway.http.securityHeaders.strictTransportSecurity "max-age=63072000; includeSubDomains"
+```
+
+Source: `src/config/schema.labels.ts:87-90`, `src/config/schema.help.ts:118-124`
+
+---
+
 See also: [High privacy config example](./high-privacy-config.example.json5.md) for a complete hardened configuration.

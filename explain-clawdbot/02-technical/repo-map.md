@@ -77,7 +77,7 @@ This is a "practical navigation guide" for new contributors/readers.
 
 - `src/auto-reply/` — reply pipeline
 - `src/auto-reply/reply/agent-runner.ts` — core agent-turn orchestrator
-- `src/agents/` — agent framework (637 files, 10 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
+- `src/agents/` — agent framework (~688 files, 10 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
 
 ### Routing
 
@@ -96,16 +96,17 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 
 | Directory | Files (approx.) | Purpose |
 |-----------|-----------------|---------|
-| `src/agents/` | ~637 | Agent framework, tools, sandbox, auth profiles, skills |
-| `src/gateway/` | ~279 | Gateway server, WS runtime, RPC handlers, config validation |
-| `src/auto-reply/` | ~223 | Reply pipeline, agent turn orchestration |
-| `src/cli/` | ~253 | CLI command definitions and parsing |
-| `src/commands/` | ~296 | CLI command implementations |
-| `src/infra/` | ~293 | Infrastructure: networking, SSRF guards, exec safety, archiving |
-| `src/config/` | ~183 | Configuration schema, types, validation, migrations |
-| `src/browser/` | ~116 | Browser automation (CDP/Puppeteer) |
-| `src/channels/` | ~134 | Shared channel logic, identities, allowlists, registry |
-| `src/memory/` | ~84 | Memory/context management, QMD |
+| `src/agents/` | ~688 | Agent framework, tools, sandbox, auth profiles, skills |
+| `src/gateway/` | ~296 | Gateway server, WS runtime, RPC handlers, config validation |
+| `src/auto-reply/` | ~246 | Reply pipeline, agent turn orchestration |
+| `src/cli/` | ~259 | CLI command definitions and parsing |
+| `src/commands/` | ~319 | CLI command implementations |
+| `src/infra/` | ~325 | Infrastructure: networking, SSRF guards, exec safety, archiving |
+| `src/config/` | ~199 | Configuration schema, types, validation, migrations |
+| `src/browser/` | ~123 | Browser automation (CDP/Puppeteer) |
+| `src/channels/` | ~145 | Shared channel logic, identities, allowlists, registry |
+| `src/memory/` | ~86 | Memory/context management, QMD |
+| `src/secrets/` | ~15 | Secret reference resolution, env substitution, audit |
 | `src/cron/` | ~70 | Cron job scheduling |
 | `src/plugins/` | ~60 | Plugin runtime and loading |
 | `src/media-understanding/` | ~47 | Image/audio/video understanding via AI |

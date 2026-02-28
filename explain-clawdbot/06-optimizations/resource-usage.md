@@ -24,9 +24,9 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 | # | Operation | Source | Impact | Plain English |
 |---|-----------|--------|--------|---------------|
-| 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:34-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
+| 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:35-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
-| 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:90-136` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
+| 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:96-136` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
 | 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:373-555` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
 | 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
 | 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/input-files.ts:244-279` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
@@ -58,7 +58,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - `src/memory/qmd-manager.ts:1075-1080` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1890`), configured by `MAX_QMD_OUTPUT_CHARS` (`:40`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
 
 **Media fetch buffering:**
-- `src/media/fetch.ts:131-140` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
+- `src/media/fetch.ts:132-148` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
 
 ---
 
@@ -72,7 +72,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 |-------|----------|-------|------|
 | Session store cache | `src/config/sessions/store.ts:44` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
 | Discord presence cache | `src/discord/monitor/presence-cache.ts:9` | 5000/account LRU | Low |
-| Telegram sent message cache | `src/telegram/sent-message-cache.ts:13` | 24h TTL, 100/chat | Low-Medium |
+| Telegram sent message cache | `src/telegram/sent-message-cache.ts:12` | 24h TTL, 100/chat | Low-Medium |
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:8` | 5000 max, 20min TTL | Well bounded |
 | Gateway dedupe | `src/gateway/server-constants.ts:33-34` | 1000 max, 5min TTL | Well bounded |
@@ -85,7 +85,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
 | Warned contexts | `src/infra/session-maintenance-warning.ts:16` | **Never pruned** | Low |
 | Announce queues | `src/agents/subagent-announce-queue.ts:46` | Per-queue cap, **no queue count cap** | Low |
-| Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:13` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
+| Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:12` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
 
 > *Session store cache:* Like photocopying an entire filing cabinet every time you check one folder — works, but wastes desk space.
 >
@@ -124,8 +124,8 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 
 | Resource | Location | Risk |
 |----------|----------|------|
-| Transcript `.jsonl` files | `src/config/sessions/transcript.ts:60-151` | **No rotation, no size limit** — grows forever per session |
-| Command logger | `src/hooks/bundled/command-logger/handler.ts:49-62` | **No rotation** — `commands.log` grows unbounded |
+| Transcript `.jsonl` files | `src/config/sessions/transcript.ts:61-151` | **No rotation, no size limit** — grows forever per session |
+| Command logger | `src/hooks/bundled/command-logger/handler.ts:47-62` | **No rotation** — `commands.log` grows unbounded |
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
 | Browser user-data profiles | `src/browser/chrome.ts:62-64` | Full Chromium profile — can reach GBs |
 | SQLite databases | `src/memory/manager.ts:166` | **No VACUUM** — WAL files can bloat |
@@ -590,9 +590,9 @@ The `memory_search` tool description instructs the AI to use it as a "mandatory 
 |----------|-------------|--------|
 | Workspace directory | `~/.openclaw/workspace/` | `src/agents/workspace.ts:12-21` |
 | Primary memory file | `~/.openclaw/workspace/MEMORY.md` (or `memory.md`) | `src/agents/workspace.ts:32-33` |
-| Memory subdirectory | `~/.openclaw/workspace/memory/*.md` (recursive) | `src/memory/internal.ts:79-146` |
+| Memory subdirectory | `~/.openclaw/workspace/memory/*.md` (recursive) | `src/memory/internal.ts:80-146` |
 | SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:123-131` |
-| Additional paths | Configured via `memorySearch.extraPaths[]` | `src/memory/internal.ts:34-46` |
+| Additional paths | Configured via `memorySearch.extraPaths[]` | `src/memory/internal.ts:35-46` |
 
 The `listMemoryFiles()` function (`internal.ts:79-146`) scans these locations, skips symlinks, filters for `.md` extensions only, and deduplicates by resolved path.
 
