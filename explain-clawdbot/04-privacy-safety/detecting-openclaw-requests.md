@@ -74,7 +74,7 @@ HTTP-Referer: https://openclaw.ai
 X-Title: OpenClaw
 ```
 
-**Source:** `src/agents/pi-embedded-runner/extra-params.ts:8-9`
+**Source:** `src/agents/pi-embedded-runner/extra-params.ts:9-10`
 ```typescript
 const OPENROUTER_APP_HEADERS: Record<string, string> = {
   "HTTP-Referer": "https://openclaw.ai",
@@ -344,8 +344,8 @@ export type GatewayClientInfo = {
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:201` | Media file downloads |
 | `User-Agent: openclaw` | `src/commands/signal-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
-| `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:8` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |
+| `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |
+| `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:10` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:911` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
 
