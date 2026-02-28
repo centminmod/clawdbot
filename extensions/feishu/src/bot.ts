@@ -188,7 +188,134 @@ function parseMessageContent(content: string, messageType: string): string {
       const { textContent } = parsePostContent(content);
       return textContent;
     }
+    if (messageType === "share_chat") {
+      // Preserve available summary text for merged/forwarded chat messages.
+      if (parsed && typeof parsed === "object") {
+        const share = parsed as {
+          body?: unknown;
+          summary?: unknown;
+          share_chat_id?: unknown;
+        };
+        if (typeof share.body === "string" && share.body.trim().length > 0) {
+          return share.body.trim();
+        }
+        if (typeof share.summary === "string" && share.summary.trim().length > 0) {
+          return share.summary.trim();
+        }
+        if (typeof share.share_chat_id === "string" && share.share_chat_id.trim().length > 0) {
+          return `[Forwarded message: ${share.share_chat_id.trim()}]`;
+        }
+      }
+      return "[Forwarded message]";
+    }
+    if (messageType === "merge_forward") {
+      // Return placeholder; actual content fetched asynchronously in handleFeishuMessage
+      return "[Merged and Forwarded Message - loading...]";
+    }
     return content;
+  } catch {
+    return content;
+  }
+}
+
+/**
+ * Parse merge_forward message content and fetch sub-messages.
+ * Returns formatted text content of all sub-messages.
+ */
+function parseMergeForwardContent(params: {
+  content: string;
+  log?: (...args: any[]) => void;
+}): string {
+  const { content, log } = params;
+  const maxMessages = 50;
+
+  // For merge_forward, the API returns all sub-messages in items array
+  // with upper_message_id pointing to the merge_forward message.
+  // The 'content' parameter here is actually the full API response items array as JSON.
+  log?.(`feishu: parsing merge_forward sub-messages from API response`);
+
+  let items: Array<{
+    message_id?: string;
+    msg_type?: string;
+    body?: { content?: string };
+    sender?: { id?: string };
+    upper_message_id?: string;
+    create_time?: string;
+  }>;
+
+  try {
+    items = JSON.parse(content);
+  } catch {
+    log?.(`feishu: merge_forward items parse failed`);
+    return "[Merged and Forwarded Message - parse error]";
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return "[Merged and Forwarded Message - no sub-messages]";
+  }
+
+  // Filter to only sub-messages (those with upper_message_id, skip the merge_forward container itself)
+  const subMessages = items.filter((item) => item.upper_message_id);
+
+  if (subMessages.length === 0) {
+    return "[Merged and Forwarded Message - no sub-messages found]";
+  }
+
+  log?.(`feishu: merge_forward contains ${subMessages.length} sub-messages`);
+
+  // Sort by create_time
+  subMessages.sort((a, b) => {
+    const timeA = parseInt(a.create_time || "0", 10);
+    const timeB = parseInt(b.create_time || "0", 10);
+    return timeA - timeB;
+  });
+
+  // Format output
+  const lines: string[] = ["[Merged and Forwarded Messages]"];
+  const limitedMessages = subMessages.slice(0, maxMessages);
+
+  for (const item of limitedMessages) {
+    const msgContent = item.body?.content || "";
+    const msgType = item.msg_type || "text";
+    const formatted = formatSubMessageContent(msgContent, msgType);
+    lines.push(`- ${formatted}`);
+  }
+
+  if (subMessages.length > maxMessages) {
+    lines.push(`... and ${subMessages.length - maxMessages} more messages`);
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Format sub-message content based on message type.
+ */
+function formatSubMessageContent(content: string, contentType: string): string {
+  try {
+    const parsed = JSON.parse(content);
+    switch (contentType) {
+      case "text":
+        return parsed.text || content;
+      case "post": {
+        const { textContent } = parsePostContent(content);
+        return textContent;
+      }
+      case "image":
+        return "[Image]";
+      case "file":
+        return `[File: ${parsed.file_name || "unknown"}]`;
+      case "audio":
+        return "[Audio]";
+      case "video":
+        return "[Video]";
+      case "sticker":
+        return "[Sticker]";
+      case "merge_forward":
+        return "[Nested Merged Forward]";
+      default:
+        return `[${contentType}]`;
+    }
   } catch {
     return content;
   }
@@ -292,6 +419,29 @@ function parsePostContent(content: string): {
             const imageKey = normalizeFeishuExternalKey(element.image_key);
             if (imageKey) {
               imageKeys.push(imageKey);
+            }
+          } else if (element.tag === "code") {
+            // Inline code
+            const code =
+              typeof element.text === "string"
+                ? element.text
+                : typeof element.content === "string"
+                  ? element.content
+                  : "";
+            if (code) {
+              textContent += `\`${code}\``;
+            }
+          } else if (element.tag === "code_block" || element.tag === "pre") {
+            // Multiline code block
+            const lang = typeof element.language === "string" ? element.language : "";
+            const code =
+              typeof element.text === "string"
+                ? element.text
+                : typeof element.content === "string"
+                  ? element.content
+                  : "";
+            if (code) {
+              textContent += `\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
             }
           }
         }
@@ -559,6 +709,38 @@ export async function handleFeishuMessage(params: {
   const isGroup = ctx.chatType === "group";
   const senderUserId = event.sender.sender_id.user_id?.trim() || undefined;
 
+  // Handle merge_forward messages: fetch full message via API then expand sub-messages
+  if (event.message.message_type === "merge_forward") {
+    log(
+      `feishu[${account.accountId}]: processing merge_forward message, fetching full content via API`,
+    );
+    try {
+      // Websocket event doesn't include sub-messages, need to fetch via API
+      // The API returns all sub-messages in the items array
+      const client = createFeishuClient(account);
+      const response = (await client.im.message.get({
+        path: { message_id: event.message.message_id },
+      })) as { code?: number; data?: { items?: unknown[] } };
+
+      if (response.code === 0 && response.data?.items && response.data.items.length > 0) {
+        log(
+          `feishu[${account.accountId}]: merge_forward API returned ${response.data.items.length} items`,
+        );
+        const expandedContent = parseMergeForwardContent({
+          content: JSON.stringify(response.data.items),
+          log,
+        });
+        ctx = { ...ctx, content: expandedContent };
+      } else {
+        log(`feishu[${account.accountId}]: merge_forward API returned no items`);
+        ctx = { ...ctx, content: "[Merged and Forwarded Message - could not fetch]" };
+      }
+    } catch (err) {
+      log(`feishu[${account.accountId}]: merge_forward fetch failed: ${String(err)}`);
+      ctx = { ...ctx, content: "[Merged and Forwarded Message - fetch error]" };
+    }
+  }
+
   // Resolve sender display name (best-effort) so the agent can attribute messages correctly.
   const senderResult = await resolveFeishuSenderName({
     account,
@@ -630,12 +812,15 @@ export async function handleFeishuMessage(params: {
       return;
     }
 
-    // Additional sender-level allowlist check if group has specific allowFrom config
-    const senderAllowFrom = groupConfig?.allowFrom ?? [];
-    if (senderAllowFrom.length > 0) {
+    // Sender-level allowlist: per-group allowFrom takes precedence, then global groupSenderAllowFrom
+    const perGroupSenderAllowFrom = groupConfig?.allowFrom ?? [];
+    const globalSenderAllowFrom = feishuCfg?.groupSenderAllowFrom ?? [];
+    const effectiveSenderAllowFrom =
+      perGroupSenderAllowFrom.length > 0 ? perGroupSenderAllowFrom : globalSenderAllowFrom;
+    if (effectiveSenderAllowFrom.length > 0) {
       const senderAllowed = isFeishuGroupAllowed({
         groupPolicy: "allowlist",
-        allowFrom: senderAllowFrom,
+        allowFrom: effectiveSenderAllowFrom,
         senderId: ctx.senderOpenId,
         senderIds: [senderUserId],
         senderName: ctx.senderName,
@@ -976,6 +1161,7 @@ export async function handleFeishuMessage(params: {
       chatId: ctx.chatId,
       replyToMessageId: ctx.messageId,
       replyInThread,
+      rootId: ctx.rootId,
       mentionTargets: ctx.mentionTargets,
       accountId: account.accountId,
     });
