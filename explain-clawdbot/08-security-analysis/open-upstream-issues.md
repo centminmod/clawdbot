@@ -76,7 +76,7 @@
 | [#11437](https://github.com/openclaw/openclaw/issues/11437) | CRITICAL (WONTFIX) | CWD .env → config path override → plugin code exec via jiti | Closed upstream as NOT_PLANNED (2026-02-24); still affects local code at `src/infra/dotenv.ts:10`, `src/config/paths.ts:88-106`, `src/plugins/config-state.ts:73,194` |
 | [#11434](https://github.com/openclaw/openclaw/issues/11434) | CRITICAL (WONTFIX) | CWD .env → arbitrary dynamic import via OPENCLAW_BROWSER_CONTROL_MODULE | Closed upstream as NOT_PLANNED (2026-02-24); still affects local code at `src/gateway/server-browser.ts:13-14` — raw `await import(override)` |
 | [#11431](https://github.com/openclaw/openclaw/issues/11431) | ~~CRITICAL~~ FIXED | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | Fixed in PRs: `92702af7a` (plugins+hooks, Feb 12 sync 1) + [#14659](https://github.com/openclaw/openclaw/pull/14659) (skills, Feb 13 sync 1) — `--ignore-scripts` added to all install commands |
-| [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH (WONTFIX) | Sandbox browser bridge started without auth token | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/sandbox/browser.ts:192`; relates to #6609 |
+| [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH (WONTFIX) | Sandbox browser bridge started without auth token | Closed upstream as NOT_PLANNED (2026-02-13); `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:355-366` WITH `authToken` and `authPassword` (line ref updated Mar 1 sync 1; auth IS present); relates to #6609 |
 | [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH (WONTFIX) | config.patch bypasses commands.restart restriction | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-methods/config.ts:330` |
 | [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:277-278` |
 | [#13786](https://github.com/openclaw/openclaw/issues/13786) | ~~HIGH~~ FIXED | BlueBubbles webhook auth bypass via loopback proxy trust | Fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) — loopback bypass removed; all requests require password auth |
@@ -90,7 +90,7 @@
 | [#11811](https://github.com/openclaw/openclaw/issues/11811) | ~~HIGH~~ FIXED | MSTeams attachment fetch follows redirects before allowlist checks (SSRF) | Fixed upstream (COMPLETED); `extensions/msteams/src/attachments/download.ts:93` |
 | [#15906](https://github.com/openclaw/openclaw/issues/15906) | HIGH | RCE via rogue gateway impersonation (mDNS discovery spoofing) | `apps/android/.../GatewayDiscovery.kt:148-162` (TLS fingerprint stored but not enforced); `apps/macos/.../ShellExecutor.swift:14-32` (unrestricted command exec); partial mitigation via device pairing nonce/challenge |
 | [#15950](https://github.com/openclaw/openclaw/issues/15950) | ~~HIGH~~ FIXED | Android production build permits cleartext traffic globally | Fixed upstream (COMPLETED); `apps/android/.../network_security_config.xml:4` |
-| [#14875](https://github.com/openclaw/openclaw/issues/14875) | ~~HIGH~~ FIXED | Feishu channel hardcodes CommandAuthorized bypassing access groups | Fixed upstream (COMPLETED 2026-02-13); `extensions/feishu/src/bot.ts:1154` |
+| [#14875](https://github.com/openclaw/openclaw/issues/14875) | ~~HIGH~~ FIXED | Feishu channel hardcodes CommandAuthorized bypassing access groups | Fixed upstream (COMPLETED 2026-02-13); `extensions/feishu/src/bot.ts:1158` |
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | MEDIUM (WONTFIX, DUP #9627) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); `src/agents/models-config.ts:172-176` — `normalizeProviders()` includes resolved apiKey; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
@@ -101,7 +101,7 @@
 | [#21656](https://github.com/openclaw/openclaw/issues/21656) | MEDIUM | System event format spoofing via external channels (prompt injection) | `src/auto-reply/reply/session-updates.ts:110-111` — `System: [timestamp]` prefix unauthenticated; external Telegram/WhatsApp messages indistinguishable from real system events |
 | [#22681](https://github.com/openclaw/openclaw/issues/22681) | MEDIUM | Env blocklist missing GLIBC_TUNABLES, JAVA_TOOL_OPTIONS, JDK_JAVA_OPTIONS | `src/infra/host-env-security-policy.json` — 16 blockedKeys + 3 blockedPrefixes; missing JVM/glibc env injection vectors |
 | [#24693](https://github.com/openclaw/openclaw/issues/24693) | MEDIUM | Hook completion events leak cross-agent via mainSessionKey routing | `src/gateway/server/hooks.ts:77-78,86-87` — completion events routed to `mainSessionKey` instead of hook's target `agentId` (available at line 39 but unused) |
-| [#25712](https://github.com/openclaw/openclaw/issues/25712) | MEDIUM | Multi-agent media isolation: inbound files shared across agents | `src/media/store.ts:13,303` — `resolveMediaDir()` is global (no per-agent namespacing); all agents share `~/.openclaw/media/inbound/` directory; cross-agent file reads possible |
+| [#25712](https://github.com/openclaw/openclaw/issues/25712) | MEDIUM | Multi-agent media isolation: inbound files shared across agents | `src/media/store.ts:13,307` — `resolveMediaDir()` is global (no per-agent namespacing); all agents share `~/.openclaw/media/inbound/` directory; cross-agent file reads possible |
 | [#25714](https://github.com/openclaw/openclaw/issues/25714) | MEDIUM | Webchat UI cross-session tool data flash (UI state race) | `ui/src/ui/app-tool-stream.ts` — prior session's tool stream buffers not cleared before new session renders; causes brief cross-session data flash in webchat |
 | [#12173](https://github.com/openclaw/openclaw/issues/12173) | ~~MEDIUM~~ FIXED | apply_patch tool path traversal when sandbox disabled | Fixed by `5544646a0` — `resolvePatchPath()` now calls `assertSandboxPath()` at `src/agents/apply-patch.ts:254` regardless of sandbox mode; further hardened by `5e7c3250c` adding `workspaceOnly` guards |
 | [#10659](https://github.com/openclaw/openclaw/issues/10659) | ENHANCEMENT | Feature: Masked secrets to prevent agent reading raw API keys | Enhancement request; relates to #10033 (secrets management) |
@@ -247,7 +247,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - `src/browser/bridge-server.ts:32-51` - Auth now required; loopback check + express setup with abort handling
 
 **Verification:**
-- `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:215-225` WITH `authToken` and `authPassword` parameters (fixed in this sync)
+- `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:355-366` WITH `authToken` and `authPassword` parameters
 - Bridge auth registry at `src/browser/bridge-auth-registry.ts` manages ephemeral port auth
 
 ### #8696: Playwright Download Path Traversal
@@ -957,7 +957,7 @@ All changes take effect immediately via automatic restart.
 **Affected code (pre-fix):**
 - ~~`extensions/feishu/src/bot.ts:877`~~ — `CommandAuthorized: true` hardcoded in permission error context (lines shifted; fix applied)
 - ~~`extensions/feishu/src/bot.ts:965`~~ — `CommandAuthorized: true` hardcoded in main message context (lines shifted; fix applied)
-- `extensions/feishu/src/bot.ts:1154` — now uses `CommandAuthorized: commandAuthorized` (dynamic, post-fix)
+- `extensions/feishu/src/bot.ts:1158` — now uses `CommandAuthorized: commandAuthorized` (dynamic, post-fix)
 - Zero imports of `resolveCommandAuthorizedFromAuthorizers` in the Feishu extension (pre-fix)
 
 **Verification:**
