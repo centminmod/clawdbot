@@ -271,22 +271,20 @@ You can configure OpenClaw to use local models for most requests while falling b
 
 **Option 1: Manual switching**
 ```bash
-# Switch to local
-openclaw config set provider.baseUrl http://model-runner.docker.internal/v1
-openclaw config set provider.model glm-4.7-flash
+# Switch to local (assumes 'dmr' provider already configured)
+openclaw config set agents.defaults.model.primary "dmr/glm-4.7-flash"
 
-# Switch to cloud
-openclaw config set provider.baseUrl https://api.anthropic.com
-openclaw config set provider.model claude-sonnet-4-20250514
+# Switch to cloud (replace 'anthropic' with your cloud provider name)
+openclaw config set agents.defaults.model.primary "anthropic/claude-sonnet-4-20250514"
 ```
 
 **Option 2: Use profiles**
 ```bash
 # Create a local profile
-OPENCLAW_PROFILE=local openclaw config set provider.baseUrl http://model-runner.docker.internal/v1
+OPENCLAW_PROFILE=local openclaw config set agents.defaults.model.primary "dmr/glm-4.7-flash"
 
 # Create a cloud profile
-OPENCLAW_PROFILE=cloud openclaw config set provider.baseUrl https://api.anthropic.com
+OPENCLAW_PROFILE=cloud openclaw config set agents.defaults.model.primary "anthropic/claude-sonnet-4-20250514"
 
 # Run with specific profile
 OPENCLAW_PROFILE=local openclaw gateway run

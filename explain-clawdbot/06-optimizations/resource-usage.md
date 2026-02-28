@@ -108,7 +108,7 @@ OpenClaw has several defenses:
 - **Compaction system:** `src/agents/compaction.ts` — multi-stage summarization to prevent unbounded context growth
 - **History turn limiting:** `src/agents/pi-embedded-runner/history.ts:15-36`
 - **Context pruning extension:** `src/agents/pi-extensions/context-pruning/extension.ts`
-- **WebSocket payload limits:** 8MB/frame, 16MB/connection buffer, 6MB history — `src/gateway/server-constants.ts:1-4`
+- **WebSocket payload limits:** 25MB/frame, 50MB/connection buffer, 6MB history — `src/gateway/server-constants.ts:3-4`
 
 ### Plugin memory
 
