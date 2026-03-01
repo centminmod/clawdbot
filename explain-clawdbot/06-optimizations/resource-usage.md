@@ -737,7 +737,7 @@ During sync, unchanged files are skipped (hash comparison against the `files` ta
 
 When the conversation approaches the context window limit, OpenClaw inserts a silent "memory flush" turn before running compaction:
 
-**Trigger condition** (`src/auto-reply/reply/memory-flush.ts:78-109`):
+**Trigger condition** (`src/auto-reply/reply/memory-flush.ts:113-160`):
 
 ```
 totalTokens >= contextWindow - reserveTokens - softThreshold
