@@ -100,7 +100,7 @@ By default, OpenClaw wraps untrusted external content (web pages, webhook payloa
 - If you must enable one, isolate that agent's tool access (no exec, no file write, no messaging)
 - Audit cron jobs and hook mappings regularly for this setting
 
-Source: `src/config/types.hooks.ts:24,57` (mapping and gmail types), `src/cron/types.ts:59,75` (cron payload type), `src/gateway/hooks-mapping.ts:18,53` (hooks resolution)
+Source: `src/config/types.hooks.ts:24,57` (mapping and gmail types), `src/cron/types.ts:66,75` (cron payload type), `src/gateway/hooks-mapping.ts:18,53` (hooks resolution)
 
 ### 2b) Reasoning & Verbose output in groups
 

@@ -198,7 +198,7 @@ Every path through which the AI can modify system state:
 - Gateway call least-privilege scopes: `src/agents/tools/gateway.ts:147`
 - Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:37-64,102-127`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
-- Cron tool: `src/gateway/server-methods/cron.ts:73-97`
+- Cron tool: `src/gateway/server-methods/cron.ts:76-97`
 - Agent files: `src/gateway/server-methods/agents.ts:467-519`
 
 **Key insight:** The `/config set` chat command has dedicated chat-command gates (`commands.config` + `configWrites`). Gateway tool writes use a different control plane (owner-only tool policy + gateway auth/scopes/rate limits). So `configWrites: false` is useful defense-in-depth, but it does not block gateway-tool config changes.
@@ -818,7 +818,7 @@ openclaw config set tools.exec.approvedPatterns '["git status", "git diff", "npm
 - Execute commands at times when no one is watching
 - Survive restarts — making it a persistence mechanism
 
-**Source:** `src/gateway/server-methods/cron.ts:73-97`
+**Source:** `src/gateway/server-methods/cron.ts:76-97`
 
 **How to detect:**
 ```bash
@@ -910,7 +910,7 @@ No single change looks catastrophic. Together, they give anyone on the network u
 
 ### Schema-Valid but Unsafe Values
 
-OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:716`). This means:
+OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:801`). This means:
 - **Unknown top-level keys are rejected** — the AI can't add random keys
 - **Type errors are caught** — wrong types for known keys fail validation
 - **Semantic security errors pass** — `gateway.bind: "lan"` is a valid value for a known key, even though it's dangerous
@@ -1052,7 +1052,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:484` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
-| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:716` |
+| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:801` |
 | **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:489-536` (audit helpers), `:1178-1228` (audit record builder + append) |
 
 ---

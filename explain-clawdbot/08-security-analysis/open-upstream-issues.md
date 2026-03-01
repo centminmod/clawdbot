@@ -155,7 +155,7 @@
 
 2. **Tool call IDs** (`src/auto-reply/reply/get-reply-inline-actions.ts:191`): `cmd_${Date.now()}_${Math.random().toString(16).slice(2)}` — always uses Math.random(), no crypto path. Used for tool call/result correlation in session transcripts.
 
-**Secondary:** Tmp file suffixes in `src/cron/store.ts:52`, `src/cron/run-log.ts:38`, `src/browser/trash.ts:16`, `src/tts/tts.ts:387` (low risk, collision-resistant via PID/timestamp).
+**Secondary:** Tmp file suffixes in `src/cron/store.ts:52`, `src/cron/run-log.ts:126-127`, `src/browser/trash.ts:16`, `src/tts/tts.ts:387` (low risk, collision-resistant via PID/timestamp).
 
 **Confirmed safe:** 52 files use `crypto.randomUUID`/`randomBytes` for proper crypto paths.
 
