@@ -10,7 +10,9 @@ import {
   normalizeContentType,
   resolveMediaSsrfPolicy,
   resolveRequestUrl,
+  resolveAuthAllowedHosts,
   resolveAllowedHosts,
+  safeFetch,
 } from "./shared.js";
 import type {
   MSTeamsAccessTokenProvider,
@@ -242,6 +244,7 @@ export async function downloadMSTeamsGraphMedia(params: {
     return { media: [] };
   }
   const allowHosts = resolveAllowedHosts(params.allowHosts);
+  const authAllowHosts = resolveAuthAllowedHosts(params.authAllowHosts);
   const ssrfPolicy = resolveMediaSsrfPolicy(allowHosts);
   const messageUrl = params.messageUrl;
   let accessToken: string;
@@ -304,8 +307,21 @@ export async function downloadMSTeamsGraphMedia(params: {
               fetchImpl: async (input, init) => {
                 const requestUrl = resolveRequestUrl(input);
                 const headers = new Headers(init?.headers);
-                headers.set("Authorization", `Bearer ${accessToken}`);
-                return await fetchFn(requestUrl, { ...init, headers });
+                if (isUrlAllowed(requestUrl, authAllowHosts)) {
+                  headers.set("Authorization", `Bearer ${accessToken}`);
+                } else {
+                  headers.delete("Authorization");
+                }
+                return await safeFetch({
+                  url: requestUrl,
+                  allowHosts,
+                  authorizationAllowHosts: authAllowHosts,
+                  fetchFn,
+                  requestInit: {
+                    ...init,
+                    headers,
+                  },
+                });
               },
             });
             sharePointMedia.push(media);
@@ -358,7 +374,7 @@ export async function downloadMSTeamsGraphMedia(params: {
     maxBytes: params.maxBytes,
     tokenProvider: params.tokenProvider,
     allowHosts,
-    authAllowHosts: params.authAllowHosts,
+    authAllowHosts,
     fetchFn: params.fetchFn,
     preserveFilenames: params.preserveFilenames,
   });

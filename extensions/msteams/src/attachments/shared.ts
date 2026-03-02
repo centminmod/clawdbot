@@ -1,6 +1,8 @@
+import { lookup } from "node:dns/promises";
 import {
   buildHostnameAllowlistPolicyFromSuffixAllowlist,
   isHttpsUrlAllowedByHostnameSuffixAllowlist,
+  isPrivateIpAddress,
   normalizeHostnameSuffixAllowlist,
 } from "openclaw/plugin-sdk";
 import type { SsrFPolicy } from "openclaw/plugin-sdk";
@@ -270,4 +272,139 @@ export function isUrlAllowed(url: string, allowlist: string[]): boolean {
 
 export function resolveMediaSsrfPolicy(allowHosts: string[]): SsrFPolicy | undefined {
   return buildHostnameAllowlistPolicyFromSuffixAllowlist(allowHosts);
+}
+
+/**
+ * Returns true if the given IPv4 or IPv6 address is in a private, loopback,
+ * or link-local range that must never be reached from media downloads.
+ *
+ * Delegates to the SDK's `isPrivateIpAddress` which handles IPv4-mapped IPv6,
+ * expanded notation, NAT64, 6to4, Teredo, octal IPv4, and fails closed on
+ * parse errors.
+ */
+export const isPrivateOrReservedIP: (ip: string) => boolean = isPrivateIpAddress;
+
+/**
+ * Resolve a hostname via DNS and reject private/reserved IPs.
+ * Throws if the resolved IP is private or resolution fails.
+ */
+export async function resolveAndValidateIP(
+  hostname: string,
+  resolveFn?: (hostname: string) => Promise<{ address: string }>,
+): Promise<string> {
+  const resolve = resolveFn ?? lookup;
+  let resolved: { address: string };
+  try {
+    resolved = await resolve(hostname);
+  } catch {
+    throw new Error(`DNS resolution failed for "${hostname}"`);
+  }
+  if (isPrivateOrReservedIP(resolved.address)) {
+    throw new Error(`Hostname "${hostname}" resolves to private/reserved IP (${resolved.address})`);
+  }
+  return resolved.address;
+}
+
+/** Maximum number of redirects to follow in safeFetch. */
+const MAX_SAFE_REDIRECTS = 5;
+
+/**
+ * Fetch a URL with redirect: "manual", validating each redirect target
+ * against the hostname allowlist and optional DNS-resolved IP (anti-SSRF).
+ *
+ * This prevents:
+ * - Auto-following redirects to non-allowlisted hosts
+ * - DNS rebinding attacks when a lookup function is provided
+ */
+export async function safeFetch(params: {
+  url: string;
+  allowHosts: string[];
+  /**
+   * Optional allowlist for forwarding Authorization across redirects.
+   * When set, Authorization is stripped before following redirects to hosts
+   * outside this list.
+   */
+  authorizationAllowHosts?: string[];
+  fetchFn?: typeof fetch;
+  requestInit?: RequestInit;
+  resolveFn?: (hostname: string) => Promise<{ address: string }>;
+}): Promise<Response> {
+  const fetchFn = params.fetchFn ?? fetch;
+  const resolveFn = params.resolveFn;
+  const hasDispatcher = Boolean(
+    params.requestInit &&
+    typeof params.requestInit === "object" &&
+    "dispatcher" in (params.requestInit as Record<string, unknown>),
+  );
+  const currentHeaders = new Headers(params.requestInit?.headers);
+  let currentUrl = params.url;
+
+  if (!isUrlAllowed(currentUrl, params.allowHosts)) {
+    throw new Error(`Initial download URL blocked: ${currentUrl}`);
+  }
+
+  if (resolveFn) {
+    try {
+      const initialHost = new URL(currentUrl).hostname;
+      await resolveAndValidateIP(initialHost, resolveFn);
+    } catch {
+      throw new Error(`Initial download URL blocked: ${currentUrl}`);
+    }
+  }
+
+  for (let i = 0; i <= MAX_SAFE_REDIRECTS; i++) {
+    const res = await fetchFn(currentUrl, {
+      ...params.requestInit,
+      headers: currentHeaders,
+      redirect: "manual",
+    });
+
+    if (![301, 302, 303, 307, 308].includes(res.status)) {
+      return res;
+    }
+
+    const location = res.headers.get("location");
+    if (!location) {
+      return res;
+    }
+
+    let redirectUrl: string;
+    try {
+      redirectUrl = new URL(location, currentUrl).toString();
+    } catch {
+      throw new Error(`Invalid redirect URL: ${location}`);
+    }
+
+    // Validate redirect target against hostname allowlist
+    if (!isUrlAllowed(redirectUrl, params.allowHosts)) {
+      throw new Error(`Media redirect target blocked by allowlist: ${redirectUrl}`);
+    }
+
+    // Prevent credential bleed: only keep Authorization on redirect hops that
+    // are explicitly auth-allowlisted.
+    if (
+      currentHeaders.has("authorization") &&
+      params.authorizationAllowHosts &&
+      !isUrlAllowed(redirectUrl, params.authorizationAllowHosts)
+    ) {
+      currentHeaders.delete("authorization");
+    }
+
+    // When a pinned dispatcher is already injected by an upstream guard
+    // (for example fetchWithSsrFGuard), let that guard own redirect handling
+    // after this allowlist validation step.
+    if (hasDispatcher) {
+      return res;
+    }
+
+    // Validate redirect target's resolved IP
+    if (resolveFn) {
+      const redirectHost = new URL(redirectUrl).hostname;
+      await resolveAndValidateIP(redirectHost, resolveFn);
+    }
+
+    currentUrl = redirectUrl;
+  }
+
+  throw new Error(`Too many redirects (>${MAX_SAFE_REDIRECTS})`);
 }

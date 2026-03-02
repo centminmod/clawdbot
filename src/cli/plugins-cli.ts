@@ -22,6 +22,7 @@ import { formatDocsLink } from "../terminal/links.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import { resolveUserPath, shortenHomeInString, shortenHomePath } from "../utils.js";
+import { looksLikeLocalInstallSpec } from "./install-spec.js";
 import { resolvePinnedNpmInstallRecordForCli } from "./npm-resolution.js";
 import { setPluginEnabledInConfig } from "./plugins-config.js";
 import { promptYesNo } from "./prompt.js";
@@ -155,6 +156,19 @@ function isPackageNotFoundInstallError(message: string): boolean {
     (lower.includes("e404") ||
       lower.includes("404 not found") ||
       lower.includes("could not be found"))
+  );
+}
+
+/**
+ * True when npm downloaded a package successfully but it is not a valid
+ * OpenClaw plugin (e.g. `diffs` resolves to the unrelated npm package
+ * `diffs@0.1.1` instead of `@openclaw/diffs`).
+ * See: https://github.com/openclaw/openclaw/issues/32019
+ */
+function isNotAnOpenClawPluginError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("missing openclaw.extensions") || lower.includes("openclaw.extensions is empty")
   );
 }
 
@@ -603,19 +617,18 @@ export function registerPluginsCli(program: Command) {
         process.exit(1);
       }
 
-      const looksLikePath =
-        raw.startsWith(".") ||
-        raw.startsWith("~") ||
-        path.isAbsolute(raw) ||
-        raw.endsWith(".ts") ||
-        raw.endsWith(".js") ||
-        raw.endsWith(".mjs") ||
-        raw.endsWith(".cjs") ||
-        raw.endsWith(".tgz") ||
-        raw.endsWith(".tar.gz") ||
-        raw.endsWith(".tar") ||
-        raw.endsWith(".zip");
-      if (looksLikePath) {
+      if (
+        looksLikeLocalInstallSpec(raw, [
+          ".ts",
+          ".js",
+          ".mjs",
+          ".cjs",
+          ".tgz",
+          ".tar.gz",
+          ".tar",
+          ".zip",
+        ])
+      ) {
         defaultRuntime.error(`Path not found: ${resolved}`);
         process.exit(1);
       }
@@ -625,9 +638,10 @@ export function registerPluginsCli(program: Command) {
         logger: createPluginInstallLogger(),
       });
       if (!result.ok) {
-        const bundledFallback = isPackageNotFoundInstallError(result.error)
-          ? findBundledPluginByNpmSpec({ spec: raw })
-          : undefined;
+        const isNpmNotFound = isPackageNotFoundInstallError(result.error);
+        const isNotPlugin = isNotAnOpenClawPluginError(result.error);
+        const bundledFallback =
+          isNpmNotFound || isNotPlugin ? findBundledPluginByNpmSpec({ spec: raw }) : undefined;
         if (!bundledFallback) {
           defaultRuntime.error(result.error);
           process.exit(1);
@@ -665,7 +679,9 @@ export function registerPluginsCli(program: Command) {
         logSlotWarnings(slotResult.warnings);
         defaultRuntime.log(
           theme.warn(
-            `npm package unavailable for ${raw}; using bundled plugin at ${shortenHomePath(bundledFallback.localPath)}.`,
+            isNpmNotFound
+              ? `npm package unavailable for ${raw}; using bundled plugin at ${shortenHomePath(bundledFallback.localPath)}.`
+              : `npm package "${raw}" is not a valid OpenClaw plugin; using bundled plugin at ${shortenHomePath(bundledFallback.localPath)}.`,
           ),
         );
         defaultRuntime.log(`Installed plugin: ${bundledFallback.pluginId}`);

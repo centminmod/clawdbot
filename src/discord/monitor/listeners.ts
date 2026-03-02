@@ -119,7 +119,7 @@ export function registerDiscordListener(listeners: Array<object>, listener: obje
 }
 
 export class DiscordMessageListener extends MessageCreateListener {
-  private messageQueue: Promise<void> = Promise.resolve();
+  private channelQueues = new Map<string, Promise<void>>();
 
   constructor(
     private handler: DiscordMessageHandler,
@@ -131,9 +131,12 @@ export class DiscordMessageListener extends MessageCreateListener {
 
   async handle(data: DiscordMessageEvent, client: Client) {
     this.onEvent?.();
-    // Release Carbon's dispatch lane immediately, but keep our message handler
-    // serialized to avoid unbounded parallel model/IO work on traffic bursts.
-    this.messageQueue = this.messageQueue
+    const channelId = data.channel_id;
+    const prev = this.channelQueues.get(channelId) ?? Promise.resolve();
+    // Serialize messages within the same channel to preserve ordering,
+    // but allow different channels to proceed in parallel so that
+    // channel-bound agents are not blocked by each other.
+    const next = prev
       .catch(() => {})
       .then(() =>
         runDiscordListenerWithSlowLog({
@@ -147,10 +150,17 @@ export class DiscordMessageListener extends MessageCreateListener {
           },
         }),
       );
-    void this.messageQueue.catch((err) => {
-      const logger = this.logger ?? discordEventQueueLog;
-      logger.error(danger(`discord handler failed: ${String(err)}`));
-    });
+    this.channelQueues.set(channelId, next);
+    void next
+      .then(() => {
+        if (this.channelQueues.get(channelId) === next) {
+          this.channelQueues.delete(channelId);
+        }
+      })
+      .catch((err) => {
+        const logger = this.logger ?? discordEventQueueLog;
+        logger.error(danger(`discord handler failed: ${String(err)}`));
+      });
   }
 }
 
@@ -374,7 +384,7 @@ async function handleDiscordReactionEvent(params: {
       channelType === ChannelType.PublicThread ||
       channelType === ChannelType.PrivateThread ||
       channelType === ChannelType.AnnouncementThread;
-    const ingressAccess = await authorizeDiscordReactionIngress({
+    const reactionIngressBase: Omit<DiscordReactionIngressAuthorizationParams, "channelConfig"> = {
       accountId: params.accountId,
       user,
       isDirectMessage,
@@ -391,7 +401,8 @@ async function handleDiscordReactionEvent(params: {
       groupPolicy: params.groupPolicy,
       allowNameMatching: params.allowNameMatching,
       guildInfo,
-    });
+    };
+    const ingressAccess = await authorizeDiscordReactionIngress(reactionIngressBase);
     if (!ingressAccess.allowed) {
       logVerbose(`discord reaction blocked sender=${user.id} (reason=${ingressAccess.reason})`);
       return;
@@ -486,22 +497,7 @@ async function handleDiscordReactionEvent(params: {
       channelConfig: ReturnType<typeof resolveDiscordChannelConfigWithFallback>,
     ) =>
       await authorizeDiscordReactionIngress({
-        accountId: params.accountId,
-        user,
-        isDirectMessage,
-        isGroupDm,
-        isGuildMessage,
-        channelId: data.channel_id,
-        channelName,
-        channelSlug,
-        dmEnabled: params.dmEnabled,
-        groupDmEnabled: params.groupDmEnabled,
-        groupDmChannels: params.groupDmChannels,
-        dmPolicy: params.dmPolicy,
-        allowFrom: params.allowFrom,
-        groupPolicy: params.groupPolicy,
-        allowNameMatching: params.allowNameMatching,
-        guildInfo,
+        ...reactionIngressBase,
         channelConfig,
       });
     const authorizeThreadChannelAccess = async (channelInfo: { parentId?: string } | null) => {
