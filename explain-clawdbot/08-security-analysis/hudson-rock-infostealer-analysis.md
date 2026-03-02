@@ -236,7 +236,7 @@ Hudson Rock predicts that **infostealer developers will likely release dedicated
 
 | Risk | Status | Mitigation | Documentation |
 |------|--------|------------|---------------|
-| Gateway network exposure | MITIGATED (default) | Loopback-only binding by default (`src/gateway/net.ts:273-278`) | [Hardening checklist](../04-privacy-safety/hardening-checklist.md) |
+| Gateway network exposure | MITIGATED (default) | Loopback-only binding by default (`src/gateway/net.ts:221-271`) | [Hardening checklist](../04-privacy-safety/hardening-checklist.md) |
 | Loopback fallback to 0.0.0.0 | OPEN (edge case) | If loopback bind fails, falls back to all-interfaces (`src/gateway/net.ts:280`) | [Threat model](../04-privacy-safety/threat-model.md) |
 | File permissions | PARTIALLY MITIGATED | `0o600` on config/keys; `openclaw security audit --fix` can repair | [Hardening checklist](../04-privacy-safety/hardening-checklist.md) |
 | Encryption at rest | OPEN | No encryption — credentials protected only by filesystem permissions | [Mac Mini risks](../05-worst-case-security/mac-mini-risks.md) |

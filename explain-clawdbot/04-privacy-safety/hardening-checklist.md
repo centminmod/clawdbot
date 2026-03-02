@@ -235,7 +235,7 @@ openclaw security audit
 
 If you're not using a reverse proxy, leave `trustedProxies` empty (the default).
 
-Source: `src/gateway/net.ts:235-277`
+Source: `src/gateway/net.ts:141-186` (`isTrustedProxyAddress` + `resolveClientIp`)
 
 See: [Threat model - Trusted proxies](./threat-model.md#trusted-proxies-reverse-proxy-configuration)
 
@@ -340,7 +340,7 @@ for line in sys.stdin:
 "
 ```
 
-Source: `src/config/io.ts:489-536` (audit helpers), `src/config/io.ts:1178-1228` (audit record builder)
+Source: `src/config/io.ts:493-536` (audit helpers), `src/config/io.ts:1178-1228` (audit record builder)
 
 See: [AI Self-Misconfiguration Guide](../05-worst-case-security/ai-self-misconfiguration.md), [Attack #28](../05-worst-case-security/prompt-injection-attacks.md#-attack-28-config-self-modification-via-gateway-tool)
 

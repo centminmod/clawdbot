@@ -48,7 +48,7 @@ openclaw [--dev] [--profile <name>] <command>
   setup                              # first-time init
   onboard                            # interactive wizard
   configure                          # config wizard (models, channels, skills)
-  config get|set|unset               # read/write config values
+  config get|set|unset|path          # read/write config values; path prints active config file path
   doctor                             # health checks + quick fixes
 
   status                             # session health + recipients
@@ -364,6 +364,9 @@ openclaw config set gateway.bind "loopback"
 
 # Remove a value
 openclaw config unset channels.telegram.default.token
+
+# Print the path to the active config file
+openclaw config path
 ```
 
 | Subcommand | What it does |
@@ -371,6 +374,7 @@ openclaw config unset channels.telegram.default.token
 | `config get <path>` | Print a config value (dot/bracket path) |
 | `config set <path> <value>` | Set a value |
 | `config unset <path>` | Remove a value |
+| `config path` | Print the path to the active config file |
 
 ---
 

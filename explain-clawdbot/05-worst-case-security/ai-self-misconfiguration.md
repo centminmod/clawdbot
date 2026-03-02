@@ -358,7 +358,7 @@ OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config
 
 **Even worse:** `"host"` shares the host's network namespace directly — no isolation at all.
 
-Source: `src/agents/sandbox/docker.ts:302-304` — `args.push("--network", params.cfg.network)`
+Source: `src/agents/sandbox/docker.ts:321-323` — `args.push("--network", params.cfg.network)`
 
 #### 4b. Linux Capabilities Restoration
 
@@ -383,9 +383,9 @@ Source: `src/agents/sandbox/docker.ts:302-304` — `args.push("--network", param
 
 With capabilities restored, a container escape via kernel exploits becomes significantly easier.
 
-**Note:** The `--security-opt no-new-privileges` flag is **hardcoded** and always applied (`src/agents/sandbox/docker.ts:321`). This cannot be disabled via config and prevents SUID binaries from gaining elevated privileges — a genuine defense-in-depth measure.
+**Note:** The `--security-opt no-new-privileges` flag is **hardcoded** and always applied (`src/agents/sandbox/docker.ts:340`). This cannot be disabled via config and prevents SUID binaries from gaining elevated privileges — a genuine defense-in-depth measure.
 
-Source: `src/agents/sandbox/docker.ts:318-320` — iterates `capDrop` array to build `--cap-drop` flags
+Source: `src/agents/sandbox/docker.ts:337-339` — iterates `capDrop` array to build `--cap-drop` flags
 
 #### 4c. Read-Only Root Filesystem Disabled
 
@@ -408,7 +408,7 @@ Source: `src/agents/sandbox/docker.ts:318-320` — iterates `capDrop` array to b
 - Write persistent files that survive container restarts (if volumes are mounted)
 - Create SUID binaries (though `no-new-privileges` limits exploitation)
 
-Source: `src/agents/sandbox/docker.ts:296` — `if (params.cfg.readOnlyRoot) args.push("--read-only")`
+Source: `src/agents/sandbox/docker.ts:315` — `if (params.cfg.readOnlyRoot) args.push("--read-only")`
 
 #### 4d. Workspace Access Escalation
 
@@ -430,7 +430,7 @@ Source: `src/agents/sandbox/docker.ts:296` — `if (params.cfg.readOnlyRoot) arg
 
 With `"rw"`, the sandboxed agent can modify files on the host filesystem — potentially overwriting config files, scripts, or source code outside the sandbox.
 
-Source: `src/agents/sandbox/docker.ts:396-405` — workspace mount with optional `:ro` suffix
+Source: `src/agents/sandbox/docker.ts:415-424` — workspace mount with optional `:ro` suffix
 
 #### 4e. Dangerous Bind Mounts
 
@@ -456,7 +456,7 @@ Source: `src/agents/sandbox/docker.ts:396-405` — workspace mount with optional
 
 Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:92`), so per-agent overrides add to — not replace — the global list.
 
-Source: `src/agents/sandbox/docker.ts:358-361` — iterates `binds` array to build `-v` flags
+Source: `src/agents/sandbox/docker.ts:377-381` — iterates `binds` array to build `-v` flags
 
 #### 4f. Resource Limits Removed
 
@@ -482,7 +482,7 @@ Source: `src/agents/sandbox/docker.ts:358-361` — iterates `binds` array to bui
 
 These are availability attacks, not confidentiality or integrity attacks — but on a shared host they can take down the gateway and other services.
 
-Source: `src/agents/sandbox/docker.ts:338-351` — resource limit flags
+Source: `src/agents/sandbox/docker.ts:357-376` — resource limit flags
 
 #### 4g. Custom DNS for Network Redirection
 
@@ -505,7 +505,7 @@ Source: `src/agents/sandbox/docker.ts:338-351` — resource limit flags
 
 Requires `network` to not be `"none"` — this attack only works when network isolation has already been weakened (4a).
 
-Source: `src/agents/sandbox/docker.ts:328-337` — DNS and extra hosts flags
+Source: `src/agents/sandbox/docker.ts:347-356` — DNS and extra hosts flags
 
 #### 4h. Security Profile Removal
 
@@ -525,7 +525,7 @@ Source: `src/agents/sandbox/docker.ts:328-337` — DNS and extra hosts flags
 
 **What blank values do:** Depending on Docker's handling, this may disable the default seccomp profile that blocks ~44 dangerous syscalls (including `mount`, `reboot`, `kexec_load`). Without seccomp filtering, a container has access to a wider kernel attack surface.
 
-Source: `src/agents/sandbox/docker.ts:322-327` — seccomp and AppArmor `--security-opt` flags
+Source: `src/agents/sandbox/docker.ts:341-345` — seccomp and AppArmor `--security-opt` flags
 
 #### Combined "Full Sandbox Dismantle" Example
 
@@ -1048,12 +1048,12 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:34-51` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1088-1177` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:467-519` |
-| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1112,1238` |
+| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1114,1240` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:480` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
 | **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:815` |
-| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:489-536` (audit helpers), `:1178-1228` (audit record builder + append) |
+| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:493-536` (audit helpers), `:1178-1228` (audit record builder + append) |
 
 ---
 

@@ -127,7 +127,7 @@ When OpenClaw connects to an ACP (Agent Communication Protocol) server, it ident
 { "name": "openclaw-acp-client", "version": "1.0.0" }
 ```
 
-**Source:** `src/acp/client.ts:445`
+**Source:** `src/acp/client.ts:452`
 ```typescript
 clientInfo: { name: "openclaw-acp-client", version: "1.0.0" },
 ```
@@ -541,7 +541,7 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 |---|---|---|---|
 | Bind mode | `gateway.bind` | `"lan"` or `gateway.customBindHost` | Must not be `"loopback"` — Cloudflare needs to reach the Gateway's port |
 | Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:124`), unless `auth.mode="trusted-proxy"` |
-| Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:235-277`) |
+| Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:141-186`) |
 
 **Source:** `src/config/types.gateway.ts:319`
 ```typescript
