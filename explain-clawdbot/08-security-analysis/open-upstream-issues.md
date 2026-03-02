@@ -292,8 +292,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Gateway HTTP server serves Canvas host and A2UI endpoints without enforcing gateway auth, allowing unauthenticated access to canvas files.
 
 **Affected code:**
-- `src/gateway/server-http.ts:586-609` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `:168-216`, PR #9518)
-- `src/gateway/server-http.ts:664-689` - WebSocket upgrade for canvas (now auth-wrapped via `authorizeCanvasRequest()` at `:670`, PR #9518)
+- `src/gateway/server-http.ts:431-454` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `src/gateway/server/http-auth.ts:58`, PR #9518)
+- `src/gateway/server-http.ts:518-551` - WebSocket upgrade for canvas (now auth-wrapped via `authorizeCanvasRequest()` at `server-http.ts:535`, PR #9518)
 
 **Verification:**
 - No `authorizeGatewayConnect` call before `canvasHost.handleHttpRequest(req, res)`
