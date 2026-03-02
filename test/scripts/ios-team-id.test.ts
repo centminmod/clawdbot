@@ -113,11 +113,8 @@ exit 1`,
     return { homeDir, binDir };
   }
 
-  it("resolves fallback and preferred team IDs from provisioning profiles", async () => {
+  it("resolves fallback and preferred team IDs from Xcode team listings", async () => {
     const { homeDir, binDir } = await createHomeDir();
-    const profilesDir = path.join(homeDir, "Library", "MobileDevice", "Provisioning Profiles");
-    await mkdir(profilesDir, { recursive: true });
-    await writeFile(path.join(profilesDir, "one.mobileprovision"), "stub1");
     await writeExecutable(
       path.join(binDir, "fake-python"),
       `#!/usr/bin/env bash
@@ -140,22 +137,7 @@ printf 'BBBBB22222\\t0\\tBeta Team\\r\\n'`,
   });
 
   it("prints actionable guidance when Xcode account exists but no Team ID is resolvable", async () => {
-    const { homeDir, binDir } = await createHomeDir();
-    await writeExecutable(
-      path.join(binDir, "defaults"),
-      `#!/usr/bin/env bash
-if [[ "$3" == "DVTDeveloperAccountManagerAppleIDLists" ]]; then
-  echo '(identifier = "dev@example.com";)'
-  exit 0
-fi
-echo "Domain/default pair of (com.apple.dt.Xcode, $3) does not exist" >&2
-exit 1`,
-    );
-    await writeExecutable(
-      path.join(binDir, "security"),
-      `#!/usr/bin/env bash
-exit 1`,
-    );
+    const { homeDir } = await createHomeDir();
 
     const result = runScript(homeDir);
     expect(result.ok).toBe(false);
