@@ -54,8 +54,8 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - SHA-256 hashing for content deduplication and caching
 
 **Child process stdout/stderr accumulation:**
-- `src/process/exec.ts:133-162` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:1091-1096` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1906`), configured by `MAX_QMD_OUTPUT_CHARS` (`:40`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
+- `src/process/exec.ts:240-245` — unbounded string concatenation of process output
+- `src/memory/qmd-manager.ts:1091-1096` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1906`), configured by `MAX_QMD_OUTPUT_CHARS` (`:40`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:240-245` remains unbounded.
 
 **Media fetch buffering:**
 - `src/media/fetch.ts:132-148` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
@@ -569,7 +569,7 @@ At the start of every session, OpenClaw loads `MEMORY.md` (or `memory.md`) from 
 - Loading: `src/agents/workspace.ts:475-531` — reads file contents into `WorkspaceBootstrapFile[]`
 - Filtering: `src/agents/workspace.ts:542-550` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
 - Context building: `src/agents/pi-embedded-helpers/bootstrap.ts:187-239` — trims to `bootstrapMaxChars` (default 20,000 chars) using head/tail strategy with `totalMaxChars` cap (default 24,000)
-- Orchestration: `src/agents/bootstrap-files.ts:44-70` — wires resolution → filtering → context building
+- Orchestration: `src/agents/bootstrap-files.ts:64-96` — wires resolution → filtering → context building
 
 > **Correction vs. third-party articles:** Some sources claim MEMORY.md is "never injected in group chats, for privacy." This is inaccurate. Bootstrap injection happens for all non-subagent sessions regardless of chat type. What *is* suppressed in groups is memory search *citations* (see F5).
 
