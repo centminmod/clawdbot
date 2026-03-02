@@ -181,10 +181,21 @@ export async function prepareSlackMessage(params: {
   const threadContext = resolveSlackThreadContext({ message, replyToMode });
   const threadTs = threadContext.incomingThreadTs;
   const isThreadReply = threadContext.isThreadReply;
+  // Keep channel/group sessions thread-scoped to avoid cross-thread context bleed.
+  // For DMs, preserve existing auto-thread behavior when replyToMode="all".
+  const autoThreadId =
+    !isThreadReply && replyToMode === "all" && threadContext.messageTs
+      ? threadContext.messageTs
+      : undefined;
+  const canonicalThreadId = isRoomish
+    ? (threadContext.incomingThreadTs ?? message.ts)
+    : isThreadReply
+      ? threadTs
+      : autoThreadId;
   const threadKeys = resolveThreadSessionKeys({
     baseSessionKey,
-    threadId: isThreadReply ? threadTs : undefined,
-    parentSessionKey: isThreadReply && ctx.threadInheritParent ? baseSessionKey : undefined,
+    threadId: canonicalThreadId,
+    parentSessionKey: canonicalThreadId && ctx.threadInheritParent ? baseSessionKey : undefined,
   });
   const sessionKey = threadKeys.sessionKey;
   const historyKey =
@@ -452,7 +463,7 @@ export async function prepareSlackMessage(params: {
   const envelopeOptions = resolveEnvelopeFormatOptions(ctx.cfg);
   const previousTimestamp = readSessionUpdatedAt({
     storePath,
-    sessionKey: route.sessionKey,
+    sessionKey,
   });
   const body = formatInboundEnvelope({
     channel: "Slack",

@@ -101,6 +101,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
     enabled: true,
     botTokenSource: "config",
     appTokenSource: "config",
+    userTokenSource: "none",
     config: {},
   };
 
@@ -119,6 +120,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       enabled: true,
       botTokenSource: "config",
       appTokenSource: "config",
+      userTokenSource: "none",
       config,
       replyToMode: config.replyToMode,
       replyToModeByChatType: config.replyToModeByChatType,
@@ -165,6 +167,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       enabled: true,
       botTokenSource: "config",
       appTokenSource: "config",
+      userTokenSource: "none",
       config: {
         replyToMode: "all",
         thread: { initialHistoryLimit: 20 },
@@ -378,6 +381,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       enabled: true,
       botTokenSource: "config",
       appTokenSource: "config",
+      userTokenSource: "none",
       config: {},
     };
 
@@ -461,6 +465,7 @@ describe("slack prepareSlackMessage inbound contract", () => {
       enabled: true,
       botTokenSource: "config",
       appTokenSource: "config",
+      userTokenSource: "none",
       config: {},
     };
 
@@ -706,6 +711,32 @@ describe("slack prepareSlackMessage inbound contract", () => {
     expect(prepared!.ctxPayload.Body).toMatch(/\[slack message id: 1\.000 channel: D123\]$/);
     expect(prepared!.ctxPayload.Body).not.toContain("thread_ts");
     expect(prepared!.ctxPayload.Body).not.toContain("parent_user_id");
+  });
+
+  it("creates thread session for top-level DM when replyToMode=all", async () => {
+    const { storePath } = makeTmpStorePath();
+    const slackCtx = createInboundSlackCtx({
+      cfg: {
+        session: { store: storePath },
+        channels: { slack: { enabled: true, replyToMode: "all" } },
+      } as OpenClawConfig,
+      replyToMode: "all",
+    });
+    // oxlint-disable-next-line typescript/no-explicit-any
+    slackCtx.resolveUserName = async () => ({ name: "Alice" }) as any;
+
+    const message = createSlackMessage({ ts: "500.000" });
+    const prepared = await prepareMessageWith(
+      slackCtx,
+      createSlackAccount({ replyToMode: "all" }),
+      message,
+    );
+
+    expect(prepared).toBeTruthy();
+    // Session key should include :thread:500.000 for the auto-threaded message
+    expect(prepared!.ctxPayload.SessionKey).toContain(":thread:500.000");
+    // MessageThreadId should be set for the reply
+    expect(prepared!.ctxPayload.MessageThreadId).toBe("500.000");
   });
 });
 
