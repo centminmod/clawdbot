@@ -1879,6 +1879,138 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 
 **Fix:** Commit `c736f11a1` extends browser origin checks and rate limiting to non-loopback connection paths via `attachGatewayWsMessageHandler()`. Patched in `openclaw >= 2026.2.26`.
 
+### GHSA-vpj2-69hf-rppw: Browser Control Startup Continued Unauthenticated After Auth Bootstrap Failure
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** When browser control started without explicit auth credentials, OpenClaw attempted to bootstrap auth automatically. In affected versions, if that bootstrap step threw an error, startup could continue and expose browser-control routes without authentication.
+
+**Impact:** On affected deployments, a local process (or a loopback-reachable SSRF path) could access browser-control routes, including evaluate-capable actions, without auth.
+
+**Fix:** Commit `e4d22fb07` fails closed: if bootstrap auth fails and no explicit token/password is configured, browser-control startup aborts. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-wr6m-jg37-68xh: Unbounded Memory Growth in Zalo Webhook via Query-String Key Churn
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** Unauthenticated requests to a reachable Zalo webhook endpoint could trigger unbounded in-memory key growth by varying query strings on the same valid webhook route.
+
+**Impact:** An attacker could cause memory pressure and potential process instability or OOM, degrading availability.
+
+**Fix:** Commit `43cad8268` introduces `createFixedWindowRateLimiter()` and `createBoundedCounter()` from `src/plugin-sdk/webhook-memory-guards.ts`, normalizing webhook tracking keys and bounding/pruning state across Feishu, Nostr, Synology Chat, and Zalo extensions. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-jr6x-2q95-fh2g: Authorization Mismatch Allowed Write-Scope Agent Runs to Reach Owner-Only Tools
+
+**Severity:** HIGH
+
+**Published:** 2026-03-02
+
+**Description:** An authorization mismatch allowed authenticated callers with `operator.write` access to invoke owner-only tool surfaces (`gateway`, `cron`) through `agent` runs in scoped-token deployments.
+
+**Impact:** On affected deployments, write-scoped callers could perform control-plane actions beyond intended write scope.
+
+**Fix:** Owner-only gating is now enforced consistently for owner-only tool surfaces during agent execution, and tool scope classification was tightened to remove the privilege mismatch. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-392f-ggf5-fp3c: Unicode Canonicalization Drift in Node Metadata Policy Classification
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** A paired node could supply Unicode-confusable `platform` or `deviceFamily` metadata that passed metadata pinning but classified differently for command policy resolution, broadening default node command allowlists.
+
+**Impact:** A policy-bypass issue within the paired-node trust boundary that can expand node command availability beyond intended defaults.
+
+**Fix:** Node metadata canonicalization was hardened against confusables, and unknown platform defaults were made conservative (excluding `system.run` and `system.which` unless explicitly allowlisted). Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-q399-23r3-hfx4: system.run Approvals Did Not Bind PATH-Token Executable Identity
+
+**Severity:** HIGH
+
+**Published:** 2026-03-02
+
+**Description:** For `host=node` runs, approvals validated command context but did not pin executable identity for non-path-like `argv[0]` tokens (for example `tr`). If PATH resolution changed after approval, execution could run a different binary.
+
+**Impact:** A previously approved action could execute a different executable than the operator approved.
+
+**Fix:** Node `system.run` approvals now require immutable `systemRunPlan` data, and path-token commands are pinned to canonical executable identity (`realpath`) across approval and execution. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-p7gr-f84w-hqg5: Sandboxed sessions_spawn Enforces Sandbox Inheritance for Cross-Agent Spawns
+
+**Severity:** HIGH
+
+**Published:** 2026-03-02
+
+**Description:** A sandboxed session could use cross-agent `sessions_spawn` to create a child under an agent configured with `sandbox.mode="off"`, downgrading runtime confinement.
+
+**Impact:** In mixed-agent setups that allow cross-agent spawning, a sandboxed requester could escape into an unsandboxed child runtime.
+
+**Fix:** Commit `4fc7ecf08` enforces spawn-time sandbox inheritance: if the requester is sandboxed and the resolved child runtime would be unsandboxed, spawn is rejected. Also adds system prompt instruction prohibiting `message action=thread-create` for ACP harness requests. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-7xmq-g46g-f8pv: Sandbox Media TOCTOU Could Read Files Outside Sandbox Root
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** Sandbox media handling had a time-of-check/time-of-use gap: media paths could be validated first and read later through a separate path. A symlink retarget between those steps could cause reads outside `sandboxRoot`.
+
+**Impact:** Affected versions could permit host file reads outside the intended sandbox root in media attachment/image flows.
+
+**Fix:** Media reads now use consolidated root-scoped, boundary-safe read paths at use time, removing check/use drift across call sites. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-x82f-27x3-q89c: TOCTOU Symlink Race in writeFileWithinRoot Could Create or Truncate Files Outside Root
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** A symlink-retarget TOCTOU race in `writeFileWithinRoot` (`src/infra/fs-safe.ts`) could point an attacker-controlled path alias outside the configured root between resolution and write operations.
+
+**Impact:** Affected versions could cause out-of-root write side effects (including file creation or truncation) before final boundary validation.
+
+**Fix:** Root-scoped write flow now opens existing files without pre-truncation, creates missing files with exclusive create semantics, truncates only after post-open identity/boundary checks, and removes out-of-root artifacts when a race is detected. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-8m9v-xpgf-g99m: Unauthorized Sender Bypass in Stop Triggers and /models Command Authorization
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** Unauthorized senders could trigger two command paths without sender authorization checks: (1) stop-like natural-language abort triggers, and (2) `/models` command output.
+
+**Impact:** An unauthorized sender could disrupt active sessions and view model/auth metadata that should be authorization-gated.
+
+**Fix:** Commit `a93a7bb1` enforces sender authorization for stop-like abort triggers and `/models` listings. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-6f6j-wx9w-ff4j: ACPX Windows Wrapper Shell Fallback Allowed cwd Injection
+
+**Severity:** HIGH
+
+**Published:** 2026-03-02
+
+**Description:** On Windows ACPX paths, wrapper resolution for `.cmd`/`.bat` could fall back to shell execution in ways that allowed `cwd` influence to alter execution behavior.
+
+**Impact:** In affected Windows ACPX configurations, this could enable command execution integrity loss through cwd-influenced wrapper resolution.
+
+**Fix:** Commits `9e6e7a3d6` and `12c125702` harden the Windows cmd wrapper: resolution now prefers explicit PATH/PATHEXT entrypoint resolution and unwrapped Node/EXE execution. The shared `src/plugin-sdk/windows-spawn.ts` module adds `strictWindowsCmdWrapper` mode (fail-closed for unresolvable wrapper cases). Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-g99v-8hwm-g76g: web_search Citation Redirect SSRF via Private-Network-Allowing Policy
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-02
+
+**Description:** Gemini `web_search` citation redirect resolution used a private-network-allowing SSRF policy. A citation URL redirect could target loopback/private/internal destinations and be fetched by the gateway.
+
+**Impact:** An attacker who can influence citation redirect targets could trigger internal-network requests from the OpenClaw host.
+
+**Fix:** Citation redirect resolution now uses strict/default SSRF policy (no private-network override), blocking localhost/private/internal redirect targets. Patched in `openclaw >= 2026.3.1`.
+
 ### Relationship to Third-Party Audits
 
 These official CVEs are **distinct from** the two third-party security audits documented below:

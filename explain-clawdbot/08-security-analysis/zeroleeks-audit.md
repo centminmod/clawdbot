@@ -55,7 +55,7 @@ Every item ZeroLeeks claims to have "extracted" is publicly readable TypeScript 
 | 7 | Tool narration policy | `src/agents/system-prompt.ts:456-461` | Yes - verbatim match |
 | 8 | SOUL.md reference/logic | `src/agents/system-prompt.ts:610-624` | Yes - verbatim match |
 | 9 | Reasoning format tags (`<think>`/`<final>`) | `src/agents/system-prompt.ts:348-358` | Yes - verbatim match |
-| 10 | Identity line ("personal assistant running inside OpenClaw") | `src/agents/system-prompt.ts:415,419` | Yes - verbatim match |
+| 10 | Identity line ("personal assistant running inside OpenClaw") | `src/agents/system-prompt.ts:414,418` | Yes - verbatim match |
 | 11 | Silent reply rules | `src/agents/system-prompt.ts:628-641` | Yes - verbatim match |
 
 #### Critical context

@@ -79,7 +79,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Browser roleRefs | `src/browser/pw-session.ts:102-103` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:18` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:21` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
-| Agent run sequence | `src/gateway/server-runtime-state.ts:185` | **No pruning** (maintenance timer skips it) | **Leak risk** |
+| Agent run sequence | `src/gateway/server-runtime-state.ts:193` | **No pruning** (maintenance timer skips it) | **Leak risk** |
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:103` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:113` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
@@ -737,7 +737,7 @@ During sync, unchanged files are skipped (hash comparison against the `files` ta
 
 When the conversation approaches the context window limit, OpenClaw inserts a silent "memory flush" turn before running compaction:
 
-**Trigger condition** (`src/auto-reply/reply/memory-flush.ts:113-160`):
+**Trigger condition** (`src/auto-reply/reply/memory-flush.ts:144-191`):
 
 ```
 totalTokens >= contextWindow - reserveTokens - softThreshold

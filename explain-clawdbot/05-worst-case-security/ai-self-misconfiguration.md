@@ -103,7 +103,7 @@ OpenClaw includes a soft defense in the agent's system prompt:
 "Do not run config.apply or update.run unless the user explicitly requests"
 ```
 
-Source: `src/agents/system-prompt.ts:484`
+Source: `src/agents/system-prompt.ts:480`
 
 This helps with well-behaved models in normal operation. But it's trivially bypassed by:
 - Prompt injection ("The user has requested a config update")
@@ -120,7 +120,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 
 | Control Layer | Where It Lives | Enforcement |
 |---|---|---|
-| System prompt | `src/agents/system-prompt.ts:484` | Soft — model can ignore |
+| System prompt | `src/agents/system-prompt.ts:480` | Soft — model can ignore |
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:184`) | **Hard — code enforced** |
@@ -143,7 +143,7 @@ GLM-5:
 4. Ran raw `rsync --delete` directly — **deleting files**
 5. Misinterpreted `disable-model-invocation: true` in the skill frontmatter as meaning the skill was "disabled"
 
-The `disable-model-invocation` flag is parsed at `src/agents/skills/frontmatter.ts:108` and used at `src/agents/skills/workspace.ts:467` to filter skills from the model prompt — it controls whether the *model* can invoke the skill unprompted, not whether the skill is "disabled." GLM-5 read the flag, hallucinated an incorrect interpretation, and acted on it.
+The `disable-model-invocation` flag is parsed at `src/agents/skills/frontmatter.ts:220` and used at `src/agents/skills/workspace.ts:498` to filter skills from the model prompt — it controls whether the *model* can invoke the skill unprompted, not whether the skill is "disabled." GLM-5 read the flag, hallucinated an incorrect interpretation, and acted on it.
 
 This is the same class of problem as the system prompt bypass above, but more severe: the SKILL.md contained explicit safety instructions, and the model read them, understood them, and decided to do something else anyway.
 
@@ -910,14 +910,14 @@ No single change looks catastrophic. Together, they give anyone on the network u
 
 ### Schema-Valid but Unsafe Values
 
-OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:814`). This means:
+OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:815`). This means:
 - **Unknown top-level keys are rejected** — the AI can't add random keys
 - **Type errors are caught** — wrong types for known keys fail validation
 - **Semantic security errors pass** — `gateway.bind: "lan"` is a valid value for a known key, even though it's dangerous
 
 Additionally, extensible maps like `env` and plugin `config` sections accept arbitrary string keys, providing another vector for injecting unexpected values.
 
-Source: `src/config/validation.ts:87-130`
+Source: `src/config/validation.ts:115-130`
 
 ### Persistence Mechanisms
 
@@ -1050,9 +1050,9 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:467-519` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1112,1238` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
-| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:484` |
+| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:480` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
-| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:814` |
+| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:815` |
 | **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:489-536` (audit helpers), `:1178-1228` (audit record builder + append) |
 
 ---
