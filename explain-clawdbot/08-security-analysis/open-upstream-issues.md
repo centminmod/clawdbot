@@ -61,7 +61,7 @@
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | HIGH (WONTFIX) | Weak UUID: Math.random() fallback + tool call IDs | Closed upstream as NOT_PLANNED (2026-02-24); still affects local code at `ui/src/ui/uuid.ts:23-33` (fallback), `src/auto-reply/reply/get-reply-inline-actions.ts:191` (toolCallId) |
 | [#7139](https://github.com/openclaw/openclaw/issues/7139) | ~~MEDIUM~~ FIXED | Default config: sandbox off, plaintext creds | Fixed upstream (COMPLETED); `src/agents/sandbox/config.ts:166` — sandbox default changed |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM | Orphaned tool_use blocks from backgrounded exec | `src/agents/session-transcript-repair.ts:342` (reactive repair, not proactive) |
-| [#11900](https://github.com/openclaw/openclaw/issues/11900) | MEDIUM | Context files (USER.md, SOUL.md) loaded for all senders | `src/agents/bootstrap-files.ts:64-96` — no `senderIsOwner` check; `attempt.ts:536` calls unconditionally |
+| [#11900](https://github.com/openclaw/openclaw/issues/11900) | MEDIUM | Context files (USER.md, SOUL.md) loaded for all senders | `src/agents/bootstrap-files.ts:64-96` — no `senderIsOwner` check; `attempt.ts:537` calls unconditionally |
 | [#12571](https://github.com/openclaw/openclaw/issues/12571) | MEDIUM (WONTFIX) | Session isolation leak in cron jobs after ~24h | Closed upstream as NOT_PLANNED; still affects local code at `src/cron/service/jobs.ts` — isolated sessions leak to main session after extended runtime |
 | [#11832](https://github.com/openclaw/openclaw/issues/11832) | ~~MEDIUM~~ FIXED | Per-agent tools.exec config not applied | Fixed upstream (COMPLETED); `src/auto-reply/reply/get-reply-directives.ts:66-81` |
 | [#12541](https://github.com/openclaw/openclaw/issues/12541) | LOW (WONTFIX) | Voice-call webhook spoofing via signature bypass config | Closed upstream as NOT_PLANNED; still affects local code at `extensions/voice-call/src/config.ts` — `skipSignatureVerification` disables HMAC-SHA256; opt-in, not default |
@@ -155,7 +155,7 @@
 
 2. **Tool call IDs** (`src/auto-reply/reply/get-reply-inline-actions.ts:191`): `cmd_${Date.now()}_${Math.random().toString(16).slice(2)}` — always uses Math.random(), no crypto path. Used for tool call/result correlation in session transcripts.
 
-**Secondary:** Tmp file suffixes in `src/cron/store.ts:52`, `src/cron/run-log.ts:126-127`, `src/browser/trash.ts:16`, `src/tts/tts.ts:387` (low risk, collision-resistant via PID/timestamp).
+**Secondary:** Tmp file suffixes in `src/cron/store.ts:77`, `src/cron/run-log.ts:126-127`, `src/browser/trash.ts:16`, `src/tts/tts.ts:387` (low risk, collision-resistant via PID/timestamp).
 
 **Confirmed safe:** 52 files use `crypto.randomUUID`/`randomBytes` for proper crypto paths.
 
@@ -767,8 +767,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/bootstrap-files.ts:64-96` — `resolveBootstrapContextForRun()` loads all bootstrap files unconditionally
-- `src/agents/pi-embedded-runner/run/attempt.ts:536` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
-- `src/agents/pi-embedded-runner/run/attempt.ts:585` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
+- `src/agents/pi-embedded-runner/run/attempt.ts:537` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
+- `src/agents/pi-embedded-runner/run/attempt.ts:586` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
 
 **Impact:** Non-owner senders on public channels receive responses shaped by the owner's personal context files (personality, preferences, private notes). The content is not directly exposed but indirectly leaks through response behavior. Tool access is correctly gated by `senderIsOwner`, but context/personality files are not.
 
@@ -780,7 +780,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/auto-reply/reply/get-reply-directives.ts:66-81` — `resolveExecOverrides()` reads from `directives` (inline `!exec=docker`) and `sessionEntry` only
 - `src/auto-reply/reply/get-reply-directives.ts:93` — `agentCfg: AgentDefaults` is in scope but not consulted for exec settings
-- `src/agents/pi-embedded-runner/run/attempt.ts:569` — `execOverrides` passed to tool creation, but populated only from directives/session
+- `src/agents/pi-embedded-runner/run/attempt.ts:570` — `execOverrides` passed to tool creation, but populated only from directives/session
 
 **Impact:** If an operator configures per-agent exec restrictions (e.g., `agents.mybot.tools.exec.host = "docker"` for sandboxed execution), those restrictions are silently ignored. The agent runs with global exec defaults. Global config still applies; only per-agent overrides are lost.
 
