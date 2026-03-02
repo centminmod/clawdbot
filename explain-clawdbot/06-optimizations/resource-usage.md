@@ -37,7 +37,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager.ts:380+` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:535-691` | Medium | API calls are remote but audio buffer conversion is local CPU work |
 | 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:67` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
-| 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:508` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
+| 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:509` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
 
 ### Other CPU consumers
 
@@ -70,7 +70,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 | Cache | Location | Bound | Risk |
 |-------|----------|-------|------|
-| Session store cache | `src/config/sessions/store.ts:44` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
+| Session store cache | `src/config/sessions/store.ts:47` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
 | Discord presence cache | `src/discord/monitor/presence-cache.ts:9` | 5000/account LRU | Low |
 | Telegram sent message cache | `src/telegram/sent-message-cache.ts:12` | 24h TTL, 100/chat | Low-Medium |
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
@@ -144,7 +144,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 |----------|-------|----------|
 | Media files | 2min TTL auto-cleanup | `src/media/store.ts:16,94-130` |
 | Rolling logs | 24h age pruning | `src/logging/logger.ts:19,313` |
-| Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:303-305` |
+| Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:315-317` |
 | Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:78-79` |
 | TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:21,500-512` |
 | Pairing requests | 3/channel, 1h TTL | `src/pairing/pairing-store.ts:14-15` |
@@ -710,7 +710,7 @@ Source: `src/memory/memory-schema.ts:9-82`
 | `sync.onSearch` | `true` | Sync before search if dirty flag is set |
 | `sync.intervalMinutes` | 0 (disabled) | Periodic sync timer |
 
-Source: `src/memory/manager-sync-ops.ts:357-397` (watcher setup), `src/agents/memory-search.ts:87` (debounce default)
+Source: `src/memory/manager-sync-ops.ts:357-399` (watcher setup), `src/agents/memory-search.ts:87` (debounce default)
 
 **Session delta tracking** (for session memory source):
 
@@ -719,14 +719,14 @@ Source: `src/memory/manager-sync-ops.ts:357-397` (watcher setup), `src/agents/me
 | `sync.sessions.deltaBytes` | 100,000 (100KB) | Re-index session after this many new bytes |
 | `sync.sessions.deltaMessages` | 50 | Re-index session after this many new messages |
 
-Source: `src/agents/memory-search.ts:88-89`, `src/memory/manager-sync-ops.ts:404-465`
+Source: `src/agents/memory-search.ts:88-89`, `src/memory/manager-sync-ops.ts:401-466`
 
 **Sync triggers** in order of priority:
 
 1. **Session start** — if `sync.onSessionStart` is true (`manager.ts:191-205`)
 2. **Before search** — if dirty flag is set and `sync.onSearch` is true (`manager.ts:215-220`)
 3. **File watch** — after debounce period (`manager-sync-ops.ts:595-608`)
-4. **Session delta** — when byte/message threshold is exceeded (`manager-sync-ops.ts:404-465`)
+4. **Session delta** — when byte/message threshold is exceeded (`manager-sync-ops.ts:401-466`)
 5. **Interval timer** — if `intervalMinutes > 0` (`manager-sync-ops.ts:582-593`)
 
 During sync, unchanged files are skipped (hash comparison against the `files` table), and stale files are removed from the index.

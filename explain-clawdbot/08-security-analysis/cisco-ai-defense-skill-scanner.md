@@ -76,7 +76,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 **What the code actually does:**
 
 1. **Audit framework** (`src/security/audit.ts:1-81`, `src/security/audit-extra.ts`) — 65+ security checks across 12 categories (filesystem permissions, secrets in config, attack surface, exposure matrix, hooks hardening, model hygiene, plugin trust, etc.)
-2. **Install-time skill scanning** (`src/security/skill-scanner.ts:38-47`) — regex-based scanning of `.js`/`.ts` files at skill install time
+2. **Install-time skill scanning** (`src/security/skill-scanner.ts:39-48`) — regex-based scanning of `.js`/`.ts` files at skill install time
 3. **Loopback default** (`src/gateway/server-runtime-config.ts:50`) — gateway binds to 127.0.0.1 by default
 4. **Mandatory auth enforcement** (`src/gateway/server-runtime-config.ts:124`) — throws error if binding to non-loopback without auth credentials
 5. **SSRF protection** (`src/infra/net/ssrf.ts:108-257`) — DNS pinning with private IP blocking (10.x, 127.x, 169.254.x, 172.16-31.x, 192.168.x, 100.64-127.x, special-use CIDRs, IPv6 link-local/ULA including full-form IPv4-mapped IPv6, plus metadata hostnames)
@@ -142,7 +142,7 @@ Cross-reference: [ClawHub marketplace risks](../05-worst-case-security/clawhub-m
 The key finding from evaluating this tool is a gap in OpenClaw's built-in scanner:
 
 ```typescript
-// src/security/skill-scanner.ts:38-47
+// src/security/skill-scanner.ts:39-48
 const SCANNABLE_EXTENSIONS = new Set([
   ".js",  ".ts",  ".mjs", ".cjs",
   ".mts", ".cts", ".jsx", ".tsx",
@@ -192,7 +192,7 @@ Source: `src/agents/workspace.ts:32-33` (file list), `src/agents/pi-embedded-hel
 
 Files in `memory/*.md` are **not** loaded by `loadWorkspaceBootstrapFiles()`. They go through a separate pipeline: `listMemoryFiles()` (`src/memory/internal.ts:78-107`) and `resolveDefaultCollections()` (`src/memory/backend-config.ts:275`), accessed via `memory_search`/`memory_get` tool calls with a 4,000-character injection budget — not as system prompt context. The QMD backend does **not** scan content.
 
-**Neither path is scanned by the built-in skill scanner** (`src/security/skill-scanner.ts:38-47`), which only processes JS/TS files.
+**Neither path is scanned by the built-in skill scanner** (`src/security/skill-scanner.ts:39-48`), which only processes JS/TS files.
 
 **Subagent mitigation:** `filterBootstrapFilesForSession()` at `src/agents/workspace.ts:542-550` limits subagents to only `AGENTS.md` + `TOOLS.md`, reducing the bootstrap attack surface from 9 files to 2 in multi-agent setups.
 

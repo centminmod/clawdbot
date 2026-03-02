@@ -233,7 +233,7 @@ OpenClaw loads nine named workspace `.md` files (AGENTS.md, SOUL.md, TOOLS.md, I
 
 Additionally, `memory/*.md` directory files are accessed via `memory_search`/`memory_get` tool calls (4,000-char budget) through a separate pipeline (`src/memory/internal.ts:78-107`).
 
-**Risk:** Any process or user with workspace write access can plant persistent prompt injection that survives across sessions and appears as trusted system instructions. The built-in skill scanner (`src/security/skill-scanner.ts:37-46`) only scans JS/TS files — none of these `.md` files are scanned for malicious content.
+**Risk:** Any process or user with workspace write access can plant persistent prompt injection that survives across sessions and appears as trusted system instructions. The built-in skill scanner (`src/security/skill-scanner.ts:37-48`) only scans JS/TS files — none of these `.md` files are scanned for malicious content.
 
 Mitigations:
 - OS-level file permissions (restrict write access to the workspace directory)

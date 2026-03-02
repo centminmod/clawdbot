@@ -318,7 +318,7 @@ cp ~/.openclaw/openclaw.json.bak ~/.openclaw/openclaw.json
 openclaw gateway restart
 ```
 
-Source: `src/config/backup-rotation.ts:3` (backup rotation, extracted from `config/io.ts`)
+Source: `src/config/backup-rotation.ts:12` (backup rotation, extracted from `config/io.ts`)
 
 **Consider version-controlling your config** for change tracking:
 
@@ -340,7 +340,7 @@ for line in sys.stdin:
 "
 ```
 
-Source: `src/config/io.ts:493-536` (audit helpers), `src/config/io.ts:1178-1228` (audit record builder)
+Source: `src/config/io.ts:493-536` (audit helpers), `src/config/io.ts:1184-1234` (audit record builder)
 
 See: [AI Self-Misconfiguration Guide](../05-worst-case-security/ai-self-misconfiguration.md), [Attack #28](../05-worst-case-security/prompt-injection-attacks.md#-attack-28-config-self-modification-via-gateway-tool)
 

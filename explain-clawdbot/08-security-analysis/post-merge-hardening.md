@@ -207,6 +207,7 @@
 - [Mar 3 sync 5 (48 commits, 15 security)](./post-merge-hardening/2026-03-03-sync-5.md)
 - [Mar 3 sync 6 (47 commits, 11 security)](./post-merge-hardening/2026-03-03-sync-6.md)
 - [Mar 3 sync 7 (51 commits, 6 security)](./post-merge-hardening/2026-03-03-sync-7.md)
+- [Mar 3 sync 8 (51 commits, 9 security)](./post-merge-hardening/2026-03-03-sync-8.md)
 
 ## Post-Merge Security Hardening
 
@@ -219,7 +220,7 @@ Four defense-in-depth items were identified across audits:
 1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12; centralized Feb 21 sync 7.** Gateway now validates env vars via `src/infra/host-env-security-policy.json` (JSON-backed policy) and `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:34` (enforced at `src/agents/bash-tools.exec.ts:330`). Policy and enforcement centralized into `src/infra/host-env-security.ts` (`sanitizeHostExecEnv()` at `:46`) by commits `2cdbadee1` + `f202e7307` (Feb 21 sync 7). Related to GHSA-82g8-464f-2mv7.
 2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 3. **outPath validation in screen_record:** Accepts arbitrary paths without validation. Writes are confined to the paired node device, but path validation would add depth.
-4. **Bootstrap/memory `.md` content scanning:** The built-in scanner (`src/security/skill-scanner.ts:37-46`) only scans JS/TS. Nine workspace bootstrap files are injected into the system prompt (20,000 chars each) via `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) with no content validation. `memory/*.md` files are accessed via tool calls (4,000-char budget) through a separate pipeline (`src/memory/internal.ts:78-107`) also without content scanning. The QMD backend does not scan content. Subagent exposure is limited — `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:542-550`) restricts subagents to `AGENTS.md` + `TOOLS.md` only. See [Cisco AI Defense gap analysis](./cisco-ai-defense-skill-scanner.md#beyond-skillmd-all-persistent-md-files-are-unscanned).
+4. **Bootstrap/memory `.md` content scanning:** The built-in scanner (`src/security/skill-scanner.ts:37-48`) only scans JS/TS. Nine workspace bootstrap files are injected into the system prompt (20,000 chars each) via `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) with no content validation. `memory/*.md` files are accessed via tool calls (4,000-char budget) through a separate pipeline (`src/memory/internal.ts:78-107`) also without content scanning. The QMD backend does not scan content. Subagent exposure is limited — `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:542-550`) restricts subagents to `AGENTS.md` + `TOOLS.md` only. See [Cisco AI Defense gap analysis](./cisco-ai-defense-skill-scanner.md#beyond-skillmd-all-persistent-md-files-are-unscanned).
 
 **Gap status: 1 closed, 3 remain open.**
 
@@ -237,7 +238,7 @@ Additional security improvements: hardened file serving via `O_NOFOLLOW` + inode
 
 Five security-relevant changes were introduced:
 
-- **Transient network error handling** (`3b879fe`, `3a25a4f`, `0770194`): New `TRANSIENT_NETWORK_CODES` set (`src/infra/unhandled-rejections.ts:20-37`) prevents gateway crashes on network instability. Non-fatal errors like `ECONNRESET`, `ETIMEDOUT`, and undici timeouts are logged and suppressed.
+- **Transient network error handling** (`3b879fe`, `3a25a4f`, `0770194`): New `TRANSIENT_NETWORK_CODES` set (`src/infra/unhandled-rejections.ts:24-41`) prevents gateway crashes on network instability. Non-fatal errors like `ECONNRESET`, `ETIMEDOUT`, and undici timeouts are logged and suppressed.
 
 - **Per-account session isolation** (`d499b14`): New `"per-account-channel-peer"` DM scope (`src/routing/session-key.ts:148,166-170`) isolates sessions per account, channel, and peer, preventing cross-account session leakage in multi-account channel setups.
 

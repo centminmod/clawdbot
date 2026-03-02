@@ -1038,7 +1038,7 @@ When the agent calls `memory_search` and retrieves this file, the content appear
 
 - **System-level trust**: Bootstrap files appear as part of the agent's core instructions, not as user input or fetched content — no untrusted content markers are applied
 - **Cross-session persistence**: Unlike runtime injection (which lasts one conversation), these files persist across all sessions until manually removed
-- **No scanner coverage**: The built-in skill scanner (`src/security/skill-scanner.ts:37-46`) only scans JS/TS files
+- **No scanner coverage**: The built-in skill scanner (`src/security/skill-scanner.ts:37-48`) only scans JS/TS files
 - **Raw injection**: Content is injected with only truncation (at 20K chars), no sanitization or HTML comment stripping
 - **Large attack surface**: 180,000+ characters of unscanned system prompt context (bootstrap) plus 4,000 characters per memory tool call
 

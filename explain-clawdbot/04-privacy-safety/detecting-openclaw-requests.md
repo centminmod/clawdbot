@@ -249,7 +249,7 @@ X-Github-Api-Version: 2025-04-01
 User-Agent: CodexBar
 ```
 
-**Source:** `src/infra/provider-usage.fetch.codex.ts:30`
+**Source:** `src/infra/provider-usage.fetch.codex.ts:55`
 ```typescript
 "User-Agent": "CodexBar",
 ```

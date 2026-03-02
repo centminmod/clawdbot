@@ -56,7 +56,7 @@ ls -la ~/.openclaw/openclaw.json.bak*
 diff ~/.openclaw/openclaw.json.bak ~/.openclaw/openclaw.json
 ```
 
-Source: `src/config/backup-rotation.ts:3` — `rotateConfigBackups()` keeps `.bak` files before each write (extracted from `config/io.ts` in Feb 15 sync 2).
+Source: `src/config/backup-rotation.ts:12` — `rotateConfigBackups()` keeps `.bak` files before each write (extracted from `config/io.ts` in Feb 15 sync 2).
 
 ---
 
@@ -1042,13 +1042,13 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 
 | Protection | What It Does | Source |
 |-----------|-------------|--------|
-| **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:3` |
+| **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:12` |
 | **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:152-459` |
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:42,276-313` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:34-51` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1088-1177` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
-| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1114,1240` |
+| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1118,1244` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:480` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
