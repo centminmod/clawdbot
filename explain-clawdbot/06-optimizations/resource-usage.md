@@ -37,7 +37,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager.ts:380+` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:535-691` | Medium | API calls are remote but audio buffer conversion is local CPU work |
 | 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:67` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
-| 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:455` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
+| 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:442` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
 
 ### Other CPU consumers
 
@@ -54,8 +54,8 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - SHA-256 hashing for content deduplication and caching
 
 **Child process stdout/stderr accumulation:**
-- `src/process/exec.ts:240-245` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:1091-1096` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1906`), configured by `MAX_QMD_OUTPUT_CHARS` (`:40`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:240-245` remains unbounded.
+- `src/process/exec.ts:283-290` — unbounded string concatenation of process output
+- `src/memory/qmd-manager.ts:1091-1096` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1906`), configured by `MAX_QMD_OUTPUT_CHARS` (`:40`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:283-290` remains unbounded.
 
 **Media fetch buffering:**
 - `src/media/fetch.ts:132-148` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
@@ -76,7 +76,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:8` | 5000 max, 20min TTL | Well bounded |
 | Gateway dedupe | `src/gateway/server-constants.ts:33-34` | 1000 max, 5min TTL | Well bounded |
-| Browser roleRefs | `src/browser/pw-session.ts:102-103` | 50 max LRU | Well bounded |
+| Browser roleRefs | `src/browser/pw-session.ts:103-104` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:18` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:21` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
 | Agent run sequence | `src/gateway/server-runtime-state.ts:193` | **No pruning** (maintenance timer skips it) | **Leak risk** |
@@ -93,10 +93,10 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 ### Browser memory
 
-- **Chromium instance** (Playwright CDP): `src/browser/pw-session.ts:109` — singleton, but Chromium itself can consume **200MB to 2GB+**
+- **Chromium instance** (Playwright CDP): `src/browser/pw-session.ts:110` — singleton, but Chromium itself can consume **200MB to 2GB+**
   > *Like having a full web browser running invisibly in the background — it alone can use more memory than everything else combined.*
-- Per-page state caps: console (500), errors (200), network requests (500) — `src/browser/pw-session.ts:105-107`
-- WeakMaps used for page/context state (GC-friendly): `src/browser/pw-session.ts:95-98`
+- Per-page state caps: console (500), errors (200), network requests (500) — `src/browser/pw-session.ts:106-108`
+- WeakMaps used for page/context state (GC-friendly): `src/browser/pw-session.ts:96-99`
 
 ### Model context accumulation
 
@@ -127,7 +127,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Transcript `.jsonl` files | `src/config/sessions/transcript.ts:61-151` | **No rotation, no size limit** — grows forever per session |
 | Command logger | `src/hooks/bundled/command-logger/handler.ts:47-62` | **No rotation** — `commands.log` grows unbounded |
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
-| Browser user-data profiles | `src/browser/chrome.ts:62-64` | Full Chromium profile — can reach GBs |
+| Browser user-data profiles | `src/browser/chrome.ts:63-65` | Full Chromium profile — can reach GBs |
 | SQLite databases | `src/memory/manager.ts:166` | **No VACUUM** — WAL files can bloat |
 | Per-day log file size | `src/logging/logger.ts:106-136` | **Capped** — 500MB default (`DEFAULT_MAX_LOG_FILE_BYTES`), configurable via `logging.maxFileBytes`; warns once then suppresses writes when reached |
 | Voice-call `calls.jsonl` | `extensions/voice-call/src/manager/store.ts:7-10` | **Append-only, no rotation** + full-file reads on load |
