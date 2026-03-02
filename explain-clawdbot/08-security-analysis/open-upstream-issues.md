@@ -10,7 +10,7 @@
 |-------|----------|---------|--------------|
 | [#8512](https://github.com/openclaw/openclaw/issues/8512) | CRITICAL | Plugin HTTP routes bypass gateway authentication | `src/gateway/server/plugins-http.ts:17-59` |
 | [#20683](https://github.com/openclaw/openclaw/issues/20683) | ~~HIGH~~ FIXED | Control UI allows token-only auth over HTTP (allowInsecureAuth bypass) | Fixed upstream (COMPLETED); `src/gateway/server/ws-connection/connect-policy.ts:22-33` |
-| [#17936](https://github.com/openclaw/openclaw/issues/17936) | HIGH | message/sendAttachment exfiltrates local files when sandbox disabled | `src/infra/outbound/message-action-params.ts:240-241` — `normalizeSandboxMediaParams()` skips path validation when `sandboxRoot` absent; default sandbox-off mode is affected |
+| [#17936](https://github.com/openclaw/openclaw/issues/17936) | HIGH | message/sendAttachment exfiltrates local files when sandbox disabled | `src/infra/outbound/message-action-params.ts:279-280` — `normalizeSandboxMediaParams()` skips path validation when `sandboxRoot` absent; default sandbox-off mode is affected |
 | [#20305](https://github.com/openclaw/openclaw/issues/20305) | HIGH | message tool cross-user sends in multi-tenant deployments (no per-agent scoping) | `src/infra/outbound/message-action-runner.ts` — no `allowedRecipients` or per-agent channel filtering; affects deployments with `dmScope: "per-channel-peer"` and 200+ agents |
 | [#3277](https://github.com/openclaw/openclaw/issues/3277) | ~~HIGH~~ FIXED | Path validation bypass via `startsWith` prefix | Fixed upstream (COMPLETED 2026-02-15, consolidated Feb 19 sync 2); `src/infra/archive-path.ts:12,50` - `validateArchiveEntryPath()` + `resolveArchiveOutputPath()` (hardened Feb 15, consolidated to module Feb 19) |
 | [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH (WONTFIX) | Browser control server DNS rebinding | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/server.ts:66`; no Host header validation |
@@ -1187,7 +1187,7 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** `normalizeSandboxMediaParams()` is the sole path-validation guard for the `message` tool's `media`, `path`, and `filePath` parameters. When `sandboxRoot` is absent (which is the case whenever sandbox mode is "off" — the default), the function skips validation entirely via an early `continue`. A prompt-injected or malicious agent can call `message(action: "sendAttachment", filePath: "/etc/passwd")`, which will be read from disk and sent to the attacker-controlled channel with zero path restriction.
 
 **Affected code:**
-- `src/infra/outbound/message-action-params.ts:240-241` — `if (!sandboxRoot) { continue; }` skips path validation
+- `src/infra/outbound/message-action-params.ts:279-280` — `if (!sandboxRoot) { continue; }` skips path validation
 - `src/infra/outbound/message-action-runner.ts:772` — `sandboxRoot: input.sandboxRoot` — passes `undefined` when sandbox disabled
 - Targets: credential files (`~/.openclaw/credentials/`), config (`~/.openclaw/openclaw.json`), SSH keys, `.env` files
 

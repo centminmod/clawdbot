@@ -54,8 +54,8 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - SHA-256 hashing for content deduplication and caching
 
 **Child process stdout/stderr accumulation:**
-- `src/process/exec.ts:283-290` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:1091-1096` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1906`), configured by `MAX_QMD_OUTPUT_CHARS` (`:40`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:283-290` remains unbounded.
+- `src/process/exec.ts:293-300` — unbounded string concatenation of process output
+- `src/memory/qmd-manager.ts` — QMD process output is now unbounded (the previous `appendOutputWithCap()` output cap was removed; `MAX_QMD_OUTPUT_CHARS` no longer exists). The `resolveSpawnInvocation()` helper at `:72` handles Windows-compatible spawn routing.
 
 **Media fetch buffering:**
 - `src/media/fetch.ts:132-148` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).

@@ -127,7 +127,7 @@ When OpenClaw connects to an ACP (Agent Communication Protocol) server, it ident
 { "name": "openclaw-acp-client", "version": "1.0.0" }
 ```
 
-**Source:** `src/acp/client.ts:452`
+**Source:** `src/acp/client.ts:500`
 ```typescript
 clientInfo: { name: "openclaw-acp-client", version: "1.0.0" },
 ```
