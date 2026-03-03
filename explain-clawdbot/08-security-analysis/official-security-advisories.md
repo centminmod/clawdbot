@@ -225,6 +225,17 @@
 | [GHSA-8m9v-xpgf-g99m](https://github.com/openclaw/openclaw/security/advisories/GHSA-8m9v-xpgf-g99m) | MEDIUM | Unauthorized sender bypass in stop triggers and /models command authorization | CWE-863 | pending | @tdjackey |
 | [GHSA-6f6j-wx9w-ff4j](https://github.com/openclaw/openclaw/security/advisories/GHSA-6f6j-wx9w-ff4j) | HIGH | ACPX Windows wrapper shell fallback allowed cwd injection in specific paths | CWE-78 | Mar 2 sync 4 (68a8a98ab) | @tdjackey |
 | [GHSA-g99v-8hwm-g76g](https://github.com/openclaw/openclaw/security/advisories/GHSA-g99v-8hwm-g76g) | MEDIUM | web_search citation redirect SSRF via private-network-allowing policy | CWE-918 | Mar 2 sync 4 (085c23ce5) | @tdjackey |
+| [GHSA-wpg9-4g4v-f9rc](https://github.com/openclaw/openclaw/security/advisories/GHSA-wpg9-4g4v-f9rc) | MEDIUM | Discord voice transcript owner-flag omission could expose owner-only tools in mixed-trust channels | - | >= v2026.3.2 | - |
+| [GHSA-2858-xg23-26fp](https://github.com/openclaw/openclaw/security/advisories/GHSA-2858-xg23-26fp) | MEDIUM | Node camera URL payload host-binding bypass allowed gateway fetch pivots | - | >= v2026.3.2 | @grp06 |
+| [GHSA-r54r-wmmq-mh84](https://github.com/openclaw/openclaw/security/advisories/GHSA-r54r-wmmq-mh84) | MEDIUM | ZIP extraction race could write outside destination via parent symlink rebind | - | >= v2026.3.2 | - |
+| [GHSA-cfvj-7rx7-fc7c](https://github.com/openclaw/openclaw/security/advisories/GHSA-cfvj-7rx7-fc7c) | MEDIUM | stageSandboxMedia destination symlink traversal can overwrite files outside sandbox workspace | - | >= v2026.3.2 | - |
+| [GHSA-v865-p3gq-hw6m](https://github.com/openclaw/openclaw/security/advisories/GHSA-v865-p3gq-hw6m) | MEDIUM | Encoded-path auth bypass in plugin `/api/channels` route classification | - | Mar 3 sync 3 (93b072402) | - |
+| [GHSA-8mvx-p2r9-r375](https://github.com/openclaw/openclaw/security/advisories/GHSA-8mvx-p2r9-r375) | HIGH | web tools strict URL guard could lose DNS pinning when env proxy is configured | - | >= v2026.3.2 | - |
+| [GHSA-h3rm-6x7g-882f](https://github.com/openclaw/openclaw/security/advisories/GHSA-h3rm-6x7g-882f) | MEDIUM | Node system.run approval hardening wrapper semantic drift can execute unintended local scripts | - | Mar 3 sync 6 (dded56962) | - |
+| [GHSA-474h-prjg-mmw3](https://github.com/openclaw/openclaw/security/advisories/GHSA-474h-prjg-mmw3) | HIGH | Sandboxed sessions_spawn(runtime="acp") bypassed sandbox inheritance and allowed host ACP initialization | - | >= v2026.3.2 | - |
+| [GHSA-3pxq-f3cp-jmxp](https://github.com/openclaw/openclaw/security/advisories/GHSA-3pxq-f3cp-jmxp) | MEDIUM | Unified root-bound write hardening for browser output and related path-boundary flows | - | >= v2026.3.2 | - |
+| [GHSA-x4vp-4235-65hg](https://github.com/openclaw/openclaw/security/advisories/GHSA-x4vp-4235-65hg) | MEDIUM | Pre-auth webhook body parsing can enable unauthenticated slow-request DoS | - | >= v2026.3.2 | - |
+| [GHSA-77hf-7fqf-f227](https://github.com/openclaw/openclaw/security/advisories/GHSA-77hf-7fqf-f227) | MEDIUM | skills-install-download: tar.bz2 extraction bypassed archive safety parity checks (local DoS) | - | >= v2026.3.2 | - |
 | [GHSA-wpg9-4g4v-f9rc](https://github.com/openclaw/openclaw/security/advisories/GHSA-wpg9-4g4v-f9rc) | MEDIUM | Discord voice transcript owner-flag omission could expose owner-only tools in mixed-trust channels | - | >= v2026.3.2 | @tdjackey |
 | [GHSA-2858-xg23-26fp](https://github.com/openclaw/openclaw/security/advisories/GHSA-2858-xg23-26fp) | MEDIUM | Node camera URL payload host-binding bypass allowed gateway fetch pivots | - | >= v2026.3.2 | @tdjackey |
 | [GHSA-r54r-wmmq-mh84](https://github.com/openclaw/openclaw/security/advisories/GHSA-r54r-wmmq-mh84) | MEDIUM | ZIP extraction race could write outside destination via parent symlink rebind | - | >= v2026.3.2 | @tdjackey |
@@ -2032,6 +2043,138 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** An attacker who can influence citation redirect targets could trigger internal-network requests from the OpenClaw host.
 
 **Fix:** Citation redirect resolution now uses strict/default SSRF policy (no private-network override), blocking localhost/private/internal redirect targets. Patched in `openclaw >= 2026.3.1`.
+
+### GHSA-wpg9-4g4v-f9rc: Discord Voice Transcript Owner-Flag Omission
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** In `openclaw@2026.3.1`, the Discord voice transcript path called `agentCommand(...)` without `senderIsOwner`, and `agentCommand` defaults missing `senderIsOwner` to `true`. This could allow a non-owner voice participant in the same channel to reach owner-only tool surfaces (`gateway`, `cron`) during voice transcript turns.
+
+**Impact:** Affects deployments where Discord voice is enabled and the bot is present in channels with non-owner participants. Practical risk depends on whether the deployment is single-trust (recommended) or mixed-trust (not recommended per OpenClaw's trust model).
+
+**Fix:** Always pass explicit `senderIsOwner` from Discord voice transcript ingress. Fail closed (`false`) when owner status is unknown for non-local/chat ingress paths. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-2858-xg23-26fp: Node Camera URL Payload Host-Binding Bypass
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** OpenClaw accepted `camera.snap`/`camera.clip` node payload `url` fields and downloaded them on the gateway/agent host without binding downloads to the resolved node host. A malicious or compromised paired node could steer gateway-host fetches to off-node destinations during camera URL retrieval.
+
+**Impact:** A compromised paired node could trigger internal network probing/fetch pivots in deployments where paired nodes are not fully trusted.
+
+**Fix:** Introduces fail-closed node-host binding: requires resolved node host metadata for URL payload downloads, enforces hostname match between payload URL and resolved node host, and uses SSRF-guarded fetch with redirect host/protocol checks. Applied across both CLI and agent tool camera paths. Fix commit: `3bf19d6f40a`. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-r54r-wmmq-mh84: ZIP Extraction Race via Parent Symlink Rebind
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** ZIP extraction in `src/infra/archive.ts` validated output paths then opened/truncated the destination path in a separate step. A local race on parent-directory symlink state between validation and write could redirect the final write outside the extraction root.
+
+**Impact:** Could allow crafted ZIP archives to write files outside the intended extraction directory.
+
+**Fix:** Hardens ZIP writes by binding writes to the opened file handle identity and avoiding the pre-write truncate race path, with shared fd realpath verification in `src/infra/fs-safe.ts` and regression coverage in `src/infra/archive.test.ts`. Fix commit: `7dac9b05dd9`. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-cfvj-7rx7-fc7c: stageSandboxMedia Destination Symlink Traversal
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** `stageSandboxMedia` allowed destination symlink traversal during media staging: writes under `media/inbound` were not destination-alias-safe. A symlink in the destination path could cause the write to follow it and overwrite host files outside the sandbox workspace boundary.
+
+**Impact:** Media staging could permit out-of-sandbox writes in affected versions.
+
+**Fix:** Routes staging writes through root-scoped safe write primitives for both local and SCP-staged attachments, preventing destination symlink traversal escapes. Fix commit: `17ede52a4be`. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-v865-p3gq-hw6m: Encoded-Path Auth Bypass in Plugin `/api/channels` Route
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** Encoded alternate-path requests could bypass plugin route auth checks for `/api/channels/*` due to canonicalization depth mismatch. In affected versions, plugin auth-path classification and route-path canonicalization could diverge for deeply encoded slash variants (e.g., multi-encoded `%2f`), allowing encoded paths to evade protected-prefix auth checks while still resolving to `/api/channels/...` in plugin route handling.
+
+**Impact:** Deployments exposing plugin HTTP routes could be affected by auth bypass on `/api/channels/*` paths.
+
+**Fix:** Canonicalizes route paths to a bounded fixpoint, fails closed on malformed or unresolved canonicalization depth, requires explicit plugin-route auth contracts, and enforces route ownership/conflict guards. Fix commits: `93b07240`, `2fd8264a`, `d74bc257`, `7a7eee92`. Patched in `openclaw >= 2026.3.2` (patched in Mar 3 sync 3).
+
+### GHSA-8mvx-p2r9-r375: Web Tools Strict URL Guard DNS Pinning Loss with Env Proxy
+
+**Severity:** HIGH
+
+**Published:** 2026-03-03
+
+**Description:** `openclaw` web tools strict URL fetch paths (e.g., `web_fetch`, citation redirect resolution) could lose DNS pinning when environment proxy variables are configured (`HTTP_PROXY`/`HTTPS_PROXY`/`ALL_PROXY`). SSRF guard performed hostname resolution and policy checks, then runtime connection routing could use `EnvHttpProxyAgent` instead of the DNS-pinned dispatcher, creating a destination-binding gap between check-time and connect-time.
+
+**Impact:** In deployments with env proxy variables configured, attacker-influenced URLs from web tools could be routed through proxy behavior instead of strict pinned-destination routing, potentially reaching internal/private targets reachable from that proxy environment.
+
+**Fix:** Keeps DNS pinning on strict/untrusted web-tool URL paths; limits env-proxy bypass to trusted/operator-controlled endpoints via an explicit dangerous opt-in. Fix commit: `345abf0b2e`. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-h3rm-6x7g-882f: system.run Approval Wrapper Semantic Drift
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** In `openclaw@2026.3.1`, node `system.run` approval-path hardening rewrote wrapper command argv in a way that changed execution semantics. `src/node-host/invoke-system-run-plan.ts` rewrote `argv[0]` to the resolved executable; wrapper unwrapping could produce e.g. `['/bin/sh','sh','-c','echo SAFE']` while approval text remained `echo SAFE`. `/bin/sh` interprets the extra `sh` positional as a script path, enabling execution of a local `./sh` file from the approved `cwd`.
+
+**Impact:** Approval-integrity break in `host=node` execution flow: operator-visible command text and executed behavior could diverge when an attacker can influence wrapper argv and place a local file in the approved working directory.
+
+**Fix:** Fix commit: `dded56962` (same commit as GHSA-q399-23r3-hfx4). Patched in `openclaw >= 2026.3.2` (patched in Mar 3 sync 6).
+
+### GHSA-474h-prjg-mmw3: Sandboxed sessions_spawn ACP Sandbox Inheritance Bypass
+
+**Severity:** HIGH
+
+**Published:** 2026-03-03
+
+**Description:** Sandboxed `sessions_spawn(runtime="acp")` could bypass sandbox inheritance and initialize host-side ACP runtime. `runtime="subagent"` enforced sandbox inheritance, while `runtime="acp"` did not enforce equivalent sandbox/runtime checks, allowing sandbox-boundary bypass into host-side ACP initialization.
+
+**Impact:** A sandboxed session could reach host-side ACP initialization, bypassing the intended sandbox confinement boundary.
+
+**Fix:** Denies ACP spawn when requester runtime is sandboxed; denies `sessions_spawn` with `runtime="acp", sandbox="require"`; aligns sandboxed prompt guidance to avoid advertising blocked ACP paths. Fix commits: `ac11f0af7`, `c703aa0fe`. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-3pxq-f3cp-jmxp: Unified Root-Bound Write Hardening for Browser Output
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** A path-confinement bypass in browser output handling allowed writes outside intended roots. Browser output writes did not use root-bound, fd/inode-verified commit flow; install and skills path checks had divergent canonical validation, creating escape surfaces.
+
+**Impact:** Could allow writes outside the intended browser output root in affected versions.
+
+**Fix:** Browser output writes now use root-bound, fd/inode-verified commit flow. Install + skills path checks share canonical in-base validation. Regression coverage added for symlink-rebind and root-bound source-path write behavior. Fix commit: `104d32bb6`. Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-x4vp-4235-65hg: Pre-Auth Webhook Body Parsing Unauthenticated DoS
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** OpenClaw webhook handlers for BlueBubbles and Google Chat accepted and parsed request bodies before authentication and signature checks on vulnerable releases. This allowed unauthenticated clients to hold parser work open with slow/oversized request bodies and degrade availability.
+
+**Impact:** Unauthenticated slow-request DoS against webhook endpoints.
+
+**Fix:** Enforces auth-before-body for affected webhook paths, adds strict pre-auth body/time budgets, and introduces shared in-flight/request guardrails with regression coverage. Fix commit: `d3e8b17aa` (same commit as GHSA-q447-rj3r-2cgh). Patched in `openclaw >= 2026.3.2`.
+
+### GHSA-77hf-7fqf-f227: skills-install-download tar.bz2 Archive Safety Parity Bypass
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-03
+
+**Description:** The `tar.bz2` installer path in `src/agents/skills-install-download.ts` used shell tar preflight/extract logic that did not share the same hardening guarantees as the centralized archive extractor. This allowed crafted `.tar.bz2` archives to bypass special-entry blocking and extracted-size guardrails enforced on other archive paths.
+
+**Impact:** Local DoS / availability impact when processing untrusted `.tar.bz2` skill archives.
+
+**Fix:** Brings `tar.bz2` extraction into parity with centralized archive safety enforcement. Fix commit: `0dbb92dd2`. Patched in `openclaw >= 2026.3.2`.
 
 ### Relationship to Third-Party Audits
 
