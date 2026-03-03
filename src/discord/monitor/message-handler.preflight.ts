@@ -30,13 +30,12 @@ import { DEFAULT_ACCOUNT_ID, resolveAgentIdFromSessionKey } from "../../routing/
 import { fetchPluralKitMessageInfo } from "../pluralkit.js";
 import { sendMessageDiscord } from "../send.js";
 import {
-  allowListMatches,
   isDiscordGroupAllowedByPolicy,
-  normalizeDiscordAllowList,
   normalizeDiscordSlug,
   resolveDiscordChannelConfigWithFallback,
   resolveDiscordGuildEntry,
   resolveDiscordMemberAccessState,
+  resolveDiscordOwnerAccess,
   resolveDiscordShouldRequireMention,
   resolveGroupDmAllow,
 } from "./allow-list.js";
@@ -56,6 +55,7 @@ import {
   resolveDiscordMessageChannelId,
   resolveDiscordMessageText,
 } from "./message-utils.js";
+import { resolveDiscordPreflightAudioMentionContext } from "./preflight-audio.js";
 import { resolveDiscordSenderIdentity, resolveDiscordWebhookId } from "./sender-identity.js";
 import { resolveDiscordSystemEvent } from "./system-events.js";
 import { isRecentlyUnboundThreadWebhookMessage } from "./thread-bindings.js";
@@ -498,50 +498,16 @@ export async function preflightDiscordMessage(
     isBoundThreadSession,
   });
 
-  // Preflight audio transcription for mention detection in guilds
-  // This allows voice notes to be checked for mentions before being dropped
-  let preflightTranscript: string | undefined;
-  const hasAudioAttachment = message.attachments?.some((att: { content_type?: string }) =>
-    att.content_type?.startsWith("audio/"),
-  );
-  const hasTypedText = Boolean(message.content?.trim());
-  const needsPreflightTranscription =
-    !isDirectMessage &&
-    shouldRequireMention &&
-    hasAudioAttachment &&
-    // `baseText` includes media placeholders; gate on typed text only.
-    !hasTypedText &&
-    mentionRegexes.length > 0;
-
-  if (needsPreflightTranscription) {
-    try {
-      const { transcribeFirstAudio } = await import("../../media-understanding/audio-preflight.js");
-      const audioPaths =
-        message.attachments
-          ?.filter((att: { content_type?: string; url: string }) =>
-            att.content_type?.startsWith("audio/"),
-          )
-          .map((att: { url: string }) => att.url) ?? [];
-      if (audioPaths.length > 0) {
-        const tempCtx = {
-          MediaUrls: audioPaths,
-          MediaTypes: message.attachments
-            ?.filter((att: { content_type?: string; url: string }) =>
-              att.content_type?.startsWith("audio/"),
-            )
-            .map((att: { content_type?: string }) => att.content_type)
-            .filter(Boolean) as string[],
-        };
-        preflightTranscript = await transcribeFirstAudio({
-          ctx: tempCtx,
-          cfg: params.cfg,
-          agentDir: undefined,
-        });
-      }
-    } catch (err) {
-      logVerbose(`discord: audio preflight transcription failed: ${String(err)}`);
-    }
-  }
+  // Preflight audio transcription for mention detection in guilds.
+  // This allows voice notes to be checked for mentions before being dropped.
+  const { hasTypedText, transcript: preflightTranscript } =
+    await resolveDiscordPreflightAudioMentionContext({
+      message,
+      isDirectMessage,
+      shouldRequireMention,
+      mentionRegexes,
+      cfg: params.cfg,
+    });
 
   const mentionText = hasTypedText ? baseText : "";
   const wasMentioned =
@@ -582,22 +548,15 @@ export async function preflightDiscordMessage(
   });
 
   if (!isDirectMessage) {
-    const ownerAllowList = normalizeDiscordAllowList(params.allowFrom, [
-      "discord:",
-      "user:",
-      "pk:",
-    ]);
-    const ownerOk = ownerAllowList
-      ? allowListMatches(
-          ownerAllowList,
-          {
-            id: sender.id,
-            name: sender.name,
-            tag: sender.tag,
-          },
-          { allowNameMatching },
-        )
-      : false;
+    const { ownerAllowList, ownerAllowed: ownerOk } = resolveDiscordOwnerAccess({
+      allowFrom: params.allowFrom,
+      sender: {
+        id: sender.id,
+        name: sender.name,
+        tag: sender.tag,
+      },
+      allowNameMatching,
+    });
     const commandGate = resolveControlCommandGate({
       useAccessGroups,
       authorizers: [
