@@ -32,7 +32,7 @@ jobs:
   # Push to main keeps broad coverage.
   changed-scope:
     needs: [docs-scope]
-    if: needs.docs-scope.outputs.docs_only != 'true'
+    if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true'
     runs-on: blacksmith-16vcpu-ubuntu-2404
     outputs:
       run_node: ${{ steps.scope.outputs.run_node }}
@@ -62,7 +62,7 @@ jobs:
 
   # Build dist once for Node-relevant changes and share it with downstream jobs.
   build-artifacts:
-    needs: [docs-scope, changed-scope, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-16vcpu-ubuntu-2404
     steps:
@@ -114,7 +114,7 @@ jobs:
         run: pnpm release:check
 
   checks:
-    needs: [docs-scope, changed-scope, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
     runs-on: blacksmith-16vcpu-ubuntu-2404
     strategy:
@@ -285,7 +285,8 @@ jobs:
         uses: ./.github/actions/setup-node-env
         with:
           install-bun: "false"
-          use-sticky-disk: "true"
+          use-sticky-disk: "false"
+          install-deps: "false"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -329,7 +330,7 @@ jobs:
         run: pre-commit run --all-files pnpm-audit-prod
 
   checks-windows:
-    needs: [docs-scope, changed-scope, build-artifacts, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_windows == 'true')
     runs-on: blacksmith-32vcpu-windows-2025
     timeout-minutes: 45
@@ -411,6 +412,9 @@ jobs:
         with:
           pnpm-version: "10.23.0"
           cache-key-suffix: "node22"
+          # Sticky disk mount currently retries/fails on every shard and adds ~50s
+          # before install while still yielding zero pnpm store reuse.
+          use-sticky-disk: "false"
           use-restore-keys: "false"
           use-actions-cache: "false"
 
@@ -431,7 +435,7 @@ jobs:
           which node
           node -v
           pnpm -v
-          pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
+          pnpm install --frozen-lockfile --prefer-offline --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true || pnpm install --frozen-lockfile --prefer-offline --ignore-scripts=false --config.engine-strict=false --config.enable-pre-post-scripts=true
 
       - name: Configure test shard (Windows)
         if: matrix.task == 'test'
@@ -445,10 +449,6 @@ jobs:
 
       - name: Run ${{ matrix.task }} (${{ matrix.runtime }})
         run: ${{ matrix.command }}
-
-      - name: Prune pnpm store (Windows cache hygiene)
-        if: always()
-        run: pnpm store prune || true
 
   # Consolidated macOS job: runs TS tests + Swift lint/build/test sequentially
   # on a single runner. GitHub limits macOS concurrent jobs to 5 per org;
@@ -688,7 +688,7 @@ jobs:
           PY
 
   android:
-    needs: [docs-scope, changed-scope, check]
+    needs: [docs-scope, changed-scope]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
     runs-on: blacksmith-16vcpu-ubuntu-2404
     strategy:
