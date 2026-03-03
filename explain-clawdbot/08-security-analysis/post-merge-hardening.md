@@ -216,6 +216,7 @@
 - [Mar 3 sync 14 (74 commits, 0 security)](./post-merge-hardening/2026-03-04-sync-14.md)
 - [Mar 4 sync 1 (75 commits, 3 security)](./post-merge-hardening/2026-03-04-sync-1.md)
 - [Mar 4 sync 2 (75 commits, 1 security)](./post-merge-hardening/2026-03-04-sync-2.md)
+- [Mar 4 sync 4 (73 commits, 10 security)](./post-merge-hardening/2026-03-04-sync-4.md)
 
 ## Post-Merge Security Hardening
 
@@ -225,7 +226,7 @@
 
 Four defense-in-depth items were identified across audits:
 
-1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12; centralized Feb 21 sync 7.** Gateway now validates env vars via `src/infra/host-env-security-policy.json` (JSON-backed policy) and `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:34` (enforced at `src/agents/bash-tools.exec.ts:330`). Policy and enforcement centralized into `src/infra/host-env-security.ts` (`sanitizeHostExecEnv()` at `:46`) by commits `2cdbadee1` + `f202e7307` (Feb 21 sync 7). Related to GHSA-82g8-464f-2mv7.
+1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12; centralized Feb 21 sync 7.** Gateway now validates env vars via `src/infra/host-env-security-policy.json` (JSON-backed policy) and `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:52` (enforced at `src/agents/bash-tools.exec.ts:369`). Policy and enforcement centralized into `src/infra/host-env-security.ts` (`sanitizeHostExecEnv()` at `:74`) by commits `2cdbadee1` + `f202e7307` (Feb 21 sync 7). Related to GHSA-82g8-464f-2mv7.
 2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 3. **outPath validation in screen_record:** Accepts arbitrary paths without validation. Writes are confined to the paired node device, but path validation would add depth.
 4. **Bootstrap/memory `.md` content scanning:** The built-in scanner (`src/security/skill-scanner.ts:37-48`) only scans JS/TS. Nine workspace bootstrap files are injected into the system prompt (20,000 chars each) via `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) with no content validation. `memory/*.md` files are accessed via tool calls (4,000-char budget) through a separate pipeline (`src/memory/internal.ts:78-107`) also without content scanning. The QMD backend does not scan content. Subagent exposure is limited — `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:542-550`) restricts subagents to `AGENTS.md` + `TOOLS.md` only. See [Cisco AI Defense gap analysis](./cisco-ai-defense-skill-scanner.md#beyond-skillmd-all-persistent-md-files-are-unscanned).
@@ -248,7 +249,7 @@ Five security-relevant changes were introduced:
 
 - **Transient network error handling** (`3b879fe`, `3a25a4f`, `0770194`): New `TRANSIENT_NETWORK_CODES` set (`src/infra/unhandled-rejections.ts:24-41`) prevents gateway crashes on network instability. Non-fatal errors like `ECONNRESET`, `ETIMEDOUT`, and undici timeouts are logged and suppressed.
 
-- **Per-account session isolation** (`d499b14`): New `"per-account-channel-peer"` DM scope (`src/routing/session-key.ts:148,166-170`) isolates sessions per account, channel, and peer, preventing cross-account session leakage in multi-account channel setups.
+- **Per-account session isolation** (`d499b14`): New `"per-account-channel-peer"` DM scope (`src/routing/session-key.ts:136,154-158`) isolates sessions per account, channel, and peer, preventing cross-account session leakage in multi-account channel setups.
 
 - **Discord username resolution gating** (`7958ead`, `b01612c`): Username-to-user-ID lookups for outbound DMs are now gated through the directory config (`src/discord/targets.ts:77`), preventing unauthorized directory queries.
 
@@ -307,7 +308,7 @@ One security-relevant commit:
 
 Seven security-relevant commits:
 
-- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): Original blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:34`, enforced at `src/agents/bash-tools.exec.ts:330`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.** Policy further centralized to `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:46` in Feb 21 sync 7.
+- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): Original blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:52`, enforced at `src/agents/bash-tools.exec.ts:369`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.** Policy further centralized to `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:74` in Feb 21 sync 7.
 
 - **`b796f6ec0`** — Web tools and file parsing hardening (#4058) (thanks @VACInc)
 - **`a2b00495c`** — TLS 1.3 minimum requirement (thanks @loganaden)
