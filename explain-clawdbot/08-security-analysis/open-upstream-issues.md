@@ -34,7 +34,7 @@
 | [#9627](https://github.com/openclaw/openclaw/issues/9627) | HIGH | Config secrets exposed in JSON after update/doctor | `src/config/io.ts:1040-1286` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`) |
 | [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:1040-1286` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
 | [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:1040-1286` |
-| [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:96-106` |
+| [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:90-100` |
 | [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID | validateHostEnv skips baseEnv (by design) | `src/agents/bash-tools.exec-runtime.ts:34` (definition) + `src/agents/bash-tools.exec.ts:330` (call) |
 | [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID (CLOSED) | Fullwidth marker bypass (fold is length-preserving) | Closed upstream (COMPLETED 2026-02-15); `src/security/external-content.ts:127-167` |
 | [#9667](https://github.com/openclaw/openclaw/issues/9667) | INVALID | JWT verification in nonexistent file | `src/auth/jwt.ts` (does not exist) |
@@ -575,9 +575,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability claimed:** The `sanitizeMimeType` regex `/^([\w-]+\/[\w.+-]+)/` is not end-anchored, potentially allowing MIME type confusion.
 
 **Affected code:**
-- `src/media-understanding/apply.ts:96-106` - `sanitizeMimeType` function
+- `src/media-understanding/apply.ts:90-100` - `sanitizeMimeType` function
 
-**Our analysis:** The unanchored end is **standard MIME parsing behavior**. MIME types can include parameters like `; charset=utf-8` which the regex correctly discards by capturing only `type/subtype`. The function also calls `.toLowerCase()` (line 100) before the regex match, handling case-insensitivity. The reporter's suggested fix (adding `$` anchor) would break legitimate MIME types with parameters. This is a Qodo AI automated finding that misidentifies correct behavior as a vulnerability.
+**Our analysis:** The unanchored end is **standard MIME parsing behavior**. MIME types can include parameters like `; charset=utf-8` which the regex correctly discards by capturing only `type/subtype`. The function also calls `.toLowerCase()` (line 94) before the regex match, handling case-insensitivity. The reporter's suggested fix (adding `$` anchor) would break legitimate MIME types with parameters. This is a Qodo AI automated finding that misidentifies correct behavior as a vulnerability.
 
 ### #9792: validateHostEnv Skips baseEnv (By Design)
 

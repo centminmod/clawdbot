@@ -46,7 +46,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 1. **File permissions** (`src/infra/fs-safe.ts:49-50`) — files opened with `O_NOFOLLOW` on non-Windows platforms, blocking symlink-based exfiltration
 2. **Symlink protection** (`src/infra/fs-safe.ts:97-99,109-111`) — double-checked via `isSymlinkOpenError()` catch and explicit `lstat().isSymbolicLink()` check
-3. **Path traversal prevention** (`src/pairing/pairing-store.ts:53-62`) — `safeChannelKey()` strips `../`, `/`, `\`, and other path traversal characters
+3. **Path traversal prevention** (`src/pairing/pairing-store.ts:63-73`) — `safeChannelKey()` strips `../`, `/`, `\`, and other path traversal characters
 4. **Root escape prevention** (`src/infra/fs-safe.ts:166-199`) — `openFileWithinRoot()` verifies resolved path stays within root directory
 5. **Known gap:** credentials are stored as JSON without encryption at rest (acknowledged; mitigated by 0o600 and OS-level controls)
 
@@ -61,7 +61,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 **What the code actually does:**
 
 1. **Pairing system** (`src/pairing/pairing-store.ts:12-25`) — 8-character codes with 60-minute TTL, max 3 pending, with lockfile-based concurrency control
-2. **AllowFrom lists** (`src/pairing/pairing-store.ts:42-45`) — per-channel allowlists restrict which users can interact with the agent
+2. **AllowFrom lists** (`src/pairing/pairing-store.ts:52-55`) — per-channel allowlists restrict which users can interact with the agent
 3. **Gateway bind default** (`src/gateway/server-runtime-config.ts:50`) — defaults to `loopback` (127.0.0.1), not LAN/public
 4. **Mandatory auth for non-loopback** (`src/gateway/server-runtime-config.ts:124`) — server refuses to start on non-loopback without a configured auth token/password
 
