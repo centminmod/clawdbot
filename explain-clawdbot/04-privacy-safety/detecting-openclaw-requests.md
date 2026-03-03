@@ -89,7 +89,7 @@ HTTP-Referer: https://openclaw.ai
 X-Title: OpenClaw Web Search
 ```
 
-**Source:** `src/agents/tools/web-search.ts:910-911`
+**Source:** `src/agents/tools/web-search.ts:890-891`
 ```typescript
 "HTTP-Referer": "https://openclaw.ai",
 "X-Title": "OpenClaw Web Search",
@@ -184,7 +184,7 @@ Accept: application/json
 X-Subscription-Token: <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:1311-1312`
+**Source:** `src/agents/tools/web-search.ts:1291-1292`
 ```typescript
 headers: {
   Accept: "application/json",
@@ -203,7 +203,7 @@ Content-Type: application/json
 Authorization: Bearer <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:964-965`
+**Source:** `src/agents/tools/web-search.ts:944-945`
 ```typescript
 headers: {
   "Content-Type": "application/json",
@@ -346,7 +346,7 @@ export type GatewayClientInfo = {
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
 | `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:10` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:911` | Perplexity search |
+| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:891` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
 
 ### Recommendation
@@ -543,7 +543,7 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 | Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:124`), unless `auth.mode="trusted-proxy"` |
 | Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:141-186`) |
 
-**Source:** `src/config/types.gateway.ts:319`
+**Source:** `src/config/types.gateway.ts:353`
 ```typescript
 /**
  * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection
@@ -591,7 +591,7 @@ OpenClaw's HTTP API endpoints read several custom headers from inbound requests.
 | `x-openclaw-session-key` | `src/gateway/http-utils.ts:71` | Session pinning — pins request to a specific named session | `/v1/chat/completions`, `/v1/responses` |
 | `x-openclaw-token` | `src/gateway/hooks.ts:168-169` | Webhook authentication — alternative to `Authorization: Bearer` | `/hooks/*` |
 | `x-openclaw-message-channel` | `src/gateway/tools-invoke-http.ts:204` | Tool policy routing — specifies channel context (e.g., `"discord"`, `"slack"`) | `/tools/invoke` |
-| `x-openclaw-account-id` | `src/gateway/tools-invoke-http.ts:206` | Account-level tool policy routing | `/tools/invoke` |
+| `x-openclaw-account-id` | `src/gateway/tools-invoke-http.ts:215` | Account-level tool policy routing | `/tools/invoke` |
 | `x-openclaw-relay-token` | `src/browser/extension-relay.ts:84` | Browser extension CDP relay auth | Separate loopback-only server (NOT on main Gateway port) |
 
 > **Note:** `x-openclaw-relay-token` is on a separate server that binds exclusively to loopback — it is **never** accessible through Cloudflare and is listed here only for completeness.

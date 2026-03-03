@@ -97,6 +97,7 @@ openclaw [--dev] [--profile <name>] <command>
   node run|install|start|stop|...    # headless node host
   devices                            # device pairing + tokens
   pairing list|approve               # DM pairing approvals
+  qr                                 # generate iOS pairing QR code
 
   memory status|index|search         # vector memory
   docs                               # search live docs
@@ -1158,6 +1159,39 @@ openclaw pairing approve telegram ABC123 --notify
 ```
 
 Docs: https://docs.openclaw.ai/start/pairing
+
+---
+
+### `openclaw qr`
+
+**What it does:** Generates an iOS pairing QR code and setup code so a device can pair with the Gateway without manually entering URLs and tokens. Prints the QR code to the terminal as ASCII art and emits the raw setup code for copy/paste.
+
+**When would I use this?** When setting up a new iPhone or iPad to connect to your OpenClaw Gateway. Scan the QR code in the OpenClaw iOS app to pair instantly.
+
+```bash
+openclaw qr                          # print QR + setup code
+openclaw qr --setup-code-only        # print only the text setup code
+openclaw qr --no-ascii               # skip QR art, just the code
+openclaw qr --json                   # machine-readable JSON output
+openclaw qr --remote                 # use gateway.remote.url + credentials
+openclaw qr --url <url>              # override gateway URL in the payload
+openclaw qr --public-url <url>       # override public URL in the payload
+openclaw qr --token <token>          # override gateway token in the payload
+openclaw qr --password <password>    # override gateway password in the payload
+```
+
+| Option | What it does |
+|--------|-------------|
+| `--remote` | Use `gateway.remote.url` and remote token/password instead of local config |
+| `--url <url>` | Override gateway URL used in the setup payload |
+| `--public-url <url>` | Override the public-facing URL (for Cloudflare tunnels, etc.) |
+| `--token <token>` | Override gateway auth token for the payload |
+| `--password <password>` | Override gateway password for the payload |
+| `--setup-code-only` | Print only the text setup code (no QR art) |
+| `--no-ascii` | Skip ASCII QR rendering |
+| `--json` | Output as JSON |
+
+Docs: https://docs.openclaw.ai/cli/qr
 
 ---
 
