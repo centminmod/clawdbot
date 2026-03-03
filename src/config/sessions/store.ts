@@ -17,7 +17,7 @@ import {
   normalizeSessionDeliveryFields,
   type DeliveryContext,
 } from "../../utils/delivery-context.js";
-import { getFileMtimeMs, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
+import { getFileStatSnapshot, isCacheEnabled, resolveCacheTtlMs } from "../cache-utils.js";
 import { loadConfig } from "../config.js";
 import type { SessionMaintenanceConfig, SessionMaintenanceMode } from "../types.base.js";
 import { enforceSessionDiskBudget, type SessionDiskBudgetSweepResult } from "./disk-budget.js";
@@ -39,6 +39,7 @@ type SessionStoreCacheEntry = {
   loadedAt: number;
   storePath: string;
   mtimeMs?: number;
+  sizeBytes?: number;
   serialized?: string;
 };
 
@@ -207,8 +208,11 @@ export function loadSessionStore(
   if (!opts.skipCache && isSessionStoreCacheEnabled()) {
     const cached = SESSION_STORE_CACHE.get(storePath);
     if (cached && isSessionStoreCacheValid(cached)) {
-      const currentMtimeMs = getFileMtimeMs(storePath);
-      if (currentMtimeMs === cached.mtimeMs) {
+      const currentFileStat = getFileStatSnapshot(storePath);
+      if (
+        currentFileStat?.mtimeMs === cached.mtimeMs &&
+        currentFileStat?.sizeBytes === cached.sizeBytes
+      ) {
         // Return a deep copy to prevent external mutations affecting cache
         return structuredClone(cached.store);
       }
@@ -223,7 +227,8 @@ export function loadSessionStore(
   // A short synchronous backoff (50 ms via `Atomics.wait`) is enough for the
   // writer to finish.
   let store: Record<string, SessionEntry> = {};
-  let mtimeMs = getFileMtimeMs(storePath);
+  let fileStat = getFileStatSnapshot(storePath);
+  let mtimeMs = fileStat?.mtimeMs;
   let serializedFromDisk: string | undefined;
   const maxReadAttempts = process.platform === "win32" ? 3 : 1;
   const retryBuf = maxReadAttempts > 1 ? new Int32Array(new SharedArrayBuffer(4)) : undefined;
@@ -240,7 +245,8 @@ export function loadSessionStore(
         store = parsed;
         serializedFromDisk = raw;
       }
-      mtimeMs = getFileMtimeMs(storePath) ?? mtimeMs;
+      fileStat = getFileStatSnapshot(storePath) ?? fileStat;
+      mtimeMs = fileStat?.mtimeMs;
       break;
     } catch {
       // File missing, locked, or transiently corrupt — retry on Windows.
@@ -288,6 +294,7 @@ export function loadSessionStore(
       loadedAt: Date.now(),
       storePath,
       mtimeMs,
+      sizeBytes: fileStat?.sizeBytes,
       serialized: serializedFromDisk,
     });
   }
@@ -656,7 +663,7 @@ function updateSessionStoreWriteCaches(params: {
   store: Record<string, SessionEntry>;
   serialized: string;
 }): void {
-  const mtimeMs = getFileMtimeMs(params.storePath);
+  const fileStat = getFileStatSnapshot(params.storePath);
   SESSION_STORE_SERIALIZED_CACHE.set(params.storePath, params.serialized);
   if (!isSessionStoreCacheEnabled()) {
     SESSION_STORE_CACHE.delete(params.storePath);
@@ -666,7 +673,8 @@ function updateSessionStoreWriteCaches(params: {
     store: structuredClone(params.store),
     loadedAt: Date.now(),
     storePath: params.storePath,
-    mtimeMs,
+    mtimeMs: fileStat?.mtimeMs,
+    sizeBytes: fileStat?.sizeBytes,
     serialized: params.serialized,
   });
 }

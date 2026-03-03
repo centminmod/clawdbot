@@ -501,14 +501,16 @@ export async function preflightDiscordMessage(
   // Preflight audio transcription for mention detection in guilds
   // This allows voice notes to be checked for mentions before being dropped
   let preflightTranscript: string | undefined;
-  const hasAudioAttachment = message.attachments?.some((att: { contentType?: string }) =>
-    att.contentType?.startsWith("audio/"),
+  const hasAudioAttachment = message.attachments?.some((att: { content_type?: string }) =>
+    att.content_type?.startsWith("audio/"),
   );
+  const hasTypedText = Boolean(message.content?.trim());
   const needsPreflightTranscription =
     !isDirectMessage &&
     shouldRequireMention &&
     hasAudioAttachment &&
-    !baseText &&
+    // `baseText` includes media placeholders; gate on typed text only.
+    !hasTypedText &&
     mentionRegexes.length > 0;
 
   if (needsPreflightTranscription) {
@@ -516,18 +518,18 @@ export async function preflightDiscordMessage(
       const { transcribeFirstAudio } = await import("../../media-understanding/audio-preflight.js");
       const audioPaths =
         message.attachments
-          ?.filter((att: { contentType?: string; url: string }) =>
-            att.contentType?.startsWith("audio/"),
+          ?.filter((att: { content_type?: string; url: string }) =>
+            att.content_type?.startsWith("audio/"),
           )
           .map((att: { url: string }) => att.url) ?? [];
       if (audioPaths.length > 0) {
         const tempCtx = {
           MediaUrls: audioPaths,
           MediaTypes: message.attachments
-            ?.filter((att: { contentType?: string; url: string }) =>
-              att.contentType?.startsWith("audio/"),
+            ?.filter((att: { content_type?: string; url: string }) =>
+              att.content_type?.startsWith("audio/"),
             )
-            .map((att: { contentType?: string }) => att.contentType)
+            .map((att: { content_type?: string }) => att.content_type)
             .filter(Boolean) as string[],
         };
         preflightTranscript = await transcribeFirstAudio({
@@ -541,10 +543,11 @@ export async function preflightDiscordMessage(
     }
   }
 
+  const mentionText = hasTypedText ? baseText : "";
   const wasMentioned =
     !isDirectMessage &&
     matchesMentionWithExplicit({
-      text: baseText,
+      text: mentionText,
       mentionRegexes,
       explicit: {
         hasAnyMention,
