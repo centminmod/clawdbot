@@ -32,7 +32,7 @@ If you've only used ChatGPT/Claude/Gemini in a browser:
 
 OpenClaw's superpower is not "a smarter model." It's that it can:
 - live **where you already talk** (WhatsApp, Telegram, Discord, iMessage, …)
-- stay **always-on** (Gateway service — can run as a system daemon via `openclaw daemon install` on systemd/launchd/schtasks for automatic start on boot)
+- stay **always-on** (Gateway service — can run as a system daemon via `openclaw gateway install` on systemd/launchd/schtasks for automatic start on boot)
 - keep **state** (sessions, memory, policies)
 - optionally **take actions** (tools, device nodes)
 

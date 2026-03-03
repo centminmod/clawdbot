@@ -125,6 +125,9 @@ Docs: https://docs.openclaw.ai/gateway/configuration
 ### Daemon
 - `src/daemon/` (~37 files as of Feb 2026). Cross-platform service management: systemd (Linux), launchd (macOS), schtasks (Windows). Handles Gateway lifecycle as a background service.
 
+### Docs
+- `src/docs/`. Documentation system helpers and utilities.
+
 ### Memory
 - `src/memory/`. Persistent knowledge layer with SQLite + sqlite-vec storage, markdown chunking, embedding providers, hybrid search. (Detailed in [`resource-usage.md` Section F](../06-optimizations/resource-usage.md#f-how-openclaw-memory-works-architecture-deep-dive).)
 
