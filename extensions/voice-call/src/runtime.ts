@@ -30,6 +30,49 @@ type Logger = {
   debug?: (message: string) => void;
 };
 
+function createRuntimeResourceLifecycle(params: {
+  config: VoiceCallConfig;
+  webhookServer: VoiceCallWebhookServer;
+}): {
+  setTunnelResult: (result: TunnelResult | null) => void;
+  stop: (opts?: { suppressErrors?: boolean }) => Promise<void>;
+} {
+  let tunnelResult: TunnelResult | null = null;
+  let stopped = false;
+
+  const runStep = async (step: () => Promise<void>, suppressErrors: boolean) => {
+    if (suppressErrors) {
+      await step().catch(() => {});
+      return;
+    }
+    await step();
+  };
+
+  return {
+    setTunnelResult: (result) => {
+      tunnelResult = result;
+    },
+    stop: async (opts) => {
+      if (stopped) {
+        return;
+      }
+      stopped = true;
+      const suppressErrors = opts?.suppressErrors ?? false;
+      await runStep(async () => {
+        if (tunnelResult) {
+          await tunnelResult.stop();
+        }
+      }, suppressErrors);
+      await runStep(async () => {
+        await cleanupTailscaleExposure(params.config);
+      }, suppressErrors);
+      await runStep(async () => {
+        await params.webhookServer.stop();
+      }, suppressErrors);
+    },
+  };
+}
+
 function isLoopbackBind(bind: string | undefined): boolean {
   if (!bind) {
     return false;
@@ -123,6 +166,7 @@ export async function createVoiceCallRuntime(params: {
   const provider = resolveProvider(config);
   const manager = new CallManager(config);
   const webhookServer = new VoiceCallWebhookServer(config, manager, provider, coreConfig);
+  const lifecycle = createRuntimeResourceLifecycle({ config, webhookServer });
 
   const localUrl = await webhookServer.start();
 
@@ -133,18 +177,18 @@ export async function createVoiceCallRuntime(params: {
   try {
     // Determine public URL - priority: config.publicUrl > tunnel > legacy tailscale
     let publicUrl: string | null = config.publicUrl ?? null;
-    let tunnelResult: TunnelResult | null = null;
 
     if (!publicUrl && config.tunnel?.provider && config.tunnel.provider !== "none") {
       try {
-        tunnelResult = await startTunnel({
+        const nextTunnelResult = await startTunnel({
           provider: config.tunnel.provider,
           port: config.serve.port,
           path: config.serve.path,
           ngrokAuthToken: config.tunnel.ngrokAuthToken,
           ngrokDomain: config.tunnel.ngrokDomain,
         });
-        publicUrl = tunnelResult?.publicUrl ?? null;
+        lifecycle.setTunnelResult(nextTunnelResult);
+        publicUrl = nextTunnelResult?.publicUrl ?? null;
       } catch (err) {
         log.error(
           `[voice-call] Tunnel setup failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -193,13 +237,7 @@ export async function createVoiceCallRuntime(params: {
 
     await manager.initialize(provider, webhookUrl);
 
-    const stop = async () => {
-      if (tunnelResult) {
-        await tunnelResult.stop();
-      }
-      await cleanupTailscaleExposure(config);
-      await webhookServer.stop();
-    };
+    const stop = async () => await lifecycle.stop();
 
     log.info("[voice-call] Runtime initialized");
     log.info(`[voice-call] Webhook URL: ${webhookUrl}`);
@@ -217,9 +255,10 @@ export async function createVoiceCallRuntime(params: {
       stop,
     };
   } catch (err) {
-    // If any step after the server started fails, close the server to
-    // release the port so the next attempt doesn't hit EADDRINUSE.
-    await webhookServer.stop().catch(() => {});
+    // If any step after the server started fails, clean up every provisioned
+    // resource (tunnel, tailscale exposure, and webhook server) so retries
+    // don't leak processes or keep the port bound.
+    await lifecycle.stop({ suppressErrors: true });
     throw err;
   }
 }
