@@ -57,7 +57,7 @@
 | [#10326](https://github.com/openclaw/openclaw/issues/10326) | ~~MEDIUM~~ FIXED | Child process stop() lacks SIGKILL escalation | Fixed upstream (COMPLETED 2026-02-14); `src/imessage/client.ts:110-131`, `src/signal/daemon.ts:96-100` |
 | [#10330](https://github.com/openclaw/openclaw/issues/10330) | MEDIUM (WONTFIX) | TOCTOU race in device auth token storage | Closed upstream as NOT_PLANNED (2026-02-24); still affects local code at `src/infra/device-auth-store.ts:92-119` (read+write with no lock) |
 | [#10331](https://github.com/openclaw/openclaw/issues/10331) | ~~MEDIUM~~ FIXED | Session store stale cache inside write lock | Fixed upstream (COMPLETED 2026-02-14); `src/config/sessions/store.ts:679,645` |
-| [#10333](https://github.com/openclaw/openclaw/issues/10333) | ~~MEDIUM~~ FIXED | BlueBubbles filename multipart header injection | Fixed in PR [#11093](https://github.com/openclaw/openclaw/pull/11093) — `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:27-29` |
+| [#10333](https://github.com/openclaw/openclaw/issues/10333) | ~~MEDIUM~~ FIXED | BlueBubbles filename multipart header injection | Fixed in PR [#11093](https://github.com/openclaw/openclaw/pull/11093) — `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:33` |
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | HIGH (WONTFIX) | Weak UUID: Math.random() fallback + tool call IDs | Closed upstream as NOT_PLANNED (2026-02-24); still affects local code at `ui/src/ui/uuid.ts:23-33` (fallback), `src/auto-reply/reply/get-reply-inline-actions.ts:191` (toolCallId) |
 | [#7139](https://github.com/openclaw/openclaw/issues/7139) | ~~MEDIUM~~ FIXED | Default config: sandbox off, plaintext creds | Fixed upstream (COMPLETED); `src/agents/sandbox/config.ts:166` — sandbox default changed |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM | Orphaned tool_use blocks from backgrounded exec | `src/agents/session-transcript-repair.ts:342` (reactive repair, not proactive) |
@@ -733,8 +733,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** BlueBubbles attachment handling uses `path.basename()` as sole filename sanitization, which strips directory components but preserves `"`, `\r`, `\n`, and other characters that can inject into Content-Disposition headers.
 
 **Affected code:**
-- `extensions/bluebubbles/src/attachments.ts:27-29` — `sanitizeFilename()` uses only `path.basename()` at :28
-- `extensions/bluebubbles/src/attachments.ts:182-189` — `addFile()` interpolates filename unescaped into `Content-Disposition: form-data; name="${name}"; filename="${fileName}"` at :227
+- `extensions/bluebubbles/src/attachments.ts:33` — `sanitizeFilename()` uses only `path.basename()` at :33
+- `extensions/bluebubbles/src/attachments.ts:214-217` — `addFile()` interpolates filename unescaped into `Content-Disposition: form-data; name="${name}"; filename="${fileName}"` at :217
 - `extensions/bluebubbles/src/chat.ts:302+307` — constructs Content-Disposition header with `filename="${safeFilename}"` (sanitized via `path.basename()` + regex replacement)
 
 ### #10927: Random IDs for External Content Wrapper Tags (Enhancement)
