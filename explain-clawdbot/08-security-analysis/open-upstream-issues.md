@@ -963,7 +963,7 @@ All changes take effect immediately via automatic restart.
 **Verification:**
 - `src/channels/command-gating.ts:8` defines `resolveCommandAuthorizedFromAuthorizers()`
 - 16 other channel implementations all use dynamic `commandAuthorized` computation
-- `src/gateway/server-methods/chat.ts:834` also hardcodes `true` but is gateway-auth protected (owner-facing webchat, expected behavior)
+- `src/gateway/server-methods/chat.ts:923` also hardcodes `true` but is gateway-auth protected (owner-facing webchat, expected behavior)
 
 **Impact:** Any Feishu user can execute admin/control commands (e.g., `/model`, `/new`, `/reset`, `/elevated`) regardless of access group configuration. Requires Feishu channel to be enabled with access groups configured. Without access groups, all users are already allowed, so this only affects Feishu deployments with access restrictions.
 
