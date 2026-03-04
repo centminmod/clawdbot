@@ -170,7 +170,7 @@ The SKILL.md gap extends to **all persistent `.md` files** in the workspace. Two
 
 **Path 1 — Bootstrap files (system prompt injection, high trust):**
 
-Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) and injected directly into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:187-239`). They appear as fully trusted context with **no content validation** — only truncation at 20,000 characters per file (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
+Nine named `.md` files are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) and injected directly into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:198-239`). They appear as fully trusted context with **no content validation** — only truncation at 20,000 characters per file (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
 
 | Bootstrap file | Purpose | Max chars | Injection path |
 |----------------|---------|-----------|----------------|

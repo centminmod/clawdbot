@@ -957,8 +957,8 @@ Alice
 
 **OpenClaw's Defense:**
 OpenClaw wraps external hook content (including emails) with security boundaries:
-- `buildSafeExternalPrompt()` at `src/cron/isolated-agent/run.ts:369-375`
-- Suspicious pattern detection and logging at `src/cron/isolated-agent/run.ts:356-364`
+- `buildSafeExternalPrompt()` at `src/cron/isolated-agent/run.ts:370-376`
+- Suspicious pattern detection and logging at `src/cron/isolated-agent/run.ts:358-364`
 - External content wrapped with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers and security warnings (`src/security/external-content.ts:47-64`)
 
 **Additional Defense:**
@@ -989,7 +989,7 @@ Attack #21 hides instructions in **skill files** (SKILL.md) that are loaded when
 
 **Two separate attack surfaces:**
 
-1. **Bootstrap files** (system prompt injection): Nine named `.md` files (AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md, MEMORY.md, memory.md) are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) and injected into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:187-239`) at up to 20,000 characters each. **Total unscanned attack surface: 180,000 characters of trusted system context.**
+1. **Bootstrap files** (system prompt injection): Nine named `.md` files (AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md, MEMORY.md, memory.md) are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`) and injected into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:198-239`) at up to 20,000 characters each. **Total unscanned attack surface: 180,000 characters of trusted system context.**
 
 2. **Memory directory files** (`memory/*.md`): Accessed via `memory_search`/`memory_get` tool calls with a 4,000-character injection budget. Goes through a separate pipeline (`src/memory/internal.ts:78-107`, `src/memory/backend-config.ts:275`) — not injected into the system prompt. QMD backend does not scan content.
 
