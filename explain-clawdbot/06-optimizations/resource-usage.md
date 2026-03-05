@@ -47,7 +47,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - WhatsApp monitor — persistent connection with keepalive
 
 **Browser extension WebSocket pings:**
-- `src/browser/extension-relay.ts:587` — periodic ping/pong to keep connections alive
+- `src/browser/extension-relay.ts:743` — periodic ping/pong to keep connections alive
 
 **Crypto operations:**
 - HMAC signature verification for webhooks

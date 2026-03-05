@@ -242,7 +242,7 @@ Hudson Rock predicts that **infostealer developers will likely release dedicated
 | Encryption at rest | OPEN | No encryption — credentials protected only by filesystem permissions | [Mac Mini risks](../05-worst-case-security/mac-mini-risks.md) |
 | Token rotation | OPEN | No expiry, no rotation mechanism — tokens are static until manually changed | — |
 | Token device-binding | OPEN | Gateway tokens are not bound to any device; any bearer can authenticate | — |
-| Auth rate limiting | MITIGATED | 10 failures / 60s → 5-minute lockout (`src/config/types.gateway.ts:133-141`) | [Threat model](../04-privacy-safety/threat-model.md) |
+| Auth rate limiting | MITIGATED | 10 failures / 60s → 5-minute lockout (`src/config/types.gateway.ts:154-163`) | [Threat model](../04-privacy-safety/threat-model.md) |
 | VirusTotal scanning | MITIGATED (partial) | 6-step pipeline; does not catch social engineering or lookalike website bypass | [ClawHub risks](../05-worst-case-security/clawhub-marketplace-risks.md) |
 | Local skill scanner | MITIGATED (partial) | Pattern-based; does not scan `.md`/`.mmd` files or external URLs | [ClawHub risks](../05-worst-case-security/clawhub-marketplace-risks.md) |
 | Endpoint protection | USER RESPONSIBILITY | No built-in AV/EDR; relies on user's OS-level security | This document |
