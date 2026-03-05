@@ -121,7 +121,7 @@
 | [#7903](https://github.com/openclaw/openclaw/issues/7903) | CRITICAL | AUTONOMY_CONTROL | Self-talk detection runs AFTER tool execution, not before | `src/auto-reply/` — no pre-execution self-talk check; safety validation occurs post-action |
 | [#24884](https://github.com/openclaw/openclaw/issues/24884) | HIGH | CONTEXT_MGMT | Orphaned tool_use IDs after context compaction break all providers | `src/agents/session-transcript-repair.ts` — `repairToolUseResultPairing()` insufficient for compaction scenarios; cross-ref #9875 |
 | [#24852](https://github.com/openclaw/openclaw/issues/24852) | ~~HIGH~~ FIXED | PERSONA_DRIFT | Subagent sessions don't load SOUL.md/workspace files | Fixed upstream (COMPLETED 2026-02-24); `src/agents/bootstrap-files.ts:98` — subagent bootstrap now received via `resolveBootstrapContextForRun()`; cross-ref #11900 |
-| [#21597](https://github.com/openclaw/openclaw/issues/21597) | HIGH | AUTONOMY_CONTROL | Heartbeat unbounded tool-call loops burn tokens | `src/agents/pi-embedded-runner/run.ts:650` — compaction cycle guard (`MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3`) exists but no tool-call loop guard for heartbeat path |
+| [#21597](https://github.com/openclaw/openclaw/issues/21597) | HIGH | AUTONOMY_CONTROL | Heartbeat unbounded tool-call loops burn tokens | `src/agents/pi-embedded-runner/run.ts:687` — compaction cycle guard (`MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3`) exists but no tool-call loop guard for heartbeat path |
 | [#21621](https://github.com/openclaw/openclaw/issues/21621) | HIGH | CONTEXT_MGMT | Browser tool triggers compaction deadlock | `src/agents/pi-embedded-runner/compact.ts` — browser tool output can trigger compaction which deadlocks on tool completion |
 | [#10649](https://github.com/openclaw/openclaw/issues/10649) | HIGH | CONTEXT_MGMT | Unexplained data appears after context compaction | `src/agents/pi-embedded-runner/compact.ts` — data integrity not fully verified post-compaction |
 | [#18223](https://github.com/openclaw/openclaw/issues/18223) | HIGH | CONTEXT_MGMT | Compaction SIGKILLs in-flight exec tool processes | `src/agents/pi-embedded-runner/compact.ts` — compaction can terminate running tool processes mid-execution |
@@ -135,7 +135,7 @@
 | [#21084](https://github.com/openclaw/openclaw/issues/21084) | MEDIUM | HALLUCINATION | Session JSONL not persisted on crash (data loss) | `src/auto-reply/reply/session.ts` — crash during write loses session transcript; no fsync/WAL |
 | [#25795](https://github.com/openclaw/openclaw/issues/25795) | MEDIUM | CONTEXT_MGMT | Suspicious 'System: Post-Compaction Audit' injected into conversation — potential prompt injection surface | `src/agents/pi-extensions/compaction-safeguard.ts` — post-compaction audit injects System: prefixed message; same format as tracked #21656 spoofing surface; `DEFAULT_REQUIRED_READS` instructs reading nonexistent files |
 | [#25647](https://github.com/openclaw/openclaw/issues/25647) | MEDIUM | TOOL_CALL | transcript-sanitize pi-extension never loaded — orphaned tool_result possible via extension path | `src/agents/pi-embedded-runner/extensions.ts:6-11` — only compactionSafeguard + contextPruning loaded; `repairToolUseResultPairing` runs via direct import in `compaction.ts:373` but extension activation path is broken |
-| [#25392](https://github.com/openclaw/openclaw/issues/25392) | MEDIUM | CONTEXT_MGMT | Default AGENTS.md template headings mismatch compaction code — critical context lost after every compaction | `src/agents/pi-extensions/compaction-safeguard.ts:416` extracts `"Session Startup"` + `"Red Lines"`; `src/agents/system-prompt.ts:390` generates `"## Safety"` — template mismatch causes silent context extraction failure |
+| [#25392](https://github.com/openclaw/openclaw/issues/25392) | ~~MEDIUM~~ FIXED | CONTEXT_MGMT | Default AGENTS.md template headings mismatch compaction code — critical context lost after every compaction | Fixed upstream (96021a2b1 Mar 5 sync 2); `src/agents/pi-extensions/compaction-safeguard.ts:552` now falls back to legacy section names (`"Every Session"`, `"Safety"`) so extraction succeeds regardless of AGENTS.md template version |
 
 ### Category Tags
 
@@ -1202,7 +1202,7 @@ All changes take effect immediately via automatic restart.
 
 **Affected code:**
 - `src/infra/outbound/message-action-runner.ts` — no `allowedRecipients`, `dmScope` filter, or per-agent channel restriction
-- `src/agents/tools/message-tool.ts:704` — `sendAttachment` action has no cross-tenant recipient restriction
+- `src/agents/tools/message-tool.ts:732` — `sendAttachment` action has no cross-tenant recipient restriction
 - No grep matches for `allowedRecipients`, `restrictSend`, `sendScope`, `channelFilter`, `recipientFilter` in the message pipeline
 
 **Impact:** A malicious or prompt-injected agent can impersonate the bot to any user, deliver prompt injection payloads to other users' sessions, and enumerate all connected users. Single-user setups are unaffected.
