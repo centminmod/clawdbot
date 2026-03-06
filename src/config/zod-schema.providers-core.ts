@@ -225,8 +225,19 @@ export const TelegramAccountSchemaBase = z
       .object({
         reactions: z.boolean().optional(),
         sendMessage: z.boolean().optional(),
+        poll: z.boolean().optional(),
         deleteMessage: z.boolean().optional(),
         sticker: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    threadBindings: z
+      .object({
+        enabled: z.boolean().optional(),
+        idleHours: z.number().nonnegative().optional(),
+        maxAgeHours: z.number().nonnegative().optional(),
+        spawnSubagentSessions: z.boolean().optional(),
+        spawnAcpSessions: z.boolean().optional(),
       })
       .strict()
       .optional(),
