@@ -62,7 +62,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 1. **Pairing system** (`src/pairing/pairing-store.ts:12-25`) — 8-character codes with 60-minute TTL, max 3 pending, with lockfile-based concurrency control
 2. **AllowFrom lists** (`src/pairing/pairing-store.ts:52-55`) — per-channel allowlists restrict which users can interact with the agent
-3. **Gateway bind default** (`src/gateway/server-runtime-config.ts:50`) — defaults to `loopback` (127.0.0.1), not LAN/public
+3. **Gateway bind default** (`src/gateway/server-runtime-config.ts:51`) — defaults to `loopback` (127.0.0.1), not LAN/public
 4. **Mandatory auth for non-loopback** (`src/gateway/server-runtime-config.ts:124`) — server refuses to start on non-loopback without a configured auth token/password
 
 **Verdict:** TRUE that messaging integrations extend the attack surface — that is inherent to any messaging-capable application. OVERSTATED because pairing + allowlists + bind defaults significantly restrict who can reach the agent.
@@ -77,11 +77,11 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 1. **Audit framework** (`src/security/audit.ts:1-81`, `src/security/audit-extra.ts`) — 65+ security checks across 12 categories (filesystem permissions, secrets in config, attack surface, exposure matrix, hooks hardening, model hygiene, plugin trust, etc.)
 2. **Install-time skill scanning** (`src/security/skill-scanner.ts:39-48`) — regex-based scanning of `.js`/`.ts` files at skill install time
-3. **Loopback default** (`src/gateway/server-runtime-config.ts:50`) — gateway binds to 127.0.0.1 by default
+3. **Loopback default** (`src/gateway/server-runtime-config.ts:51`) — gateway binds to 127.0.0.1 by default
 4. **Mandatory auth enforcement** (`src/gateway/server-runtime-config.ts:124`) — throws error if binding to non-loopback without auth credentials
 5. **SSRF protection** (`src/infra/net/ssrf.ts:108-257`) — DNS pinning with private IP blocking (10.x, 127.x, 169.254.x, 172.16-31.x, 192.168.x, 100.64-127.x, special-use CIDRs, IPv6 link-local/ULA including full-form IPv4-mapped IPv6, plus metadata hostnames)
 6. **SSRF policy enforcement** (`src/infra/net/ssrf.ts:276-363`) — `resolvePinnedHostnameWithPolicy()` + `resolvePinnedHostname()` block both hostname-based and resolved-IP-based private network access
-7. **RBAC on every call** (`src/gateway/server-methods.ts:97-149`) — `authorizeGatewayMethod()` enforces role + scope checks (operator/node roles, admin/approvals/pairing/read/write scopes) on every gateway method
+7. **RBAC on every call** (`src/gateway/server-methods.ts:98-155`) — `authorizeGatewayMethod()` enforces role + scope checks (operator/node roles, admin/approvals/pairing/read/write scopes) on every gateway method
 
 **Verdict:** FALSE — OpenClaw has extensive built-in security. The blog post appears to have evaluated an older version or did not examine the codebase beyond surface-level claims.
 

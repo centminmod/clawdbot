@@ -24,7 +24,7 @@ When OpenClaw downloads media files (images, audio, video) attached to incoming 
 User-Agent: OpenClaw-Gateway/1.0
 ```
 
-**Source:** `src/media/input-files.ts:201`
+**Source:** `src/media/input-files.ts:178`
 ```typescript
 init: { headers: { "User-Agent": "OpenClaw-Gateway/1.0" } },
 ```
@@ -203,7 +203,7 @@ Content-Type: application/json
 Authorization: Bearer <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:977-978`
+**Source:** `src/agents/tools/web-search.ts:975-977`
 ```typescript
 headers: {
   "Content-Type": "application/json",
@@ -341,12 +341,12 @@ export type GatewayClientInfo = {
 
 | Header | Where it's set | Notes |
 |---|---|---|
-| `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:201` | Media file downloads |
+| `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:178` | Media file downloads |
 | `User-Agent: openclaw` | `src/commands/signal-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
 | `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:10` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:915` | Perplexity search |
+| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:979` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
 
 ### Recommendation
@@ -543,7 +543,7 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 | Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:124`), unless `auth.mode="trusted-proxy"` |
 | Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:141-186`) |
 
-**Source:** `src/config/types.gateway.ts:353`
+**Source:** `src/config/types.gateway.ts:388`
 ```typescript
 /**
  * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection

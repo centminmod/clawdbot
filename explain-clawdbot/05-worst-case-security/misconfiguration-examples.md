@@ -465,7 +465,7 @@ Each change had a plausible justification in the AI's response. None were what t
 
 > **The Root Cause:** The AI doesn't understand the security implications of config changes. It optimizes for the goal you stated ("performance") and confidently disables safety mechanisms that it perceives as overhead.
 
-Source: `src/agents/tools/gateway-tool.ts:72,188-199` (owner-only + `config.patch` action), `src/agents/tools/gateway.ts:147` (least-privilege scopes), `src/gateway/server-methods.ts:37-64` (scope enforcement)
+Source: `src/agents/tools/gateway-tool.ts:77,197-208` (owner-only + `config.patch` action), `src/agents/tools/gateway.ts:147` (least-privilege scopes), `src/gateway/server-methods.ts:37-64` (scope enforcement)
 
 ### The Fix
 
@@ -519,7 +519,7 @@ The user's phone was now able to connect — along with everyone else.
 
 > **The Core Issue:** Schema validation catches **structural** errors (wrong types, unknown keys) but not **semantic** security errors. The AI can set dangerous values for every known key, and validation will happily accept them.
 
-Source: `src/config/validation.ts:115-130`, `src/config/zod-schema.ts:818`
+Source: `src/config/validation.ts:115-130`, `src/config/zod-schema.ts:816`
 
 ### The Fix
 
