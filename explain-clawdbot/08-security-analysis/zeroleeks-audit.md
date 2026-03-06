@@ -123,7 +123,7 @@ These tests describe genuine indirect injection scenarios but deliver them incor
 2. Prepends a security warning instructing the model to IGNORE embedded instructions (`src/security/external-content.ts:53-64`)
 3. Detects suspicious patterns (regex: "ignore previous instructions", "you are now a", etc.) and logs warnings (`src/security/external-content.ts:15-28`)
 4. Sanitizes boundary markers in content to prevent escape (`src/security/external-content.ts:127-167`) including fullwidth Unicode homoglyph folding (`src/security/external-content.ts:89-125`)
-5. Is actively integrated into web search (`src/agents/tools/web-search.ts:1214,1240,1268,1294`), web fetch (`src/agents/tools/web-fetch.ts:250-271`), cron hooks (`src/cron/isolated-agent/run.ts:346-381`), Discord (`src/discord/monitor/message-handler.process.ts:214`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
+5. Is actively integrated into web search (`src/agents/tools/web-search.ts:1214,1240,1268,1294`), web fetch (`src/agents/tools/web-fetch.ts:250-271`), cron hooks (`src/cron/isolated-agent/run.ts:346-381`), Discord (`src/discord/monitor/message-handler.process.ts:215`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
 
 #### Category C: Social Engineering / False Context (Tests 14-21) -- User Messages, Not External Content
 
@@ -203,7 +203,7 @@ ZeroLeeks tested **only** the bottom two tiers and rated the system CRITICAL.
 | Web search wrapping | `src/agents/tools/web-search.ts:1214,1240,1268,1294` | All search snippets wrapped via `externalContent: { untrusted: true }` |
 | Web fetch wrapping | `src/agents/tools/web-fetch.ts:250-271` | All fetched content wrapped with security warnings |
 | Cron/hook wrapping | `src/cron/isolated-agent/run.ts:346-381` | External hooks wrapped via `buildSafeExternalPrompt()` with suspicious pattern logging |
-| Discord metadata isolation | `src/discord/monitor/message-handler.process.ts:214` | Channel topics wrapped via `buildUntrustedChannelMetadata()` |
+| Discord metadata isolation | `src/discord/monitor/message-handler.process.ts:215` | Channel topics wrapped via `buildUntrustedChannelMetadata()` |
 | Slack metadata isolation | `src/slack/monitor/room-context.ts:15-19` | Channel descriptions wrapped via `buildUntrustedChannelMetadata()` |
 | External content test suite | `src/security/external-content.test.ts:1-302` | 302 lines of security-focused tests including injection scenarios |
 
