@@ -84,7 +84,7 @@
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | ~~HIGH~~ FIXED | Gateway auth has no rate limiting (CWE-307) | Fixed upstream (COMPLETED); `src/gateway/auth.ts` — rate limiting added |
 | [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:108`) now handles full-form IPv4-mapped IPv6 via `extractEmbeddedIpv4FromIpv6()` at `src/shared/net/ip.ts:279` |
-| [#11738](https://github.com/openclaw/openclaw/issues/11738) | ~~HIGH~~ FIXED | Canvas authorization IP co-tenancy bypass | Fixed upstream (COMPLETED 2026-02-24); `src/gateway/server-http.ts:622-654` — canvas auth no longer relies on IP co-tenancy |
+| [#11738](https://github.com/openclaw/openclaw/issues/11738) | ~~HIGH~~ FIXED | Canvas authorization IP co-tenancy bypass | Fixed upstream (COMPLETED 2026-02-24); `src/gateway/server-http.ts:679-712` — canvas auth no longer relies on IP co-tenancy |
 | [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH (WONTFIX) | HTTP API session keys lack ownership validation | Closed upstream as NOT_PLANNED; still affects local code at `src/gateway/http-utils.ts:71-73` — `x-openclaw-session-key` header accepted as-is with no ownership check |
 | [#11024](https://github.com/openclaw/openclaw/issues/11024) | ~~HIGH~~ FIXED | Gmail push endpoint embeds auth token in URL query string | Fixed upstream (COMPLETED 2026-02-14); `src/hooks/gmail-setup-utils.ts:315` |
 | [#11811](https://github.com/openclaw/openclaw/issues/11811) | ~~HIGH~~ FIXED | MSTeams attachment fetch follows redirects before allowlist checks (SSRF) | Fixed upstream (COMPLETED); `extensions/msteams/src/attachments/download.ts:93` |
@@ -292,8 +292,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Gateway HTTP server serves Canvas host and A2UI endpoints without enforcing gateway auth, allowing unauthenticated access to canvas files.
 
 **Affected code:**
-- `src/gateway/server-http.ts:622-654` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `src/gateway/server/http-auth.ts:58`, PR #9518)
-- `src/gateway/server-http.ts:716-770` - WebSocket upgrade for canvas (`attachGatewayUpgradeHandler`; canvas WS auth-wrapped via `authorizeCanvasRequest()` at `server-http.ts:740`, PR #9518)
+- `src/gateway/server-http.ts:679-712` - Canvas/A2UI handler dispatch (now auth-wrapped via `authorizeCanvasRequest()` at `src/gateway/server/http-auth.ts:58`, PR #9518)
+- `src/gateway/server-http.ts:782-836` - WebSocket upgrade for canvas (`attachGatewayUpgradeHandler`; canvas WS auth-wrapped via `authorizeCanvasRequest()` at `server-http.ts:809`, PR #9518)
 
 **Verification:**
 - No `authorizeGatewayConnect` call before `canvasHost.handleHttpRequest(req, res)`
