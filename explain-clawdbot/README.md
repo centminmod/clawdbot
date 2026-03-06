@@ -45,6 +45,7 @@
   - [Cisco AI Defense skill scanner analysis](./08-security-analysis/cisco-ai-defense-skill-scanner.md) *(Feb 2026, blog post + tool evaluation)*
   - [Hudson Rock infostealer analysis](./08-security-analysis/hudson-rock-infostealer-analysis.md) *(Feb 2026, first confirmed config theft)*
   - [Cline CLI supply chain attack ("Clinejection")](./08-security-analysis/cline-supply-chain-attack.md) *(Feb 2026, GHSA-9ppg-jx86-fqw7)*
+  - [ClawJacked attack (cross-origin WebSocket hijack)](./08-security-analysis/clawjacked-attack.md) *(Feb 2026, fixed in 2026.2.26)*
 - [AI model analysis comparison](./08-security-analysis/ai-model-analysis-comparison.md)
 - **Worst-case security scenarios:**
   - [Overview](./05-worst-case-security/README.md)
@@ -484,6 +485,10 @@ See: https://docs.openclaw.ai/gateway/security ("DM session isolation") and http
 ---
 
 > **See:** [Cline CLI Supply Chain Attack ("Clinejection")](./08-security-analysis/cline-supply-chain-attack.md) — Compromised Cline CLI v2.3.0 installed OpenClaw via postinstall hook; first real-world prompt injection → supply chain compromise (Feb 2026, GHSA-9ppg-jx86-fqw7)
+
+---
+
+> **See:** [ClawJacked Attack](./08-security-analysis/clawjacked-attack.md) — Malicious websites brute-forced the local OpenClaw WebSocket by exploiting the loopback rate-limit exemption; gained admin access and silent device pairing in seconds. Fixed in 2026.2.26 (Feb 2026, Oasis Security)
 
 ---
 
