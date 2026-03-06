@@ -80,8 +80,8 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Followup queues | `src/auto-reply/reply/queue/state.ts:18` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
 | Agent run sequence | `src/gateway/server-runtime-state.ts:198` | **No pruning** (maintenance timer skips it) | **Leak risk** |
-| WhatsApp group histories | `src/web/auto-reply/monitor.ts:103` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
-| WhatsApp group member names | `src/web/auto-reply/monitor.ts:113` | **No eviction at all** | **Leak risk** |
+| WhatsApp group histories | `src/web/auto-reply/monitor.ts:104` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
+| WhatsApp group member names | `src/web/auto-reply/monitor.ts:114` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
 | Warned contexts | `src/infra/session-maintenance-warning.ts:16` | **Never pruned** | Low |
 | Announce queues | `src/agents/subagent-announce-queue.ts:60` | Per-queue cap, **no queue count cap** | Low |
@@ -153,7 +153,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 
 | Type | Limit | Location |
 |------|-------|----------|
-| Images | 6MB (10MB input files) | `src/media/constants.ts:1`, `src/media/input-files.ts:97` |
+| Images | 6MB (10MB input files) | `src/media/constants.ts:1`, `src/media/input-files.ts:106` |
 | Audio | 16MB | `src/media/constants.ts:2` |
 | Video | 16MB | `src/media/constants.ts:3` |
 | Documents | 100MB | `src/media/constants.ts:4` |
