@@ -26,7 +26,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 |---|-----------|--------|--------|---------------|
 | 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:35-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
-| 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:102-163` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
+| 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:103-164` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
 | 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:474-846` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
 | 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
 | 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/input-files.ts:244-279` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
@@ -591,7 +591,7 @@ The `memory_search` tool description instructs the AI to use it as a "mandatory 
 | Workspace directory | `~/.openclaw/workspace/` | `src/agents/workspace.ts:12-21` |
 | Primary memory file | `~/.openclaw/workspace/MEMORY.md` (or `memory.md`) | `src/agents/workspace.ts:32-33` |
 | Memory subdirectory | `~/.openclaw/workspace/memory/*.md` (recursive) | `src/memory/internal.ts:80-146` |
-| SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:123-131` |
+| SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:125-133` |
 | Additional paths | Configured via `memorySearch.extraPaths[]` | `src/memory/internal.ts:35-46` |
 
 The `listMemoryFiles()` function (`internal.ts:79-146`) scans these locations, skips symlinks, filters for `.md` extensions only, and deduplicates by resolved path.
@@ -621,7 +621,7 @@ The `chunkMarkdown()` function (`src/memory/internal.ts:167-260`) splits memory 
 5. Long lines (> `maxChars`) are split into segments, each preserving the original line number
 6. Repeat until all lines are processed
 
-Source references: defaults at `src/agents/memory-search.ts:85-86`
+Source references: defaults at `src/agents/memory-search.ts:87-88`
 
 ### F4. Embedding providers
 
@@ -634,9 +634,9 @@ Source references: defaults at `src/agents/memory-search.ts:85-86`
 | **Voyage** | `voyage-4-large` | 32,000 | 1,024 | Cloud API |
 | **Local** | `embeddinggemma-300M` (GGUF) | varies | ~300 | On-device via `node-llama-cpp` |
 
-Source: model defaults at `src/agents/memory-search.ts:81-83`, local model at `src/memory/embeddings.ts:72-73`
+Source: model defaults at `src/agents/memory-search.ts:82-84`, local model at `src/memory/embeddings.ts:73-74`
 
-**Auto-selection order** (`src/memory/embeddings.ts:165-260`):
+**Auto-selection order** (`src/memory/embeddings.ts:166-286`):
 
 1. **Local** — but only if the model file already exists on disk (won't auto-download)
 2. **OpenAI** — if API key is available
@@ -664,11 +664,11 @@ A configurable **fallback provider** (`memorySearch.fallback`) is tried if the p
 
 | Parameter | Default | Source |
 |-----------|---------|--------|
-| `vectorWeight` | 0.7 | `src/agents/memory-search.ts:93` |
-| `textWeight` | 0.3 | `src/agents/memory-search.ts:94` |
-| `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:95` |
-| `maxResults` | 6 | `src/agents/memory-search.ts:90` |
-| `minScore` | 0.35 | `src/agents/memory-search.ts:91` |
+| `vectorWeight` | 0.7 | `src/agents/memory-search.ts:95` |
+| `textWeight` | 0.3 | `src/agents/memory-search.ts:96` |
+| `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:97` |
+| `maxResults` | 6 | `src/agents/memory-search.ts:92` |
+| `minScore` | 0.35 | `src/agents/memory-search.ts:93` |
 | Snippet cap | 700 chars | `src/memory/manager.ts:34` |
 
 With defaults: 24 candidates are fetched (6 × 4), merged and scored, then the top 6 with score ≥ 0.35 are returned, each snippet capped at 700 characters.
@@ -710,7 +710,7 @@ Source: `src/memory/memory-schema.ts:9-82`
 | `sync.onSearch` | `true` | Sync before search if dirty flag is set |
 | `sync.intervalMinutes` | 0 (disabled) | Periodic sync timer |
 
-Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/memory-search.ts:88` (debounce default)
+Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/memory-search.ts:89` (debounce default)
 
 **Session delta tracking** (for session memory source):
 
@@ -719,7 +719,7 @@ Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/me
 | `sync.sessions.deltaBytes` | 100,000 (100KB) | Re-index session after this many new bytes |
 | `sync.sessions.deltaMessages` | 50 | Re-index session after this many new messages |
 
-Source: `src/agents/memory-search.ts:89-90`, `src/memory/manager-sync-ops.ts:407-472`
+Source: `src/agents/memory-search.ts:90-91`, `src/memory/manager-sync-ops.ts:407-472`
 
 **Sync triggers** in order of priority:
 
@@ -737,7 +737,7 @@ During sync, unchanged files are skipped (hash comparison against the `files` ta
 
 When the conversation approaches the context window limit, OpenClaw inserts a silent "memory flush" turn before running compaction:
 
-**Trigger condition** (`src/auto-reply/reply/memory-flush.ts:124-175`):
+**Trigger condition** (`src/auto-reply/reply/memory-flush.ts:125-170`):
 
 ```
 totalTokens >= contextWindow - reserveTokens - softThreshold
@@ -745,8 +745,8 @@ totalTokens >= contextWindow - reserveTokens - softThreshold
 
 | Parameter | Default | Source |
 |-----------|---------|--------|
-| `softThresholdTokens` | 4,000 | `memory-flush.ts:8` |
-| Flush prompt | "Store durable memories now (use `memory/YYYY-MM-DD.md`)" | `memory-flush.ts:10-15` |
+| `softThresholdTokens` | 4,000 | `memory-flush.ts:10` |
+| Flush prompt | "Store durable memories now (use `memory/YYYY-MM-DD.md`)" | `memory-flush.ts:13-19` |
 
 **Double-flush prevention:** The system tracks `memoryFlushCompactionCount` per session. If it already matches the current `compactionCount`, the flush is skipped (`memory-flush.ts:102-106`). This prevents the same flush from running twice for the same compaction cycle.
 
