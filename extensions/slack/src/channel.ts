@@ -1,11 +1,17 @@
 import {
+  buildAccountScopedDmSecurityPolicy,
+  collectOpenGroupPolicyConfiguredRouteWarnings,
+  formatAllowFromLowercase,
+  mapAllowFromEntries,
+  resolveOptionalConfigString,
+} from "openclaw/plugin-sdk";
+import {
   applyAccountNameToChannelSection,
   buildComputedAccountStatusSnapshot,
   buildChannelConfigSchema,
   DEFAULT_ACCOUNT_ID,
   deleteAccountFromConfigSection,
   extractSlackToolSend,
-  formatPairingApproveHint,
   getChatChannelMeta,
   handleSlackMessageAction,
   inspectSlackAccount,
@@ -162,29 +168,23 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
       appTokenSource: account.appTokenSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveSlackAccount({ cfg, accountId }).dm?.allowFrom ?? []).map((entry) => String(entry)),
-    formatAllowFrom: ({ allowFrom }) =>
-      allowFrom
-        .map((entry) => String(entry).trim())
-        .filter(Boolean)
-        .map((entry) => entry.toLowerCase()),
+      mapAllowFromEntries(resolveSlackAccount({ cfg, accountId }).dm?.allowFrom),
+    formatAllowFrom: ({ allowFrom }) => formatAllowFromLowercase({ allowFrom }),
     resolveDefaultTo: ({ cfg, accountId }) =>
-      resolveSlackAccount({ cfg, accountId }).config.defaultTo?.trim() || undefined,
+      resolveOptionalConfigString(resolveSlackAccount({ cfg, accountId }).config.defaultTo),
   },
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
-      const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-      const useAccountPath = Boolean(cfg.channels?.slack?.accounts?.[resolvedAccountId]);
-      const allowFromPath = useAccountPath
-        ? `channels.slack.accounts.${resolvedAccountId}.dm.`
-        : "channels.slack.dm.";
-      return {
-        policy: account.dm?.policy ?? "pairing",
+      return buildAccountScopedDmSecurityPolicy({
+        cfg,
+        channelKey: "slack",
+        accountId,
+        fallbackAccountId: account.accountId ?? DEFAULT_ACCOUNT_ID,
+        policy: account.dm?.policy,
         allowFrom: account.dm?.allowFrom ?? [],
-        allowFromPath,
-        approveHint: formatPairingApproveHint("slack"),
+        allowFromPathSuffix: "dm.",
         normalizeEntry: (raw) => raw.replace(/^(slack|user):/i, ""),
-      };
+      });
     },
     collectWarnings: ({ account, cfg }) => {
       const warnings: string[] = [];
@@ -197,17 +197,24 @@ export const slackPlugin: ChannelPlugin<ResolvedSlackAccount> = {
       const channelAllowlistConfigured =
         Boolean(account.config.channels) && Object.keys(account.config.channels ?? {}).length > 0;
 
-      if (groupPolicy === "open") {
-        if (channelAllowlistConfigured) {
-          warnings.push(
-            `- Slack channels: groupPolicy="open" allows any channel not explicitly denied to trigger (mention-gated). Set channels.slack.groupPolicy="allowlist" and configure channels.slack.channels.`,
-          );
-        } else {
-          warnings.push(
-            `- Slack channels: groupPolicy="open" with no channel allowlist; any channel can trigger (mention-gated). Set channels.slack.groupPolicy="allowlist" and configure channels.slack.channels.`,
-          );
-        }
-      }
+      warnings.push(
+        ...collectOpenGroupPolicyConfiguredRouteWarnings({
+          groupPolicy,
+          routeAllowlistConfigured: channelAllowlistConfigured,
+          configureRouteAllowlist: {
+            surface: "Slack channels",
+            openScope: "any channel not explicitly denied",
+            groupPolicyPath: "channels.slack.groupPolicy",
+            routeAllowlistPath: "channels.slack.channels",
+          },
+          missingRouteAllowlist: {
+            surface: "Slack channels",
+            openBehavior: "with no channel allowlist; any channel can trigger (mention-gated)",
+            remediation:
+              'Set channels.slack.groupPolicy="allowlist" and configure channels.slack.channels',
+          },
+        }),
+      );
 
       return warnings;
     },

@@ -1,3 +1,7 @@
+import {
+  collectOpenGroupPolicyRestrictSendersWarnings,
+  formatAllowFromLowercase,
+} from "openclaw/plugin-sdk";
 import type {
   ChannelMessageActionName,
   ChannelPlugin,
@@ -125,11 +129,7 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
       configured: account.configured,
     }),
     resolveAllowFrom: ({ cfg }) => cfg.channels?.msteams?.allowFrom ?? [],
-    formatAllowFrom: ({ allowFrom }) =>
-      allowFrom
-        .map((entry) => String(entry).trim())
-        .filter(Boolean)
-        .map((entry) => entry.toLowerCase()),
+    formatAllowFrom: ({ allowFrom }) => formatAllowFromLowercase({ allowFrom }),
     resolveDefaultTo: ({ cfg }) => cfg.channels?.msteams?.defaultTo?.trim() || undefined,
   },
   security: {
@@ -140,12 +140,13 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount> = {
         groupPolicy: cfg.channels?.msteams?.groupPolicy,
         defaultGroupPolicy,
       });
-      if (groupPolicy !== "open") {
-        return [];
-      }
-      return [
-        `- MS Teams groups: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.msteams.groupPolicy="allowlist" + channels.msteams.groupAllowFrom to restrict senders.`,
-      ];
+      return collectOpenGroupPolicyRestrictSendersWarnings({
+        groupPolicy,
+        surface: "MS Teams groups",
+        openScope: "any member",
+        groupPolicyPath: "channels.msteams.groupPolicy",
+        groupAllowFromPath: "channels.msteams.groupAllowFrom",
+      });
     },
   },
   setup: {

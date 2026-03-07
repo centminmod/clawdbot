@@ -2,10 +2,27 @@ import { normalizeWhatsAppAllowFromEntries } from "../channels/plugins/normalize
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveIMessageAccount } from "../imessage/accounts.js";
 import { normalizeAccountId } from "../routing/session-key.js";
+import { normalizeStringEntries } from "../shared/string-normalization.js";
 import { resolveWhatsAppAccount } from "../web/accounts.js";
 
+export function mapAllowFromEntries(
+  allowFrom: Array<string | number> | null | undefined,
+): string[] {
+  return (allowFrom ?? []).map((entry) => String(entry));
+}
+
 export function formatTrimmedAllowFromEntries(allowFrom: Array<string | number>): string[] {
-  return allowFrom.map((entry) => String(entry).trim()).filter(Boolean);
+  return normalizeStringEntries(allowFrom);
+}
+
+export function resolveOptionalConfigString(
+  value: string | number | null | undefined,
+): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  const normalized = String(value).trim();
+  return normalized || undefined;
 }
 
 export function resolveWhatsAppConfigAllowFrom(params: {
@@ -33,12 +50,12 @@ export function resolveIMessageConfigAllowFrom(params: {
   cfg: OpenClawConfig;
   accountId?: string | null;
 }): string[] {
-  return (resolveIMessageAccount(params).config.allowFrom ?? []).map((entry) => String(entry));
+  return mapAllowFromEntries(resolveIMessageAccount(params).config.allowFrom);
 }
 
 export function resolveIMessageConfigDefaultTo(params: {
   cfg: OpenClawConfig;
   accountId?: string | null;
 }): string | undefined {
-  return resolveIMessageAccount(params).config.defaultTo?.trim() || undefined;
+  return resolveOptionalConfigString(resolveIMessageAccount(params).config.defaultTo);
 }

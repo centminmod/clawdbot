@@ -1,10 +1,16 @@
 import {
+  buildAccountScopedDmSecurityPolicy,
+  buildOpenGroupPolicyWarning,
+  formatNormalizedAllowFromEntries,
+  mapAllowFromEntries,
+  resolveOptionalConfigString,
+} from "openclaw/plugin-sdk";
+import {
   buildBaseAccountStatusSnapshot,
   buildBaseChannelStatusSummary,
   buildChannelConfigSchema,
   DEFAULT_ACCOUNT_ID,
   deleteAccountFromConfigSection,
-  formatPairingApproveHint,
   getChatChannelMeta,
   PAIRING_APPROVED_MESSAGE,
   resolveAllowlistProviderRuntimeGroupPolicy,
@@ -111,30 +117,31 @@ export const ircPlugin: ChannelPlugin<ResolvedIrcAccount, IrcProbe> = {
       passwordSource: account.passwordSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveIrcAccount({ cfg: cfg as CoreConfig, accountId }).config.allowFrom ?? []).map(
-        (entry) => String(entry),
+      mapAllowFromEntries(
+        resolveIrcAccount({ cfg: cfg as CoreConfig, accountId }).config.allowFrom,
       ),
     formatAllowFrom: ({ allowFrom }) =>
-      allowFrom.map((entry) => normalizeIrcAllowEntry(String(entry))).filter(Boolean),
+      formatNormalizedAllowFromEntries({
+        allowFrom,
+        normalizeEntry: normalizeIrcAllowEntry,
+      }),
     resolveDefaultTo: ({ cfg, accountId }) =>
-      resolveIrcAccount({ cfg: cfg as CoreConfig, accountId }).config.defaultTo?.trim() ||
-      undefined,
+      resolveOptionalConfigString(
+        resolveIrcAccount({ cfg: cfg as CoreConfig, accountId }).config.defaultTo,
+      ),
   },
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
-      const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-      const useAccountPath = Boolean(cfg.channels?.irc?.accounts?.[resolvedAccountId]);
-      const basePath = useAccountPath
-        ? `channels.irc.accounts.${resolvedAccountId}.`
-        : "channels.irc.";
-      return {
-        policy: account.config.dmPolicy ?? "pairing",
+      return buildAccountScopedDmSecurityPolicy({
+        cfg,
+        channelKey: "irc",
+        accountId,
+        fallbackAccountId: account.accountId ?? DEFAULT_ACCOUNT_ID,
+        policy: account.config.dmPolicy,
         allowFrom: account.config.allowFrom ?? [],
-        policyPath: `${basePath}dmPolicy`,
-        allowFromPath: `${basePath}allowFrom`,
-        approveHint: formatPairingApproveHint("irc"),
+        policyPathSuffix: "dmPolicy",
         normalizeEntry: (raw) => normalizeIrcAllowEntry(raw),
-      };
+      });
     },
     collectWarnings: ({ account, cfg }) => {
       const warnings: string[] = [];
@@ -146,7 +153,11 @@ export const ircPlugin: ChannelPlugin<ResolvedIrcAccount, IrcProbe> = {
       });
       if (groupPolicy === "open") {
         warnings.push(
-          '- IRC channels: groupPolicy="open" allows all channels and senders (mention-gated). Prefer channels.irc.groupPolicy="allowlist" with channels.irc.groups.',
+          buildOpenGroupPolicyWarning({
+            surface: "IRC channels",
+            openBehavior: "allows all channels and senders (mention-gated)",
+            remediation: 'Prefer channels.irc.groupPolicy="allowlist" with channels.irc.groups',
+          }),
         );
       }
       if (!account.config.tls) {

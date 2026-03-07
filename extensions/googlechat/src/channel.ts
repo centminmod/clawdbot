@@ -1,11 +1,17 @@
 import {
+  buildAccountScopedDmSecurityPolicy,
+  buildOpenGroupPolicyConfigureRouteAllowlistWarning,
+  formatNormalizedAllowFromEntries,
+  mapAllowFromEntries,
+  resolveOptionalConfigString,
+} from "openclaw/plugin-sdk";
+import {
   applyAccountNameToChannelSection,
   applySetupAccountConfigPatch,
   buildComputedAccountStatusSnapshot,
   buildChannelConfigSchema,
   DEFAULT_ACCOUNT_ID,
   deleteAccountFromConfigSection,
-  formatPairingApproveHint,
   getChatChannelMeta,
   listDirectoryGroupEntriesFromMapKeys,
   listDirectoryUserEntriesFromAllowFrom,
@@ -65,14 +71,12 @@ export const googlechatDock: ChannelDock = {
   outbound: { textChunkLimit: 4000 },
   config: {
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveGoogleChatAccount({ cfg: cfg, accountId }).config.dm?.allowFrom ?? []).map((entry) =>
-        String(entry),
-      ),
+      mapAllowFromEntries(resolveGoogleChatAccount({ cfg: cfg, accountId }).config.dm?.allowFrom),
     formatAllowFrom: ({ allowFrom }) =>
-      allowFrom
-        .map((entry) => String(entry))
-        .filter(Boolean)
-        .map(formatAllowFromEntry),
+      formatNormalizedAllowFromEntries({
+        allowFrom,
+        normalizeEntry: formatAllowFromEntry,
+      }),
   },
   groups: {
     resolveRequireMention: resolveGoogleChatGroupRequireMention,
@@ -173,34 +177,32 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
       credentialSource: account.credentialSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (
+      mapAllowFromEntries(
         resolveGoogleChatAccount({
           cfg: cfg,
           accountId,
-        }).config.dm?.allowFrom ?? []
-      ).map((entry) => String(entry)),
+        }).config.dm?.allowFrom,
+      ),
     formatAllowFrom: ({ allowFrom }) =>
-      allowFrom
-        .map((entry) => String(entry))
-        .filter(Boolean)
-        .map(formatAllowFromEntry),
+      formatNormalizedAllowFromEntries({
+        allowFrom,
+        normalizeEntry: formatAllowFromEntry,
+      }),
     resolveDefaultTo: ({ cfg, accountId }) =>
-      resolveGoogleChatAccount({ cfg, accountId }).config.defaultTo?.trim() || undefined,
+      resolveOptionalConfigString(resolveGoogleChatAccount({ cfg, accountId }).config.defaultTo),
   },
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
-      const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-      const useAccountPath = Boolean(cfg.channels?.["googlechat"]?.accounts?.[resolvedAccountId]);
-      const allowFromPath = useAccountPath
-        ? `channels.googlechat.accounts.${resolvedAccountId}.dm.`
-        : "channels.googlechat.dm.";
-      return {
-        policy: account.config.dm?.policy ?? "pairing",
+      return buildAccountScopedDmSecurityPolicy({
+        cfg,
+        channelKey: "googlechat",
+        accountId,
+        fallbackAccountId: account.accountId ?? DEFAULT_ACCOUNT_ID,
+        policy: account.config.dm?.policy,
         allowFrom: account.config.dm?.allowFrom ?? [],
-        allowFromPath,
-        approveHint: formatPairingApproveHint("googlechat"),
+        allowFromPathSuffix: "dm.",
         normalizeEntry: (raw) => formatAllowFromEntry(raw),
-      };
+      });
     },
     collectWarnings: ({ account, cfg }) => {
       const warnings: string[] = [];
@@ -212,7 +214,12 @@ export const googlechatPlugin: ChannelPlugin<ResolvedGoogleChatAccount> = {
       });
       if (groupPolicy === "open") {
         warnings.push(
-          `- Google Chat spaces: groupPolicy="open" allows any space to trigger (mention-gated). Set channels.googlechat.groupPolicy="allowlist" and configure channels.googlechat.groups.`,
+          buildOpenGroupPolicyConfigureRouteAllowlistWarning({
+            surface: "Google Chat spaces",
+            openScope: "any space",
+            groupPolicyPath: "channels.googlechat.groupPolicy",
+            routeAllowlistPath: "channels.googlechat.groups",
+          }),
         );
       }
       if (account.config.dm?.policy === "open") {

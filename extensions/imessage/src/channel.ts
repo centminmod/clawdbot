@@ -1,10 +1,13 @@
 import {
+  buildAccountScopedDmSecurityPolicy,
+  collectOpenGroupPolicyRestrictSendersWarnings,
+} from "openclaw/plugin-sdk";
+import {
   applyAccountNameToChannelSection,
   buildChannelConfigSchema,
   collectStatusIssuesFromLastError,
   DEFAULT_ACCOUNT_ID,
   deleteAccountFromConfigSection,
-  formatPairingApproveHint,
   formatTrimmedAllowFromEntries,
   getChatChannelMeta,
   imessageOnboardingAdapter,
@@ -131,18 +134,15 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount> = {
   },
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
-      const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-      const useAccountPath = Boolean(cfg.channels?.imessage?.accounts?.[resolvedAccountId]);
-      const basePath = useAccountPath
-        ? `channels.imessage.accounts.${resolvedAccountId}.`
-        : "channels.imessage.";
-      return {
-        policy: account.config.dmPolicy ?? "pairing",
+      return buildAccountScopedDmSecurityPolicy({
+        cfg,
+        channelKey: "imessage",
+        accountId,
+        fallbackAccountId: account.accountId ?? DEFAULT_ACCOUNT_ID,
+        policy: account.config.dmPolicy,
         allowFrom: account.config.allowFrom ?? [],
-        policyPath: `${basePath}dmPolicy`,
-        allowFromPath: basePath,
-        approveHint: formatPairingApproveHint("imessage"),
-      };
+        policyPathSuffix: "dmPolicy",
+      });
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
@@ -151,12 +151,14 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount> = {
         groupPolicy: account.config.groupPolicy,
         defaultGroupPolicy,
       });
-      if (groupPolicy !== "open") {
-        return [];
-      }
-      return [
-        `- iMessage groups: groupPolicy="open" allows any member to trigger the bot. Set channels.imessage.groupPolicy="allowlist" + channels.imessage.groupAllowFrom to restrict senders.`,
-      ];
+      return collectOpenGroupPolicyRestrictSendersWarnings({
+        groupPolicy,
+        surface: "iMessage groups",
+        openScope: "any member",
+        groupPolicyPath: "channels.imessage.groupPolicy",
+        groupAllowFromPath: "channels.imessage.groupAllowFrom",
+        mentionGated: false,
+      });
     },
   },
   groups: {

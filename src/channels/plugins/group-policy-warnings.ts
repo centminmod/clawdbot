@@ -1,0 +1,94 @@
+export function buildOpenGroupPolicyWarning(params: {
+  surface: string;
+  openBehavior: string;
+  remediation: string;
+}): string {
+  return `- ${params.surface}: groupPolicy="open" ${params.openBehavior}. ${params.remediation}.`;
+}
+
+export function buildOpenGroupPolicyRestrictSendersWarning(params: {
+  surface: string;
+  openScope: string;
+  groupPolicyPath: string;
+  groupAllowFromPath: string;
+  mentionGated?: boolean;
+}): string {
+  const mentionSuffix = params.mentionGated === false ? "" : " (mention-gated)";
+  return buildOpenGroupPolicyWarning({
+    surface: params.surface,
+    openBehavior: `allows ${params.openScope} to trigger${mentionSuffix}`,
+    remediation: `Set ${params.groupPolicyPath}="allowlist" + ${params.groupAllowFromPath} to restrict senders`,
+  });
+}
+
+export function buildOpenGroupPolicyNoRouteAllowlistWarning(params: {
+  surface: string;
+  routeAllowlistPath: string;
+  routeScope: string;
+  groupPolicyPath: string;
+  groupAllowFromPath: string;
+  mentionGated?: boolean;
+}): string {
+  const mentionSuffix = params.mentionGated === false ? "" : " (mention-gated)";
+  return buildOpenGroupPolicyWarning({
+    surface: params.surface,
+    openBehavior: `with no ${params.routeAllowlistPath} allowlist; any ${params.routeScope} can add + ping${mentionSuffix}`,
+    remediation: `Set ${params.groupPolicyPath}="allowlist" + ${params.groupAllowFromPath} or configure ${params.routeAllowlistPath}`,
+  });
+}
+
+export function buildOpenGroupPolicyConfigureRouteAllowlistWarning(params: {
+  surface: string;
+  openScope: string;
+  groupPolicyPath: string;
+  routeAllowlistPath: string;
+  mentionGated?: boolean;
+}): string {
+  const mentionSuffix = params.mentionGated === false ? "" : " (mention-gated)";
+  return buildOpenGroupPolicyWarning({
+    surface: params.surface,
+    openBehavior: `allows ${params.openScope} to trigger${mentionSuffix}`,
+    remediation: `Set ${params.groupPolicyPath}="allowlist" and configure ${params.routeAllowlistPath}`,
+  });
+}
+
+export function collectOpenGroupPolicyRestrictSendersWarnings(
+  params: Parameters<typeof buildOpenGroupPolicyRestrictSendersWarning>[0] & {
+    groupPolicy: "open" | "allowlist" | "disabled";
+  },
+): string[] {
+  if (params.groupPolicy !== "open") {
+    return [];
+  }
+  return [buildOpenGroupPolicyRestrictSendersWarning(params)];
+}
+
+export function collectOpenGroupPolicyRouteAllowlistWarnings(params: {
+  groupPolicy: "open" | "allowlist" | "disabled";
+  routeAllowlistConfigured: boolean;
+  restrictSenders: Parameters<typeof buildOpenGroupPolicyRestrictSendersWarning>[0];
+  noRouteAllowlist: Parameters<typeof buildOpenGroupPolicyNoRouteAllowlistWarning>[0];
+}): string[] {
+  if (params.groupPolicy !== "open") {
+    return [];
+  }
+  if (params.routeAllowlistConfigured) {
+    return [buildOpenGroupPolicyRestrictSendersWarning(params.restrictSenders)];
+  }
+  return [buildOpenGroupPolicyNoRouteAllowlistWarning(params.noRouteAllowlist)];
+}
+
+export function collectOpenGroupPolicyConfiguredRouteWarnings(params: {
+  groupPolicy: "open" | "allowlist" | "disabled";
+  routeAllowlistConfigured: boolean;
+  configureRouteAllowlist: Parameters<typeof buildOpenGroupPolicyConfigureRouteAllowlistWarning>[0];
+  missingRouteAllowlist: Parameters<typeof buildOpenGroupPolicyWarning>[0];
+}): string[] {
+  if (params.groupPolicy !== "open") {
+    return [];
+  }
+  if (params.routeAllowlistConfigured) {
+    return [buildOpenGroupPolicyConfigureRouteAllowlistWarning(params.configureRouteAllowlist)];
+  }
+  return [buildOpenGroupPolicyWarning(params.missingRouteAllowlist)];
+}

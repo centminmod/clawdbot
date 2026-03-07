@@ -1,3 +1,8 @@
+import {
+  collectOpenGroupPolicyRestrictSendersWarnings,
+  formatAllowFromLowercase,
+  mapAllowFromEntries,
+} from "openclaw/plugin-sdk";
 import type { ChannelMeta, ChannelPlugin, ClawdbotConfig } from "openclaw/plugin-sdk/feishu";
 import {
   buildProbeChannelStatusSummary,
@@ -248,13 +253,9 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
     }),
     resolveAllowFrom: ({ cfg, accountId }) => {
       const account = resolveFeishuAccount({ cfg, accountId });
-      return (account.config?.allowFrom ?? []).map((entry) => String(entry));
+      return mapAllowFromEntries(account.config?.allowFrom);
     },
-    formatAllowFrom: ({ allowFrom }) =>
-      allowFrom
-        .map((entry) => String(entry).trim())
-        .filter(Boolean)
-        .map((entry) => entry.toLowerCase()),
+    formatAllowFrom: ({ allowFrom }) => formatAllowFromLowercase({ allowFrom }),
   },
   security: {
     collectWarnings: ({ cfg, accountId }) => {
@@ -266,10 +267,13 @@ export const feishuPlugin: ChannelPlugin<ResolvedFeishuAccount> = {
         groupPolicy: feishuCfg?.groupPolicy,
         defaultGroupPolicy,
       });
-      if (groupPolicy !== "open") return [];
-      return [
-        `- Feishu[${account.accountId}] groups: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.feishu.groupPolicy="allowlist" + channels.feishu.groupAllowFrom to restrict senders.`,
-      ];
+      return collectOpenGroupPolicyRestrictSendersWarnings({
+        groupPolicy,
+        surface: `Feishu[${account.accountId}] groups`,
+        openScope: "any member",
+        groupPolicyPath: "channels.feishu.groupPolicy",
+        groupAllowFromPath: "channels.feishu.groupAllowFrom",
+      });
     },
   },
   setup: {

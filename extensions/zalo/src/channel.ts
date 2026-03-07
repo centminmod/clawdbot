@@ -1,3 +1,9 @@
+import {
+  buildAccountScopedDmSecurityPolicy,
+  buildOpenGroupPolicyRestrictSendersWarning,
+  buildOpenGroupPolicyWarning,
+  mapAllowFromEntries,
+} from "openclaw/plugin-sdk";
 import type {
   ChannelAccountSnapshot,
   ChannelDock,
@@ -15,7 +21,6 @@ import {
   deleteAccountFromConfigSection,
   chunkTextForOutbound,
   formatAllowFromLowercase,
-  formatPairingApproveHint,
   migrateBaseNameToDefaultAccount,
   listDirectoryUserEntriesFromAllowFrom,
   normalizeAccountId,
@@ -24,7 +29,6 @@ import {
   resolveOutboundMediaUrls,
   resolveDefaultGroupPolicy,
   resolveOpenProviderRuntimeGroupPolicy,
-  resolveChannelAccountConfigBasePath,
   sendPayloadWithChunkedTextAndMedia,
   setAccountEnabledInConfigSection,
 } from "openclaw/plugin-sdk/zalo";
@@ -73,9 +77,7 @@ export const zaloDock: ChannelDock = {
   outbound: { textChunkLimit: 2000 },
   config: {
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
-      ),
+      mapAllowFromEntries(resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom),
     formatAllowFrom: ({ allowFrom }) =>
       formatAllowFromLowercase({ allowFrom, stripPrefixRe: /^(zalo|zl):/i }),
   },
@@ -130,28 +132,22 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       tokenSource: account.tokenSource,
     }),
     resolveAllowFrom: ({ cfg, accountId }) =>
-      (resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom ?? []).map((entry) =>
-        String(entry),
-      ),
+      mapAllowFromEntries(resolveZaloAccount({ cfg: cfg, accountId }).config.allowFrom),
     formatAllowFrom: ({ allowFrom }) =>
       formatAllowFromLowercase({ allowFrom, stripPrefixRe: /^(zalo|zl):/i }),
   },
   security: {
     resolveDmPolicy: ({ cfg, accountId, account }) => {
-      const resolvedAccountId = accountId ?? account.accountId ?? DEFAULT_ACCOUNT_ID;
-      const basePath = resolveChannelAccountConfigBasePath({
+      return buildAccountScopedDmSecurityPolicy({
         cfg,
         channelKey: "zalo",
-        accountId: resolvedAccountId,
-      });
-      return {
-        policy: account.config.dmPolicy ?? "pairing",
+        accountId,
+        fallbackAccountId: account.accountId ?? DEFAULT_ACCOUNT_ID,
+        policy: account.config.dmPolicy,
         allowFrom: account.config.allowFrom ?? [],
-        policyPath: `${basePath}dmPolicy`,
-        allowFromPath: basePath,
-        approveHint: formatPairingApproveHint("zalo"),
+        policyPathSuffix: "dmPolicy",
         normalizeEntry: (raw) => raw.replace(/^(zalo|zl):/i, ""),
-      };
+      });
     },
     collectWarnings: ({ account, cfg }) => {
       const defaultGroupPolicy = resolveDefaultGroupPolicy(cfg);
@@ -163,19 +159,27 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
       if (groupPolicy !== "open") {
         return [];
       }
-      const explicitGroupAllowFrom = (account.config.groupAllowFrom ?? []).map((entry) =>
-        String(entry),
-      );
-      const dmAllowFrom = (account.config.allowFrom ?? []).map((entry) => String(entry));
+      const explicitGroupAllowFrom = mapAllowFromEntries(account.config.groupAllowFrom);
+      const dmAllowFrom = mapAllowFromEntries(account.config.allowFrom);
       const effectiveAllowFrom =
         explicitGroupAllowFrom.length > 0 ? explicitGroupAllowFrom : dmAllowFrom;
       if (effectiveAllowFrom.length > 0) {
         return [
-          `- Zalo groups: groupPolicy="open" allows any member to trigger (mention-gated). Set channels.zalo.groupPolicy="allowlist" + channels.zalo.groupAllowFrom to restrict senders.`,
+          buildOpenGroupPolicyRestrictSendersWarning({
+            surface: "Zalo groups",
+            openScope: "any member",
+            groupPolicyPath: "channels.zalo.groupPolicy",
+            groupAllowFromPath: "channels.zalo.groupAllowFrom",
+          }),
         ];
       }
       return [
-        `- Zalo groups: groupPolicy="open" with no groupAllowFrom/allowFrom allowlist; any member can trigger (mention-gated). Set channels.zalo.groupPolicy="allowlist" + channels.zalo.groupAllowFrom.`,
+        buildOpenGroupPolicyWarning({
+          surface: "Zalo groups",
+          openBehavior:
+            "with no groupAllowFrom/allowFrom allowlist; any member can trigger (mention-gated)",
+          remediation: 'Set channels.zalo.groupPolicy="allowlist" + channels.zalo.groupAllowFrom',
+        }),
       ];
     },
   },
