@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { SecretInput } from "../config/types.secrets.js";
 import { encodePairingSetupCode, resolvePairingSetupFromConfig } from "./setup-code.js";
 
 describe("pairing setup code", () => {
@@ -71,7 +72,7 @@ describe("pairing setup code", () => {
       },
       {
         env: {
-          GW_PASSWORD: "resolved-password",
+          GW_PASSWORD: "resolved-password", // pragma: allowlist secret
         },
       },
     );
@@ -103,7 +104,7 @@ describe("pairing setup code", () => {
       },
       {
         env: {
-          OPENCLAW_GATEWAY_PASSWORD: "password-from-env",
+          OPENCLAW_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
         },
       },
     );
@@ -204,7 +205,7 @@ describe("pairing setup code", () => {
     ).rejects.toThrow(/MISSING_GW_TOKEN/i);
   });
 
-  async function resolveInferredModeWithPasswordEnv(token: unknown) {
+  async function resolveInferredModeWithPasswordEnv(token: SecretInput) {
     return await resolvePairingSetupFromConfig(
       {
         gateway: {
@@ -220,7 +221,7 @@ describe("pairing setup code", () => {
       },
       {
         env: {
-          OPENCLAW_GATEWAY_PASSWORD: "password-from-env",
+          OPENCLAW_GATEWAY_PASSWORD: "password-from-env", // pragma: allowlist secret
         },
       },
     );
@@ -274,7 +275,7 @@ describe("pairing setup code", () => {
         {
           env: {
             GW_TOKEN: "resolved-token",
-            GW_PASSWORD: "resolved-password",
+            GW_PASSWORD: "resolved-password", // pragma: allowlist secret
           },
         },
       ),
@@ -301,7 +302,7 @@ describe("pairing setup code", () => {
         },
         {
           env: {
-            GW_PASSWORD: "resolved-password",
+            GW_PASSWORD: "resolved-password", // pragma: allowlist secret
           },
         },
       ),
