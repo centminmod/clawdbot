@@ -340,7 +340,7 @@ for line in sys.stdin:
 "
 ```
 
-Source: `src/config/io.ts:493-536` (audit helpers), `src/config/io.ts:1184-1234` (audit record builder)
+Source: `src/config/io.ts:494-537` (audit helpers), `src/config/io.ts:1187-1237` (audit record builder)
 
 See: [AI Self-Misconfiguration Guide](../05-worst-case-security/ai-self-misconfiguration.md), [Attack #28](../05-worst-case-security/prompt-injection-attacks.md#-attack-28-config-self-modification-via-gateway-tool)
 
