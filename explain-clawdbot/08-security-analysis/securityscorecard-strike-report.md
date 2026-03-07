@@ -111,7 +111,7 @@ The report describes real risks but omits critical security controls that exist 
 | **Loopback default** | Native CLI binds to `127.0.0.1` by default, not `0.0.0.0` | `run.ts:181` — `const bindRaw = toOptionString(opts.bind) ?? cfg.gateway?.bind ?? "loopback"` |
 | **Auth enforcement at startup** | Gateway refuses to start on non-loopback without a configured token or password | `run.ts:250-261` — `if (bind !== "loopback" && !hasSharedSecret) { ... exit(1) }` |
 | **Exec approval system** | Tool execution requires human confirmation by default; an exposed Gateway does not mean automatic command execution | Default tool policies require approval |
-| **Env var blocklist** | 16 dangerous env vars blocked (`LD_PRELOAD`, `DYLD_INSERT_LIBRARIES`, `NODE_OPTIONS`, `BASH_ENV`, etc.) plus prefix-based blocking | `bash-tools.exec-runtime.ts:34-52` |
+| **Env var blocklist** | 16 dangerous env vars blocked (`LD_PRELOAD`, `DYLD_INSERT_LIBRARIES`, `NODE_OPTIONS`, `BASH_ENV`, etc.) plus prefix-based blocking | `bash-tools.exec-runtime.ts:40-57` |
 | **Docker sandbox isolation** | Containerized deployments have filesystem and process isolation limiting blast radius | Docker-compose default configuration |
 | **Two prior independent audits** | Both found 0 exploitable claims: [Issue #1796 (Argus)](./issue-1796-argus-audit.md) — 0/8, [Medium article](./medium-article-audit.md) — 0/8 | See linked analyses |
 

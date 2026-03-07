@@ -35,7 +35,7 @@
 | [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:1040-1286` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
 | [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:1040-1286` |
 | [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:90-100` |
-| [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID | validateHostEnv skips baseEnv (by design) | `src/agents/bash-tools.exec-runtime.ts:52` (definition) + `src/agents/bash-tools.exec.ts:369` (call) |
+| [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID | validateHostEnv skips baseEnv (by design) | `src/agents/bash-tools.exec-runtime.ts:57` (definition) + `src/agents/bash-tools.exec.ts:369` (call) |
 | [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID (CLOSED) | Fullwidth marker bypass (fold is length-preserving) | Closed upstream (COMPLETED 2026-02-15); `src/security/external-content.ts:127-167` |
 | [#9667](https://github.com/openclaw/openclaw/issues/9667) | INVALID | JWT verification in nonexistent file | `src/auth/jwt.ts` (does not exist) |
 | [#4940](https://github.com/openclaw/openclaw/issues/4940) | MEDIUM | commands.restart bypass via exec tool | `src/agents/bash-tools.exec.ts` (no commands.restart check — remains open) |
@@ -43,7 +43,7 @@
 | [#5122](https://github.com/openclaw/openclaw/issues/5122) | ~~MEDIUM~~ WONTFIX | readJsonBody() Slowloris DoS (no read timeout) | Closed upstream as NOT_PLANNED (2026-02-17); local mitigation remains: `src/gateway/hooks.ts:177-194` delegates to `readJsonBodyWithLimit()` with 30s timeout (commit `3cbcba10c`) |
 | [#5123](https://github.com/openclaw/openclaw/issues/5123) | ~~MEDIUM (WONTFIX)~~ FIXED LOCALLY | ReDoS in session filter regex | Closed upstream NOT_PLANNED (2026-02-17); fixed locally by `a2dfe9879` (Feb 24 sync 7): `matchSessionFilter()` now uses `compileSafeRegex()` at `src/infra/exec-approval-forwarder.ts:58-66` |
 | [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:50-60` |
-| [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); partially mitigated locally (hook token + device pairing use `safeEqualSecret`); `src/infra/node-pairing.ts:277` still uses `===` |
+| [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); fully mitigated locally ��� node token uses `verifyPairingToken()` at `src/infra/node-pairing.ts:214` which delegates to `safeEqualSecret()` (constant-time) |
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | ~~MEDIUM~~ FIXED | Session transcripts 644 instead of 600 (fixed upstream and locally) | Fixed upstream COMPLETED (2026-02-16); 0o600 fix applied upstream; `src/auto-reply/reply/session.ts:96`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts:726` |
 | [#8027](https://github.com/openclaw/openclaw/issues/8027) | ~~MEDIUM~~ FIXED | web_fetch hidden text prompt injection | Fixed upstream (COMPLETED); `src/agents/tools/web-fetch-utils.ts:59-61` |
 | [#8592](https://github.com/openclaw/openclaw/issues/8592) | ~~MEDIUM~~ FIXED | No detection of encoded/obfuscated commands | Fixed upstream (COMPLETED); `src/infra/exec-safety.ts:1-44` |
@@ -392,7 +392,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/security/secret-equal.ts:3-16` - `safeEqualSecret` uses `timingSafeEqual` (correct)
 - `src/gateway/server-http.ts:333` - hook token now uses `safeEqualSecret()` (fixed in Feb 13 sync 4, commit `113ebfd6a`)
-- `src/infra/node-pairing.ts:277` - node token uses direct `===` (vulnerable)
+- `src/infra/node-pairing.ts:214` - node token uses `verifyPairingToken()` which calls `safeEqualSecret()` (constant-time, mitigated)
 - `src/infra/device-pairing.ts:485` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
 
 ### #6606: Telegram Webhook Binds to 0.0.0.0 with Optional Secret
@@ -473,7 +473,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/bash-tools.exec.ts:293,301` — full `process.env` passed to child spawn via `coerceEnv(process.env)` + `{ ...baseEnv, ...params.env }`
-- `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:46` — policy blocks injection INTO env (via `validateHostEnv()` at `bash-tools.exec-runtime.ts:34`, enforcement at `bash-tools.exec.ts:330`), but doesn't filter what children can READ
+- `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:46` — policy blocks injection INTO env (via `validateHostEnv()` at `bash-tools.exec-runtime.ts:57`, enforcement at `bash-tools.exec.ts:330`), but doesn't filter what children can READ
 
 ### #8592: No Detection of Encoded/Obfuscated Commands
 
@@ -587,7 +587,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability claimed:** `validateHostEnv` only validates agent-supplied `params.env` but not the host's own `baseEnv`, potentially allowing dangerous environment variables.
 
 **Affected code:**
-- `src/agents/bash-tools.exec-runtime.ts:52` (definition) + `src/agents/bash-tools.exec.ts:369` (call) — validation scoped to `params.env` only; centralized as `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:74` in Feb 21 sync 7
+- `src/agents/bash-tools.exec-runtime.ts:57` (definition) + `src/agents/bash-tools.exec.ts:369` (call) �� validation scoped to `params.env` only; centralized as `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:74` in Feb 21 sync 7
 
 **Our analysis:** `baseEnv = coerceEnv(process.env)` is the **host's own environment**, not untrusted input. The code comment at line 969 states: "We validate BEFORE merging to prevent any dangerous vars from entering the stream." Validating `baseEnv` would **break the gateway** — the host always has `PATH` set, which `validateHostEnv` explicitly rejects (it's designed to block agents from injecting `PATH` overrides). The validation boundary is intentionally scoped to untrusted agent-supplied variables. This is a Qodo AI automated finding.
 
@@ -805,8 +805,8 @@ All changes take effect immediately via automatic restart.
 
 **Affected code:**
 - `src/gateway/server-methods/config.ts:424,484` — writes config then calls `scheduleGatewaySigusr1Restart()` with NO `commands.restart` check
-- `src/infra/restart.ts:192` — `authorizeGatewaySigusr1Restart(delayMs)` pre-authorizes the SIGUSR1 signal
-- `src/cli/gateway-cli/run-loop.ts:104-105` — `consumeGatewaySigusr1RestartAuthorization()` returns true (pre-authorized), bypassing `isGatewaySigusr1RestartExternallyAllowed()`
+- `src/infra/restart.ts:152` — `authorizeGatewaySigusr1Restart(delayMs)` pre-authorizes the SIGUSR1 signal
+- `src/cli/gateway-cli/run-loop.ts:162` — `consumeGatewaySigusr1RestartAuthorization()` returns true (pre-authorized), bypassing `isGatewaySigusr1RestartExternallyAllowed()`
 - **Contrast:** `src/agents/tools/gateway-tool.ts:85` — the explicit `restart` action correctly checks `commands.restart`
 
 **No key-level authorization:** Config validation is structural (JSON schema) only. No allowlist/denylist restricts which keys agents may modify.

@@ -1045,7 +1045,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:12` |
 | **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:57-514` |
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:73,312-319` |
-| **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:35-49` |
+| **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:40-54` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1088-1177` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1118,1244` |
