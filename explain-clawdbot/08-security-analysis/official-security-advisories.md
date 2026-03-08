@@ -2176,6 +2176,126 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 
 **Fix:** Brings `tar.bz2` extraction into parity with centralized archive safety enforcement. Fix commit: `0dbb92dd2`. Patched in `openclaw >= 2026.3.2`.
 
+### GHSA-rchv-x836-w7xp: Dashboard Leaked Gateway Auth Material via Browser URL and localStorage
+
+**Severity:** HIGH
+
+**Published:** 2026-03-08
+
+**Description:** The OpenClaw web dashboard exposed gateway authentication material (tokens, credentials) through the browser URL query string and localStorage. Credentials could be exfiltrated via browser history, referrer headers, or XSS targeting localStorage.
+
+**Impact:** Disclosure of gateway authentication credentials to actors with access to browser history or localStorage.
+
+**Fix:** Auth material removed from URL parameters; localStorage cleared of sensitive fields. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-6rmx-gvvg-vh6j: Hooks Count Non-POST Requests Toward Auth Lockout
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The authentication lockout mechanism in webhook hooks counted non-POST requests (e.g., GET, HEAD) toward the failed-auth counter. An unauthenticated actor could trigger lockouts without needing to make authentication attempts, creating a denial-of-service vector against the auth system.
+
+**Impact:** Unauthenticated DoS against webhook authentication via lockout exhaustion.
+
+**Fix:** Lockout counter scoped to POST requests only. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-6mgf-v5j7-45cr: Fetch-Guard Forwards Custom Authorization Headers Across Cross-Origin Redirects
+
+**Severity:** HIGH
+
+**Published:** 2026-03-08
+
+**Description:** The `fetch-guard` layer that enforces SSRF protections forwarded custom `Authorization` headers across cross-origin redirects. An attacker able to control a redirect target could use this to exfiltrate auth tokens to a controlled host.
+
+**Impact:** Auth token exfiltration via cross-origin redirect during gateway-initiated web fetches.
+
+**Fix:** `Authorization` headers stripped before following cross-origin redirects. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-pjvx-rx66-r3fg: Cross-Account Sender Authorization Expansion in allowlist --store Account Scoping
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The `/allowlist ... --store` command did not correctly scope stored allowlist entries to the originating account. Entries could inadvertently expand sender authorization across accounts, allowing senders authorized in one account context to be treated as authorized in another.
+
+**Impact:** Unintended cross-account sender authorization in multi-account deployments.
+
+**Fix:** Allowlist store operations scoped strictly to the originating account. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-hfpr-jhpq-x4rm: operator.write chat.send Could Reach Admin-Only Config Writes
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The `operator.write` permission scope, which controls `chat.send`, could escalate to reach config write operations that should be restricted to admin-only. The authorization check did not sufficiently separate the `chat.send` capability from the broader config write surface.
+
+**Impact:** Operator-level users could write to admin-only config paths via `chat.send` paths.
+
+**Fix:** Authorization checks tightened to separate `chat.send` capabilities from config write access. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-j425-whc4-4jgc: system.run Env Override Filtering Allowed Dangerous Helper-Command Pivots
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The environment variable filtering in `system.run` did not block overrides that could pivot execution to dangerous helper commands. Certain env vars (e.g., `GIT_SSH_COMMAND`, wrapper-style overrides) could be passed through to influence which binary was ultimately executed.
+
+**Impact:** Env var injection enabling execution of attacker-controlled helper commands within `system.run` invocations.
+
+**Fix:** Expanded env override blocklist to cover helper-command pivot variables. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-9q36-67vc-rrwg: Sandboxed /acp Spawn Requests Could Initialize Host ACP Sessions
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** A sandboxed agent making `/acp` spawn requests could, under certain conditions, initialize ACP sessions on the host rather than within the sandbox boundary. This allowed sandboxed agents to influence host-level ACP session state.
+
+**Impact:** Sandbox escape via ACP session initialization leaking to host context.
+
+**Fix:** ACP spawn requests from sandboxed agents are confined to the sandbox. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-9q2p-vc84-2rwm: system.run allow-always Persistence Included Shell-Commented Payload Tails
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The `allow-always` persistence mechanism for `system.run` approvals stored the full invocation including shell-commented payload tails (e.g., `# <injected>`). On subsequent invocations, the stored approval could match a command with a commented-out payload that differed from the originally approved invocation.
+
+**Impact:** Approval persistence bypass — a modified command with injected shell comments could be approved based on a prior approval for a different command.
+
+**Fix:** `allow-always` approval storage strips shell-commented tails before persistence. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-r6qf-8968-wj9q: system.run Wrapper-Depth Boundary Could Skip Shell Approval Gating
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The `system.run` wrapper-depth tracking used to gate shell approval checks could, at certain recursion depths or wrapper chain lengths, skip the approval gate entirely. This allowed commands wrapped inside multiple shell invocations to bypass the approval requirement.
+
+**Impact:** Shell approval gate bypass via wrapper-depth boundary exploitation.
+
+**Fix:** Wrapper-depth boundary enforced more strictly; approval gate cannot be skipped regardless of wrapping depth. Patched in `openclaw >= 2026.3.8`.
+
+### GHSA-3h2q-j2v4-6w5r: system.run Allowlist Approval Parsing Missed PowerShell Encoded-Command Wrappers
+
+**Severity:** MEDIUM
+
+**Published:** 2026-03-08
+
+**Description:** The `system.run` allowlist approval parser did not recognize PowerShell `encoded-command` (`-EncodedCommand`) wrappers, treating them as unrecognized invocations rather than decoding and checking the embedded command against the allowlist. This caused encoded PowerShell commands to either bypass or incorrectly trigger approval gating.
+
+**Impact:** PowerShell encoded-command invocations could bypass `system.run` allowlist approval checks.
+
+**Fix:** PowerShell `encoded-command` wrappers decoded and checked against the allowlist during approval parsing. Patched in `openclaw >= 2026.3.8`.
+
 ### Relationship to Third-Party Audits
 
 These official CVEs are **distinct from** the two third-party security audits documented below:
