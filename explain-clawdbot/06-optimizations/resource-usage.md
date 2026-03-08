@@ -76,7 +76,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:8` | 5000 max, 20min TTL | Well bounded |
 | Gateway dedupe | `src/gateway/server-constants.ts:33-34` | 1000 max, 5min TTL | Well bounded |
-| Browser roleRefs | `src/browser/pw-session.ts:103-104` | 50 max LRU | Well bounded |
+| Browser roleRefs | `src/browser/pw-session.ts:109-110` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:18` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
 | Agent run sequence | `src/gateway/server-runtime-state.ts:198` | **No pruning** (maintenance timer skips it) | **Leak risk** |
@@ -93,10 +93,10 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 ### Browser memory
 
-- **Chromium instance** (Playwright CDP): `src/browser/pw-session.ts:110` — singleton, but Chromium itself can consume **200MB to 2GB+**
+- **Chromium instance** (Playwright CDP): `src/browser/pw-session.ts:116` — singleton, but Chromium itself can consume **200MB to 2GB+**
   > *Like having a full web browser running invisibly in the background — it alone can use more memory than everything else combined.*
-- Per-page state caps: console (500), errors (200), network requests (500) — `src/browser/pw-session.ts:106-108`
-- WeakMaps used for page/context state (GC-friendly): `src/browser/pw-session.ts:96-99`
+- Per-page state caps: console (500), errors (200), network requests (500) — `src/browser/pw-session.ts:112-114`
+- WeakMaps used for page/context state (GC-friendly): `src/browser/pw-session.ts:102-105`
 
 ### Model context accumulation
 
