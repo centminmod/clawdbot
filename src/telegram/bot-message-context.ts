@@ -39,6 +39,11 @@ import type {
 } from "../config/types.js";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { recordChannelActivity } from "../infra/channel-activity.js";
+import {
+  buildAgentSessionKey,
+  deriveLastRoutePolicy,
+  resolveInboundLastRouteSessionKey,
+} from "../routing/resolve-route.js";
 import { DEFAULT_ACCOUNT_ID, resolveThreadSessionKeys } from "../routing/session-key.js";
 import { resolvePinnedMainDmOwnerFromAllowlist } from "../security/dm-policy-shared.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
@@ -55,12 +60,14 @@ import {
   buildTelegramGroupFrom,
   buildTelegramGroupPeerId,
   buildTypingThreadParams,
-  resolveTelegramMediaPlaceholder,
   expandTextLinks,
-  normalizeForwardedContext,
   describeReplyTarget,
   extractTelegramLocation,
+  getTelegramTextParts,
   hasBotMention,
+  normalizeForwardedContext,
+  resolveTelegramDirectPeerId,
+  resolveTelegramMediaPlaceholder,
   resolveTelegramThreadSpec,
 } from "./bot/helpers.js";
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
@@ -208,9 +215,10 @@ export const buildTelegramMessageContext = async ({
   const requiresExplicitAccountBinding = (
     candidate: ReturnType<typeof resolveTelegramConversationRoute>["route"],
   ): boolean => candidate.accountId !== DEFAULT_ACCOUNT_ID && candidate.matchedBy === "default";
-  // Fail closed for named Telegram accounts when route resolution falls back to
-  // default-agent routing. This prevents cross-account DM/session contamination.
-  if (requiresExplicitAccountBinding(route)) {
+  const isNamedAccountFallback = requiresExplicitAccountBinding(route);
+  // Named-account groups still require an explicit binding; DMs get a
+  // per-account fallback session key below to preserve isolation.
+  if (isNamedAccountFallback && isGroup) {
     logInboundDrop({
       log: logVerbose,
       channel: "telegram",
@@ -337,13 +345,36 @@ export const buildTelegramMessageContext = async ({
     return false;
   };
 
-  const baseSessionKey = route.sessionKey;
+  const baseSessionKey = isNamedAccountFallback
+    ? buildAgentSessionKey({
+        agentId: route.agentId,
+        channel: "telegram",
+        accountId: route.accountId,
+        peer: {
+          kind: "direct",
+          id: resolveTelegramDirectPeerId({
+            chatId,
+            senderId,
+          }),
+        },
+        dmScope: "per-account-channel-peer",
+        identityLinks: freshCfg.session?.identityLinks,
+      }).toLowerCase()
+    : route.sessionKey;
   // DMs: use thread suffix for session isolation (works regardless of dmScope)
   const threadKeys =
     dmThreadId != null
       ? resolveThreadSessionKeys({ baseSessionKey, threadId: `${chatId}:${dmThreadId}` })
       : null;
   const sessionKey = threadKeys?.sessionKey ?? baseSessionKey;
+  route = {
+    ...route,
+    sessionKey,
+    lastRoutePolicy: deriveLastRoutePolicy({
+      sessionKey,
+      mainSessionKey: route.mainSessionKey,
+    }),
+  };
   const mentionRegexes = buildMentionRegexes(cfg, route.agentId);
   // Compute requireMention after access checks and final route selection.
   const activationOverride = resolveGroupActivation({
@@ -367,6 +398,7 @@ export const buildTelegramMessageContext = async ({
   });
 
   const botUsername = primaryCtx.me?.username?.toLowerCase();
+  const messageTextParts = getTelegramTextParts(msg);
   const allowForCommands = isGroup ? effectiveGroupAllow : effectiveDmAllow;
   const senderAllowedForCommands = isSenderAllowed({
     allow: allowForCommands,
@@ -374,7 +406,7 @@ export const buildTelegramMessageContext = async ({
     senderUsername,
   });
   const useAccessGroups = cfg.commands?.useAccessGroups !== false;
-  const hasControlCommandInMessage = hasControlCommand(msg.text ?? msg.caption ?? "", cfg, {
+  const hasControlCommandInMessage = hasControlCommand(messageTextParts.text, cfg, {
     botUsername,
   });
   const commandGate = resolveControlCommandGate({
@@ -404,8 +436,7 @@ export const buildTelegramMessageContext = async ({
 
   const locationData = extractTelegramLocation(msg);
   const locationText = locationData ? formatLocationText(locationData) : undefined;
-  const rawTextSource = msg.text ?? msg.caption ?? "";
-  const rawText = expandTextLinks(rawTextSource, msg.entities ?? msg.caption_entities).trim();
+  const rawText = expandTextLinks(messageTextParts.text, messageTextParts.entities).trim();
   const hasUserText = Boolean(rawText || locationText);
   let rawBody = [rawText, locationText].filter(Boolean).join("\n").trim();
   if (!rawBody) {
@@ -470,13 +501,11 @@ export const buildTelegramMessageContext = async ({
     }
   }
 
-  const hasAnyMention = (msg.entities ?? msg.caption_entities ?? []).some(
-    (ent) => ent.type === "mention",
-  );
+  const hasAnyMention = messageTextParts.entities.some((ent) => ent.type === "mention");
   const explicitlyMentioned = botUsername ? hasBotMention(msg, botUsername) : false;
 
   const computedWasMentioned = matchesMentionWithExplicit({
-    text: msg.text ?? msg.caption ?? "",
+    text: messageTextParts.text,
     mentionRegexes,
     explicit: {
       hasAnyMention,
@@ -814,6 +843,10 @@ export const buildTelegramMessageContext = async ({
         normalizeEntry: (entry) => normalizeAllowFrom([entry]).entries[0],
       })
     : null;
+  const updateLastRouteSessionKey = resolveInboundLastRouteSessionKey({
+    route,
+    sessionKey,
+  });
 
   await recordInboundSession({
     storePath,
@@ -821,14 +854,14 @@ export const buildTelegramMessageContext = async ({
     ctx: ctxPayload,
     updateLastRoute: !isGroup
       ? {
-          sessionKey: route.mainSessionKey,
+          sessionKey: updateLastRouteSessionKey,
           channel: "telegram",
           to: `telegram:${chatId}`,
           accountId: route.accountId,
           // Preserve DM topic threadId for replies (fixes #8891)
           threadId: dmThreadId != null ? String(dmThreadId) : undefined,
           mainDmOwnerPin:
-            pinnedMainDmOwner && senderId
+            updateLastRouteSessionKey === route.mainSessionKey && pinnedMainDmOwner && senderId
               ? {
                   ownerRecipient: pinnedMainDmOwner,
                   senderRecipient: senderId,
