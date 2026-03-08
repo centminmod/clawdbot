@@ -724,13 +724,13 @@ Open the Dashboard URL from the welcome message in your browser. The URL include
 **WhatsApp:**
 
 ```bash
-/opt/clawdbot-cli.sh channels add
+openclaw channels add
 # Select WhatsApp -> scan the QR code with your phone
 ```
 
 **Telegram:**
 
-1. Run `/opt/clawdbot-cli.sh channels add` and select Telegram
+1. Run `openclaw channels add` and select Telegram
 2. Open Telegram -> chat with @BotFather -> send `/newbot`
 3. Follow prompts to create your bot and get a token
 4. Paste the bot token back into the CLI

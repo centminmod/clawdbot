@@ -58,7 +58,7 @@ This is a "practical navigation guide" for new contributors/readers.
 
 - `src/entry.ts` — CLI entry (spawns/sets env, then loads `src/cli/run-main.ts`)
 - `src/cli/` — CLI command definitions
-- `src/commands/` — command implementations (~329 files)
+- `src/commands/` — command implementations (~352 files)
 
 ### Gateway
 
@@ -77,7 +77,7 @@ This is a "practical navigation guide" for new contributors/readers.
 
 - `src/auto-reply/` — reply pipeline
 - `src/auto-reply/reply/agent-runner.ts` — core agent-turn orchestrator
-- `src/agents/` — agent framework (~751 files, 12 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
+- `src/agents/` — agent framework (~817 files, 12 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
 
 ### Routing
 
@@ -96,19 +96,19 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 
 | Directory | Files (approx.) | Purpose |
 |-----------|-----------------|---------|
-| `src/agents/` | ~751 | Agent framework, tools, sandbox, auth profiles, skills |
-| `src/gateway/` | ~321 | Gateway server, WS runtime, RPC handlers, config validation |
-| `src/auto-reply/` | ~272 | Reply pipeline, agent turn orchestration |
-| `src/cli/` | ~274 | CLI command definitions and parsing |
-| `src/commands/` | ~329 | CLI command implementations |
-| `src/infra/` | ~348 | Infrastructure: networking, SSRF guards, exec safety, archiving |
+| `src/agents/` | ~817 | Agent framework, tools, sandbox, auth profiles, skills |
+| `src/gateway/` | ~345 | Gateway server, WS runtime, RPC handlers, config validation |
+| `src/auto-reply/` | ~282 | Reply pipeline, agent turn orchestration |
+| `src/cli/` | ~285 | CLI command definitions and parsing |
+| `src/commands/` | ~352 | CLI command implementations |
+| `src/infra/` | ~361 | Infrastructure: networking, SSRF guards, exec safety, archiving |
 | `src/config/` | ~217 | Configuration schema, types, validation, migrations |
-| `src/browser/` | ~142 | Browser automation (CDP/Puppeteer) |
-| `src/channels/` | ~157 | Shared channel logic, identities, allowlists, registry |
-| `src/memory/` | ~89 | Memory/context management, QMD |
+| `src/browser/` | ~146 | Browser automation (CDP/Puppeteer) |
+| `src/channels/` | ~174 | Shared channel logic, identities, allowlists, registry |
+| `src/memory/` | ~96 | Memory/context management, QMD |
 | `src/secrets/` | ~44 | Secret reference resolution, env substitution, audit |
-| `src/cron/` | ~93 | Cron job scheduling |
-| `src/plugins/` | ~78 | Plugin runtime and loading |
+| `src/cron/` | ~102 | Cron job scheduling |
+| `src/plugins/` | ~84 | Plugin runtime and loading |
 | `src/media-understanding/` | ~63 | Image/audio/video understanding via AI |
 | `src/tui/` | ~45 | Terminal UI |
 | `src/daemon/` | — | Background daemon process |
