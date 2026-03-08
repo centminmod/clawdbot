@@ -247,6 +247,16 @@
 | [GHSA-3pxq-f3cp-jmxp](https://github.com/openclaw/openclaw/security/advisories/GHSA-3pxq-f3cp-jmxp) | MEDIUM | Unified root-bound write hardening for browser output and related path-boundary flows | - | >= v2026.3.2 | @tdjackey |
 | [GHSA-x4vp-4235-65hg](https://github.com/openclaw/openclaw/security/advisories/GHSA-x4vp-4235-65hg) | MEDIUM | Pre-auth webhook body parsing can enable unauthenticated slow-request DoS | - | >= v2026.3.2 | @GCXWLP |
 | [GHSA-77hf-7fqf-f227](https://github.com/openclaw/openclaw/security/advisories/GHSA-77hf-7fqf-f227) | MEDIUM | skills-install-download: tar.bz2 extraction bypassed archive safety parity checks (local DoS) | - | >= v2026.3.2 | @GCXWLP |
+| [GHSA-rchv-x836-w7xp](https://github.com/openclaw/openclaw/security/advisories/GHSA-rchv-x836-w7xp) | HIGH | Dashboard leaked gateway auth material via browser URL/query and localStorage | - | pending | - |
+| [GHSA-6rmx-gvvg-vh6j](https://github.com/openclaw/openclaw/security/advisories/GHSA-6rmx-gvvg-vh6j) | MEDIUM | hooks count non-POST requests toward auth lockout | - | pending | - |
+| [GHSA-6mgf-v5j7-45cr](https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr) | HIGH | fetch-guard forwards custom authorization headers across cross-origin redirects | - | pending | - |
+| [GHSA-pjvx-rx66-r3fg](https://github.com/openclaw/openclaw/security/advisories/GHSA-pjvx-rx66-r3fg) | MEDIUM | Cross-account sender authorization expansion in `/allowlist ... --store` account scoping | - | pending | - |
+| [GHSA-hfpr-jhpq-x4rm](https://github.com/openclaw/openclaw/security/advisories/GHSA-hfpr-jhpq-x4rm) | MEDIUM | `operator.write` chat.send could reach admin-only config writes | - | pending | - |
+| [GHSA-j425-whc4-4jgc](https://github.com/openclaw/openclaw/security/advisories/GHSA-j425-whc4-4jgc) | MEDIUM | `system.run` env override filtering allowed dangerous helper-command pivots | - | pending | - |
+| [GHSA-9q36-67vc-rrwg](https://github.com/openclaw/openclaw/security/advisories/GHSA-9q36-67vc-rrwg) | MEDIUM | Sandboxed /acp spawn requests could initialize host ACP sessions | - | pending | - |
+| [GHSA-9q2p-vc84-2rwm](https://github.com/openclaw/openclaw/security/advisories/GHSA-9q2p-vc84-2rwm) | MEDIUM | system.run allow-always persistence included shell-commented payload tails | - | pending | - |
+| [GHSA-r6qf-8968-wj9q](https://github.com/openclaw/openclaw/security/advisories/GHSA-r6qf-8968-wj9q) | MEDIUM | system.run wrapper-depth boundary could skip shell approval gating | - | pending | - |
+| [GHSA-3h2q-j2v4-6w5r](https://github.com/openclaw/openclaw/security/advisories/GHSA-3h2q-j2v4-6w5r) | MEDIUM | system.run allowlist approval parsing missed PowerShell encoded-command wrappers | - | pending | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 

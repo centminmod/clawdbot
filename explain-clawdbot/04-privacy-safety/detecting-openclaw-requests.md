@@ -74,7 +74,7 @@ HTTP-Referer: https://openclaw.ai
 X-Title: OpenClaw
 ```
 
-**Source:** `src/agents/pi-embedded-runner/extra-params.ts:9-10`
+**Source:** `src/agents/pi-embedded-runner/extra-params.ts:14-15`
 ```typescript
 const OPENROUTER_APP_HEADERS: Record<string, string> = {
   "HTTP-Referer": "https://openclaw.ai",
@@ -89,7 +89,7 @@ HTTP-Referer: https://openclaw.ai
 X-Title: OpenClaw Web Search
 ```
 
-**Source:** `src/agents/tools/web-search.ts:978-979`
+**Source:** `src/agents/tools/web-search.ts:1139-1140`
 ```typescript
 "HTTP-Referer": "https://openclaw.ai",
 "X-Title": "OpenClaw Web Search",
@@ -184,7 +184,7 @@ Accept: application/json
 X-Subscription-Token: <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:1407-1408`
+**Source:** `src/agents/tools/web-search.ts:1467-1468`
 ```typescript
 headers: {
   Accept: "application/json",
@@ -203,7 +203,7 @@ Content-Type: application/json
 Authorization: Bearer <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search.ts:1042-1043`
+**Source:** `src/agents/tools/web-search.ts:1258-1259`
 ```typescript
 headers: {
   "Content-Type": "application/json",
@@ -344,9 +344,9 @@ export type GatewayClientInfo = {
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:189` | Media file downloads |
 | `User-Agent: openclaw` | `src/commands/signal-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
-| `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:9` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:10` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:979` | Perplexity search |
+| `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/extra-params.ts:14` | OpenRouter/Perplexity |
+| `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/extra-params.ts:15` | OpenRouter/Perplexity |
+| `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search.ts:1140` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
 
 ### Recommendation
