@@ -257,6 +257,9 @@
 | [GHSA-9q2p-vc84-2rwm](https://github.com/openclaw/openclaw/security/advisories/GHSA-9q2p-vc84-2rwm) | MEDIUM | system.run allow-always persistence included shell-commented payload tails | - | pending | - |
 | [GHSA-r6qf-8968-wj9q](https://github.com/openclaw/openclaw/security/advisories/GHSA-r6qf-8968-wj9q) | MEDIUM | system.run wrapper-depth boundary could skip shell approval gating | - | pending | - |
 | [GHSA-3h2q-j2v4-6w5r](https://github.com/openclaw/openclaw/security/advisories/GHSA-3h2q-j2v4-6w5r) | MEDIUM | system.run allowlist approval parsing missed PowerShell encoded-command wrappers | - | pending | - |
+| [GHSA-8g75-q649-6pv6](https://github.com/openclaw/openclaw/security/advisories/GHSA-8g75-q649-6pv6) | MEDIUM | system.run approvals did not bind mutable script operands across approval and execution | - | v2026.3.8 | @tdjackey |
+| [GHSA-vhwf-4x96-vqx2](https://github.com/openclaw/openclaw/security/advisories/GHSA-vhwf-4x96-vqx2) | MEDIUM | skills-install-download can be redirected outside the tools root by rebinding the validated base path | - | v2026.3.8 | @tdjackey |
+| [GHSA-g7cr-9h7q-4qxq](https://github.com/openclaw/openclaw/security/advisories/GHSA-g7cr-9h7q-4qxq) | MEDIUM | MS Teams sender allowlist bypass when route allowlist is configured and sender allowlist is empty | - | v2026.3.8 | @zpbrent |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 

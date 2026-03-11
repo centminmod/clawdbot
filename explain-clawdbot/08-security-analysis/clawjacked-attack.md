@@ -76,7 +76,7 @@ function shouldAllowSilentLocalPairing(params: {
 }
 ```
 
-Before the fix, a browser WebSocket connection from localhost set `isLocalClient: true` but did not set `hasBrowserOriginHeader` in the path that reached this check — so silent pairing was allowed. When `pairing.request.silent === true`, the gateway immediately auto-approves without any user prompt (`src/gateway/server/ws-connection/message-handler.ts:825-841`):
+Before the fix, a browser WebSocket connection from localhost set `isLocalClient: true` but did not set `hasBrowserOriginHeader` in the path that reached this check — so silent pairing was allowed. When `pairing.request.silent === true`, the gateway immediately auto-approves without any user prompt (`src/gateway/server/ws-connection/message-handler.ts:852-872`):
 
 ```typescript
 if (pairing.request.silent === true) {

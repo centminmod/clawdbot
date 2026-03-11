@@ -106,7 +106,7 @@
 | [#12173](https://github.com/openclaw/openclaw/issues/12173) | ~~MEDIUM~~ FIXED | apply_patch tool path traversal when sandbox disabled | Fixed by `5544646a0` — `resolvePatchPath()` now calls `assertSandboxPath()` at `src/agents/apply-patch.ts:297,314` regardless of sandbox mode; further hardened by `5e7c3250c` adding `workspaceOnly` guards |
 | [#10659](https://github.com/openclaw/openclaw/issues/10659) | ENHANCEMENT | Feature: Masked secrets to prevent agent reading raw API keys | Enhancement request; relates to #10033 (secrets management) |
 | [#38604](https://github.com/openclaw/openclaw/issues/38604) | MEDIUM | Sandbox containers have no default pidsLimit — fork bomb risk | `src/agents/sandbox/config.ts:108` — `pidsLimit: agentDocker?.pidsLimit ?? globalDocker?.pidsLimit` has no fallback default; `src/agents/sandbox/docker.ts:398-399` only adds `--pids-limit` when explicitly set |
-| [#29829](https://github.com/openclaw/openclaw/issues/29829) | MEDIUM | EXEC_SECRET_REF_ID_PATTERN allows path traversal sequences | `src/config/zod-schema.core.ts:11` — `EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/` permits `../../../etc/passwd`; used at line 71 to validate secret ref IDs |
+| [#29829](https://github.com/openclaw/openclaw/issues/29829) | ~~MEDIUM~~ FIXED | EXEC_SECRET_REF_ID_PATTERN allows path traversal sequences | Fixed by `d30dc28b8` — `validateExecSecretRefId()` now splits by `/` and rejects `.` and `..` segments (`src/secrets/ref-contract.ts:86-95`); pattern definition at `src/secrets/ref-contract.ts:9` |
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | N/A (CLOSED) | Skill removal without notification | Closed upstream as NOT_PLANNED (2026-03-01); ClawHub platform moderation issue |
 | [#11879](https://github.com/openclaw/openclaw/issues/11879) | N/A (CLOSED) | Malicious ClawHub skill exfiltrating to Feishu | Closed upstream as NOT_PLANNED (2026-03-07); ecosystem/marketplace issue; 13,981 installs |
 
@@ -528,7 +528,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Severity:** LOW (partially affected)
 **CWE:** CWE-276 (Incorrect Default Permissions)
 
-**Vulnerability:** Code correctly uses `mode: 0o700` for directory creation (`src/config/io.ts:1137`), but when installed via `sudo`, the directory inherits root ownership. Subsequent user-space operations may create group-writable files.
+**Vulnerability:** Code correctly uses `mode: 0o700` for directory creation (`src/config/io.ts:1138`), but when installed via `sudo`, the directory inherits root ownership. Subsequent user-space operations may create group-writable files.
 
 **Note:** This is an operational issue (sudo usage), not a code bug. `src/security/audit.ts:245-256` already detects group-writable state directories.
 
@@ -1178,7 +1178,7 @@ All changes take effect immediately via automatic restart.
 **Affected code:**
 - `src/gateway/server/ws-connection/connect-policy.ts:22-33` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
 - `src/gateway/server/ws-connection/connect-policy.ts:52-86` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
-- `src/gateway/server/ws-connection/message-handler.ts:607` — `handleMissingDeviceIdentity()`: device pairing requirement skipped when `allowInsecureAuth` configured
+- `src/gateway/server/ws-connection/message-handler.ts:634` — `handleMissingDeviceIdentity()`: device pairing requirement skipped when `allowInsecureAuth` configured
 - `src/security/audit.ts:557-565` — security audit detects and flags as `severity: "warn"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 
 **Exploit conditions:** Admin must set `allowInsecureAuth: true` (opt-in). Once enabled, passive MITM on the local network can capture the auth token and gain full `operator.admin + operator.approvals + operator.pairing` access.
@@ -1246,8 +1246,8 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** The `EXEC_SECRET_REF_ID_PATTERN` regex permits `.` and `/` in secret reference IDs, allowing traversal sequences like `a/../../../etc/passwd` to pass validation. If resolved secret ref IDs are used in path construction downstream, this could allow reading arbitrary files from the host filesystem.
 
 **Affected code:**
-- `src/config/zod-schema.core.ts:11` — `const EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/` — allows `.`, `/`, and `:` after the required initial alphanumeric, permitting traversal sequences
-- `src/config/zod-schema.core.ts:71` — pattern used to validate `secretRef` IDs in exec tool config; a value like `mykey/../../../etc/shadow` passes validation
+- `src/secrets/ref-contract.ts:9` — `const EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/` — allows `.`, `/`, and `:` after the required initial alphanumeric, permitting traversal sequences
+- `src/secrets/ref-contract.ts:86-95` — `validateExecSecretRefId()` now explicitly rejects `.` and `..` path segments; traversal blocked by `d30dc28b8`
 
 **Note:** Severity depends on how resolved secret IDs are consumed downstream. The regex is permissive by static analysis; runtime path construction must be traced to confirm full exploitability.
 
