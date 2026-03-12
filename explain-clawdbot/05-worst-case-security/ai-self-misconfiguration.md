@@ -24,7 +24,7 @@ openclaw config set tools.profile coding
 openclaw config set tools.deny '["gateway"]'
 ```
 
-Source: `src/agents/tool-policy.ts:63-80` — the `"coding"` profile excludes the `gateway` tool entirely.
+Source: `src/agents/tool-catalog.ts:248-260` — the `"coding"` profile excludes the `gateway` tool entirely.
 
 ### 2. Keep config commands disabled
 
@@ -124,7 +124,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
-| Tool profiles (`"coding"`) | `src/agents/tool-policy.ts:63-80` | **Hard — code enforced** |
+| Tool profiles (`"coding"`) | `src/agents/tool-catalog.ts:248-260` | **Hard — code enforced** |
 | `set -euo pipefail` in scripts | Shell | **Hard — shell enforced** |
 | PreToolUse hooks | `.claude/hooks/` | **Hard — hook enforced** |
 
@@ -196,7 +196,7 @@ Every path through which the AI can modify system state:
 **Source references:**
 - Gateway tool owner-only policy and write actions: `src/agents/tools/gateway-tool.ts:31-38,72,175-214`
 - Gateway call least-privilege scopes: `src/agents/tools/gateway.ts:147`
-- Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:37-64,102-127`
+- Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:39-66,104-129`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
 - Cron tool: `src/gateway/server-methods/cron.ts:76-97`
 - Agent files: `src/gateway/server-methods/agents.ts:66,673`
@@ -952,7 +952,7 @@ Organized from most to least effective:
 - Blocks `config.apply` and `config.patch` entirely
 - Also blocks `config.get` reconnaissance
 - Also blocks `update.run` (trigger updates)
-- The `"coding"` tool profile does this by default (`src/agents/tool-policy.ts:63-80`)
+- The `"coding"` tool profile does this by default (`src/agents/tool-catalog.ts:248-260`)
 - `configWrites: false` only blocks the `/config set` chat command — it does NOT block the gateway tool
 
 ### Detective Defenses
@@ -1049,7 +1049,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1088-1177` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1138,1264` |
-| **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-policy.ts:63-80` |
+| **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:248-260` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:480` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
 | **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:879` |

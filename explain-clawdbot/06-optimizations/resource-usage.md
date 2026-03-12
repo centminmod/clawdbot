@@ -36,7 +36,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 10 | **Ed25519 keypair generation** — asymmetric crypto on first run / device identity creation | `src/infra/device-identity.ts:57` | Low (one-time) | Like generating a strong password — intensive but happens only once |
 | 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager.ts:380+` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:557-724` | Medium | API calls are remote but audio buffer conversion is local CPU work |
-| 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:74` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
+| 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:77` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
 | 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:547` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
 
 ### Other CPU consumers
@@ -591,7 +591,7 @@ The `memory_search` tool description instructs the AI to use it as a "mandatory 
 | Workspace directory | `~/.openclaw/workspace/` | `src/agents/workspace.ts:12-21` |
 | Primary memory file | `~/.openclaw/workspace/MEMORY.md` (or `memory.md`) | `src/agents/workspace.ts:32-33` |
 | Memory subdirectory | `~/.openclaw/workspace/memory/*.md` (recursive) | `src/memory/internal.ts:80-146` |
-| SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:125-133` |
+| SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:133-141` |
 | Additional paths | Configured via `memorySearch.extraPaths[]` | `src/memory/internal.ts:35-46` |
 
 The `listMemoryFiles()` function (`internal.ts:79-146`) scans these locations, skips symlinks, filters for `.md` extensions only, and deduplicates by resolved path.
@@ -621,7 +621,7 @@ The `chunkMarkdown()` function (`src/memory/internal.ts:167-260`) splits memory 
 5. Long lines (> `maxChars`) are split into segments, each preserving the original line number
 6. Repeat until all lines are processed
 
-Source references: defaults at `src/agents/memory-search.ts:87-88`
+Source references: defaults at `src/agents/memory-search.ts:95-96`
 
 ### F4. Embedding providers
 
@@ -634,7 +634,7 @@ Source references: defaults at `src/agents/memory-search.ts:87-88`
 | **Voyage** | `voyage-4-large` | 32,000 | 1,024 | Cloud API |
 | **Local** | `embeddinggemma-300M` (GGUF) | varies | ~300 | On-device via `node-llama-cpp` |
 
-Source: model defaults at `src/agents/memory-search.ts:82-84`, local model at `src/memory/embeddings.ts:73-74`
+Source: model defaults at `src/agents/memory-search.ts:90-92`, local model at `src/memory/embeddings.ts:73-74`
 
 **Auto-selection order** (`src/memory/embeddings.ts:166-286`):
 
@@ -664,11 +664,11 @@ A configurable **fallback provider** (`memorySearch.fallback`) is tried if the p
 
 | Parameter | Default | Source |
 |-----------|---------|--------|
-| `vectorWeight` | 0.7 | `src/agents/memory-search.ts:95` |
-| `textWeight` | 0.3 | `src/agents/memory-search.ts:96` |
-| `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:97` |
-| `maxResults` | 6 | `src/agents/memory-search.ts:92` |
-| `minScore` | 0.35 | `src/agents/memory-search.ts:93` |
+| `vectorWeight` | 0.7 | `src/agents/memory-search.ts:103` |
+| `textWeight` | 0.3 | `src/agents/memory-search.ts:104` |
+| `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:105` |
+| `maxResults` | 6 | `src/agents/memory-search.ts:100` |
+| `minScore` | 0.35 | `src/agents/memory-search.ts:101` |
 | Snippet cap | 700 chars | `src/memory/manager.ts:34` |
 
 With defaults: 24 candidates are fetched (6 × 4), merged and scored, then the top 6 with score ≥ 0.35 are returned, each snippet capped at 700 characters.
@@ -710,7 +710,7 @@ Source: `src/memory/memory-schema.ts:9-82`
 | `sync.onSearch` | `true` | Sync before search if dirty flag is set |
 | `sync.intervalMinutes` | 0 (disabled) | Periodic sync timer |
 
-Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/memory-search.ts:89` (debounce default)
+Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/memory-search.ts:97` (debounce default)
 
 **Session delta tracking** (for session memory source):
 
@@ -719,7 +719,7 @@ Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/me
 | `sync.sessions.deltaBytes` | 100,000 (100KB) | Re-index session after this many new bytes |
 | `sync.sessions.deltaMessages` | 50 | Re-index session after this many new messages |
 
-Source: `src/agents/memory-search.ts:90-91`, `src/memory/manager-sync-ops.ts:407-472`
+Source: `src/agents/memory-search.ts:98-99`, `src/memory/manager-sync-ops.ts:407-472`
 
 **Sync triggers** in order of priority:
 
@@ -818,7 +818,7 @@ All settings live under `agents.defaults.memorySearch` in the OpenClaw config. P
 | `cache.maxEntries` | number | — | Max cached embeddings (unlimited if unset) |
 | `experimental.sessionMemory` | boolean | `false` | Enable session transcript indexing |
 
-Source: `src/agents/memory-search.ts:8-361`
+Source: `src/agents/memory-search.ts:8-399`
 
 ### F12. Resource impact summary
 

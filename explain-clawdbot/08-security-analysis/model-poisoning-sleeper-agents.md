@@ -314,4 +314,4 @@ No. There are no checksums, signatures, or hash verification for model downloads
 | API model providers | `src/agents/models-config.providers.ts` | All API provider configs |
 | Ollama HTTP endpoint | `src/agents/ollama-stream.ts:21` | `http://127.0.0.1:11434` |
 | Tool security settings | `src/agents/bash-tools.exec.ts` | allowlist/ask/full modes |
-| RBAC enforcement | `src/gateway/server-methods.ts:98-155` | Prevents agent self-approval |
+| RBAC enforcement | `src/gateway/server-methods.ts:100-157` | Prevents agent self-approval |

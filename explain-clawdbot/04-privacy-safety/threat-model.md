@@ -307,7 +307,7 @@ For convenience, OpenClaw provides named tool profiles that map to common use ca
 | `messaging` | Communication tasks | Messaging group, session management |
 | `full` | Unrestricted | All tools (empty allow list = no restrictions) |
 
-Source: `src/agents/tool-policy.ts:63-80` (`TOOL_PROFILES`)
+Source: `src/agents/tool-catalog.ts:248-260` (`CORE_TOOL_PROFILES`)
 
 ### DM session isolation
 
