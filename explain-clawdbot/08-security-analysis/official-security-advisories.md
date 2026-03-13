@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12.
 
 ### Advisory Summary
 
@@ -260,6 +260,31 @@
 | [GHSA-8g75-q649-6pv6](https://github.com/openclaw/openclaw/security/advisories/GHSA-8g75-q649-6pv6) | MEDIUM | system.run approvals did not bind mutable script operands across approval and execution | - | v2026.3.8 | @tdjackey |
 | [GHSA-vhwf-4x96-vqx2](https://github.com/openclaw/openclaw/security/advisories/GHSA-vhwf-4x96-vqx2) | MEDIUM | skills-install-download can be redirected outside the tools root by rebinding the validated base path | - | v2026.3.8 | @tdjackey |
 | [GHSA-g7cr-9h7q-4qxq](https://github.com/openclaw/openclaw/security/advisories/GHSA-g7cr-9h7q-4qxq) | MEDIUM | MS Teams sender allowlist bypass when route allowlist is configured and sender allowlist is empty | - | v2026.3.8 | @zpbrent |
+| [CVE-2026-32302](https://github.com/openclaw/openclaw/security/advisories/GHSA-5wcw-8jjv-m286) | HIGH | Browser-originated WebSocket connections could bypass origin validation in trusted-proxy mode | - | v2026.3.11 | - |
+| [GHSA-4jpw-hj22-2xmc](https://github.com/openclaw/openclaw/security/advisories/GHSA-4jpw-hj22-2xmc) | CRITICAL | Pairing-scoped device tokens could mint `operator.admin` and reach node RCE | - | v2026.3.11 | - |
+| [GHSA-8jhh-jcqg-mj5p](https://github.com/openclaw/openclaw/security/advisories/GHSA-8jhh-jcqg-mj5p) | MEDIUM | Channel commands could bypass account-scoped `configWrites` restrictions | - | v2026.3.11 | - |
+| [GHSA-4w7m-58cg-cmff](https://github.com/openclaw/openclaw/security/advisories/GHSA-4w7m-58cg-cmff) | HIGH | Leaf subagents could steer sibling sessions across sandbox boundaries | - | v2026.3.11 | - |
+| [GHSA-9vvh-2768-c8vp](https://github.com/openclaw/openclaw/security/advisories/GHSA-9vvh-2768-c8vp) | MEDIUM | Discord guild reaction ingress could bypass users and roles allowlists | - | v2026.3.11 | - |
+| [GHSA-jf6w-m8jw-jfxc](https://github.com/openclaw/openclaw/security/advisories/GHSA-jf6w-m8jw-jfxc) | MEDIUM | Write-scoped callers could reach admin-only session reset logic through `agent` | - | v2026.3.11 | - |
+| [GHSA-qc36-x95h-7j53](https://github.com/openclaw/openclaw/security/advisories/GHSA-qc36-x95h-7j53) | HIGH | Unrecognized script runners could bypass `system.run` approval integrity | - | v2026.3.11 | - |
+| [GHSA-mj4p-rc52-m843](https://github.com/openclaw/openclaw/security/advisories/GHSA-mj4p-rc52-m843) | HIGH | Sandbox staged writes could escape the verified parent directory before commit | - | v2026.3.11 | - |
+| [GHSA-qvr7-g57c-mrc7](https://github.com/openclaw/openclaw/security/advisories/GHSA-qvr7-g57c-mrc7) | LOW | Unavailable local auth SecretRefs could fall through to remote credentials in local mode | - | v2026.3.11 | - |
+| [GHSA-xf99-j42q-5w5p](https://github.com/openclaw/openclaw/security/advisories/GHSA-xf99-j42q-5w5p) | HIGH | Unbound interpreter and runtime commands could bypass node-host approval integrity | - | v2026.3.11 | - |
+| [GHSA-rw39-5899-8mxp](https://github.com/openclaw/openclaw/security/advisories/GHSA-rw39-5899-8mxp) | HIGH | Node-host approvals could show misleading shell payloads instead of the executed argv | - | v2026.3.11 | - |
+| [GHSA-xvx8-77m6-gwg6](https://github.com/openclaw/openclaw/security/advisories/GHSA-xvx8-77m6-gwg6) | MEDIUM | Sandbox `writeFile` commit could race outside the validated path | - | v2026.3.11 | - |
+| [GHSA-xw77-45gv-p728](https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728) | HIGH | Plugin subagent routes could bypass gateway authorization with synthetic admin scopes | - | v2026.3.11 | - |
+| [GHSA-f5mf-3r52-r83w](https://github.com/openclaw/openclaw/security/advisories/GHSA-f5mf-3r52-r83w) | MEDIUM | Zalouser allowlist authorization matched mutable group names by default | - | v2026.3.12 | - |
+| [GHSA-7h7g-x2px-94hj](https://github.com/openclaw/openclaw/security/advisories/GHSA-7h7g-x2px-94hj) | MEDIUM | Pairing setup codes exposed long-lived shared gateway credentials instead of short-lived bootstrap tokens | - | v2026.3.12 | - |
+| [GHSA-rqpp-rjj8-7wv8](https://github.com/openclaw/openclaw/security/advisories/GHSA-rqpp-rjj8-7wv8) | CRITICAL | WebSocket shared-auth connections could self-declare elevated scopes | - | v2026.3.12 | - |
+| [GHSA-99qw-6mr3-36qr](https://github.com/openclaw/openclaw/security/advisories/GHSA-99qw-6mr3-36qr) | HIGH | Workspace plugin auto-discovery allowed code execution from cloned repositories | - | v2026.3.12 | - |
+| [GHSA-r7vr-gr74-94p8](https://github.com/openclaw/openclaw/security/advisories/GHSA-r7vr-gr74-94p8) | HIGH | Command-authorized non-owners could reach owner-only `/config` and `/debug` surfaces | - | v2026.3.12 | - |
+| [GHSA-5m9r-p9g7-679c](https://github.com/openclaw/openclaw/security/advisories/GHSA-5m9r-p9g7-679c) | MEDIUM | Zalo webhook rate limiting could be bypassed before secret validation | - | v2026.3.12 | - |
+| [GHSA-g353-mgv3-8pcj](https://github.com/openclaw/openclaw/security/advisories/GHSA-g353-mgv3-8pcj) | HIGH | Feishu webhook mode accepted forged events when only `verificationToken` was configured | - | v2026.3.12 | - |
+| [GHSA-m69h-jm2f-2pv8](https://github.com/openclaw/openclaw/security/advisories/GHSA-m69h-jm2f-2pv8) | MEDIUM | Feishu reaction events could bypass group authorization and mention gating | - | v2026.3.12 | - |
+| [GHSA-vmhq-cqm9-6p7q](https://github.com/openclaw/openclaw/security/advisories/GHSA-vmhq-cqm9-6p7q) | HIGH | `browser.request` let `operator.write` persist admin-only browser profile changes | - | v2026.3.11 | - |
+| [GHSA-f8r2-vg7x-gh8m](https://github.com/openclaw/openclaw/security/advisories/GHSA-f8r2-vg7x-gh8m) | MEDIUM | Exec approval allowlist patterns overmatched on POSIX paths | - | v2026.3.11 | - |
+| [GHSA-2rqg-gjgv-84jm](https://github.com/openclaw/openclaw/security/advisories/GHSA-2rqg-gjgv-84jm) | HIGH | Gateway `agent` calls could override the workspace boundary | - | v2026.3.11 | - |
+| [GHSA-wcxr-59v9-rxr8](https://github.com/openclaw/openclaw/security/advisories/GHSA-wcxr-59v9-rxr8) | HIGH | `session_status` let sandboxed subagents access parent or sibling session state | - | v2026.3.11 | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -2308,6 +2333,306 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** PowerShell encoded-command invocations could bypass `system.run` allowlist approval checks.
 
 **Fix:** PowerShell `encoded-command` wrappers decoded and checked against the allowlist during approval parsing. Patched in `openclaw >= 2026.3.8`.
+
+### CVE-2026-32302 / GHSA-5wcw-8jjv-m286: Browser WebSocket Origin Bypass in Trusted-Proxy Mode
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Browser-originated WebSocket connections could bypass origin validation when `gateway.auth.mode` was set to `trusted-proxy` and the request arrived with proxy headers. A page served from an untrusted origin could connect through a trusted reverse proxy, inherit proxy-authenticated identity, and establish a privileged operator session.
+
+**Impact:** Deployments exposing the gateway behind a trusted reverse proxy could be compromised via cross-site WebSocket connections. An attacker-origin page could call `config.get` with `operator.admin` scope and read sensitive configuration.
+
+**Fix:** OpenClaw now enforces browser origin validation for any browser-originated WebSocket connection regardless of whether proxy headers are present. Fixed commit: `ebed3bbde1a72a1aaa9b87b63b91e7c04a50036b`.
+
+### GHSA-4jpw-hj22-2xmc: Pairing-Scoped Token Privilege Escalation to Node RCE
+
+**Severity:** CRITICAL
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** A caller holding only `operator.pairing` could use `device.token.rotate` to mint a new token with broader scopes for an already paired device. If the target device was approved for `operator.admin`, the attacker could obtain an administrative token without already holding administrative scope.
+
+**Impact:** On deployments with connected node hosts exposing `system.run`, the escalated token could modify node execution approvals and reach remote code execution on the node. Even without nodes, unauthorized gateway-admin access was possible.
+
+**Fix:** OpenClaw now enforces caller-scope subsetting in `device.token.rotate`, preventing callers from minting device tokens broader than the scopes they already hold.
+
+### GHSA-8jhh-jcqg-mj5p: Channel Commands Bypass Account-Scoped `configWrites` Restrictions
+
+**Severity:** MEDIUM
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Channel-initiated config mutations were authorized against the originating account's `configWrites` policy but did not consistently re-check the targeted account scope. An authorized sender on one account could mutate protected sibling-account configuration when the target account had `configWrites: false`.
+
+**Impact:** Account-scoped policy bypass inside a single gateway deployment. Channel commands such as `/config set channels.<provider>.accounts.<id>...` could modify protected sibling-account configuration.
+
+**Fix:** Config mutations are now authorized against both the origin scope and each resolved target scope; ambiguous root and collection writes from channel commands are rejected unless the caller holds `operator.admin`.
+
+### GHSA-4w7m-58cg-cmff: Leaf Subagents Could Steer Sibling Sessions Across Sandbox Boundaries
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Sandboxed leaf subagents retained the `subagents` control surface and resolved requests against the parent requester scope. A low-privilege sandboxed leaf worker could steer or kill a sibling run owned by the same requester.
+
+**Impact:** Sandbox and session-scope boundary bypass. A sandboxed leaf session could cause a sibling to execute with its broader tool policy.
+
+**Fix:** Leaf subagents no longer receive `subagents` control access by default; subagent control is scoped to the caller's own descendants, and steer/kill requests targeting runs outside that tree are rejected.
+
+### GHSA-9vvh-2768-c8vp: Discord Guild Reaction Ingress Bypassed Users and Roles Allowlists
+
+**Severity:** MEDIUM
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Discord reaction ingestion for guild channels did not enforce the same member users and roles allowlist checks used for normal inbound guild messages. A non-allowlisted guild member could still trigger reaction events accepted as trusted system events for the target session.
+
+**Impact:** Authorization bypass in the Discord allowlist path; reaction text could be injected into downstream session context even when the reacting member was not permitted by the configured allowlist.
+
+**Fix:** The same users and roles allowlist enforcement now applies to guild reaction ingress.
+
+### GHSA-jf6w-m8jw-jfxc: `agent` Write-Scope Callers Could Reach Admin-Only Session Reset
+
+**Severity:** MEDIUM
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** A gateway caller with `operator.write` could issue `agent` requests containing `/new` or `/reset` and reach the same reset path used by the admin-only `sessions.reset` RPC. Scope checks were enforced only on the outer RPC method.
+
+**Impact:** Non-admin write-scoped callers could reset targeted conversation state, crossing the documented method-scope boundary.
+
+**Fix:** Conversation `/new` and `/reset` no longer route through the admin-only `sessions.reset` entry point; reset logic now lives in a shared service while `sessions.reset` remains admin-only.
+
+### GHSA-qc36-x95h-7j53: Unrecognized Script Runners Bypassed `system.run` Approval Integrity
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Node-host `system.run` approvals did not bind a mutable file operand for some script runners including `tsx` and `jiti`. An attacker could obtain approval for a benign script-runner command, rewrite the referenced script on disk, and have modified code execute under the already approved context.
+
+**Impact:** Deployments relying on node-host `system.run` approvals for script integrity could execute rewritten local code after operator approval.
+
+**Fix:** OpenClaw now fails closed for approval-backed interpreter and runtime commands unless exactly one concrete local file operand can be bound; coverage extended for additional runtime forms.
+
+### GHSA-mj4p-rc52-m843: Sandbox Staged Writes Could Escape Verified Parent Directory
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Sandbox fs-bridge writes validated the destination before commit, but temporary file creation was not pinned to a verified parent directory. A raced parent-path alias change could cause the staged temp file to be created outside the intended writable mount.
+
+**Impact:** Sandbox boundary bypass; attacker-controlled bytes could be written outside the validated path before the final guarded step ran.
+
+**Fix:** A pinned mount root plus relative parent path is now resolved, the temporary file is created inside the verified parent directory, and the final atomic replace runs from that pinned directory context.
+
+### GHSA-qvr7-g57c-mrc7: Local Auth SecretRefs Could Fall Through to Remote Credentials in Local Mode
+
+**Severity:** LOW
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Local gateway helper credential resolution treated configured but unavailable `gateway.auth.token` and `gateway.auth.password` SecretRefs as if they were unset, and could fall back to `gateway.remote.*` credentials in local mode.
+
+**Impact:** Local CLI and helper paths could select the wrong credential source instead of failing closed for configured local auth SecretRefs.
+
+**Fix:** Whether the local auth input is configured is now tracked separately from whether it resolves successfully; remote fallback is only allowed when the matching local auth input is truly unset.
+
+### GHSA-xf99-j42q-5w5p: Unbound Interpreter Commands Bypassed Node-Host Approval Integrity
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Node-host `system.run` approvals could still execute rewritten local code for interpreter and runtime commands when OpenClaw could not bind exactly one concrete local file operand during approval planning. The approval flow treated some interpreter forms as approval-backed even without an honest file binding.
+
+**Impact:** Deployments using node-host approval mode could approve a benign local script then execute different local code if that script changed before execution.
+
+**Fix:** OpenClaw now fails closed for approval-backed interpreter and runtime commands unless exactly one concrete local file operand can be bound; best-effort direct-file binding extended for additional runtime forms.
+
+### GHSA-rw39-5899-8mxp: Node-Host Approvals Showed Misleading Shell Payloads
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** Node-host `system.run` approvals could display only an extracted shell payload such as `jq --version` while execution still ran a different outer wrapper argv such as `./env sh -c 'jq --version'`. Wrapper resolution normalized executables by basename and extracted inner shell payload text for approval display while execution preserved the full wrapper argv.
+
+**Impact:** An attacker who could place a local wrapper binary could get local code executed after the operator approved misleading command text.
+
+**Fix:** Approvals are now bound to the exact executed argv; extracted shell payload text is kept only as secondary preview data.
+
+### GHSA-xvx8-77m6-gwg6: Sandbox `writeFile` Commit Could Race Outside Validated Path
+
+**Severity:** MEDIUM
+**Published:** 2026-03-12
+**Patched:** v2026.3.11
+
+**Description:** The sandbox fs-bridge `writeFile` commit step used an unanchored container path during the final move. An attacker racing parent-path changes inside the sandbox could redirect the committed file outside the validated sandbox path.
+
+**Impact:** Sandbox boundary bypass via TOCTOU race; committed files could land outside the validated writable path within the container mount namespace.
+
+**Fix:** The `writeFile` commit path is now anchored to the canonical parent directory before the final move.
+
+### GHSA-xw77-45gv-p728: Plugin Subagent Routes Bypassed Gateway Authorization with Synthetic Admin Scopes
+
+**Severity:** HIGH
+**Published:** 2026-03-12
+**Patched:** v2026.3.11 (affected >= 2026.3.7)
+
+**Description:** The plugin subagent runtime dispatched gateway methods through a synthetic operator client carrying broad administrative scopes. A plugin-owned HTTP route using `auth: "plugin"` could trigger admin-only gateway actions without normal gateway authorization when that route called `runtime.subagent.*`.
+
+**Impact:** Remote unauthenticated requests to plugin-owned routes could reach privileged subagent runtime methods and perform admin-only gateway actions such as deleting sessions, reading session data, or triggering agent execution.
+
+**Fix:** OpenClaw now propagates the real gateway client into the plugin subagent runtime and caps unauthenticated plugin-route access to non-admin scope.
+
+### GHSA-f5mf-3r52-r83w: Zalouser Allowlist Authorization Matched Mutable Group Names
+
+**Severity:** MEDIUM
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** OpenClaw's Zalouser allowlist mode accepted mutable group names and normalized slugs as authorization matches instead of requiring stable group IDs. In deployments using name-based `channels.zalouser.groups` entries, a different group could be accepted by reusing the same display name.
+
+**Impact:** Channel authorization weakened for Zalouser group routing; messages from an unintended group could reach the agent when operators relied on group names.
+
+**Fix:** Allowlist authorization now matches stable group identifiers.
+
+### GHSA-7h7g-x2px-94hj: Pairing Setup Codes Exposed Long-Lived Shared Credentials
+
+**Severity:** MEDIUM
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** Pairing setup codes generated by `/pair` and `openclaw qr` embedded the configured shared gateway token or password directly in the setup payload. Anyone who obtained the code from chat history, logs, screenshots, or copied QR payloads could recover the long-lived shared credential.
+
+**Impact:** A leaked setup code enabled reuse of the shared gateway credential outside the intended one-time pairing flow.
+
+**Fix:** Setup codes now carry short-lived bootstrap tokens valid only for the initial device bootstrap exchange. Operators should rotate previously exposed shared credentials.
+
+### GHSA-rqpp-rjj8-7wv8: WebSocket Shared-Auth Connections Could Self-Declare Elevated Scopes
+
+**Severity:** CRITICAL
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** A logic flaw in the gateway WebSocket connect path allowed certain device-less shared-token or password-authenticated backend connections to keep client-declared scopes without server-side binding. A shared-authenticated client could present elevated scopes such as `operator.admin` not tied to a device identity or trusted Control UI path.
+
+**Impact:** A shared-secret-authenticated backend client could perform admin-only gateway operations.
+
+**Fix:** The gateway now clears unbound scopes for non-Control-UI shared-auth connections; regression tests cover the device-less shared-auth path.
+
+### GHSA-99qw-6mr3-36qr: Workspace Plugin Auto-Discovery Allowed Code Execution from Cloned Repositories
+
+**Severity:** HIGH
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** OpenClaw automatically discovered and loaded plugins from `.openclaw/extensions/` inside the current workspace without an explicit trust or install step. A malicious repository could include a crafted workspace plugin that executed as soon as a user ran OpenClaw from that cloned directory.
+
+**Impact:** Opening or running OpenClaw in an untrusted repository could lead to arbitrary code execution under the user's account.
+
+**Fix:** Workspace plugin loading now requires explicit trusted state before execution.
+
+### GHSA-r7vr-gr74-94p8: Non-Owners Could Reach Owner-Only `/config` and `/debug` Surfaces
+
+**Severity:** HIGH
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** `/config` and `/debug` are documented as owner-only commands, but the command handlers checked only whether the sender was command-authorized. A lower-trust sender intentionally allowed to run commands could still reach privileged configuration and debugging surfaces.
+
+**Impact:** A non-owner sender could read or change privileged configuration that should be restricted to owners.
+
+**Fix:** Owner checks are now enforced for privileged command surfaces; regression tests cover `/config` and `/debug` access control.
+
+### GHSA-5m9r-p9g7-679c: Zalo Webhook Rate Limiting Bypassed Before Secret Validation
+
+**Severity:** MEDIUM
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** The Zalo webhook handler applied request rate limiting only after webhook authentication succeeded. Requests with an invalid secret returned `401` but did not count against the rate limiter, allowing repeated secret guesses without triggering `429`.
+
+**Impact:** Brute-force guessing of weak webhook secrets was materially easier; a guessed secret enabled forged Zalo webhook traffic.
+
+**Fix:** Rate limiting now applies before successful authentication is required.
+
+### GHSA-g353-mgv3-8pcj: Feishu Webhook Accepted Forged Events Without `encryptKey`
+
+**Severity:** HIGH
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** Feishu webhook mode allowed deployments that configured only `verificationToken` without `encryptKey`. In that state, forged inbound events could be accepted because the weaker configuration did not provide the required cryptographic verification boundary.
+
+**Impact:** An unauthenticated network attacker reaching the webhook endpoint could inject forged Feishu events, impersonate senders, and potentially trigger downstream tool execution.
+
+**Fix:** Feishu webhook mode now fails closed unless `encryptKey` is configured; the webhook transport rejects missing or invalid signatures before dispatch. Operators should configure `encryptKey` for webhook deployments.
+
+### GHSA-m69h-jm2f-2pv8: Feishu Reaction Events Bypassed Group Authorization and Mention Gating
+
+**Severity:** MEDIUM
+**Published:** 2026-03-13
+**Patched:** v2026.3.12
+
+**Description:** A Feishu reaction-originated synthetic event could misclassify a group conversation as `p2p` when the inbound reaction payload omitted `chat_type`. Authorization and mention-gating logic evaluated the event as a direct message instead of a group message.
+
+**Impact:** `groupAllowFrom` and `requireMention` protections could be bypassed for reaction-derived events in Feishu group chats.
+
+**Fix:** Reaction events now preserve the correct group context before authorization and mention-gate evaluation.
+
+### GHSA-vmhq-cqm9-6p7q: `browser.request` Let `operator.write` Persist Admin-Only Browser Profile Changes
+
+**Severity:** HIGH
+**Published:** 2026-03-13
+**Patched:** v2026.3.11
+
+**Description:** An authorization mismatch let an authenticated caller with only `operator.write` use `browser.request` to reach browser profile management routes that persist configuration to disk. In practice, `/profiles/create` exposed an admin-only configuration write primitive to write-scoped operators.
+
+**Impact:** A write-scoped operator could create or modify browser profiles and store attacker-chosen remote CDP endpoints without holding `operator.admin`.
+
+**Fix:** Browser profile creation now requires the correct admin boundary; regression tests cover the write-vs-admin authorization split.
+
+### GHSA-f8r2-vg7x-gh8m: Exec Approval Allowlist Patterns Overmatched on POSIX Paths
+
+**Severity:** MEDIUM
+**Published:** 2026-03-13
+**Patched:** v2026.3.11
+
+**Description:** `matchesExecAllowlistPattern` normalized patterns and targets with lowercasing and compiled glob matching too broadly on POSIX. The `?` wildcard could match `/`, allowing matches to cross path segments.
+
+**Impact:** Allowlist entries could overmatch and permit commands or executable paths that an operator did not intend to approve.
+
+**Fix:** Exec allowlist matching now respects intended path semantics; regression tests cover the POSIX case-folding and slash-crossing cases.
+
+### GHSA-2rqg-gjgv-84jm: Gateway `agent` Calls Could Override the Workspace Boundary
+
+**Severity:** HIGH
+**Published:** 2026-03-13
+**Patched:** v2026.3.11
+
+**Description:** The public gateway `agent` RPC allowed an authenticated operator with `operator.write` to supply attacker-controlled `spawnedBy` and `workspaceDir` values, re-rooting the agent run outside its configured workspace boundary.
+
+**Impact:** A non-owner operator could escape the intended workspace boundary and run normal file and exec tools from an arbitrary process-accessible directory.
+
+**Fix:** The gateway now enforces the configured workspace boundary for agent runs regardless of caller-supplied overrides.
+
+### GHSA-wcxr-59v9-rxr8: `session_status` Let Sandboxed Subagents Access Parent or Sibling Session State
+
+**Severity:** HIGH
+**Published:** 2026-03-13
+**Patched:** v2026.3.11
+
+**Description:** The built-in `session_status` tool did not enforce the intended session-visibility boundary. A sandboxed subagent could supply another session's `sessionKey` and inspect or modify state outside its own sandbox scope, including updating the target session's persisted model override.
+
+**Impact:** Sandboxed child sessions could read parent or sibling session data and modify session state.
+
+**Fix:** Session visibility checks now enforce the sandbox boundary before reading or mutating session state.
 
 ### Relationship to Third-Party Audits
 
