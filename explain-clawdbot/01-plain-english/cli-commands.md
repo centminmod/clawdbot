@@ -114,6 +114,10 @@ openclaw [--dev] [--profile <name>] <command>
   directory self|peers|groups         # directory lookups (contacts, groups)
   daemon install|start|stop|...      # gateway service (legacy alias)
 
+  backup create|verify               # backup management
+  secrets reload|audit|configure|apply  # secret management
+  clawbot                            # legacy clawbot command aliases
+
   dns setup                          # discovery DNS helper
   tui                                # terminal UI
   completion                         # shell completion script

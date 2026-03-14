@@ -47,6 +47,7 @@ Where the Gateway listens:
 - `loopback` = localhost only (safest default)
 - `lan` = your LAN interfaces (requires auth)
 - `tailnet` = bind only to Tailscale IP, 100.x.y.z range (requires Tailscale)
+- `custom` = bind to a specific IP address (set via `gateway.customBindHost`)
 
 Docs: https://docs.openclaw.ai/gateway/remote and https://docs.openclaw.ai/gateway/tailscale
 
