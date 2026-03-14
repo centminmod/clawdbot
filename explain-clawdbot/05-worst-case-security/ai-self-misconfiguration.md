@@ -198,7 +198,7 @@ Every path through which the AI can modify system state:
 - Gateway call least-privilege scopes: `src/agents/tools/gateway.ts:147`
 - Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:39-66,104-129`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
-- Cron tool: `src/gateway/server-methods/cron.ts:76-97`
+- Cron tool: `src/gateway/server-methods/cron.ts:91-124`
 - Agent files: `src/gateway/server-methods/agents.ts:66,673`
 
 **Key insight:** The `/config set` chat command has dedicated chat-command gates (`commands.config` + `configWrites`). Gateway tool writes use a different control plane (owner-only tool policy + gateway auth/scopes/rate limits). So `configWrites: false` is useful defense-in-depth, but it does not block gateway-tool config changes.
