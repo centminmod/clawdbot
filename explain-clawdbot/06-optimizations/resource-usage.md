@@ -565,9 +565,9 @@ Setting up Prometheus/Grafana is beyond the scope of this guide — see the [Pro
 
 At the start of every session, OpenClaw loads `MEMORY.md` (or `memory.md`) from the workspace directory and injects its contents into the AI's first message as a context file. This happens unconditionally for all primary sessions — the only filtering is for subagent sessions, which receive only `AGENTS.md` and `TOOLS.md`.
 
-- Resolution: `src/agents/workspace.ts:438-473` — scans for `MEMORY.md` and `memory.md`, deduplicates
-- Loading: `src/agents/workspace.ts:475-531` — reads file contents into `WorkspaceBootstrapFile[]`
-- Filtering: `src/agents/workspace.ts:542-550` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
+- Resolution: `src/agents/workspace.ts:461-480` — scans for `MEMORY.md` and `memory.md`, deduplicates
+- Loading: `src/agents/workspace.ts:481-541` — reads file contents into `WorkspaceBootstrapFile[]`
+- Filtering: `src/agents/workspace.ts:551-559` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
 - Context building: `src/agents/pi-embedded-helpers/bootstrap.ts:187-239` — trims to `bootstrapMaxChars` (default 20,000 chars) using head/tail strategy with `totalMaxChars` cap (default 24,000)
 - Orchestration: `src/agents/bootstrap-files.ts:64-96` — wires resolution → filtering → context building
 

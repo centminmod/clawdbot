@@ -229,7 +229,7 @@ Source: `src/infra/bonjour.ts:12-26` (opts type), `src/infra/bonjour.ts:130-146`
 
 ### 7) Persistent memory files
 
-OpenClaw loads nine named workspace `.md` files (AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md, MEMORY.md, memory.md) on every agent turn via `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:475-531`). These are injected directly into the system prompt as trusted context — they do **not** carry `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers like fetched web pages or webhook payloads do. Each file is truncated at 20,000 characters (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
+OpenClaw loads nine named workspace `.md` files (AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md, MEMORY.md, memory.md) on every agent turn via `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:481-541`). These are injected directly into the system prompt as trusted context — they do **not** carry `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers like fetched web pages or webhook payloads do. Each file is truncated at 20,000 characters (`src/agents/pi-embedded-helpers/bootstrap.ts:85`).
 
 Additionally, `memory/*.md` directory files are accessed via `memory_search`/`memory_get` tool calls (4,000-char budget) through a separate pipeline (`src/memory/internal.ts:78-107`).
 
@@ -239,7 +239,7 @@ Mitigations:
 - OS-level file permissions (restrict write access to the workspace directory)
 - Periodic content audit: `grep -rn "<!--" .` to detect hidden HTML comments
 - Run Cisco AI Defense scanner against workspace directory for deeper LLM-based analysis
-- Subagent exposure is limited: `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:542-550`) restricts subagents to only AGENTS.md + TOOLS.md
+- Subagent exposure is limited: `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:551-559`) restricts subagents to only AGENTS.md + TOOLS.md
 
 Source: `src/agents/workspace.ts:32-33` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85,198-239` (injection)
 
