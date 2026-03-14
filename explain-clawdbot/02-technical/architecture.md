@@ -172,7 +172,7 @@ Below is a conceptual pipeline. Exact details vary by channel.
 
 1.5) **Input sanitization**
 - Strip platform envelope metadata from user messages (`src/gateway/chat-sanitize.ts`)
-- Reject null bytes and strip unsafe control characters (`src/gateway/server-methods/chat.ts:228`)
+- Reject null bytes and strip unsafe control characters (`src/gateway/server-methods/chat.ts:230`)
 
 2) **Identity + authorization**
 - Resolve sender identity.
