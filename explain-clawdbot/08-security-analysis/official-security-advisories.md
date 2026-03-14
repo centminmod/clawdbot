@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13.
 
 ### Advisory Summary
 
@@ -285,6 +285,11 @@
 | [GHSA-f8r2-vg7x-gh8m](https://github.com/openclaw/openclaw/security/advisories/GHSA-f8r2-vg7x-gh8m) | MEDIUM | Exec approval allowlist patterns overmatched on POSIX paths | - | v2026.3.11 | - |
 | [GHSA-2rqg-gjgv-84jm](https://github.com/openclaw/openclaw/security/advisories/GHSA-2rqg-gjgv-84jm) | HIGH | Gateway `agent` calls could override the workspace boundary | - | v2026.3.11 | - |
 | [GHSA-wcxr-59v9-rxr8](https://github.com/openclaw/openclaw/security/advisories/GHSA-wcxr-59v9-rxr8) | HIGH | `session_status` let sandboxed subagents access parent or sibling session state | - | v2026.3.11 | - |
+| [GHSA-vr7j-g7jv-h5mp](https://github.com/openclaw/openclaw/security/advisories/GHSA-vr7j-g7jv-h5mp) | MEDIUM | Session transcript files were created without forced user-only permissions | - | v2026.2.17 | - |
+| [GHSA-jq3f-vjww-8rq7](https://github.com/openclaw/openclaw/security/advisories/GHSA-jq3f-vjww-8rq7) | HIGH | Telegram webhook request bodies were read before secret validation, enabling unauthenticated resource exhaustion | - | v2026.3.13 | @space08 |
+| [GHSA-xwcj-hwhf-h378](https://github.com/openclaw/openclaw/security/advisories/GHSA-xwcj-hwhf-h378) | MEDIUM | Telegram media fetch errors exposed bot tokens in logged file URLs | - | v2026.3.13 | @space08 |
+| [GHSA-g2f6-pwvx-r275](https://github.com/openclaw/openclaw/security/advisories/GHSA-g2f6-pwvx-r275) | MEDIUM | Unsanitized iMessage attachment paths allowed SCP remote-path command injection | - | v2026.3.13 | @lintsinghua |
+| [GHSA-63f5-hhc7-cx6p](https://github.com/openclaw/openclaw/security/advisories/GHSA-63f5-hhc7-cx6p) | HIGH | Bootstrap setup codes could be replayed to escalate pending pairing scopes before approval | - | v2026.3.13 | @tdjackey |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -2633,6 +2638,70 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** Sandboxed child sessions could read parent or sibling session data and modify session state.
 
 **Fix:** Session visibility checks now enforce the sandbox boundary before reading or mutating session state.
+
+### GHSA-vr7j-g7jv-h5mp: Session Transcript Files Created Without Forced User-Only Permissions
+
+**Severity:** MEDIUM
+**Published:** 2026-03-14
+**Patched:** v2026.2.17
+
+**Description:** `openclaw` created new session transcript JSONL files with overly broad default permissions in affected releases (`<= 2026.2.15`). On multi-user hosts, other local users or processes could read transcript contents, including secrets that might appear in tool output.
+
+**Impact:** Session transcript JSONL files under the local OpenClaw session store could be readable by other local users depending on host umask behavior.
+
+**Fix:** New transcript files are now created with `0o600` permissions (`src/config/sessions/transcript.ts`). Existing transcript permission drift is also remediated by the security audit fix flow.
+
+### GHSA-jq3f-vjww-8rq7: Telegram Webhook Bodies Read Before Secret Validation
+
+**Severity:** HIGH
+**Published:** 2026-03-14
+**Patched:** v2026.3.13
+**Credits:** @space08
+
+**Description:** `openclaw` versions `<= 2026.3.12` read and buffered Telegram webhook request bodies before validating `x-telegram-bot-api-secret-token`. This allowed unauthenticated callers to force pre-auth body I/O and JSON parse work per request in `src/telegram/webhook.ts`.
+
+**Impact:** Unauthenticated resource exhaustion via the Telegram webhook endpoint; any caller could cause body buffering and JSON parse work without supplying a valid secret.
+
+**Fix:** `openclaw@2026.3.13` validates the Telegram webhook secret before any body I/O, rejecting invalid requests immediately with `401`.
+
+### GHSA-xwcj-hwhf-h378: Telegram Media Fetch Errors Exposed Bot Tokens in Logs
+
+**Severity:** MEDIUM
+**Published:** 2026-03-14
+**Patched:** v2026.3.13
+**Credits:** @space08
+
+**Description:** `openclaw` versions `<= 2026.3.12` embedded raw Telegram file URLs (which can include `/file/bot<TOKEN>/...`) in `MediaFetchError` messages from `src/media/fetch.ts`, potentially leaking bot tokens into logs or error surfaces.
+
+**Impact:** Telegram bot tokens could appear in server logs, console output, or error messages when media downloads failed.
+
+**Fix:** `openclaw@2026.3.13` routes source URLs through `redactMediaUrl()` / `redactSensitiveText()` before constructing fetch error messages.
+
+### GHSA-g2f6-pwvx-r275: Unsanitized iMessage Attachment Paths Allowed SCP Remote-Path Injection
+
+**Severity:** MEDIUM
+**Published:** 2026-03-14
+**Patched:** v2026.3.13
+**Credits:** @lintsinghua
+
+**Description:** `openclaw` versions `<= 2026.3.12` accepted unsanitized iMessage remote attachment paths in the SCP staging flow (`src/auto-reply/reply/stage-sandbox-media.ts`). When `MediaRemoteHost` was set, a sender-controlled attachment filename with shell metacharacters could trigger command execution on the configured remote host.
+
+**Impact:** Command injection on the configured SCP remote host when remote attachment staging was enabled.
+
+**Fix:** `openclaw@2026.3.13` validates the SCP remote path via `normalizeScpRemotePath()` and rejects paths containing shell metacharacters.
+
+### GHSA-63f5-hhc7-cx6p: Bootstrap Setup Codes Could Be Replayed to Escalate Pending Pairing Scopes
+
+**Severity:** HIGH
+**Published:** 2026-03-14
+**Patched:** v2026.3.13
+**Credits:** @tdjackey
+
+**Description:** `openclaw` versions `<= 2026.3.12` allowed bootstrap setup codes to be verified more than once before a pairing request was approved. A second verification attempt could mutate a pending device pairing to request broader scopes, including escalation from lower operator scope to `operator.admin`, before an approver finalized the pairing.
+
+**Impact:** Privilege escalation on pending device pairings via bootstrap token replay before approval.
+
+**Fix:** `openclaw@2026.3.13` makes bootstrap setup codes single-use via `src/infra/device-bootstrap.ts`; the bootstrap token record is consumed on the first successful verification.
 
 ### Relationship to Third-Party Audits
 
