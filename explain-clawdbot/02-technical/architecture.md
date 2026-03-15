@@ -111,7 +111,7 @@ Docs: https://docs.openclaw.ai/gateway/configuration
 - WebSocket runtime + methods live under `src/gateway/server-*` modules.
 
 ### Channels
-- Core channel implementations are in per-channel folders (e.g. `src/telegram`, `src/discord`, `src/imessage`, `src/web`, etc.).
+- Channel implementations live under `extensions/` as workspace packages (e.g. `extensions/telegram`, `extensions/discord`, `extensions/slack`, `extensions/signal`, `extensions/imessage`, `extensions/whatsapp`, `extensions/feishu`). A few legacy adapters (`src/line/`, `src/whatsapp/`) remain in `src/`.
 - Shared channel logic + routing helpers live in `src/channels/`.
 
 ### Auto-reply / agent turns
@@ -138,7 +138,7 @@ Docs: https://docs.openclaw.ai/gateway/configuration
 - `src/security/`. Security audit (`openclaw security audit`), scan path helpers, fix application.
 
 ### Browser
-- `src/browser/`. Chromium automation via Playwright CDP. Screenshot normalization, AX tree traversal, extension relay.
+- `src/browser/`. Chromium automation via Playwright CDP. Screenshot normalization, AX tree traversal. Simplified to autoConnect-only (headless/remote MCP attach modes and chrome-relay auto-creation were dropped).
 
 ### TTS
 - `src/tts/`. Text-to-speech via ElevenLabs/OpenAI/Edge TTS APIs.

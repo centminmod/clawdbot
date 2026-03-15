@@ -69,8 +69,8 @@ This is a "practical navigation guide" for new contributors/readers.
 ### Channels
 
 - `src/channels/` — shared channel logic (identities, allowlists, gating, registry)
-- Per-channel folders with full adapters: `src/telegram/`, `src/discord/`, `src/slack/`, `src/signal/`, `src/imessage/`, `src/web/`, `src/line/`, `src/whatsapp/`
-- Config-only channels (no `src/` dir): `googlechat`, `msteams`, `feishu`
+- Per-channel folders with full adapters now live under `extensions/`: `extensions/telegram/`, `extensions/discord/`, `extensions/slack/`, `extensions/signal/`, `extensions/imessage/`, `extensions/whatsapp/`, `extensions/feishu/`, `extensions/line/`, plus legacy `src/line/`, `src/whatsapp/` (still in `src/`)
+- Additional extension channels: `extensions/googlechat/`, `extensions/msteams/`, `extensions/matrix/`, `extensions/zalo/`, `extensions/zalouser/`, `extensions/irc/`, `extensions/nostr/`, `extensions/tlon/`, `extensions/twitch/`, `extensions/mattermost/`, `extensions/nextcloud-talk/`, `extensions/synology-chat/`
 - `docs/channels/` — channel documentation (29 files including pairing, routing, groups)
 
 ### Agent turns
@@ -173,7 +173,7 @@ From repo root:
 ## How to "trace one message"
 
 1. Pick a channel (e.g., Telegram).
-2. Find its monitor/adapter in `src/telegram/`.
+2. Find its monitor/adapter in `extensions/telegram/`.
 3. Follow where it emits a normalized event into shared channel/routing logic.
 4. The `src/routing/` module resolves the route and derives a session key (`session-key.ts`, `resolve-route.ts`).
 5. `src/hooks/` may fire at pipeline stages (pre-reply, post-reply, etc.).
@@ -196,18 +196,18 @@ From repo root:
 
 ## Documentation Coverage
 
-This section tracks how well the `explain-clawdbot/` documentation covers the codebase. Snapshot verified on 2026-03-04.
+This section tracks how well the `explain-clawdbot/` documentation covers the codebase. Snapshot verified on 2026-03-15.
 
 ### Coverage by Area
 
 | Area | Files | Last Verified | Coverage | Notes |
 |------|-------|---------------|----------|-------|
-| CLI Commands | 41 top-level commands (40 non-legacy) | 2026-02-21 | ✅ Complete | `01-plain-english/cli-commands.md` |
-| Gateway Config | 31 root + 14 gateway fields | 2026-02-21 | ✅ Complete | `99-reference/commands-and-troubleshooting.md` |
-| Security | 15 docs + 105 hardening logs + 261 PR refs + 95 issue refs | 2026-02-21 | ✅ Complete | `08-security-analysis/` |
-| Architecture | Core paths | 2026-02-21 | ✅ Complete | `02-technical/architecture.md` |
-| Deployment | 4 runbooks | 2026-02-21 | ✅ Complete | `03-deploy/` |
-| Privacy/Safety | 4 guides | 2026-02-21 | ✅ Complete | `04-privacy-safety/` |
+| CLI Commands | 41 top-level commands (40 non-legacy) | 2026-03-15 | ✅ Complete | `01-plain-english/cli-commands.md` |
+| Gateway Config | 31 root + 14 gateway fields | 2026-03-15 | ✅ Complete | `99-reference/commands-and-troubleshooting.md` |
+| Security | 15 docs + 105 hardening logs + 261 PR refs + 95 issue refs | 2026-03-15 | ✅ Complete | `08-security-analysis/` |
+| Architecture | Core paths, extensions/ channel layout | 2026-03-15 | ✅ Complete | `02-technical/architecture.md` |
+| Deployment | 4 runbooks | 2026-03-15 | ✅ Complete | `03-deploy/` |
+| Privacy/Safety | 4 guides | 2026-03-15 | ✅ Complete | `04-privacy-safety/` |
 
 ### Known Gaps
 

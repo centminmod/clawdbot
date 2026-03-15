@@ -47,6 +47,7 @@ Where the Gateway listens:
 - `loopback` = localhost only (safest default)
 - `lan` = your LAN interfaces (requires auth)
 - `tailnet` = bind only to Tailscale IP, 100.x.y.z range (requires Tailscale)
+- `auto` = automatically choose the best bind mode based on environment
 - `custom` = bind to a specific IP address (set via `gateway.customBindHost`)
 
 Docs: https://docs.openclaw.ai/gateway/remote and https://docs.openclaw.ai/gateway/tailscale
@@ -118,6 +119,12 @@ Docs: https://docs.openclaw.ai/concepts/session
 A capability the model can invoke (web fetch/search, browser automation, cron, exec, node calls).
 
 Docs: https://docs.openclaw.ai/tools
+
+## Webchat
+A browser-based channel that connects to the Gateway's WebSocket endpoint directly. Unlike external messaging platforms, webchat runs in the Control UI and supports toggles for hiding tool calls and thinking blocks.
+
+## Extended thinking / reasoning
+When a model supports "extended thinking" (e.g., Claude with `thinking` or providers with reasoning tokens), OpenClaw can stream intermediate reasoning steps before the final answer. Configured via thinking level settings (`--thinking` flag or `agents.defaults.thinking`).
 
 ## Skill
 A packaged AI routine (commands + optional tools) that extends the agent's capabilities. Install from ClawHub or load locally; configured via `skills.load.*`. The built-in skill scanner checks for dangerous code patterns at install time.

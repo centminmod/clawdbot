@@ -748,6 +748,30 @@ See the full options at https://docs.openclaw.ai/cli/acp.
 
 ---
 
+### `/btw` (side questions)
+
+**What it does:** Ask an ephemeral side question about the current session without changing future session context. The answer uses the session's context but doesn't write to transcript history.
+
+**When would I use this?** Quick clarifications while a long agent run is in progress, factual side answers, or temporary questions you don't want polluting the session's memory.
+
+```
+/btw what file are we editing?
+/btw what does this error mean?
+/btw summarize the current task in one sentence
+```
+
+Key behavior:
+- Same session context, separate one-shot model call
+- No tool calls — tool-less by design
+- No transcript persistence — ephemeral, disappears on reload
+- Delivered as `chat.side_result` event (not normal `chat`)
+
+Works in TUI (inline, dismissible), external channels (labeled one-off reply), and Gateway protocol. Control UI rendering is not yet complete.
+
+Docs: https://docs.openclaw.ai/tools/btw
+
+---
+
 ## 7. Models
 
 Models are the "brain" behind your assistant. These commands manage which AI models you use, how you authenticate with providers, and what happens when your primary model is unavailable.
@@ -1460,6 +1484,37 @@ openclaw sandbox list
 openclaw sandbox recreate       # rebuild sandboxes
 openclaw sandbox explain        # explain sandbox config
 ```
+
+---
+
+### `openclaw backup`
+
+**What it does:** Create a local backup archive of your OpenClaw state, config, credentials, sessions, and optionally workspaces. The archive is a timestamped `.tar.gz` with an embedded `manifest.json`.
+
+**When would I use this?** Before running `openclaw reset` or `openclaw uninstall`, before major upgrades, or to keep a restorable snapshot of your setup.
+
+```bash
+openclaw backup create                      # full backup to current dir
+openclaw backup create --output ~/Backups   # save to specific dir
+openclaw backup create --dry-run --json     # preview what would be backed up
+openclaw backup create --verify             # backup + validate archive
+openclaw backup create --no-include-workspace  # skip workspace (smaller archive)
+openclaw backup create --only-config        # just the config file
+openclaw backup verify ./backup.tar.gz      # validate an existing archive
+```
+
+| Option | What it does |
+|--------|-------------|
+| `--output <dir>` | Where to save the archive (default: current directory) |
+| `--dry-run` | Preview which paths would be included |
+| `--verify` | Validate the archive after writing |
+| `--no-include-workspace` | Skip workspace directories (faster, smaller) |
+| `--only-config` | Archive only the active config file |
+| `--json` | Machine-readable output |
+
+What gets backed up: state directory (`~/.openclaw`), active config file, OAuth/credentials directory, workspace directories. Paths inside the state directory are not duplicated. `--only-config` skips everything except the config file.
+
+Docs: https://docs.openclaw.ai/cli/backup
 
 ---
 

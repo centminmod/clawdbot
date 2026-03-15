@@ -123,6 +123,34 @@ Docs: https://docs.openclaw.ai/gateway/remote
 
 ---
 
+## Backup + restore
+
+```bash
+openclaw backup create                        # full backup
+openclaw backup create --no-include-workspace # config + state only
+openclaw backup create --only-config          # just the config file
+openclaw backup verify ./backup.tar.gz        # validate archive
+```
+
+Run `openclaw backup create` before `openclaw reset` or `openclaw uninstall`.
+
+Docs: https://docs.openclaw.ai/cli/backup
+
+---
+
+## Side questions (/btw)
+
+```bash
+/btw what are we doing right now?
+/btw summarize the current task
+```
+
+Ephemeral side question against the current session — no tool calls, no transcript persistence.
+
+Docs: https://docs.openclaw.ai/tools/btw
+
+---
+
 ## Common problems
 
 ### Control UI says unauthorized
