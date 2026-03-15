@@ -58,9 +58,15 @@ A connector for a messaging surface: WhatsApp/Telegram/Discord/iMessage/etc.
 Docs: https://docs.openclaw.ai/channels
 
 ## Control UI / Dashboard
-The web interface served by the Gateway (on the same port as the WebSocket).
+The web interface served by the Gateway (on the same port as the WebSocket). Dashboard-v2 (v2026.3.12) added modular overview, chat, config, agent, and session views, a command palette, mobile bottom tabs, and richer chat tools (slash commands, search, export, pinned messages).
 
 Docs: https://docs.openclaw.ai/web/dashboard
+
+## Fast mode
+A per-session toggle (`/fast`) that requests faster output from supported providers (Anthropic `service_tier`, OpenAI fast tier). Configurable via TUI, Control UI, ACP, and per-model config defaults.
+
+## SecretRef
+A reference-based credential system that resolves secrets at runtime from environment variables, files, or exec commands — instead of storing plaintext values in config. Supports 64 credential targets across providers, channels, webhooks, and gateway auth.
 
 ## Gateway
 The long-running process that owns:

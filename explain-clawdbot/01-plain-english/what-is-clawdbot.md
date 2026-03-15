@@ -106,13 +106,15 @@ Docs: https://docs.openclaw.ai/concepts/agent
 Tools let the model do more than output text.
 
 Depending on what you enable, tools can include:
-- web fetch/search
+- web fetch/search (including Brave LLM Context mode for grounding snippets)
 - browser automation
 - cron/automation
 - exec or node/device invocations
-- memory search (semantic search across indexed notes and past conversations)
+- memory search (semantic search across indexed notes and past conversations; supports multimodal image/audio indexing with Gemini embeddings)
 - canvas/drawing (interactive visual outputs)
 - image processing (resize, optimize, convert)
+- PDF analysis (native Anthropic/Google support, extraction fallback for other models)
+- diffs (read-only diff rendering from before/after text or unified patches, with PNG/PDF output)
 - text-to-speech (ElevenLabs, OpenAI, Edge TTS)
 - session management (list, send, history across sessions, yield control to another session)
 - gateway control (config, status, restart from within agent)

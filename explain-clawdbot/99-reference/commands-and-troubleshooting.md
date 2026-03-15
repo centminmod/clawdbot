@@ -86,7 +86,11 @@ Docs: https://docs.openclaw.ai/gateway and https://docs.openclaw.ai/cli/gateway
 openclaw status
 openclaw status --all
 openclaw health
+openclaw config validate              # validate config before startup
+openclaw config file                  # print active config file path
 ```
+
+HTTP health probe endpoints (for Docker/Kubernetes): `GET /health`, `/healthz`, `/ready`, `/readyz`.
 
 ---
 

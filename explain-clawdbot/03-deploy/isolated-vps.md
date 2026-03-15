@@ -362,6 +362,8 @@ openclaw gateway status
 openclaw status
 # Run a health check — confirms the service is responding
 openclaw health
+# HTTP health probe endpoints (for Docker/Kubernetes/monitoring):
+# GET /health, /healthz (liveness), /ready, /readyz (readiness)
 # Deep security scan — checks config, permissions, and known issues
 openclaw security audit --deep
 ```

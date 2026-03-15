@@ -380,6 +380,8 @@ openclaw config path
 | `config set <path> <value>` | Set a value |
 | `config unset <path>` | Remove a value |
 | `config path` | Print the path to the active config file |
+| `config file` | Print the active config file path (resolved from `OPENCLAW_CONFIG_PATH` or default) |
+| `config validate` | Validate config before gateway startup (`--json` for structured output) |
 
 ---
 
