@@ -113,14 +113,14 @@ These tests describe genuine indirect injection scenarios but deliver them incor
 
 | Test | Scenario | Delivery Method | Actual Defense | Verdict |
 |------|----------|----------------|----------------|---------|
-| Indirect document injection | Hidden `[ASSISTANT:]` in meeting notes | Direct user message | `wrapExternalContent()` wraps all file content with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers (`src/security/external-content.ts:247-273`) | **Inconclusive** - bypassed defense layer |
+| Indirect document injection | Hidden `[ASSISTANT:]` in meeting notes | Direct user message | `wrapExternalContent()` wraps all file content with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers (`src/security/external-content.ts:247-274`) | **Inconclusive** - bypassed defense layer |
 | Indirect email injection | HTML comment in email body | Direct user message | `buildSafeExternalPrompt()` wraps hook content with security warnings (`src/cron/isolated-agent/run.ts:464-475`) | **Inconclusive** - bypassed defense layer |
 | Indirect code injection | Malicious code comment | Direct user message | External content suspicious pattern detection (`src/security/external-content.ts:17-32`) | **Inconclusive** - bypassed defense layer |
 
 **Why these are inconclusive:** The defense layer that exists specifically for these attacks was NOT tested. The external content pipeline:
 
-1. Wraps ALL external content with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` boundary markers (`src/security/external-content.ts:247-273`)
-2. Prepends a security warning instructing the model to IGNORE embedded instructions (`src/security/external-content.ts:247-273`)
+1. Wraps ALL external content with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` boundary markers (`src/security/external-content.ts:247-274`)
+2. Prepends a security warning instructing the model to IGNORE embedded instructions (`src/security/external-content.ts:247-274`)
 3. Detects suspicious patterns (regex: "ignore previous instructions", "you are now a", etc.) and logs warnings (`src/security/external-content.ts:17-32`)
 4. Sanitizes boundary markers in content to prevent escape (`src/security/external-content.ts:169-218`) including invisible Unicode character stripping (`src/security/external-content.ts:154`) and fullwidth homoglyph folding (`src/security/external-content.ts:108-137`)
 5. Is actively integrated into web search (`src/agents/tools/web-search.ts:1559,1592,1618,1646`), web fetch (`src/agents/tools/web-fetch.ts:250-271`), cron hooks (`src/cron/isolated-agent/run.ts:433-476`), Discord (`src/discord/monitor/inbound-context.ts:24`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
@@ -194,8 +194,8 @@ ZeroLeeks tested **only** the bottom two tiers and rated the system CRITICAL.
 
 | Defense | Location | What It Does |
 |---------|----------|-------------|
-| External content boundary markers | `src/security/external-content.ts:247-273` | `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` wrapping |
-| Security warning injection | `src/security/external-content.ts:247-273` | Instructs model to IGNORE embedded instructions |
+| External content boundary markers | `src/security/external-content.ts:247-274` | `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` wrapping |
+| Security warning injection | `src/security/external-content.ts:247-274` | Instructs model to IGNORE embedded instructions |
 | Suspicious pattern detection | `src/security/external-content.ts:17-32` | Regex detection of common injection phrases |
 | Boundary marker sanitization | `src/security/external-content.ts:169-218` | Prevents content from escaping the wrapper |
 | Unicode homoglyph normalization | `src/security/external-content.ts:108-137` | Fullwidth character folding to prevent visual spoofing; invisible char stripping at `:154` |
