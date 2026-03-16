@@ -51,7 +51,7 @@
 | 2 | `openclaw.json` contains email address | **LIKELY** | `auth.profiles.*.email` optional string field exists (`src/config/types.auth.ts:10`); OAuth profiles commonly include email |
 | 3 | `openclaw.json` contains workspace path | **CONFIRMED** | `agents[].dir` field configures workspace directories |
 | 4 | `device.json` contains crypto keys | **CONFIRMED** | ED25519 private + public key pair, device ID (SHA256 fingerprint) (`src/infra/device-identity.ts:57-63`); stored at `~/.openclaw/identity/device.json` (`src/infra/device-identity.ts:20-21`) with `0o600` perms (`src/infra/device-identity.ts:84,116-118`) |
-| 5 | `soul.md` contains agent principles | **CONFIRMED** | User-defined workspace `.md` file loaded into system prompt (`src/agents/workspace.ts:481-541`). Note: located in workspace dir, NOT in `~/.openclaw/` |
+| 5 | `soul.md` contains agent principles | **CONFIRMED** | User-defined workspace `.md` file loaded into system prompt (`src/agents/workspace.ts:487-547`). Note: located in workspace dir, NOT in `~/.openclaw/` |
 | 6 | Stolen gateway token enables remote connection | **CONFIRMED** | If port is exposed: WebSocket full access, HTTP `/tools/invoke` including exec (`src/gateway/tools-invoke-http.ts:127-324`), `/v1/chat/completions` |
 | 7 | Token allows "masquerade as the client" | **CONFIRMED** | Gateway tokens are not device-bound; any bearer can authenticate (`src/gateway/auth.ts`) |
 | 8 | VirusTotal partnership for ClawHub | **CONFIRMED** | 6-step pipeline, 70+ AV engines, Gemini code review, daily rescans ([blog](https://openclaw.ai/blog/virustotal-partnership)) |
@@ -236,8 +236,8 @@ Hudson Rock predicts that **infostealer developers will likely release dedicated
 
 | Risk | Status | Mitigation | Documentation |
 |------|--------|------------|---------------|
-| Gateway network exposure | MITIGATED (default) | Loopback-only binding by default (`src/gateway/net.ts:243-292`) | [Hardening checklist](../04-privacy-safety/hardening-checklist.md) |
-| Loopback fallback to 0.0.0.0 | OPEN (edge case) | If loopback bind fails, falls back to all-interfaces (`src/gateway/net.ts:254`) | [Threat model](../04-privacy-safety/threat-model.md) |
+| Gateway network exposure | MITIGATED (default) | Loopback-only binding by default (`src/gateway/net.ts:246-296`) | [Hardening checklist](../04-privacy-safety/hardening-checklist.md) |
+| Loopback fallback to 0.0.0.0 | OPEN (edge case) | If loopback bind fails, falls back to all-interfaces (`src/gateway/net.ts:257`) | [Threat model](../04-privacy-safety/threat-model.md) |
 | File permissions | PARTIALLY MITIGATED | `0o600` on config/keys; `openclaw security audit --fix` can repair | [Hardening checklist](../04-privacy-safety/hardening-checklist.md) |
 | Encryption at rest | OPEN | No encryption — credentials protected only by filesystem permissions | [Mac Mini risks](../05-worst-case-security/mac-mini-risks.md) |
 | Token rotation | OPEN | No expiry, no rotation mechanism — tokens are static until manually changed | — |

@@ -199,7 +199,7 @@ Every path through which the AI can modify system state:
 - Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:39-66,104-129`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
 - Cron tool: `src/gateway/server-methods/cron.ts:91-124`
-- Agent files: `src/gateway/server-methods/agents.ts:66,673`
+- Agent files: `src/gateway/server-methods/agents.ts:66,714`
 
 **Key insight:** The `/config set` chat command has dedicated chat-command gates (`commands.config` + `configWrites`). Gateway tool writes use a different control plane (owner-only tool policy + gateway auth/scopes/rate limits). So `configWrites: false` is useful defense-in-depth, but it does not block gateway-tool config changes.
 
@@ -286,7 +286,7 @@ openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth false
 openclaw config set gateway.controlUi.allowInsecureAuth false
 ```
 
-**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:564-584`).
+**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:571-594`).
 
 ---
 
@@ -333,7 +333,7 @@ openclaw config set tools.elevated false
 **Severity:** 🟠 HIGH
 **Applicability:** Self-hosted
 
-OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config.ts:76-120`). But every hardened default can be overridden via config — meaning an AI (or a human) can systematically dismantle the sandbox one setting at a time.
+OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config.ts:82-128`). But every hardened default can be overridden via config — meaning an AI (or a human) can systematically dismantle the sandbox one setting at a time.
 
 #### 4a. Network Isolation Removal
 
@@ -454,7 +454,7 @@ Source: `src/agents/sandbox/docker.ts:459-465` — workspace mount with optional
 - `/:/host:rw` — mounts the **entire host filesystem** read-write into the container. Complete host compromise.
 - `/var/run/docker.sock` — gives the container access to the Docker daemon. The sandboxed agent can now create new privileged containers, escape the sandbox entirely, and control the host.
 
-Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:92`), so per-agent overrides add to — not replace — the global list.
+Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:97`), so per-agent overrides add to — not replace — the global list.
 
 Source: `src/agents/sandbox/docker.ts:421-425` — iterates `binds` array to build `-v` flags
 
@@ -846,7 +846,7 @@ openclaw cron remove <job-id>
 
 **Security impact:** Bootstrap files are loaded into the system prompt on every agent turn. Injected content appears as trusted system instructions. This persists across sessions and affects all future conversations.
 
-**Source:** `src/gateway/server-methods/agents.ts:673`
+**Source:** `src/gateway/server-methods/agents.ts:714`
 
 The `agents.files.set` method restricts writes to `ALLOWED_FILE_NAMES` only, but all allowed names (IDENTITY.md, SOUL.md, TOOLS.md, AGENTS.md, etc.) are security-sensitive — they're injected directly into the system prompt.
 
@@ -1006,7 +1006,7 @@ openclaw security audit --deep  # Extended checks
 openclaw security audit --fix   # Auto-fix common issues
 ```
 
-Source: `src/security/audit.ts:1166-1289`
+Source: `src/security/audit.ts:1173-1296`
 
 ### `openclaw doctor`
 

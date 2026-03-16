@@ -79,7 +79,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Browser roleRefs | `src/browser/pw-session.ts:112-113` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:18` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
-| Agent run sequence | `src/gateway/server-runtime-state.ts:198` | **No pruning** (maintenance timer skips it) | **Leak risk** |
+| Agent run sequence | `src/gateway/server-runtime-state.ts:218` | **No pruning** (maintenance timer skips it) | **Leak risk** |
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:105` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:115` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
@@ -565,9 +565,9 @@ Setting up Prometheus/Grafana is beyond the scope of this guide — see the [Pro
 
 At the start of every session, OpenClaw loads `MEMORY.md` (or `memory.md`) from the workspace directory and injects its contents into the AI's first message as a context file. This happens unconditionally for all primary sessions — the only filtering is for subagent sessions, which receive only `AGENTS.md` and `TOOLS.md`.
 
-- Resolution: `src/agents/workspace.ts:461-480` — scans for `MEMORY.md` and `memory.md`, deduplicates
-- Loading: `src/agents/workspace.ts:481-541` — reads file contents into `WorkspaceBootstrapFile[]`
-- Filtering: `src/agents/workspace.ts:551-559` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
+- Resolution: `src/agents/workspace.ts:467-484` — scans for `MEMORY.md` and `memory.md`, deduplicates
+- Loading: `src/agents/workspace.ts:487-547` — reads file contents into `WorkspaceBootstrapFile[]`
+- Filtering: `src/agents/workspace.ts:557-565` — `filterBootstrapFilesForSession()` only filters subagent sessions via an allowlist; all other sessions (including group chats) receive the full set
 - Context building: `src/agents/pi-embedded-helpers/bootstrap.ts:187-239` — trims to `bootstrapMaxChars` (default 20,000 chars) using head/tail strategy with `totalMaxChars` cap (default 24,000)
 - Orchestration: `src/agents/bootstrap-files.ts:64-96` — wires resolution → filtering → context building
 

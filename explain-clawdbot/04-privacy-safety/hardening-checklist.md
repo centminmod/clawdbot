@@ -235,7 +235,7 @@ openclaw security audit
 
 If you're not using a reverse proxy, leave `trustedProxies` empty (the default).
 
-Source: `src/gateway/net.ts:141-186` (`isTrustedProxyAddress` + `resolveClientIp`)
+Source: `src/gateway/net.ts:145-189` (`isTrustedProxyAddress` + `resolveClientIp`)
 
 See: [Threat model - Trusted proxies](./threat-model.md#trusted-proxies-reverse-proxy-configuration)
 
@@ -400,7 +400,7 @@ OpenClaw loads nine workspace bootstrap `.md` files into the agent's system prom
 
 **Caveat:** These are **soft guidance**, not hard enforcement. A determined prompt injection attack may override them. Use this as defense-in-depth alongside tool policies, sandboxing, and access controls — not as a replacement.
 
-Source: `src/agents/workspace.ts:137-147` (bootstrap file name set), official security docs
+Source: `src/agents/workspace.ts:132-141` (bootstrap file name set), official security docs
 
 ---
 
@@ -474,7 +474,7 @@ If you run a reverse proxy that handles TLS, you can also set HSTS and other sec
 openclaw config set gateway.http.securityHeaders.strictTransportSecurity "max-age=63072000; includeSubDomains"
 ```
 
-Source: `src/config/schema.labels.ts:101-102`, `src/config/schema.help.ts:135-136`
+Source: `src/config/schema.labels.ts:101-102`, `src/config/schema.help.ts:139-140`
 
 ---
 
