@@ -286,7 +286,7 @@ openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth false
 openclaw config set gateway.controlUi.allowInsecureAuth false
 ```
 
-**Does `openclaw security audit` catch this?** Yes — both `dangerously*` flags are flagged as severity "critical" (`src/security/audit.ts:496-516`).
+**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:564-584`).
 
 ---
 
@@ -638,7 +638,7 @@ openclaw config get models.providers
 # - https://api.openai.com (OpenAI)
 ```
 
-**How to fix:** Remove or correct `baseUrl` entries. API keys in the config are redacted via `__OPENCLAW_REDACTED__` in `config.get` responses (`src/config/redact-snapshot.ts:73,312-319`), but this only prevents the AI from reading keys — it doesn't prevent it from changing the `baseUrl` to route them elsewhere.
+**How to fix:** Remove or correct `baseUrl` entries. API keys in the config are redacted via `__OPENCLAW_REDACTED__` in `config.get` responses (`src/config/redact-snapshot.ts:78,312-319`), but this only prevents the AI from reading keys — it doesn't prevent it from changing the `baseUrl` to route them elsewhere.
 
 **Does `openclaw security audit` catch this?** No — does not validate provider URLs against known-good endpoints.
 
@@ -1006,7 +1006,7 @@ openclaw security audit --deep  # Extended checks
 openclaw security audit --fix   # Auto-fix common issues
 ```
 
-Source: `src/security/audit.ts:1131-1253`
+Source: `src/security/audit.ts:1166-1289`
 
 ### `openclaw doctor`
 
@@ -1044,7 +1044,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 |-----------|-------------|--------|
 | **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:12` |
 | **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:57-514` |
-| **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:73,312-319` |
+| **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:78,312-319` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:40-54` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1088-1177` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
