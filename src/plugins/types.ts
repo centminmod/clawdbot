@@ -118,6 +118,23 @@ export type ProviderAuthContext = {
   workspaceDir?: string;
   prompter: WizardPrompter;
   runtime: RuntimeEnv;
+  /**
+   * Onboarding secret persistence preference.
+   *
+   * Interactive wizard flows set this when the caller explicitly requested
+   * plaintext or env/file/exec ref storage. Ad-hoc `models auth login` flows
+   * usually leave it undefined.
+   */
+  secretInputMode?: OnboardOptions["secretInputMode"];
+  /**
+   * Whether the provider auth flow should offer the onboarding secret-storage
+   * mode picker when `secretInputMode` is unset.
+   *
+   * This is true for onboarding/configure flows and false for direct
+   * `models auth` commands, which should keep a tighter, provider-owned prompt
+   * surface.
+   */
+  allowSecretRefPrompt?: boolean;
   isRemote: boolean;
   openUrl: (url: string) => Promise<void>;
   oauth: {
@@ -427,6 +444,40 @@ export type ProviderBuiltInModelSuppressionResult = {
 };
 
 /**
+ * Provider-owned thinking policy input.
+ *
+ * Used by shared `/think`, ACP controls, and directive parsing to ask a
+ * provider whether a model supports special reasoning UX such as xhigh or a
+ * binary on/off toggle.
+ */
+export type ProviderThinkingPolicyContext = {
+  provider: string;
+  modelId: string;
+};
+
+/**
+ * Provider-owned default thinking policy input.
+ *
+ * `reasoning` is the merged catalog hint for the selected model when one is
+ * available. Providers can use it to keep "reasoning model => low" behavior
+ * without re-reading the catalog themselves.
+ */
+export type ProviderDefaultThinkingPolicyContext = ProviderThinkingPolicyContext & {
+  reasoning?: boolean;
+};
+
+/**
+ * Provider-owned "modern model" policy input.
+ *
+ * Live smoke/model-profile selection uses this to keep provider-specific
+ * inclusion/exclusion rules out of core.
+ */
+export type ProviderModernModelPolicyContext = {
+  provider: string;
+  modelId: string;
+};
+
+/**
  * Final catalog augmentation hook.
  *
  * Runs after OpenClaw loads the discovered model catalog and merges configured
@@ -462,7 +513,7 @@ export type ProviderDiscoveryResult = ProviderCatalogResult;
  */
 export type ProviderPluginDiscovery = ProviderPluginCatalog;
 
-export type ProviderPluginWizardOnboarding = {
+export type ProviderPluginWizardSetup = {
   choiceId?: string;
   choiceLabel?: string;
   choiceHint?: string;
@@ -479,7 +530,7 @@ export type ProviderPluginWizardModelPicker = {
 };
 
 export type ProviderPluginWizard = {
-  onboarding?: ProviderPluginWizardOnboarding;
+  setup?: ProviderPluginWizardSetup;
   modelPicker?: ProviderPluginWizardModelPicker;
 };
 
@@ -498,7 +549,7 @@ export type ProviderPlugin = {
   docsPath?: string;
   aliases?: string[];
   /**
-   * Provider-related env vars shown in onboarding/search/help surfaces.
+   * Provider-related env vars shown in setup/search/help surfaces.
    *
    * Keep entries in preferred display order. This can include direct auth env
    * vars or setup inputs such as OAuth client id/secret vars.
@@ -651,6 +702,35 @@ export type ProviderPlugin = {
     | Promise<Array<ModelCatalogEntry> | ReadonlyArray<ModelCatalogEntry> | null | undefined>
     | null
     | undefined;
+  /**
+   * Provider-owned binary thinking toggle.
+   *
+   * Return true when the provider exposes a coarse on/off reasoning control
+   * instead of the normal multi-level ladder shown by `/think`.
+   */
+  isBinaryThinking?: (ctx: ProviderThinkingPolicyContext) => boolean | undefined;
+  /**
+   * Provider-owned xhigh reasoning support.
+   *
+   * Return true only for models that should expose the `xhigh` thinking level.
+   */
+  supportsXHighThinking?: (ctx: ProviderThinkingPolicyContext) => boolean | undefined;
+  /**
+   * Provider-owned default thinking level.
+   *
+   * Use this to keep model-family defaults (for example Claude 4.6 =>
+   * adaptive) out of core command logic.
+   */
+  resolveDefaultThinkingLevel?: (
+    ctx: ProviderDefaultThinkingPolicyContext,
+  ) => "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "adaptive" | null | undefined;
+  /**
+   * Provider-owned "modern model" matcher used by live profile/smoke filters.
+   *
+   * Return true when the given provider/model ref should be treated as a
+   * preferred modern model candidate.
+   */
+  isModernModelRef?: (ctx: ProviderModernModelPolicyContext) => boolean | undefined;
   wizard?: ProviderPluginWizard;
   formatApiKey?: (cred: AuthProfileCredential) => string;
   refreshOAuth?: (cred: OAuthCredential) => Promise<OAuthCredential>;
@@ -796,7 +876,7 @@ export type OpenClawPluginCommandDefinition = {
   handler: PluginCommandHandler;
 };
 
-export type PluginInteractiveChannel = "telegram" | "discord";
+export type PluginInteractiveChannel = "telegram" | "discord" | "slack";
 
 export type PluginInteractiveButtons = Array<
   Array<{ text: string; callback_data: string; style?: "danger" | "success" | "primary" }>
@@ -881,6 +961,53 @@ export type PluginInteractiveDiscordHandlerContext = {
   getCurrentConversationBinding: () => Promise<PluginConversationBinding | null>;
 };
 
+export type PluginInteractiveSlackHandlerResult = {
+  handled?: boolean;
+} | void;
+
+export type PluginInteractiveSlackHandlerContext = {
+  channel: "slack";
+  accountId: string;
+  interactionId: string;
+  conversationId: string;
+  parentConversationId?: string;
+  senderId?: string;
+  senderUsername?: string;
+  threadId?: string;
+  auth: {
+    isAuthorizedSender: boolean;
+  };
+  interaction: {
+    kind: "button" | "select";
+    data: string;
+    namespace: string;
+    payload: string;
+    actionId: string;
+    blockId?: string;
+    messageTs?: string;
+    threadTs?: string;
+    value?: string;
+    selectedValues?: string[];
+    selectedLabels?: string[];
+    triggerId?: string;
+    responseUrl?: string;
+  };
+  respond: {
+    acknowledge: () => Promise<void>;
+    reply: (params: { text: string; responseType?: "ephemeral" | "in_channel" }) => Promise<void>;
+    followUp: (params: {
+      text: string;
+      responseType?: "ephemeral" | "in_channel";
+    }) => Promise<void>;
+    editMessage: (params: { text?: string; blocks?: unknown[] }) => Promise<void>;
+  };
+  requestConversationBinding: (
+    params?: PluginConversationBindingRequestParams,
+  ) => Promise<PluginConversationBindingRequestResult>;
+  detachConversationBinding: () => Promise<{ removed: boolean }>;
+  getCurrentConversationBinding: () => Promise<PluginConversationBinding | null>;
+};
+
 export type PluginInteractiveTelegramHandlerRegistration = {
   channel: "telegram";
   namespace: string;
@@ -897,9 +1024,18 @@ export type PluginInteractiveDiscordHandlerRegistration = {
   ) => Promise<PluginInteractiveDiscordHandlerResult> | PluginInteractiveDiscordHandlerResult;
 };
 
+export type PluginInteractiveSlackHandlerRegistration = {
+  channel: "slack";
+  namespace: string;
+  handler: (
+    ctx: PluginInteractiveSlackHandlerContext,
+  ) => Promise<PluginInteractiveSlackHandlerResult> | PluginInteractiveSlackHandlerResult;
+};
+
 export type PluginInteractiveHandlerRegistration =
   | PluginInteractiveTelegramHandlerRegistration
-  | PluginInteractiveDiscordHandlerRegistration;
+  | PluginInteractiveDiscordHandlerRegistration
+  | PluginInteractiveSlackHandlerRegistration;
 
 export type OpenClawPluginHttpRouteAuth = "gateway" | "plugin";
 export type OpenClawPluginHttpRouteMatch = "exact" | "prefix";
