@@ -4,9 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { runRuntimePostBuild } from "./runtime-postbuild.mjs";
 
-const compiler = "tsdown";
-const compilerArgs = ["exec", compiler, "--no-clean"];
+const buildScript = "scripts/tsdown-build.mjs";
+const compilerArgs = [buildScript, "--no-clean"];
 
 const runNodeSourceRoots = ["src", "extensions"];
 const runNodeConfigFiles = ["tsconfig.json", "package.json", "tsdown.config.ts"];
@@ -275,6 +276,19 @@ const runOpenClaw = async (deps) => {
   return res.exitCode ?? 1;
 };
 
+const syncRuntimeArtifacts = (deps) => {
+  try {
+    runRuntimePostBuild({ cwd: deps.cwd });
+  } catch (error) {
+    logRunner(
+      `Failed to write runtime build artifacts: ${error?.message ?? "unknown error"}`,
+      deps,
+    );
+    return false;
+  }
+  return true;
+};
+
 const writeBuildStamp = (deps) => {
   try {
     deps.fs.mkdirSync(deps.distRoot, { recursive: true });
@@ -299,7 +313,6 @@ export async function runNodeMain(params = {}) {
     cwd: params.cwd ?? process.cwd(),
     args: params.args ?? process.argv.slice(2),
     env: params.env ? { ...params.env } : { ...process.env },
-    platform: params.platform ?? process.platform,
   };
 
   deps.distRoot = path.join(deps.cwd, "dist");
@@ -312,13 +325,15 @@ export async function runNodeMain(params = {}) {
   deps.configFiles = runNodeConfigFiles.map((filePath) => path.join(deps.cwd, filePath));
 
   if (!shouldBuild(deps)) {
+    if (!syncRuntimeArtifacts(deps)) {
+      return 1;
+    }
     return await runOpenClaw(deps);
   }
 
   logRunner("Building TypeScript (dist is stale).", deps);
-  const buildCmd = deps.platform === "win32" ? "cmd.exe" : "pnpm";
-  const buildArgs =
-    deps.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...compilerArgs] : compilerArgs;
+  const buildCmd = deps.execPath;
+  const buildArgs = compilerArgs;
   const build = deps.spawn(buildCmd, buildArgs, {
     cwd: deps.cwd,
     env: deps.env,
@@ -333,6 +348,9 @@ export async function runNodeMain(params = {}) {
   }
   if (buildRes.exitCode !== 0 && buildRes.exitCode !== null) {
     return buildRes.exitCode;
+  }
+  if (!syncRuntimeArtifacts(deps)) {
+    return 1;
   }
   writeBuildStamp(deps);
   return await runOpenClaw(deps);
