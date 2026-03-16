@@ -172,8 +172,7 @@ Important trust note:
 - Hugging Face provider catalog — bundled as `huggingface` (enabled by default)
 - Kilo Gateway provider runtime — bundled as `kilocode` (enabled by default)
 - Kimi Coding provider catalog — bundled as `kimi-coding` (enabled by default)
-- MiniMax provider catalog + usage — bundled as `minimax` (enabled by default)
-- MiniMax OAuth (provider auth + catalog) — bundled as `minimax-portal-auth` (enabled by default)
+- MiniMax provider catalog + usage + OAuth — bundled as `minimax` (enabled by default; owns `minimax` and `minimax-portal`)
 - Mistral provider capabilities — bundled as `mistral` (enabled by default)
 - Model Studio provider catalog — bundled as `modelstudio` (enabled by default)
 - Moonshot provider runtime — bundled as `moonshot` (enabled by default)
@@ -218,12 +217,19 @@ Tool authoring guide: [Plugin agent tools](/plugins/agent-tools).
 
 Provider plugins now have two layers:
 
+- manifest metadata: `providerAuthEnvVars` for cheap env-auth lookup before
+  runtime load
 - config-time hooks: `catalog` / legacy `discovery`
 - runtime hooks: `resolveDynamicModel`, `prepareDynamicModel`, `normalizeResolvedModel`, `capabilities`, `prepareExtraParams`, `wrapStreamFn`, `isCacheTtlEligible`, `buildMissingAuthMessage`, `suppressBuiltInModel`, `augmentModelCatalog`, `prepareRuntimeAuth`, `resolveUsageAuth`, `fetchUsageSnapshot`
 
 OpenClaw still owns the generic agent loop, failover, transcript handling, and
 tool policy. These hooks are the seam for provider-specific behavior without
 needing a whole custom inference transport.
+
+Use manifest `providerAuthEnvVars` when the provider has env-based credentials
+that generic auth/status/model-picker paths should see without loading plugin
+runtime. Keep provider runtime `envVars` for operator-facing hints such as
+onboarding labels or OAuth client-id/client-secret setup vars.
 
 ### Hook order
 
@@ -664,7 +670,7 @@ Default-on bundled plugin examples:
 - `kilocode`
 - `kimi-coding`
 - `minimax`
-- `minimax-portal-auth`
+- `minimax`
 - `modelstudio`
 - `moonshot`
 - `nvidia`
@@ -749,7 +755,8 @@ A plugin directory may include a `package.json` with `openclaw.extensions`:
 {
   "name": "my-pack",
   "openclaw": {
-    "extensions": ["./src/safety.ts", "./src/tools.ts"]
+    "extensions": ["./src/safety.ts", "./src/tools.ts"],
+    "setupEntry": "./src/setup-entry.ts"
   }
 }
 ```
@@ -768,9 +775,16 @@ Security note: `openclaw plugins install` installs plugin dependencies with
 `npm install --ignore-scripts` (no lifecycle scripts). Keep plugin dependency
 trees "pure JS/TS" and avoid packages that require `postinstall` builds.
 
+Optional: `openclaw.setupEntry` can point at a lightweight setup-only module.
+When OpenClaw needs setup surfaces for a disabled channel plugin, or
+when a channel plugin is enabled but still unconfigured, it loads `setupEntry`
+instead of the full plugin entry. This keeps startup and onboarding lighter
+when your main plugin entry also wires tools, hooks, or other runtime-only
+code.
+
 ### Channel catalog metadata
 
-Channel plugins can advertise onboarding metadata via `openclaw.channel` and
+Channel plugins can advertise setup/discovery metadata via `openclaw.channel` and
 install hints via `openclaw.install`. This keeps the core catalog data-free.
 
 Example:
@@ -1437,16 +1451,6 @@ Preferred setup split:
 - `plugin.setup` owns account-id normalization, validation, and config writes.
 - `plugin.setupWizard` lets the host run the common wizard flow while the channel only supplies status, credential, DM allowlist, and channel-access descriptors.
 
-Use `plugin.onboarding` only when the host-owned setup wizard cannot express the flow and the
-channel needs to fully own prompting.
-
-Wizard precedence:
-
-1. `plugin.setupWizard` (preferred, host-owned prompts)
-2. `plugin.onboarding.configureInteractive`
-3. `plugin.onboarding.configureWhenConfigured` (already-configured channel only)
-4. `plugin.onboarding.configure`
-
 `plugin.setupWizard` is best for channels that fit the shared pattern:
 
 - one account picker driven by `plugin.config.listAccountIds`
@@ -1457,11 +1461,6 @@ Wizard precedence:
 - optional channel/group access allowlist prompts resolved by the host
 - optional DM allowlist resolution (for example `@username` -> numeric id)
 - optional completion note after setup finishes
-
-`plugin.onboarding` hooks still return the same values as before:
-
-- `"skip"` leaves selection and account tracking unchanged.
-- `{ cfg, accountId? }` applies config updates and records account selection.
 
 ### Write a new messaging channel (step‑by‑step)
 
@@ -1672,6 +1671,7 @@ Recommended packaging:
 Publishing contract:
 
 - Plugin `package.json` must include `openclaw.extensions` with one or more entry files.
+- Optional: `openclaw.setupEntry` may point at a lightweight setup-only entry for disabled or still-unconfigured channel setup.
 - Entry files can be `.js` or `.ts` (jiti loads TS at runtime).
 - `openclaw plugins install <npm-spec>` uses `npm pack`, extracts into `~/.openclaw/extensions/<id>/`, and enables it in config.
 - Config key stability: scoped packages are normalized to the **unscoped** id for `plugins.entries.*`.
