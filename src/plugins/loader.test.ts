@@ -44,6 +44,7 @@ const {
 } = await importFreshPluginTestModules();
 
 type TempPlugin = { dir: string; file: string; id: string };
+type PluginLoadConfig = NonNullable<Parameters<typeof loadOpenClawPlugins>[0]>["config"];
 
 function chmodSafeDir(dir: string) {
   if (process.platform === "win32") {
@@ -862,7 +863,7 @@ describe("loadOpenClawPlugins", () => {
               telegram: { enabled: true },
             },
           },
-        } satisfies Parameters<typeof loadOpenClawPlugins>[0]["config"],
+        } satisfies PluginLoadConfig,
         assert: (registry: ReturnType<typeof loadOpenClawPlugins>) => {
           expectTelegramLoaded(registry);
         },
@@ -878,7 +879,7 @@ describe("loadOpenClawPlugins", () => {
           plugins: {
             enabled: true,
           },
-        } satisfies Parameters<typeof loadOpenClawPlugins>[0]["config"],
+        } satisfies PluginLoadConfig,
         assert: (registry: ReturnType<typeof loadOpenClawPlugins>) => {
           expectTelegramLoaded(registry);
         },
@@ -896,7 +897,7 @@ describe("loadOpenClawPlugins", () => {
               telegram: { enabled: false },
             },
           },
-        } satisfies Parameters<typeof loadOpenClawPlugins>[0]["config"],
+        } satisfies PluginLoadConfig,
         assert: (registry: ReturnType<typeof loadOpenClawPlugins>) => {
           const telegram = registry.plugins.find((entry) => entry.id === "telegram");
           expect(telegram?.status).toBe("disabled");
@@ -1873,7 +1874,9 @@ module.exports = { id: "skipped-scoped-only", register() { throw new Error("skip
       const registry = loadRegistryFromAllowedPlugins([first, second]);
 
       expect(scenario.selectCount(registry), scenario.label).toBe(1);
-      scenario.assertPrimaryOwner?.(registry);
+      if ("assertPrimaryOwner" in scenario) {
+        scenario.assertPrimaryOwner?.(registry);
+      }
       expect(
         registry.diagnostics.some(
           (diag) =>
@@ -2692,7 +2695,7 @@ module.exports = {
       const overridden = entries.find((entry) => entry.status === "disabled");
       expect(loaded?.origin, scenario.label).toBe(scenario.expectedLoadedOrigin);
       expect(overridden?.origin, scenario.label).toBe(scenario.expectedDisabledOrigin);
-      if (scenario.expectedDisabledError) {
+      if ("expectedDisabledError" in scenario) {
         expect(overridden?.error, scenario.label).toContain(scenario.expectedDisabledError);
       }
     }
@@ -2874,6 +2877,44 @@ module.exports = {
     }
   });
 
+  it("loads bundled plugins when manifest metadata opts into default enablement", () => {
+    const bundledDir = makeTempDir();
+    const plugin = writePlugin({
+      id: "profile-aware",
+      body: `module.exports = { id: "profile-aware", register() {} };`,
+      dir: bundledDir,
+      filename: "index.cjs",
+    });
+    fs.writeFileSync(
+      path.join(plugin.dir, "openclaw.plugin.json"),
+      JSON.stringify(
+        {
+          id: "profile-aware",
+          enabledByDefault: true,
+          configSchema: EMPTY_PLUGIN_SCHEMA,
+        },
+        null,
+        2,
+      ),
+      "utf-8",
+    );
+    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDir;
+
+    const registry = loadOpenClawPlugins({
+      cache: false,
+      workspaceDir: bundledDir,
+      config: {
+        plugins: {
+          enabled: true,
+        },
+      },
+    });
+
+    const bundledPlugin = registry.plugins.find((entry) => entry.id === "profile-aware");
+    expect(bundledPlugin?.origin).toBe("bundled");
+    expect(bundledPlugin?.status).toBe("loaded");
+  });
+
   it("keeps scoped and unscoped plugin ids distinct", () => {
     useNoBundledPlugins();
     const scoped = writePlugin({
@@ -2998,8 +3039,10 @@ module.exports = {
     ] as const;
 
     for (const scenario of scenarios) {
-      const { registry, warnings, pluginId, expectWarning, expectedSource } =
-        scenario.loadRegistry();
+      const loadedScenario = scenario.loadRegistry();
+      const { registry, warnings, pluginId, expectWarning } = loadedScenario;
+      const expectedSource =
+        "expectedSource" in loadedScenario ? loadedScenario.expectedSource : undefined;
       const plugin = registry.plugins.find((entry) => entry.id === pluginId);
       expect(plugin?.status, scenario.label).toBe("loaded");
       if (expectedSource) {
