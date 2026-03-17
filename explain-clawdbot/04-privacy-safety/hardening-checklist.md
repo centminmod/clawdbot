@@ -283,7 +283,7 @@ openclaw config set tools.profile coding
 openclaw config set tools.deny '["gateway"]'
 ```
 
-Source: `src/agents/tool-catalog.ts:248-260` (tool profiles), `src/agents/tool-policy.ts:31-57` (owner-only fallback), `src/agents/tools/gateway-tool.ts:77` (ownerOnly), `src/agents/tools/gateway.ts:147` (least-privilege scopes), `src/gateway/server-methods.ts:104-107` (scope enforcement)
+Source: `src/agents/tool-catalog.ts:256-268` (tool profiles), `src/agents/tool-policy.ts:31-57` (owner-only fallback), `src/agents/tools/gateway-tool.ts:77` (ownerOnly), `src/agents/tools/gateway.ts:147` (least-privilege scopes), `src/gateway/server-methods.ts:104-107` (scope enforcement)
 
 **Keep config commands disabled** (defense-in-depth):
 

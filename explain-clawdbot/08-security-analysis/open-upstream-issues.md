@@ -469,7 +469,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/gateway/server-methods/health.ts:28-31` - returns full unredacted `getStatusSummary()`
-- `src/commands/status.summary.ts:98-271` - exposes paths, session IDs, agent IDs, model configs
+- `src/commands/status.summary.ts:96-269` - exposes paths, session IDs, agent IDs, model configs
 
 ### #8591: Env Vars Exposed via Shell Commands
 

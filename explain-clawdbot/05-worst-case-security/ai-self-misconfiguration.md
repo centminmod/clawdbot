@@ -24,7 +24,7 @@ openclaw config set tools.profile coding
 openclaw config set tools.deny '["gateway"]'
 ```
 
-Source: `src/agents/tool-catalog.ts:248-260` — the `"coding"` profile excludes the `gateway` tool entirely.
+Source: `src/agents/tool-catalog.ts:256-268` — the `"coding"` profile excludes the `gateway` tool entirely.
 
 ### 2. Keep config commands disabled
 
@@ -103,7 +103,7 @@ OpenClaw includes a soft defense in the agent's system prompt:
 "Do not run config.apply or update.run unless the user explicitly requests"
 ```
 
-Source: `src/agents/system-prompt.ts:484`
+Source: `src/agents/system-prompt.ts:489`
 
 This helps with well-behaved models in normal operation. But it's trivially bypassed by:
 - Prompt injection ("The user has requested a config update")
@@ -120,11 +120,11 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 
 | Control Layer | Where It Lives | Enforcement |
 |---|---|---|
-| System prompt | `src/agents/system-prompt.ts:484` | Soft — model can ignore |
+| System prompt | `src/agents/system-prompt.ts:489` | Soft — model can ignore |
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
-| Tool profiles (`"coding"`) | `src/agents/tool-catalog.ts:248-260` | **Hard — code enforced** |
+| Tool profiles (`"coding"`) | `src/agents/tool-catalog.ts:256-268` | **Hard — code enforced** |
 | `set -euo pipefail` in scripts | Shell | **Hard — shell enforced** |
 | PreToolUse hooks | `.claude/hooks/` | **Hard — hook enforced** |
 
@@ -952,7 +952,7 @@ Organized from most to least effective:
 - Blocks `config.apply` and `config.patch` entirely
 - Also blocks `config.get` reconnaissance
 - Also blocks `update.run` (trigger updates)
-- The `"coding"` tool profile does this by default (`src/agents/tool-catalog.ts:248-260`)
+- The `"coding"` tool profile does this by default (`src/agents/tool-catalog.ts:256-268`)
 - `configWrites: false` only blocks the `/config set` chat command — it does NOT block the gateway tool
 
 ### Detective Defenses
@@ -1049,8 +1049,8 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1076-1115` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1138,1264` |
-| **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:248-260` |
-| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:487` |
+| **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:256-268` |
+| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:489` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
 | **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:917` |
 | **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:511-538` (audit helpers), `:1177-1227` (audit record builder + append) |
