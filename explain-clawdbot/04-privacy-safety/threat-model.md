@@ -216,7 +216,7 @@ The Gateway can advertise itself on the local network via mDNS (Bonjour), using 
 | `cliPath` | -- | Yes |
 | `sshPort` | -- | Yes |
 
-Source: `src/infra/bonjour.ts:12-26` (opts type), `src/infra/bonjour.ts:130-146` (minimal conditionals), `src/gateway/server-discovery-runtime.ts:19,23-30` (mdnsMode logic)
+Source: `src/infra/bonjour.ts:12-26` (opts type), `src/infra/bonjour.ts:155-169` (minimal conditionals), `src/gateway/server-discovery-runtime.ts:19,23-30` (mdnsMode logic)
 
 **Risk:** In "full" mode, the broadcast includes `cliPath` (filesystem structure) and `sshPort` (attack vector). Even in "minimal" mode, the Gateway port and hostname are visible to anyone on the LAN segment.
 
