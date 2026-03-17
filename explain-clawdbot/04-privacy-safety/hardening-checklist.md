@@ -474,7 +474,7 @@ If you run a reverse proxy that handles TLS, you can also set HSTS and other sec
 openclaw config set gateway.http.securityHeaders.strictTransportSecurity "max-age=63072000; includeSubDomains"
 ```
 
-Source: `src/config/schema.labels.ts:101-102`, `src/config/schema.help.ts:139-140`
+Source: `src/config/schema.labels.ts:104`, `src/config/schema.help.ts:139-140`
 
 ---
 
