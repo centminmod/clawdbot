@@ -387,6 +387,24 @@ describe("resolveSessionDeliveryTarget", () => {
     expect(resolved.threadId).toBeUndefined();
   });
 
+  it("keeps raw :topic: targets when the telegram plugin registry is unavailable", () => {
+    setActivePluginRegistry(createTestRegistry([]));
+
+    const resolved = resolveSessionDeliveryTarget({
+      entry: {
+        sessionId: "sess-no-registry",
+        updatedAt: 1,
+        lastChannel: "telegram",
+        lastTo: "63448508",
+      },
+      requestedChannel: "last",
+      explicitTo: "63448508:topic:1008013",
+    });
+
+    expect(resolved.to).toBe("63448508:topic:1008013");
+    expect(resolved.threadId).toBeUndefined();
+  });
+
   it("explicitThreadId takes priority over :topic: parsed value", () => {
     const resolved = resolveSessionDeliveryTarget({
       entry: {

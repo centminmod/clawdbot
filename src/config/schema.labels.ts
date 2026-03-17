@@ -120,7 +120,6 @@ export const FIELD_LABELS: Record<string, string> = {
   "browser.attachOnly": "Browser Attach-only Mode",
   "browser.cdpPortRangeStart": "Browser CDP Port Range Start",
   "browser.defaultProfile": "Browser Default Profile",
-  "browser.relayBindHost": "Browser Relay Bind Address",
   "browser.profiles": "Browser Profiles",
   "browser.profiles.*.cdpPort": "Browser Profile CDP Port",
   "browser.profiles.*.cdpUrl": "Browser Profile CDP URL",
@@ -872,4 +871,7 @@ export const FIELD_LABELS: Record<string, string> = {
   "plugins.installs.*.shasum": "Plugin Resolved Shasum",
   "plugins.installs.*.resolvedAt": "Plugin Resolution Time",
   "plugins.installs.*.installedAt": "Plugin Install Time",
+  "plugins.installs.*.marketplaceName": "Plugin Marketplace Name",
+  "plugins.installs.*.marketplaceSource": "Plugin Marketplace Source",
+  "plugins.installs.*.marketplacePlugin": "Plugin Marketplace Plugin",
 };

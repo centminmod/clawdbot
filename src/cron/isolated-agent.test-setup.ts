@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import { parseTelegramTarget } from "../../extensions/telegram/src/targets.js";
 import { signalOutbound, telegramOutbound } from "../../test/channel-outbounds.js";
 import { loadModelCatalog } from "../agents/model-catalog.js";
 import { runEmbeddedPiAgent } from "../agents/pi-embedded.js";
@@ -19,7 +20,20 @@ export function setupIsolatedAgentTurnMocks(params?: { fast?: boolean }): void {
     createTestRegistry([
       {
         pluginId: "telegram",
-        plugin: createOutboundTestPlugin({ id: "telegram", outbound: telegramOutbound }),
+        plugin: createOutboundTestPlugin({
+          id: "telegram",
+          outbound: telegramOutbound,
+          messaging: {
+            parseExplicitTarget: ({ raw }) => {
+              const target = parseTelegramTarget(raw);
+              return {
+                to: target.chatId,
+                threadId: target.messageThreadId,
+                chatType: target.chatType === "unknown" ? undefined : target.chatType,
+              };
+            },
+          },
+        }),
         source: "test",
       },
       {

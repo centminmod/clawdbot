@@ -8,35 +8,28 @@ import {
   formatAllowFromLowercase,
 } from "openclaw/plugin-sdk/compat";
 import {
+  buildAgentSessionKey,
+  resolveThreadSessionKeys,
+  type RoutePeer,
+} from "openclaw/plugin-sdk/core";
+import {
   buildChannelConfigSchema,
   buildTokenChannelStatusSummary,
   clearAccountEntryFields,
-  collectTelegramStatusIssues,
   DEFAULT_ACCOUNT_ID,
   getChatChannelMeta,
-  inspectTelegramAccount,
-  listTelegramAccountIds,
   listTelegramDirectoryGroupsFromConfig,
   listTelegramDirectoryPeersFromConfig,
-  looksLikeTelegramTargetId,
   normalizeAccountId,
-  normalizeTelegramMessagingTarget,
   PAIRING_APPROVED_MESSAGE,
-  parseTelegramReplyToMessageId,
-  parseTelegramThreadId,
   projectCredentialSnapshotFields,
   resolveConfiguredFromCredentialStatuses,
-  resolveDefaultTelegramAccountId,
-  resolveTelegramAccount,
   resolveTelegramGroupRequireMention,
   resolveTelegramGroupToolPolicy,
-  sendTelegramPayloadMessages,
   TelegramConfigSchema,
   type ChannelMessageActionAdapter,
   type ChannelPlugin,
   type OpenClawConfig,
-  type ResolvedTelegramAccount,
-  type TelegramProbe,
 } from "openclaw/plugin-sdk/telegram";
 import { parseTelegramTopicConversation } from "../../../src/acp/conversation-id.js";
 import { resolveExecApprovalCommandDisplay } from "../../../src/infra/exec-approval-command-display.js";
@@ -46,15 +39,28 @@ import {
   resolveOutboundSendDep,
 } from "../../../src/infra/outbound/send-deps.js";
 import { normalizeMessageChannel } from "../../../src/utils/message-channel.js";
+import { inspectTelegramAccount } from "./account-inspect.js";
+import {
+  listTelegramAccountIds,
+  resolveDefaultTelegramAccountId,
+  resolveTelegramAccount,
+  type ResolvedTelegramAccount,
+} from "./accounts.js";
 import { buildTelegramExecApprovalButtons } from "./approval-buttons.js";
+import { buildTelegramGroupPeerId } from "./bot/helpers.js";
 import {
   isTelegramExecApprovalClientEnabled,
   resolveTelegramExecApprovalTarget,
 } from "./exec-approvals.js";
+import { looksLikeTelegramTargetId, normalizeTelegramMessagingTarget } from "./normalize.js";
+import { sendTelegramPayloadMessages } from "./outbound-adapter.js";
+import { parseTelegramReplyToMessageId, parseTelegramThreadId } from "./outbound-params.js";
+import type { TelegramProbe } from "./probe.js";
 import { getTelegramRuntime } from "./runtime.js";
 import { sendTypingTelegram } from "./send.js";
 import { telegramSetupAdapter } from "./setup-core.js";
 import { telegramSetupWizard } from "./setup-surface.js";
+import { collectTelegramStatusIssues } from "./status-issues.js";
 import { parseTelegramTarget } from "./targets.js";
 
 type TelegramSendFn = ReturnType<
@@ -211,6 +217,87 @@ function parseTelegramExplicitTarget(raw: string) {
     to: target.chatId,
     threadId: target.messageThreadId,
     chatType: target.chatType === "unknown" ? undefined : target.chatType,
+  };
+}
+
+function normalizeOutboundThreadId(value?: string | number | null): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) {
+      return undefined;
+    }
+    return String(Math.trunc(value));
+  }
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function buildTelegramBaseSessionKey(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+  accountId?: string | null;
+  peer: RoutePeer;
+}) {
+  return buildAgentSessionKey({
+    agentId: params.agentId,
+    channel: "telegram",
+    accountId: params.accountId,
+    peer: params.peer,
+    dmScope: params.cfg.session?.dmScope ?? "main",
+    identityLinks: params.cfg.session?.identityLinks,
+  });
+}
+
+function resolveTelegramOutboundSessionRoute(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+  accountId?: string | null;
+  target: string;
+  resolvedTarget?: { kind: string };
+  threadId?: string | number | null;
+}) {
+  const parsed = parseTelegramTarget(params.target);
+  const chatId = parsed.chatId.trim();
+  if (!chatId) {
+    return null;
+  }
+  const fallbackThreadId = normalizeOutboundThreadId(params.threadId);
+  const resolvedThreadId = parsed.messageThreadId ?? parseTelegramThreadId(fallbackThreadId);
+  const isGroup =
+    parsed.chatType === "group" ||
+    (parsed.chatType === "unknown" &&
+      params.resolvedTarget?.kind &&
+      params.resolvedTarget.kind !== "user");
+  const peerId =
+    isGroup && resolvedThreadId ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : chatId;
+  const peer: RoutePeer = {
+    kind: isGroup ? "group" : "direct",
+    id: peerId,
+  };
+  const baseSessionKey = buildTelegramBaseSessionKey({
+    cfg: params.cfg,
+    agentId: params.agentId,
+    accountId: params.accountId,
+    peer,
+  });
+  const threadKeys =
+    resolvedThreadId && !isGroup
+      ? resolveThreadSessionKeys({ baseSessionKey, threadId: String(resolvedThreadId) })
+      : null;
+  return {
+    sessionKey: threadKeys?.sessionKey ?? baseSessionKey,
+    baseSessionKey,
+    peer,
+    chatType: isGroup ? ("group" as const) : ("direct" as const),
+    from: isGroup
+      ? `telegram:group:${peerId}`
+      : resolvedThreadId
+        ? `telegram:${chatId}:topic:${resolvedThreadId}`
+        : `telegram:${chatId}`,
+    to: `telegram:${chatId}`,
+    threadId: resolvedThreadId,
   };
 }
 
@@ -418,6 +505,7 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
     normalizeTarget: normalizeTelegramMessagingTarget,
     parseExplicitTarget: ({ raw }) => parseTelegramExplicitTarget(raw),
     inferTargetChatType: ({ to }) => parseTelegramExplicitTarget(to).chatType,
+    resolveOutboundSessionRoute: (params) => resolveTelegramOutboundSessionRoute(params),
     targetResolver: {
       looksLikeId: looksLikeTelegramTargetId,
       hint: "<chatId>",
