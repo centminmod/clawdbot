@@ -206,6 +206,14 @@ describe("update-cli", () => {
     return call;
   };
 
+  const expectPackageInstallSpec = (spec: string) => {
+    expect(runGatewayUpdate).not.toHaveBeenCalled();
+    expect(runCommandWithTimeout).toHaveBeenCalledWith(
+      ["npm", "i", "-g", spec, "--no-fund", "--no-audit", "--loglevel=error"],
+      expect.any(Object),
+    );
+  };
+
   const makeOkUpdateResult = (overrides: Partial<UpdateRunResult> = {}): UpdateRunResult =>
     ({
       status: "ok",
@@ -255,6 +263,27 @@ describe("update-cli", () => {
     vi.mocked(defaultRuntime.exit).mockClear();
 
     return tempDir;
+  };
+
+  const setupUpdatedRootRefresh = (params?: {
+    gatewayUpdateImpl?: () => Promise<UpdateRunResult>;
+  }) => {
+    const root = createCaseDir("openclaw-updated-root");
+    const entryPath = path.join(root, "dist", "entry.js");
+    pathExists.mockImplementation(async (candidate: string) => candidate === entryPath);
+    if (params?.gatewayUpdateImpl) {
+      vi.mocked(runGatewayUpdate).mockImplementation(params.gatewayUpdateImpl);
+    } else {
+      vi.mocked(runGatewayUpdate).mockResolvedValue({
+        status: "ok",
+        mode: "npm",
+        root,
+        steps: [],
+        durationMs: 100,
+      });
+    }
+    serviceLoaded.mockResolvedValue(true);
+    return { root, entryPath };
   };
 
   beforeEach(() => {
@@ -456,18 +485,54 @@ describe("update-cli", () => {
     );
   });
 
-  it("honors --tag override", async () => {
-    const tempDir = createCaseDir("openclaw-update");
-
-    mockPackageInstallStatus(tempDir);
-
-    await updateCommand({ tag: "next" });
-
-    expect(runGatewayUpdate).not.toHaveBeenCalled();
-    expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      ["npm", "i", "-g", "openclaw@next", "--no-fund", "--no-audit", "--loglevel=error"],
-      expect.any(Object),
-    );
+  it("resolves package install specs from tags and env overrides", async () => {
+    for (const scenario of [
+      {
+        name: "explicit dist-tag",
+        run: async () => {
+          mockPackageInstallStatus(createCaseDir("openclaw-update"));
+          await updateCommand({ tag: "next" });
+        },
+        expectedSpec: "openclaw@next",
+      },
+      {
+        name: "main shorthand",
+        run: async () => {
+          mockPackageInstallStatus(createCaseDir("openclaw-update"));
+          await updateCommand({ yes: true, tag: "main" });
+        },
+        expectedSpec: "github:openclaw/openclaw#main",
+      },
+      {
+        name: "explicit git package spec",
+        run: async () => {
+          mockPackageInstallStatus(createCaseDir("openclaw-update"));
+          await updateCommand({ yes: true, tag: "github:openclaw/openclaw#main" });
+        },
+        expectedSpec: "github:openclaw/openclaw#main",
+      },
+      {
+        name: "OPENCLAW_UPDATE_PACKAGE_SPEC override",
+        run: async () => {
+          mockPackageInstallStatus(createCaseDir("openclaw-update"));
+          await withEnvAsync(
+            { OPENCLAW_UPDATE_PACKAGE_SPEC: "http://10.211.55.2:8138/openclaw-next.tgz" },
+            async () => {
+              await updateCommand({ yes: true, tag: "latest" });
+            },
+          );
+        },
+        expectedSpec: "http://10.211.55.2:8138/openclaw-next.tgz",
+      },
+    ]) {
+      vi.clearAllMocks();
+      readPackageName.mockResolvedValue("openclaw");
+      readPackageVersion.mockResolvedValue("1.0.0");
+      resolveGlobalManager.mockResolvedValue("npm");
+      vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(process.cwd());
+      await scenario.run();
+      expectPackageInstallSpec(scenario.expectedSpec);
+    }
   });
 
   it("prepends portable Git PATH for package updates on Windows", async () => {
@@ -521,74 +586,6 @@ describe("update-cli", () => {
     ]);
     expect(updateOptions?.env?.NPM_CONFIG_SCRIPT_SHELL).toBe("cmd.exe");
     expect(updateOptions?.env?.NODE_LLAMA_CPP_SKIP_DOWNLOAD).toBe("1");
-  });
-
-  it("uses OPENCLAW_UPDATE_PACKAGE_SPEC for package updates", async () => {
-    const tempDir = createCaseDir("openclaw-update");
-    mockPackageInstallStatus(tempDir);
-
-    await withEnvAsync(
-      { OPENCLAW_UPDATE_PACKAGE_SPEC: "http://10.211.55.2:8138/openclaw-next.tgz" },
-      async () => {
-        await updateCommand({ yes: true, tag: "latest" });
-      },
-    );
-
-    expect(runGatewayUpdate).not.toHaveBeenCalled();
-    expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      [
-        "npm",
-        "i",
-        "-g",
-        "http://10.211.55.2:8138/openclaw-next.tgz",
-        "--no-fund",
-        "--no-audit",
-        "--loglevel=error",
-      ],
-      expect.any(Object),
-    );
-  });
-
-  it("maps --tag main to the GitHub main package spec for package updates", async () => {
-    const tempDir = createCaseDir("openclaw-update");
-    mockPackageInstallStatus(tempDir);
-
-    await updateCommand({ yes: true, tag: "main" });
-
-    expect(runGatewayUpdate).not.toHaveBeenCalled();
-    expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      [
-        "npm",
-        "i",
-        "-g",
-        "github:openclaw/openclaw#main",
-        "--no-fund",
-        "--no-audit",
-        "--loglevel=error",
-      ],
-      expect.any(Object),
-    );
-  });
-
-  it("passes explicit git package specs through for package updates", async () => {
-    const tempDir = createCaseDir("openclaw-update");
-    mockPackageInstallStatus(tempDir);
-
-    await updateCommand({ yes: true, tag: "github:openclaw/openclaw#main" });
-
-    expect(runGatewayUpdate).not.toHaveBeenCalled();
-    expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      [
-        "npm",
-        "i",
-        "-g",
-        "github:openclaw/openclaw#main",
-        "--no-fund",
-        "--no-audit",
-        "--loglevel=error",
-      ],
-      expect.any(Object),
-    );
   });
 
   it("updateCommand outputs JSON when --json is set", async () => {
@@ -648,122 +645,116 @@ describe("update-cli", () => {
     expect(runDaemonRestart).not.toHaveBeenCalled();
   });
 
-  it("updateCommand refreshes service env from updated install root when available", async () => {
-    const root = createCaseDir("openclaw-updated-root");
-    const entryPath = path.join(root, "dist", "entry.js");
-    pathExists.mockImplementation(async (candidate: string) => candidate === entryPath);
-
-    vi.mocked(runGatewayUpdate).mockResolvedValue({
-      status: "ok",
-      mode: "npm",
-      root,
-      steps: [],
-      durationMs: 100,
-    });
-    serviceLoaded.mockResolvedValue(true);
-
-    await updateCommand({});
-
-    expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      [expect.stringMatching(/node/), entryPath, "gateway", "install", "--force"],
-      expect.objectContaining({ cwd: root, timeoutMs: 60_000 }),
-    );
-    expect(runDaemonInstall).not.toHaveBeenCalled();
-    expect(runRestartScript).toHaveBeenCalled();
-  });
-
-  it("updateCommand preserves invocation-relative service env overrides during refresh", async () => {
-    const root = createCaseDir("openclaw-updated-root");
-    const entryPath = path.join(root, "dist", "entry.js");
-    pathExists.mockImplementation(async (candidate: string) => candidate === entryPath);
-
-    vi.mocked(runGatewayUpdate).mockResolvedValue({
-      status: "ok",
-      mode: "npm",
-      root,
-      steps: [],
-      durationMs: 100,
-    });
-    serviceLoaded.mockResolvedValue(true);
-
-    await withEnvAsync(
-      {
-        OPENCLAW_STATE_DIR: "./state",
-        OPENCLAW_CONFIG_PATH: "./config/openclaw.json",
-      },
-      async () => {
+  it.each([
+    {
+      name: "updateCommand refreshes service env from updated install root when available",
+      invoke: async () => {
         await updateCommand({});
       },
-    );
+      expectedOptions: (root: string) => expect.objectContaining({ cwd: root, timeoutMs: 60_000 }),
+      assertExtra: () => {
+        expect(runDaemonInstall).not.toHaveBeenCalled();
+        expect(runRestartScript).toHaveBeenCalled();
+      },
+    },
+    {
+      name: "updateCommand preserves invocation-relative service env overrides during refresh",
+      invoke: async () => {
+        await withEnvAsync(
+          {
+            OPENCLAW_STATE_DIR: "./state",
+            OPENCLAW_CONFIG_PATH: "./config/openclaw.json",
+          },
+          async () => {
+            await updateCommand({});
+          },
+        );
+      },
+      expectedOptions: (root: string) =>
+        expect.objectContaining({
+          cwd: root,
+          env: expect.objectContaining({
+            OPENCLAW_STATE_DIR: path.resolve("./state"),
+            OPENCLAW_CONFIG_PATH: path.resolve("./config/openclaw.json"),
+          }),
+          timeoutMs: 60_000,
+        }),
+      assertExtra: () => {
+        expect(runDaemonInstall).not.toHaveBeenCalled();
+      },
+    },
+    {
+      name: "updateCommand reuses the captured invocation cwd when process.cwd later fails",
+      invoke: async () => {
+        const originalCwd = process.cwd();
+        let restoreCwd: (() => void) | undefined;
+        const { root } = setupUpdatedRootRefresh({
+          gatewayUpdateImpl: async () => {
+            const cwdSpy = vi.spyOn(process, "cwd").mockImplementation(() => {
+              throw new Error("ENOENT: current working directory is gone");
+            });
+            restoreCwd = () => cwdSpy.mockRestore();
+            return {
+              status: "ok",
+              mode: "npm",
+              root,
+              steps: [],
+              durationMs: 100,
+            };
+          },
+        });
+        try {
+          await withEnvAsync(
+            {
+              OPENCLAW_STATE_DIR: "./state",
+            },
+            async () => {
+              await updateCommand({});
+            },
+          );
+        } finally {
+          restoreCwd?.();
+        }
+        return { originalCwd };
+      },
+      customSetup: true,
+      expectedOptions: (_root: string, context?: { originalCwd: string }) =>
+        expect.objectContaining({
+          cwd: expect.any(String),
+          env: expect.objectContaining({
+            OPENCLAW_STATE_DIR: path.resolve(context?.originalCwd ?? process.cwd(), "./state"),
+          }),
+          timeoutMs: 60_000,
+        }),
+      assertExtra: () => {
+        expect(runDaemonInstall).not.toHaveBeenCalled();
+      },
+    },
+  ])("$name", async (testCase) => {
+    const setup = testCase.customSetup ? undefined : setupUpdatedRootRefresh();
+    const context = await testCase.invoke();
+    const root = setup?.root ?? runCommandWithTimeout.mock.calls[0]?.[1]?.cwd;
+    const entryPath = setup?.entryPath ?? path.join(String(root), "dist", "entry.js");
 
     expect(runCommandWithTimeout).toHaveBeenCalledWith(
       [expect.stringMatching(/node/), entryPath, "gateway", "install", "--force"],
-      expect.objectContaining({
-        cwd: root,
-        env: expect.objectContaining({
-          OPENCLAW_STATE_DIR: path.resolve("./state"),
-          OPENCLAW_CONFIG_PATH: path.resolve("./config/openclaw.json"),
-        }),
-        timeoutMs: 60_000,
-      }),
+      testCase.expectedOptions(String(root), context),
     );
-    expect(runDaemonInstall).not.toHaveBeenCalled();
+    testCase.assertExtra();
   });
 
-  it("updateCommand reuses the captured invocation cwd when process.cwd later fails", async () => {
-    const root = createCaseDir("openclaw-updated-root");
-    const entryPath = path.join(root, "dist", "entry.js");
-    pathExists.mockImplementation(async (candidate: string) => candidate === entryPath);
+  it("updateCommand falls back to restart when service env refresh cannot complete", async () => {
+    for (const daemonInstall of ["fail", "ok"] as const) {
+      vi.clearAllMocks();
+      vi.mocked(runDaemonRestart).mockResolvedValue(true);
+      await runRestartFallbackScenario({ daemonInstall });
 
-    const originalCwd = process.cwd();
-    let restoreCwd: (() => void) | undefined;
-    vi.mocked(runGatewayUpdate).mockImplementation(async () => {
-      const cwdSpy = vi.spyOn(process, "cwd").mockImplementation(() => {
-        throw new Error("ENOENT: current working directory is gone");
+      expect(runDaemonInstall).toHaveBeenCalledWith({
+        force: true,
+        json: undefined,
       });
-      restoreCwd = () => cwdSpy.mockRestore();
-      return {
-        status: "ok",
-        mode: "npm",
-        root,
-        steps: [],
-        durationMs: 100,
-      };
-    });
-    serviceLoaded.mockResolvedValue(true);
-
-    try {
-      await withEnvAsync(
-        {
-          OPENCLAW_STATE_DIR: "./state",
-        },
-        async () => {
-          await updateCommand({});
-        },
-      );
-    } finally {
-      restoreCwd?.();
+      expect(runDaemonRestart).toHaveBeenCalled();
     }
-
-    expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      [expect.stringMatching(/node/), entryPath, "gateway", "install", "--force"],
-      expect.objectContaining({
-        cwd: root,
-        env: expect.objectContaining({
-          OPENCLAW_STATE_DIR: path.resolve(originalCwd, "./state"),
-        }),
-        timeoutMs: 60_000,
-      }),
-    );
-    expect(runDaemonInstall).not.toHaveBeenCalled();
-  });
-
-  it("updateCommand falls back to restart when env refresh install fails", async () => {
-    await runRestartFallbackScenario({ daemonInstall: "fail" });
-  });
-
-  it("updateCommand falls back to restart when no detached restart script is available", async () => {
-    await runRestartFallbackScenario({ daemonInstall: "ok" });
   });
 
   it("updateCommand does not refresh service env when --no-restart is set", async () => {

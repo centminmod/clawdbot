@@ -77,17 +77,19 @@ vi.mock("./client.js", () => ({
   createFeishuClient: mockCreateFeishuClient,
 }));
 
-vi.mock("../../../src/acp/persistent-bindings.route.js", () => ({
-  resolveConfiguredAcpRoute: (params: unknown) => mockResolveConfiguredAcpRoute(params),
-  ensureConfiguredAcpRouteReady: (params: unknown) => mockEnsureConfiguredAcpRouteReady(params),
-}));
-
-vi.mock("../../../src/infra/outbound/session-binding-service.js", () => ({
-  getSessionBindingService: () => ({
-    resolveByConversation: mockResolveBoundConversation,
-    touch: mockTouchBinding,
-  }),
-}));
+vi.mock("openclaw/plugin-sdk/conversation-runtime", async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import("openclaw/plugin-sdk/conversation-runtime")>();
+  return {
+    ...original,
+    resolveConfiguredAcpRoute: (params: unknown) => mockResolveConfiguredAcpRoute(params),
+    ensureConfiguredAcpRouteReady: (params: unknown) => mockEnsureConfiguredAcpRouteReady(params),
+    getSessionBindingService: () => ({
+      resolveByConversation: mockResolveBoundConversation,
+      touch: mockTouchBinding,
+    }),
+  };
+});
 
 function createRuntimeEnv(): RuntimeEnv {
   return {
