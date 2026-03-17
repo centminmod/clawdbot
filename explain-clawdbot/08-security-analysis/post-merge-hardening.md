@@ -285,6 +285,7 @@
 - [Mar 17 sync 3 (75 commits, 9 security)](./post-merge-hardening/2026-03-17-sync-3.md)
 - [Mar 17 sync 4 (75 commits, 4 security)](./post-merge-hardening/2026-03-17-sync-4.md)
 - [Mar 17 sync 5 (75 commits, 1 security)](./post-merge-hardening/2026-03-17-sync-5.md)
+- [Mar 17 sync 6 (74 commits, 7 security)](./post-merge-hardening/2026-03-17-sync-6.md)
 
 ## Post-Merge Security Hardening
 

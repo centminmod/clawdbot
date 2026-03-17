@@ -65,21 +65,26 @@ User-Agent: openclaw
 
 **Who sees this:** Anthropic API servers.
 
-### `HTTP-Referer` + `X-Title` — OpenRouter / Perplexity API
+### `HTTP-Referer` + `X-OpenRouter-Title` — OpenRouter / Perplexity API
 
 OpenClaw identifies itself to OpenRouter and Perplexity via app attribution headers:
 
 ```
 HTTP-Referer: https://openclaw.ai
-X-Title: OpenClaw
+X-OpenRouter-Title: OpenClaw
 ```
 
-**Source:** `src/agents/pi-embedded-runner/proxy-stream-wrappers.ts:5-7`
+**Source:** `src/agents/provider-attribution.ts:43-60`
 ```typescript
-const OPENROUTER_APP_HEADERS: Record<string, string> = {
-  "HTTP-Referer": "https://openclaw.ai",
-  "X-Title": "OpenClaw",
-};
+function buildOpenRouterAttributionPolicy() {
+  return {
+    headers: {
+      "HTTP-Referer": "https://openclaw.ai",
+      "X-OpenRouter-Title": identity.product,
+      "X-OpenRouter-Categories": "cli-agent",
+    },
+  };
+}
 ```
 
 For Perplexity web search specifically, the title is more descriptive:
@@ -344,8 +349,8 @@ export type GatewayClientInfo = {
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:189` | Media file downloads |
 | `User-Agent: openclaw` | `src/commands/signal-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
-| `HTTP-Referer: https://openclaw.ai` | `src/agents/pi-embedded-runner/proxy-stream-wrappers.ts:6` | OpenRouter/Perplexity |
-| `X-Title: OpenClaw` | `src/agents/pi-embedded-runner/proxy-stream-wrappers.ts:7` | OpenRouter/Perplexity |
+| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:56` | OpenRouter/Perplexity |
+| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:57` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw Web Search` | `src/agents/tools/web-search-core.ts:1238` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
 
