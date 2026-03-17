@@ -1,14 +1,11 @@
 import { emptyPluginConfigSchema, type OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { buildKilocodeProviderWithDiscovery } from "../../src/agents/models-config.providers.discovery.js";
 import {
   createKilocodeWrapper,
   isProxyReasoningUnsupported,
 } from "../../src/agents/pi-embedded-runner/proxy-stream-wrappers.js";
-import {
-  applyKilocodeConfig,
-  KILOCODE_DEFAULT_MODEL_REF,
-} from "../../src/commands/onboard-auth.js";
 import { createProviderApiKeyAuthMethod } from "../../src/plugins/provider-api-key-auth.js";
+import { applyKilocodeConfig, KILOCODE_DEFAULT_MODEL_REF } from "./onboard.js";
+import { buildKilocodeProviderWithDiscovery } from "./provider-catalog.js";
 
 const PROVIDER_ID = "kilocode";
 

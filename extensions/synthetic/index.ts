@@ -1,10 +1,7 @@
 import { emptyPluginConfigSchema, type OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { buildSyntheticProvider } from "../../src/agents/models-config.providers.static.js";
-import {
-  applySyntheticConfig,
-  SYNTHETIC_DEFAULT_MODEL_REF,
-} from "../../src/commands/onboard-auth.js";
 import { createProviderApiKeyAuthMethod } from "../../src/plugins/provider-api-key-auth.js";
+import { applySyntheticConfig, SYNTHETIC_DEFAULT_MODEL_REF } from "./onboard.js";
+import { buildSyntheticProvider } from "./provider-catalog.js";
 
 const PROVIDER_ID = "synthetic";
 

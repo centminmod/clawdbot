@@ -6,7 +6,6 @@ import {
   type ProviderRuntimeModel,
 } from "openclaw/plugin-sdk/core";
 import { DEFAULT_CONTEXT_TOKENS } from "../../src/agents/defaults.js";
-import { buildOpenrouterProvider } from "../../src/agents/models-config.providers.static.js";
 import {
   getOpenRouterModelCapabilities,
   loadOpenRouterModelCapabilities,
@@ -16,11 +15,9 @@ import {
   createOpenRouterWrapper,
   isProxyReasoningUnsupported,
 } from "../../src/agents/pi-embedded-runner/proxy-stream-wrappers.js";
-import {
-  applyOpenrouterConfig,
-  OPENROUTER_DEFAULT_MODEL_REF,
-} from "../../src/commands/onboard-auth.js";
 import { createProviderApiKeyAuthMethod } from "../../src/plugins/provider-api-key-auth.js";
+import { applyOpenrouterConfig, OPENROUTER_DEFAULT_MODEL_REF } from "./onboard.js";
+import { buildOpenrouterProvider } from "./provider-catalog.js";
 
 const PROVIDER_ID = "openrouter";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
