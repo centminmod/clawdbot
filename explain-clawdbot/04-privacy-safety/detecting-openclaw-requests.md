@@ -543,7 +543,7 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 | Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:124`), unless `auth.mode="trusted-proxy"` |
 | Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:145-189`) |
 
-**Source:** `src/config/types.gateway.ts:420`
+**Source:** `src/config/types.gateway.ts:427`
 ```typescript
 /**
  * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection
@@ -589,12 +589,9 @@ OpenClaw's HTTP API endpoints read several custom headers from inbound requests.
 | `x-openclaw-agent-id` | `src/gateway/http-utils.ts:27` | Agent routing — selects which named agent handles the request | `/v1/chat/completions`, `/v1/responses` |
 | `x-openclaw-agent` | `src/gateway/http-utils.ts:28` | Agent routing (fallback alias for `x-openclaw-agent-id`) | Same as above |
 | `x-openclaw-session-key` | `src/gateway/http-utils.ts:71` | Session pinning — pins request to a specific named session | `/v1/chat/completions`, `/v1/responses` |
-| `x-openclaw-token` | `src/gateway/hooks.ts:168-169` | Webhook authentication — alternative to `Authorization: Bearer` | `/hooks/*` |
+| `x-openclaw-token` | `src/gateway/hooks.ts:147-148` | Webhook authentication — alternative to `Authorization: Bearer` | `/hooks/*` |
 | `x-openclaw-message-channel` | `src/gateway/tools-invoke-http.ts:214-215` | Tool policy routing — specifies channel context (e.g., `"discord"`, `"slack"`) | `/tools/invoke` |
 | `x-openclaw-account-id` | `src/gateway/tools-invoke-http.ts:215` | Account-level tool policy routing | `/tools/invoke` |
-| `x-openclaw-relay-token` | `src/browser/extension-relay.ts:84` | Browser extension CDP relay auth | Separate loopback-only server (NOT on main Gateway port) |
-
-> **Note:** `x-openclaw-relay-token` is on a separate server that binds exclusively to loopback — it is **never** accessible through Cloudflare and is listed here only for completeness.
 
 ### WAF rules for inbound Gateway protection
 
