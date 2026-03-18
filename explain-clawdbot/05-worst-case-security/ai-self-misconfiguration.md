@@ -917,7 +917,7 @@ OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:947`)
 
 Additionally, extensible maps like `env` and plugin `config` sections accept arbitrary string keys, providing another vector for injecting unexpected values.
 
-Source: `src/config/validation.ts:115-130`
+Source: `src/config/validation.ts:119-134`
 
 ### Persistence Mechanisms
 
