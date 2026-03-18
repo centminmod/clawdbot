@@ -654,7 +654,7 @@ A configurable **fallback provider** (`memorySearch.fallback`) is tried if the p
 1. **Embed the query** — convert to a vector using the configured embedding provider
 2. **Vector search** — find similar chunks via `vec_distance_cosine()` in sqlite-vec, or fall back to O(n) cosine similarity scan if sqlite-vec is unavailable (`src/memory/manager-search.ts:20-94`)
 3. **Keyword search** — FTS5 BM25 ranking via the `chunks_fts` virtual table (`src/memory/manager-search.ts:136-191`)
-4. **Merge results** — combined score: `vectorWeight × vectorScore + textWeight × textScore` (`src/memory/hybrid.ts:102-103`)
+4. **Merge results** — combined score: `vectorWeight × vectorScore + textWeight × textScore` (`src/memory/hybrid.ts:128`)
 5. **Filter and cap** — discard results below `minScore`, return top `maxResults`
 
 **Default parameters:**
