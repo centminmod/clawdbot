@@ -173,6 +173,28 @@ Direction:
 - prefer `before_prompt_build` for prompt mutation work
 - remove only after real usage drops and fixture coverage proves migration safety
 
+### Compatibility signals
+
+OpenClaw treats config validity and plugin migration state as separate axes:
+
+- **config valid** — the config parses and referenced plugins can be resolved
+- **compatibility advisory** — a plugin is still on a supported compatibility
+  path, such as `hook-only`
+- **legacy warning** — a plugin still uses `before_agent_start`
+- **hard error** — the config is invalid or plugin loading/validation fails
+
+Current compatibility guidance:
+
+- `hook-only` is advisory only. It remains a supported compatibility path for
+  existing plugins.
+- `before_agent_start` is the only strong migration warning in the current
+  model.
+- Neither state blocks an existing plugin by itself.
+
+You can see these signals in `openclaw doctor`, `openclaw status`,
+`openclaw status --all`, `openclaw plugins doctor`, and
+`openclaw plugins inspect <id>`.
+
 ## Architecture
 
 OpenClaw's plugin system has four layers:
@@ -1122,23 +1144,65 @@ authoring plugins:
 - `openclaw/plugin-sdk/whatsapp` for WhatsApp channel plugin types and shared channel-facing helpers. Built-in WhatsApp implementation internals stay private to the bundled extension.
 - `openclaw/plugin-sdk/line` for LINE channel plugins.
 - `openclaw/plugin-sdk/msteams` for the bundled Microsoft Teams plugin surface.
-- Bundled extension-specific subpaths are also available:
+- Additional bundled extension-specific subpaths remain available where OpenClaw
+  intentionally exposes extension-facing helpers:
   `openclaw/plugin-sdk/acpx`, `openclaw/plugin-sdk/bluebubbles`,
-  `openclaw/plugin-sdk/copilot-proxy`, `openclaw/plugin-sdk/device-pair`,
-  `openclaw/plugin-sdk/diagnostics-otel`, `openclaw/plugin-sdk/diffs`,
   `openclaw/plugin-sdk/feishu`, `openclaw/plugin-sdk/googlechat`,
-  `openclaw/plugin-sdk/irc`, `openclaw/plugin-sdk/llm-task`,
-  `openclaw/plugin-sdk/lobster`, `openclaw/plugin-sdk/matrix`,
+  `openclaw/plugin-sdk/irc`, `openclaw/plugin-sdk/matrix`,
   `openclaw/plugin-sdk/mattermost`, `openclaw/plugin-sdk/memory-core`,
-  `openclaw/plugin-sdk/memory-lancedb`,
   `openclaw/plugin-sdk/minimax-portal-auth`,
   `openclaw/plugin-sdk/nextcloud-talk`, `openclaw/plugin-sdk/nostr`,
-  `openclaw/plugin-sdk/open-prose`, `openclaw/plugin-sdk/phone-control`,
-  `openclaw/plugin-sdk/qwen-portal-auth`, `openclaw/plugin-sdk/synology-chat`,
-  `openclaw/plugin-sdk/talk-voice`, `openclaw/plugin-sdk/test-utils`,
-  `openclaw/plugin-sdk/thread-ownership`, `openclaw/plugin-sdk/tlon`,
-  `openclaw/plugin-sdk/twitch`, `openclaw/plugin-sdk/voice-call`,
+  `openclaw/plugin-sdk/synology-chat`, `openclaw/plugin-sdk/test-utils`,
+  `openclaw/plugin-sdk/tlon`, `openclaw/plugin-sdk/twitch`,
   `openclaw/plugin-sdk/zalo`, and `openclaw/plugin-sdk/zalouser`.
+
+## Channel target resolution
+
+Channel plugins should own channel-specific target semantics. Keep the shared
+outbound host generic and use the messaging adapter surface for provider rules:
+
+- `messaging.inferTargetChatType({ to })` decides whether a normalized target
+  should be treated as `direct`, `group`, or `channel` before directory lookup.
+- `messaging.targetResolver.looksLikeId(raw, normalized)` tells core whether an
+  input should skip straight to id-like resolution instead of directory search.
+- `messaging.targetResolver.resolveTarget(...)` is the plugin fallback when
+  core needs a final provider-owned resolution after normalization or after a
+  directory miss.
+- `messaging.resolveOutboundSessionRoute(...)` owns provider-specific session
+  route construction once a target is resolved.
+
+Recommended split:
+
+- Use `inferTargetChatType` for category decisions that should happen before
+  searching peers/groups.
+- Use `looksLikeId` for “treat this as an explicit/native target id” checks.
+- Use `resolveTarget` for provider-specific normalization fallback, not for
+  broad directory search.
+- Keep provider-native ids like chat ids, thread ids, JIDs, handles, and room
+  ids inside `target` values or provider-specific params, not in generic SDK
+  fields.
+
+## Config-backed directories
+
+Plugins that derive directory entries from config should keep that logic in the
+plugin and reuse the shared helpers from
+`openclaw/plugin-sdk/directory-runtime`.
+
+Use this when a channel needs config-backed peers/groups such as:
+
+- allowlist-driven DM peers
+- configured channel/group maps
+- account-scoped static directory fallbacks
+
+The shared helpers in `directory-runtime` only handle generic operations:
+
+- query filtering
+- limit application
+- deduping/normalization helpers
+- building `ChannelDirectoryEntry[]`
+
+Channel-specific account inspection and id normalization should stay in the
+plugin implementation.
 
 ## Provider catalogs
 
@@ -1761,6 +1825,36 @@ export default function (api) {
   }));
 }
 ```
+
+If your engine does **not** own the compaction algorithm, keep `compact()`
+implemented and delegate it explicitly:
+
+```ts
+import { delegateCompactionToRuntime } from "openclaw/plugin-sdk/core";
+
+export default function (api) {
+  api.registerContextEngine("my-memory-engine", () => ({
+    info: {
+      id: "my-memory-engine",
+      name: "My Memory Engine",
+      ownsCompaction: false,
+    },
+    async ingest() {
+      return { ingested: true };
+    },
+    async assemble({ messages }) {
+      return { messages, estimatedTokens: 0 };
+    },
+    async compact(params) {
+      return await delegateCompactionToRuntime(params);
+    },
+  }));
+}
+```
+
+`ownsCompaction: false` does not automatically fall back to legacy compaction.
+If your engine is active, its `compact()` method still handles `/compact` and
+overflow recovery.
 
 Then enable it in config:
 

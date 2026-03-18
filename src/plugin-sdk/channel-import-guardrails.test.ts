@@ -118,23 +118,40 @@ const SETUP_BARREL_GUARDS: GuardedSource[] = [
 ];
 
 const LOCAL_EXTENSION_API_BARREL_GUARDS = [
+  "acpx",
   "bluebubbles",
   "device-pair",
   "diagnostics-otel",
+  "discord",
   "diffs",
   "feishu",
+  "google",
+  "irc",
   "llm-task",
   "line",
+  "lobster",
   "matrix",
   "mattermost",
   "memory-lancedb",
   "msteams",
   "nextcloud-talk",
+  "nostr",
+  "open-prose",
+  "phone-control",
+  "copilot-proxy",
+  "zai",
+  "qwen-portal-auth",
+  "signal",
   "synology-chat",
   "talk-voice",
+  "telegram",
   "thread-ownership",
   "tlon",
   "voice-call",
+  "whatsapp",
+  "twitch",
+  "zalo",
+  "zalouser",
 ] as const;
 
 const LOCAL_EXTENSION_API_BARREL_EXCEPTIONS = [
@@ -235,7 +252,10 @@ function collectCoreSourceFiles(): string[] {
         fullPath.includes(".test.") ||
         fullPath.includes(".spec.") ||
         fullPath.includes(".fixture.") ||
-        fullPath.includes(".snap")
+        fullPath.includes(".snap") ||
+        // src/plugin-sdk is the curated bridge layer; validate its contracts with dedicated
+        // plugin-sdk guardrails instead of the generic "core should not touch extensions" rule.
+        fullPath.includes(`${resolve(ROOT_DIR, "plugin-sdk")}/`)
       ) {
         continue;
       }
