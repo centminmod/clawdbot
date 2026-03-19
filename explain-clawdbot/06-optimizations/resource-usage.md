@@ -34,7 +34,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 8 | **Image resize via sips** — macOS-specific process spawning for each HEIC conversion/resize | `src/media/image-ops.ts:136-274` | Medium | Like opening a separate program for each photo conversion — the per-process overhead adds up |
 | 9 | **Media understanding** — sending media to AI providers (Whisper/Gemini/OpenAI) for transcription | `src/media-understanding/runner.ts:576-809` | Medium | CPU cost is mostly on the provider side, but local buffering and encoding still takes cycles |
 | 10 | **Ed25519 keypair generation** — asymmetric crypto on first run / device identity creation | `src/infra/device-identity.ts:57` | Low (one-time) | Like generating a strong password — intensive but happens only once |
-| 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager.ts:380+` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
+| 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager-sync-ops.ts:696` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:628-747` | Medium | API calls are remote but audio buffer conversion is local CPU work |
 | 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:77` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
 | 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:547` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
@@ -72,7 +72,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Telegram sent message cache | `src/telegram/sent-message-cache.ts:12` | 24h TTL, 100/chat | Low-Medium |
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:9` | 5000 max, 20min TTL | Well bounded |
-| Gateway dedupe | `src/gateway/server-constants.ts:33-34` | 1000 max, 5min TTL | Well bounded |
+| Gateway dedupe | `src/gateway/server-constants.ts:40-41` | 1000 max, 5min TTL | Well bounded |
 | Browser roleRefs | `src/browser/pw-session.ts:112-113` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:18` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
