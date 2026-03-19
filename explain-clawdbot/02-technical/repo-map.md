@@ -96,8 +96,8 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 
 | Directory | Files (approx.) | Purpose |
 |-----------|-----------------|---------|
-| `src/agents/` | ~817 | Agent framework, tools, sandbox, auth profiles, skills |
-| `src/gateway/` | ~345 | Gateway server, WS runtime, RPC handlers, config validation |
+| `src/agents/` | ~467 | Agent framework, tools, sandbox, auth profiles, skills |
+| `src/gateway/` | ~229 | Gateway server, WS runtime, RPC handlers, config validation |
 | `src/auto-reply/` | ~282 | Reply pipeline, agent turn orchestration |
 | `src/cli/` | ~285 | CLI command definitions and parsing |
 | `src/commands/` | ~352 | CLI command implementations |
@@ -111,7 +111,7 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 | `src/plugins/` | ~84 | Plugin runtime and loading |
 | `src/media-understanding/` | ~63 | Image/audio/video understanding via AI |
 | `src/tui/` | ~45 | Terminal UI |
-| `src/daemon/` | — | Background daemon process |
+| `src/daemon/` | ~32 | Cross-platform Gateway service lifecycle (systemd, launchd, schtasks) |
 | `src/hooks/` | — | Lifecycle hooks system |
 | `src/media/` | — | Media handling (upload, download, conversion) |
 | `src/plugin-sdk/` | — | Plugin SDK for extension authors |

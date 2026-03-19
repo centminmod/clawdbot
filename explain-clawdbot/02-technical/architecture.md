@@ -124,7 +124,7 @@ Docs: https://docs.openclaw.ai/gateway/configuration
 - The docs describe strict schema validation and how the UI uses it.
 
 ### Daemon
-- `src/daemon/` (~37 files as of Feb 2026). Cross-platform service management: systemd (Linux), launchd (macOS), schtasks (Windows). Handles Gateway lifecycle as a background service.
+- `src/daemon/` (~32 files as of Feb 2026). Cross-platform service management: systemd (Linux), launchd (macOS), schtasks (Windows). Handles Gateway lifecycle as a background service.
 
 ### Docs
 - `src/docs/`. Documentation system helpers and utilities.
