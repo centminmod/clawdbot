@@ -79,7 +79,7 @@
 | [#11431](https://github.com/openclaw/openclaw/issues/11431) | ~~CRITICAL~~ FIXED | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | Fixed in PRs: `92702af7a` (plugins+hooks, Feb 12 sync 1) + [#14659](https://github.com/openclaw/openclaw/pull/14659) (skills, Feb 13 sync 1) — `--ignore-scripts` added to all install commands |
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH (WONTFIX) | Sandbox browser bridge started without auth token | Closed upstream as NOT_PLANNED (2026-02-13); `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:355-366` WITH `authToken` and `authPassword` (line ref updated Mar 1 sync 1; auth IS present); relates to #6609 |
 | [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH (WONTFIX) | config.patch bypasses commands.restart restriction | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-methods/config.ts:446` |
-| [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:1081-1084` |
+| [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:1136-1138` |
 | [#13786](https://github.com/openclaw/openclaw/issues/13786) | ~~HIGH~~ FIXED | BlueBubbles webhook auth bypass via loopback proxy trust | Fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) — loopback bypass removed; all requests require password auth |
 | [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:518-533`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
@@ -847,8 +847,8 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** The CLI `openclaw config get` command reads and outputs resolved config values (including secrets from `${ENV_VAR}` substitution) without applying the redaction system. The gateway RPC `config.get` handler correctly redacts via `redactConfigSnapshot()`, but the CLI path bypasses this entirely. A sandboxed agent with exec access can extract any API key configured via env var substitution.
 
 **Affected code:**
-- `src/cli/config-cli.ts:1081-1084` — `loadValidConfig()` returns resolved `snapshot.config`; `getAtPath()` reads values directly
-- `src/cli/config-cli.ts:1081-1101` — output paths (`defaultRuntime.log`) emit unredacted values
+- `src/cli/config-cli.ts:1136-1138` — `loadValidConfig()` returns resolved `snapshot.config`; `getAtPath()` reads values directly
+- `src/cli/config-cli.ts:1136-1158` — output paths (`defaultRuntime.log`) emit unredacted values
 
 **Correct implementation (for comparison):**
 - `src/gateway/server-methods/config.ts:290` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
