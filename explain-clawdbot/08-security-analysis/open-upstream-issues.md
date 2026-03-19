@@ -559,7 +559,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/config/io.ts:1043` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), but resolved values still leak for paths that change
 - `src/config/env-substitution.ts:88` - `substituteString` is a one-way transformation
-- `src/commands/doctor.ts:307` - `writeConfigFile(cfg)` writes env-resolved config back to disk
+- `src/commands/doctor.ts:357` - `writeConfigFile(cfg)` writes env-resolved config back to disk
 
 **Detection aid (sync 10):** Commit `748d6821d` adds forensic config write auditing (`src/config/io.ts:511-538`). Every `writeConfigFile` call now appends a `config-audit.jsonl` record with previous/next content hashes and byte sizes. When env vars are expanded to cleartext, the `nextBytes` will exceed `previousBytes` (longer cleartext vs short `${VAR}` refs), and the `suspicious` field flags `size-drop` anomalies for the reverse case. Check `$STATE_DIR/logs/config-audit.jsonl` to trace which process triggered the expansion.
 

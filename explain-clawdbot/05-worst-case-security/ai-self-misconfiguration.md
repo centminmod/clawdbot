@@ -1021,7 +1021,7 @@ openclaw doctor                  # Interactive mode
 openclaw doctor --non-interactive  # CI/CD mode (no prompts)
 ```
 
-Source: `src/commands/doctor.ts:74-371`
+Source: `src/commands/doctor.ts:75-385`
 
 ### `openclaw status`
 
