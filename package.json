@@ -46,10 +46,6 @@
       "types": "./dist/plugin-sdk/core.d.ts",
       "default": "./dist/plugin-sdk/core.js"
     },
-    "./plugin-sdk/compat": {
-      "types": "./dist/plugin-sdk/compat.d.ts",
-      "default": "./dist/plugin-sdk/compat.js"
-    },
     "./plugin-sdk/ollama-setup": {
       "types": "./dist/plugin-sdk/ollama-setup.d.ts",
       "default": "./dist/plugin-sdk/ollama-setup.js"
@@ -82,6 +78,10 @@
       "types": "./dist/plugin-sdk/setup.d.ts",
       "default": "./dist/plugin-sdk/setup.js"
     },
+    "./plugin-sdk/channel-setup": {
+      "types": "./dist/plugin-sdk/channel-setup.d.ts",
+      "default": "./dist/plugin-sdk/channel-setup.js"
+    },
     "./plugin-sdk/setup-tools": {
       "types": "./dist/plugin-sdk/setup-tools.d.ts",
       "default": "./dist/plugin-sdk/setup-tools.js"
@@ -93,6 +93,14 @@
     "./plugin-sdk/reply-runtime": {
       "types": "./dist/plugin-sdk/reply-runtime.d.ts",
       "default": "./dist/plugin-sdk/reply-runtime.js"
+    },
+    "./plugin-sdk/reply-payload": {
+      "types": "./dist/plugin-sdk/reply-payload.d.ts",
+      "default": "./dist/plugin-sdk/reply-payload.js"
+    },
+    "./plugin-sdk/channel-reply-pipeline": {
+      "types": "./dist/plugin-sdk/channel-reply-pipeline.d.ts",
+      "default": "./dist/plugin-sdk/channel-reply-pipeline.js"
     },
     "./plugin-sdk/channel-runtime": {
       "types": "./dist/plugin-sdk/channel-runtime.d.ts",
@@ -158,10 +166,6 @@
       "types": "./dist/plugin-sdk/acp-runtime.d.ts",
       "default": "./dist/plugin-sdk/acp-runtime.js"
     },
-    "./plugin-sdk/zai": {
-      "types": "./dist/plugin-sdk/zai.d.ts",
-      "default": "./dist/plugin-sdk/zai.js"
-    },
     "./plugin-sdk/telegram": {
       "types": "./dist/plugin-sdk/telegram.d.ts",
       "default": "./dist/plugin-sdk/telegram.js"
@@ -186,169 +190,37 @@
       "types": "./dist/plugin-sdk/slack-core.d.ts",
       "default": "./dist/plugin-sdk/slack-core.js"
     },
-    "./plugin-sdk/signal": {
-      "types": "./dist/plugin-sdk/signal.d.ts",
-      "default": "./dist/plugin-sdk/signal.js"
-    },
-    "./plugin-sdk/signal-core": {
-      "types": "./dist/plugin-sdk/signal-core.d.ts",
-      "default": "./dist/plugin-sdk/signal-core.js"
-    },
     "./plugin-sdk/imessage": {
       "types": "./dist/plugin-sdk/imessage.d.ts",
       "default": "./dist/plugin-sdk/imessage.js"
-    },
-    "./plugin-sdk/imessage-core": {
-      "types": "./dist/plugin-sdk/imessage-core.d.ts",
-      "default": "./dist/plugin-sdk/imessage-core.js"
     },
     "./plugin-sdk/whatsapp": {
       "types": "./dist/plugin-sdk/whatsapp.d.ts",
       "default": "./dist/plugin-sdk/whatsapp.js"
     },
+    "./plugin-sdk/whatsapp-action-runtime": {
+      "types": "./dist/plugin-sdk/whatsapp-action-runtime.d.ts",
+      "default": "./dist/plugin-sdk/whatsapp-action-runtime.js"
+    },
+    "./plugin-sdk/whatsapp-login-qr": {
+      "types": "./dist/plugin-sdk/whatsapp-login-qr.d.ts",
+      "default": "./dist/plugin-sdk/whatsapp-login-qr.js"
+    },
     "./plugin-sdk/whatsapp-core": {
       "types": "./dist/plugin-sdk/whatsapp-core.d.ts",
       "default": "./dist/plugin-sdk/whatsapp-core.js"
-    },
-    "./plugin-sdk/line": {
-      "types": "./dist/plugin-sdk/line.d.ts",
-      "default": "./dist/plugin-sdk/line.js"
-    },
-    "./plugin-sdk/line-core": {
-      "types": "./dist/plugin-sdk/line-core.d.ts",
-      "default": "./dist/plugin-sdk/line-core.js"
-    },
-    "./plugin-sdk/msteams": {
-      "types": "./dist/plugin-sdk/msteams.d.ts",
-      "default": "./dist/plugin-sdk/msteams.js"
-    },
-    "./plugin-sdk/acpx": {
-      "types": "./dist/plugin-sdk/acpx.d.ts",
-      "default": "./dist/plugin-sdk/acpx.js"
     },
     "./plugin-sdk/bluebubbles": {
       "types": "./dist/plugin-sdk/bluebubbles.d.ts",
       "default": "./dist/plugin-sdk/bluebubbles.js"
     },
-    "./plugin-sdk/copilot-proxy": {
-      "types": "./dist/plugin-sdk/copilot-proxy.d.ts",
-      "default": "./dist/plugin-sdk/copilot-proxy.js"
-    },
-    "./plugin-sdk/device-pair": {
-      "types": "./dist/plugin-sdk/device-pair.d.ts",
-      "default": "./dist/plugin-sdk/device-pair.js"
-    },
-    "./plugin-sdk/diagnostics-otel": {
-      "types": "./dist/plugin-sdk/diagnostics-otel.d.ts",
-      "default": "./dist/plugin-sdk/diagnostics-otel.js"
-    },
-    "./plugin-sdk/diffs": {
-      "types": "./dist/plugin-sdk/diffs.d.ts",
-      "default": "./dist/plugin-sdk/diffs.js"
-    },
-    "./plugin-sdk/feishu": {
-      "types": "./dist/plugin-sdk/feishu.d.ts",
-      "default": "./dist/plugin-sdk/feishu.js"
-    },
-    "./plugin-sdk/googlechat": {
-      "types": "./dist/plugin-sdk/googlechat.d.ts",
-      "default": "./dist/plugin-sdk/googlechat.js"
-    },
-    "./plugin-sdk/irc": {
-      "types": "./dist/plugin-sdk/irc.d.ts",
-      "default": "./dist/plugin-sdk/irc.js"
-    },
-    "./plugin-sdk/llm-task": {
-      "types": "./dist/plugin-sdk/llm-task.d.ts",
-      "default": "./dist/plugin-sdk/llm-task.js"
-    },
-    "./plugin-sdk/lobster": {
-      "types": "./dist/plugin-sdk/lobster.d.ts",
-      "default": "./dist/plugin-sdk/lobster.js"
-    },
     "./plugin-sdk/lazy-runtime": {
       "types": "./dist/plugin-sdk/lazy-runtime.d.ts",
       "default": "./dist/plugin-sdk/lazy-runtime.js"
     },
-    "./plugin-sdk/matrix": {
-      "types": "./dist/plugin-sdk/matrix.d.ts",
-      "default": "./dist/plugin-sdk/matrix.js"
-    },
-    "./plugin-sdk/mattermost": {
-      "types": "./dist/plugin-sdk/mattermost.d.ts",
-      "default": "./dist/plugin-sdk/mattermost.js"
-    },
-    "./plugin-sdk/memory-core": {
-      "types": "./dist/plugin-sdk/memory-core.d.ts",
-      "default": "./dist/plugin-sdk/memory-core.js"
-    },
-    "./plugin-sdk/memory-lancedb": {
-      "types": "./dist/plugin-sdk/memory-lancedb.d.ts",
-      "default": "./dist/plugin-sdk/memory-lancedb.js"
-    },
-    "./plugin-sdk/minimax-portal-auth": {
-      "types": "./dist/plugin-sdk/minimax-portal-auth.d.ts",
-      "default": "./dist/plugin-sdk/minimax-portal-auth.js"
-    },
-    "./plugin-sdk/nextcloud-talk": {
-      "types": "./dist/plugin-sdk/nextcloud-talk.d.ts",
-      "default": "./dist/plugin-sdk/nextcloud-talk.js"
-    },
-    "./plugin-sdk/nostr": {
-      "types": "./dist/plugin-sdk/nostr.d.ts",
-      "default": "./dist/plugin-sdk/nostr.js"
-    },
-    "./plugin-sdk/open-prose": {
-      "types": "./dist/plugin-sdk/open-prose.d.ts",
-      "default": "./dist/plugin-sdk/open-prose.js"
-    },
-    "./plugin-sdk/phone-control": {
-      "types": "./dist/plugin-sdk/phone-control.d.ts",
-      "default": "./dist/plugin-sdk/phone-control.js"
-    },
-    "./plugin-sdk/qwen-portal-auth": {
-      "types": "./dist/plugin-sdk/qwen-portal-auth.d.ts",
-      "default": "./dist/plugin-sdk/qwen-portal-auth.js"
-    },
-    "./plugin-sdk/synology-chat": {
-      "types": "./dist/plugin-sdk/synology-chat.d.ts",
-      "default": "./dist/plugin-sdk/synology-chat.js"
-    },
     "./plugin-sdk/testing": {
       "types": "./dist/plugin-sdk/testing.d.ts",
       "default": "./dist/plugin-sdk/testing.js"
-    },
-    "./plugin-sdk/test-utils": {
-      "types": "./dist/plugin-sdk/test-utils.d.ts",
-      "default": "./dist/plugin-sdk/test-utils.js"
-    },
-    "./plugin-sdk/talk-voice": {
-      "types": "./dist/plugin-sdk/talk-voice.d.ts",
-      "default": "./dist/plugin-sdk/talk-voice.js"
-    },
-    "./plugin-sdk/thread-ownership": {
-      "types": "./dist/plugin-sdk/thread-ownership.d.ts",
-      "default": "./dist/plugin-sdk/thread-ownership.js"
-    },
-    "./plugin-sdk/tlon": {
-      "types": "./dist/plugin-sdk/tlon.d.ts",
-      "default": "./dist/plugin-sdk/tlon.js"
-    },
-    "./plugin-sdk/twitch": {
-      "types": "./dist/plugin-sdk/twitch.d.ts",
-      "default": "./dist/plugin-sdk/twitch.js"
-    },
-    "./plugin-sdk/voice-call": {
-      "types": "./dist/plugin-sdk/voice-call.d.ts",
-      "default": "./dist/plugin-sdk/voice-call.js"
-    },
-    "./plugin-sdk/zalo": {
-      "types": "./dist/plugin-sdk/zalo.d.ts",
-      "default": "./dist/plugin-sdk/zalo.js"
-    },
-    "./plugin-sdk/zalouser": {
-      "types": "./dist/plugin-sdk/zalouser.d.ts",
-      "default": "./dist/plugin-sdk/zalouser.js"
     },
     "./plugin-sdk/account-helpers": {
       "types": "./dist/plugin-sdk/account-helpers.d.ts",
@@ -390,9 +262,17 @@
       "types": "./dist/plugin-sdk/channel-lifecycle.d.ts",
       "default": "./dist/plugin-sdk/channel-lifecycle.js"
     },
+    "./plugin-sdk/channel-pairing": {
+      "types": "./dist/plugin-sdk/channel-pairing.d.ts",
+      "default": "./dist/plugin-sdk/channel-pairing.js"
+    },
     "./plugin-sdk/channel-policy": {
       "types": "./dist/plugin-sdk/channel-policy.d.ts",
       "default": "./dist/plugin-sdk/channel-policy.js"
+    },
+    "./plugin-sdk/channel-send-result": {
+      "types": "./dist/plugin-sdk/channel-send-result.d.ts",
+      "default": "./dist/plugin-sdk/channel-send-result.js"
     },
     "./plugin-sdk/group-access": {
       "types": "./dist/plugin-sdk/group-access.d.ts",
@@ -422,6 +302,10 @@
       "types": "./dist/plugin-sdk/provider-auth-login.d.ts",
       "default": "./dist/plugin-sdk/provider-auth-login.js"
     },
+    "./plugin-sdk/plugin-entry": {
+      "types": "./dist/plugin-sdk/plugin-entry.d.ts",
+      "default": "./dist/plugin-sdk/plugin-entry.js"
+    },
     "./plugin-sdk/provider-catalog": {
       "types": "./dist/plugin-sdk/provider-catalog.d.ts",
       "default": "./dist/plugin-sdk/provider-catalog.js"
@@ -437,10 +321,6 @@
     "./plugin-sdk/provider-stream": {
       "types": "./dist/plugin-sdk/provider-stream.d.ts",
       "default": "./dist/plugin-sdk/provider-stream.js"
-    },
-    "./plugin-sdk/provider-tools": {
-      "types": "./dist/plugin-sdk/provider-tools.d.ts",
-      "default": "./dist/plugin-sdk/provider-tools.js"
     },
     "./plugin-sdk/provider-usage": {
       "types": "./dist/plugin-sdk/provider-usage.d.ts",
@@ -462,17 +342,25 @@
       "types": "./dist/plugin-sdk/media-understanding.d.ts",
       "default": "./dist/plugin-sdk/media-understanding.js"
     },
-    "./plugin-sdk/google": {
-      "types": "./dist/plugin-sdk/google.d.ts",
-      "default": "./dist/plugin-sdk/google.js"
-    },
     "./plugin-sdk/request-url": {
       "types": "./dist/plugin-sdk/request-url.d.ts",
       "default": "./dist/plugin-sdk/request-url.js"
     },
+    "./plugin-sdk/webhook-ingress": {
+      "types": "./dist/plugin-sdk/webhook-ingress.d.ts",
+      "default": "./dist/plugin-sdk/webhook-ingress.js"
+    },
+    "./plugin-sdk/webhook-path": {
+      "types": "./dist/plugin-sdk/webhook-path.d.ts",
+      "default": "./dist/plugin-sdk/webhook-path.js"
+    },
     "./plugin-sdk/runtime-store": {
       "types": "./dist/plugin-sdk/runtime-store.d.ts",
       "default": "./dist/plugin-sdk/runtime-store.js"
+    },
+    "./plugin-sdk/secret-input": {
+      "types": "./dist/plugin-sdk/secret-input.d.ts",
+      "default": "./dist/plugin-sdk/secret-input.js"
     },
     "./plugin-sdk/web-media": {
       "types": "./dist/plugin-sdk/web-media.d.ts",
@@ -489,10 +377,6 @@
     "./plugin-sdk/tool-send": {
       "types": "./dist/plugin-sdk/tool-send.d.ts",
       "default": "./dist/plugin-sdk/tool-send.js"
-    },
-    "./plugin-sdk/secret-input-schema": {
-      "types": "./dist/plugin-sdk/secret-input-schema.d.ts",
-      "default": "./dist/plugin-sdk/secret-input-schema.js"
     },
     "./cli-entry": "./openclaw.mjs"
   },
@@ -511,7 +395,8 @@
     "build:plugin-sdk:dts": "tsc -p tsconfig.plugin-sdk.dts.json",
     "build:strict-smoke": "pnpm canvas:a2ui:bundle && node scripts/tsdown-build.mjs && node scripts/runtime-postbuild.mjs && pnpm build:plugin-sdk:dts",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
-    "check": "pnpm check:host-env-policy:swift && pnpm format:check && pnpm tsgo && pnpm plugin-sdk:check-exports && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries && pnpm lint:tmp:no-raw-channel-fetch && pnpm lint:agent:ingress-owner && pnpm lint:plugins:no-register-http-handler && pnpm lint:plugins:no-monolithic-plugin-sdk-entry-imports && pnpm lint:plugins:no-extension-src-imports && pnpm lint:plugins:no-extension-test-core-imports && pnpm lint:plugins:no-extension-imports && pnpm lint:extensions:no-src-outside-plugin-sdk && pnpm lint:extensions:no-plugin-sdk-internal && pnpm lint:web-search-provider-boundaries && pnpm lint:webhook:no-low-level-body-read && pnpm lint:auth:no-pairing-store-group && pnpm lint:auth:pairing-account-scope",
+    "check": "pnpm check:host-env-policy:swift && pnpm check:bundled-provider-auth-env-vars && pnpm format:check && pnpm tsgo && pnpm plugin-sdk:check-exports && pnpm lint && pnpm lint:tmp:no-random-messaging && pnpm lint:tmp:channel-agnostic-boundaries && pnpm lint:tmp:no-raw-channel-fetch && pnpm lint:agent:ingress-owner && pnpm lint:plugins:no-register-http-handler && pnpm lint:plugins:no-monolithic-plugin-sdk-entry-imports && pnpm lint:plugins:no-extension-src-imports && pnpm lint:plugins:no-extension-test-core-imports && pnpm lint:plugins:no-extension-imports && pnpm lint:extensions:no-src-outside-plugin-sdk && pnpm lint:extensions:no-plugin-sdk-internal && pnpm lint:web-search-provider-boundaries && pnpm lint:webhook:no-low-level-body-read && pnpm lint:auth:no-pairing-store-group && pnpm lint:auth:pairing-account-scope",
+    "check:bundled-provider-auth-env-vars": "node scripts/generate-bundled-provider-auth-env-vars.mjs --check",
     "check:docs": "pnpm format:docs:check && pnpm lint:docs && pnpm docs:check-i18n-glossary && pnpm docs:check-links",
     "check:host-env-policy:swift": "node scripts/generate-host-env-security-policy-swift.mjs --check",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
@@ -634,6 +519,7 @@
     "test:parallels:windows": "bash scripts/e2e/parallels-windows-smoke.sh",
     "test:perf:budget": "node scripts/test-perf-budget.mjs",
     "test:perf:hotspots": "node scripts/test-hotspots.mjs",
+    "test:perf:update-timings": "node scripts/test-update-timings.mjs",
     "test:sectriage": "pnpm exec vitest run --config vitest.gateway.config.ts && vitest run --config vitest.unit.config.ts --exclude src/daemon/launchd.integration.test.ts --exclude src/process/exec.test.ts",
     "test:startup:memory": "node scripts/check-cli-startup-memory.mjs",
     "test:ui": "pnpm lint:ui:no-raw-window-open && pnpm --dir ui test",
@@ -700,6 +586,7 @@
     "tar": "7.5.11",
     "tslog": "^4.10.2",
     "undici": "^7.24.4",
+    "uuid": "^11.1.0",
     "ws": "^8.19.0",
     "yaml": "^2.8.2",
     "zod": "^4.3.6"
