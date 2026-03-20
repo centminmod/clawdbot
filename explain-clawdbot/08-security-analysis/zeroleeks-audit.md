@@ -123,7 +123,7 @@ These tests describe genuine indirect injection scenarios but deliver them incor
 2. Prepends a security warning instructing the model to IGNORE embedded instructions (`src/security/external-content.ts:247-274`)
 3. Detects suspicious patterns (regex: "ignore previous instructions", "you are now a", etc.) and logs warnings (`src/security/external-content.ts:17-32`)
 4. Sanitizes boundary markers in content to prevent escape (`src/security/external-content.ts:169-218`) including invisible Unicode character stripping (`src/security/external-content.ts:154`) and fullwidth homoglyph folding (`src/security/external-content.ts:108-137`)
-5. Is actively integrated into web search (per-provider in extensions: `extensions/brave/src/brave-web-search-provider.ts:565-566`, `extensions/perplexity/src/perplexity-web-search-provider.ts:595-596`, `extensions/xai/src/grok-web-search-provider.ts:258-259`; web search refactored to extension plugin system), web fetch (`src/agents/tools/web-fetch.ts:333-334`), cron hooks (`src/cron/isolated-agent/run.ts:466-495`), Discord (`src/discord/monitor/inbound-context.ts:24`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
+5. Is actively integrated into web search (per-provider in extensions: `extensions/brave/src/brave-web-search-provider.ts:541-542`, `extensions/perplexity/src/perplexity-web-search-provider.ts:591-592`, `extensions/xai/src/grok-web-search-provider.ts:243-244`; web search refactored to extension plugin system), web fetch (`src/agents/tools/web-fetch.ts:333-334`), cron hooks (`src/cron/isolated-agent/run.ts:466-495`), Discord (`src/discord/monitor/inbound-context.ts:24`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
 
 #### Category C: Social Engineering / False Context (Tests 14-21) -- User Messages, Not External Content
 
@@ -200,7 +200,7 @@ ZeroLeeks tested **only** the bottom two tiers and rated the system CRITICAL.
 | Boundary marker sanitization | `src/security/external-content.ts:169-218` | Prevents content from escaping the wrapper |
 | Unicode homoglyph normalization | `src/security/external-content.ts:108-137` | Fullwidth character folding to prevent visual spoofing; invisible char stripping at `:154` |
 | Channel metadata isolation | `src/security/channel-metadata.ts:21-45` | Truncation (400 char/entry, 800 total), dedup, wrapping |
-| Web search wrapping | `extensions/brave/src/brave-web-search-provider.ts:565-566`, `extensions/perplexity/src/perplexity-web-search-provider.ts:595-596`, `extensions/xai/src/grok-web-search-provider.ts:258-259` | All search snippets wrapped via `externalContent: { untrusted: true }` (web search refactored to extension plugin system) |
+| Web search wrapping | `extensions/brave/src/brave-web-search-provider.ts:541-542`, `extensions/perplexity/src/perplexity-web-search-provider.ts:591-592`, `extensions/xai/src/grok-web-search-provider.ts:243-244` | All search snippets wrapped via `externalContent: { untrusted: true }` (web search refactored to extension plugin system) |
 | Web fetch wrapping | `src/agents/tools/web-fetch.ts:250-271` | All fetched content wrapped with security warnings |
 | Cron/hook wrapping | `src/cron/isolated-agent/run.ts:466-495` | External hooks wrapped via `buildSafeExternalPrompt()` with suspicious pattern logging |
 | Discord metadata isolation | `src/discord/monitor/inbound-context.ts:24` | Channel topics wrapped via `buildUntrustedChannelMetadata()` |
