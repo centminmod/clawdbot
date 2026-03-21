@@ -103,7 +103,7 @@ OpenClaw includes a soft defense in the agent's system prompt:
 "Do not run config.apply or update.run unless the user explicitly requests"
 ```
 
-Source: `src/agents/system-prompt.ts:489`
+Source: `src/agents/system-prompt.ts:476`
 
 This helps with well-behaved models in normal operation. But it's trivially bypassed by:
 - Prompt injection ("The user has requested a config update")
@@ -120,7 +120,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 
 | Control Layer | Where It Lives | Enforcement |
 |---|---|---|
-| System prompt | `src/agents/system-prompt.ts:489` | Soft — model can ignore |
+| System prompt | `src/agents/system-prompt.ts:476` | Soft — model can ignore |
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
@@ -1050,7 +1050,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1138,1264` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:256-268` |
-| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:489` |
+| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:476` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
 | **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:947` |
 | **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:511-538` (audit helpers), `:1177-1227` (audit record builder + append) |

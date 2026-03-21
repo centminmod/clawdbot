@@ -208,11 +208,12 @@ Content-Type: application/json
 Authorization: Bearer <api_key>
 ```
 
-**Source:** `extensions/xai/src/grok-web-search-provider.ts:141-142`
+**Source:** `src/agents/tools/web-search-provider-common.ts:112-116`
 ```typescript
 headers: {
-  "Content-Type": "application/json",
+  Accept: "application/json",
   Authorization: `Bearer ${params.apiKey}`,
+  "Content-Type": "application/json",
 },
 ```
 
