@@ -957,8 +957,8 @@ Alice
 
 **OpenClaw's Defense:**
 OpenClaw wraps external hook content (including emails) with security boundaries:
-- `buildSafeExternalPrompt()` at `src/cron/isolated-agent/run.ts:447` (defined at `src/security/external-content.ts:280`)
-- Suspicious pattern detection and logging at `src/cron/isolated-agent/run.ts:477-483`
+- `buildSafeExternalPrompt()` at `src/cron/isolated-agent/run.ts:364` (defined at `src/security/external-content.ts:280`)
+- Suspicious pattern detection and logging at `src/cron/isolated-agent/run.ts:350-358`
 - External content wrapped with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers and security warnings (`src/security/external-content.ts:47-64`)
 
 **Additional Defense:**

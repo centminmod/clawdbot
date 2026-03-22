@@ -27,7 +27,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:35-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
 | 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:103-164` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
-| 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:749-772` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
+| 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:725-748` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
 | 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
 | 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/pdf-extract.ts:42-103` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
 | 7 | **Full AX tree traversal** — `Accessibility.getFullAXTree` on complex browser pages | `src/browser/cdp.ts:251-264` | Medium-High | Like reading every element on a web page aloud for accessibility — hundreds of elements on complex pages |
@@ -80,7 +80,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:105` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:115` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
-| Warned contexts | `src/infra/session-maintenance-warning.ts:16` | **Never pruned** | Low |
+| Warned contexts | `src/infra/session-maintenance-warning.ts:17` | **Never pruned** | Low |
 | Announce queues | `src/agents/subagent-announce-queue.ts:60` | Per-queue cap, **no queue count cap** | Low |
 | Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:12` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
 
@@ -576,8 +576,8 @@ The AI can actively query its memory index using two tools:
 
 | Tool | Purpose | Source |
 |------|---------|--------|
-| `memory_search` | Semantic hybrid search across all indexed memory files; returns top snippets with path + line numbers | `src/agents/tools/memory-tool.ts:79-133` |
-| `memory_get` | Read a specific file or line range from `MEMORY.md` or `memory/*.md`; use after `memory_search` to pull exact content | `src/agents/tools/memory-tool.ts:135-169` |
+| `memory_search` | Semantic hybrid search across all indexed memory files; returns top snippets with path + line numbers | `src/agents/tools/memory-tool.ts:96-150` |
+| `memory_get` | Read a specific file or line range from `MEMORY.md` or `memory/*.md`; use after `memory_search` to pull exact content | `src/agents/tools/memory-tool.ts:152-207` |
 
 The `memory_search` tool description instructs the AI to use it as a "mandatory recall step" before answering questions about prior work, decisions, preferences, or dates.
 
@@ -707,7 +707,7 @@ Source: `src/memory/memory-schema.ts:9-82`
 | `sync.onSearch` | `true` | Sync before search if dirty flag is set |
 | `sync.intervalMinutes` | 0 (disabled) | Periodic sync timer |
 
-Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/memory-search.ts:97` (debounce default)
+Source: `src/memory/manager-sync-ops.ts:385-439` (watcher setup), `src/agents/memory-search.ts:97` (debounce default)
 
 **Session delta tracking** (for session memory source):
 
@@ -716,7 +716,7 @@ Source: `src/memory/manager-sync-ops.ts:364-405` (watcher setup), `src/agents/me
 | `sync.sessions.deltaBytes` | 100,000 (100KB) | Re-index session after this many new bytes |
 | `sync.sessions.deltaMessages` | 50 | Re-index session after this many new messages |
 
-Source: `src/agents/memory-search.ts:98-99`, `src/memory/manager-sync-ops.ts:407-472`
+Source: `src/agents/memory-search.ts:98-99`, `src/memory/manager-sync-ops.ts:463-499`
 
 **Sync triggers** in order of priority:
 
@@ -753,9 +753,9 @@ totalTokens >= contextWindow - reserveTokens - softThreshold
 
 *Plain English: When you type `/new` to start a fresh conversation, the old conversation gets saved as a dated memory file — like tearing out your notepad page and filing it before starting a blank one.*
 
-The session memory hook (`src/hooks/bundled/session-memory/handler.ts:74-327`) triggers on the `/new` command:
+The session memory hook (`src/hooks/bundled/session-memory/handler.ts:53-225`) triggers on the `/new` command:
 
-1. Reads the last N messages from the current session's JSONL transcript file (default: 15 messages, `handler.ts:28`)
+1. Reads the last N messages from the current session's JSONL transcript file (default: 15 messages, `handler.ts:132`)
 2. Generates a descriptive slug via LLM (e.g., `"debugging-auth-flow"`) or falls back to HHMM timestamp (`handler.ts:146-150`)
 3. Creates `memory/YYYY-MM-DD-{slug}.md` with session metadata and conversation content (`handler.ts:153-185`)
 
