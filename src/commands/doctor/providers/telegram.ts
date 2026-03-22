@@ -1,9 +1,11 @@
 import {
-  inspectTelegramAccount,
   isNumericTelegramUserId,
+  normalizeTelegramAllowFromEntry,
+} from "../../../../extensions/telegram/allow-from.js";
+import {
+  inspectTelegramAccount,
   listTelegramAccountIds,
   lookupTelegramChatId,
-  normalizeTelegramAllowFromEntry,
 } from "../../../../extensions/telegram/api.js";
 import { resolveCommandSecretRefsViaGateway } from "../../../cli/command-secret-gateway.js";
 import { getChannelsCommandSecretTargetIds } from "../../../cli/command-secret-targets.js";
@@ -13,6 +15,7 @@ import { resolveTelegramAccount } from "../../../plugin-sdk/account-resolution.j
 import { describeUnknownError } from "../../../secrets/shared.js";
 import { sanitizeForLog } from "../../../terminal/ansi.js";
 import { hasAllowFromEntries } from "../shared/allowlist.js";
+import type { EmptyAllowlistAccountScanParams } from "../shared/empty-allowlist-scan.js";
 import { asObjectRecord } from "../shared/object.js";
 import type { DoctorAccountRecord, DoctorAllowFromList } from "../types.js";
 
@@ -124,6 +127,20 @@ export function scanTelegramAllowFromUsernameEntries(
   }
 
   return hits;
+}
+
+export function collectTelegramAllowFromUsernameWarnings(params: {
+  hits: TelegramAllowFromUsernameHit[];
+  doctorFixCommand: string;
+}): string[] {
+  if (params.hits.length === 0) {
+    return [];
+  }
+  const sampleEntry = sanitizeForLog(params.hits[0]?.entry ?? "@");
+  return [
+    `- Telegram allowFrom contains ${params.hits.length} non-numeric entries (e.g. ${sampleEntry}); Telegram authorization requires numeric sender IDs.`,
+    `- Run "${params.doctorFixCommand}" to auto-resolve @username entries to numeric IDs (requires a Telegram bot token).`,
+  ];
 }
 
 export async function maybeRepairTelegramAllowFromUsernames(cfg: OpenClawConfig): Promise<{
@@ -337,4 +354,21 @@ export function collectTelegramGroupPolicyWarnings(
   return [
     `- ${params.prefix}.groupPolicy is "allowlist" but groupAllowFrom (and allowFrom) is empty — all group messages will be silently dropped. Add sender IDs to ${params.prefix}.groupAllowFrom or ${params.prefix}.allowFrom, or set ${params.prefix}.groupPolicy to "open".`,
   ];
+}
+
+export function collectTelegramEmptyAllowlistExtraWarnings(
+  params: EmptyAllowlistAccountScanParams,
+): string[] {
+  return params.channelName === "telegram" &&
+    ((params.account.groupPolicy as string | undefined) ??
+      (params.parent?.groupPolicy as string | undefined) ??
+      undefined) === "allowlist"
+    ? collectTelegramGroupPolicyWarnings({
+        account: params.account,
+        dmPolicy: params.dmPolicy,
+        effectiveAllowFrom: params.effectiveAllowFrom,
+        parent: params.parent,
+        prefix: params.prefix,
+      })
+    : [];
 }
