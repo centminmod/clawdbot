@@ -79,7 +79,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Agent run sequence | `src/gateway/server-runtime-state.ts:219` | **No pruning** (maintenance timer skips it) | **Leak risk** |
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:105` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:115` | **No eviction at all** | **Leak risk** |
-| Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
+| Cost usage cache | `src/gateway/server-methods/usage.ts:60` | 30s TTL per entry, **no max entry count** | Low-Medium |
 | Warned contexts | `src/infra/session-maintenance-warning.ts:17` | **Never pruned** | Low |
 | Announce queues | `src/agents/subagent-announce-queue.ts:60` | Per-queue cap, **no queue count cap** | Low |
 | Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:12` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
