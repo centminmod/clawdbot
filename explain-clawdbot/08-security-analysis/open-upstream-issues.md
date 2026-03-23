@@ -84,7 +84,7 @@
 | [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:518-533`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | ~~HIGH~~ FIXED | Gateway auth has no rate limiting (CWE-307) | Fixed upstream (COMPLETED); `src/gateway/auth.ts` — rate limiting added |
-| [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:108`) now handles full-form IPv4-mapped IPv6 via `extractEmbeddedIpv4FromIpv6()` at `src/shared/net/ip.ts:279` |
+| [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:116`) now handles full-form IPv4-mapped IPv6 via `extractEmbeddedIpv4FromIpv6()` at `src/shared/net/ip.ts:279` |
 | [#11738](https://github.com/openclaw/openclaw/issues/11738) | ~~HIGH~~ FIXED | Canvas authorization IP co-tenancy bypass | Fixed upstream (COMPLETED 2026-02-24); `src/gateway/server-http.ts:858-867` — canvas auth no longer relies on IP co-tenancy |
 | [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH (WONTFIX) | HTTP API session keys lack ownership validation | Closed upstream as NOT_PLANNED; still affects local code at `src/gateway/http-utils.ts:71-73` — `x-openclaw-session-key` header accepted as-is with no ownership check |
 | [#11024](https://github.com/openclaw/openclaw/issues/11024) | ~~HIGH~~ FIXED | Gmail push endpoint embeds auth token in URL query string | Fixed upstream (COMPLETED 2026-02-14); `src/hooks/gmail-setup-utils.ts:315` |
@@ -1196,7 +1196,7 @@ All changes take effect immediately via automatic restart.
 
 **Affected code:**
 - `src/infra/outbound/message-action-params.ts:219-220` — `if (!sandboxRoot) { continue; }` skips path validation
-- `src/infra/outbound/message-action-runner.ts:754` — `sandboxRoot: input.sandboxRoot` — passes `undefined` when sandbox disabled
+- `src/infra/outbound/message-action-runner.ts:709` — `sandboxRoot: input.sandboxRoot` — passes `undefined` when sandbox disabled
 - Targets: credential files (`~/.openclaw/credentials/`), config (`~/.openclaw/openclaw.json`), SSH keys, `.env` files
 
 **Impact:** Affects all deployments running without sandbox (default configuration). Requires prompt-injection vector (e.g., malicious web content via web_fetch, external message with injected instructions).
