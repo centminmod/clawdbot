@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const resolveMSTeamsUserAllowlist = vi.hoisted(() => vi.fn());
 const resolveMSTeamsChannelAllowlist = vi.hoisted(() => vi.fn());
-const normalizeSecretInputString = vi.hoisted(() => vi.fn((value: unknown) => String(value ?? "").trim() || undefined));
+const normalizeSecretInputString = vi.hoisted(() =>
+  vi.fn((value: unknown) => String(value ?? "").trim() || undefined),
+);
 const hasConfiguredMSTeamsCredentials = vi.hoisted(() => vi.fn());
 const resolveMSTeamsCredentials = vi.hoisted(() => vi.fn());
 
@@ -61,8 +63,9 @@ describe("msteams setup surface", () => {
     ).toBe(true);
 
     hasConfiguredMSTeamsCredentials.mockReturnValue(false);
+    expect(msteamsSetupWizard.status.resolveStatusLines).toBeTypeOf("function");
     expect(
-      msteamsSetupWizard.status.resolveStatusLines({
+      msteamsSetupWizard.status.resolveStatusLines?.({
         cfg: { channels: { msteams: {} } },
       } as never),
     ).toEqual(["MS Teams: needs app credentials"]);
