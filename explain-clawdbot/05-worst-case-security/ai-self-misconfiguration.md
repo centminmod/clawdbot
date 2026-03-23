@@ -199,7 +199,7 @@ Every path through which the AI can modify system state:
 - Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:39-66,104-129`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
 - Cron tool: `src/gateway/server-methods/cron.ts:91-124`
-- Agent files: `src/gateway/server-methods/agents.ts:66,714`
+- Agent files: `src/gateway/server-methods/agents.ts:92,740`
 
 **Key insight:** The `/config set` chat command has dedicated chat-command gates (`commands.config` + `configWrites`). Gateway tool writes use a different control plane (owner-only tool policy + gateway auth/scopes/rate limits). So `configWrites: false` is useful defense-in-depth, but it does not block gateway-tool config changes.
 
@@ -846,7 +846,7 @@ openclaw cron remove <job-id>
 
 **Security impact:** Bootstrap files are loaded into the system prompt on every agent turn. Injected content appears as trusted system instructions. This persists across sessions and affects all future conversations.
 
-**Source:** `src/gateway/server-methods/agents.ts:714`
+**Source:** `src/gateway/server-methods/agents.ts:740`
 
 The `agents.files.set` method restricts writes to `ALLOWED_FILE_NAMES` only, but all allowed names (IDENTITY.md, SOUL.md, TOOLS.md, AGENTS.md, etc.) are security-sensitive — they're injected directly into the system prompt.
 
@@ -1047,13 +1047,13 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:78,312-319` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:40-54` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1076-1115` |
-| **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:66` |
-| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1138,1264` |
+| **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:92` |
+| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1165,1297` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:256-268` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:476` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
 | **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:947` |
-| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:511-538` (audit helpers), `:1177-1227` (audit record builder + append) |
+| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:534-560` (audit helpers), `:1237-1290` (audit record builder + append) |
 
 ---
 
