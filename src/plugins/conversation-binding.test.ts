@@ -12,7 +12,7 @@ import type { PluginRegistry } from "./registry.js";
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-plugin-binding-"));
 const approvalsPath = path.join(tempRoot, "plugin-binding-approvals.json");
 
-function createPluginRegistryStub(): PluginRegistry {
+function createEmptyPluginRegistry(): PluginRegistry {
   return {
     plugins: [],
     tools: [],
@@ -34,6 +34,7 @@ function createPluginRegistryStub(): PluginRegistry {
     diagnostics: [],
   };
 }
+
 const sessionBindingState = vi.hoisted(() => {
   const records = new Map<string, SessionBindingRecord>();
   let nextId = 1;
@@ -105,7 +106,7 @@ const sessionBindingState = vi.hoisted(() => {
 });
 
 const pluginRuntimeState = vi.hoisted(() => ({
-  registry: createPluginRegistryStub(),
+  registry: createEmptyPluginRegistry(),
 }));
 
 vi.mock("../infra/home-dir.js", async (importOriginal) => {
@@ -207,7 +208,7 @@ describe("plugin conversation binding approvals", () => {
   beforeEach(() => {
     sessionBindingState.reset();
     __testing.reset();
-    setActivePluginRegistry(createPluginRegistryStub());
+    setActivePluginRegistry(createEmptyPluginRegistry());
     fs.rmSync(approvalsPath, { force: true });
     unregisterSessionBindingAdapter({ channel: "discord", accountId: "default" });
     unregisterSessionBindingAdapter({ channel: "discord", accountId: "work" });
@@ -532,7 +533,7 @@ describe("plugin conversation binding approvals", () => {
   });
 
   it("notifies the owning plugin when a bind approval is approved", async () => {
-    const registry = createPluginRegistryStub();
+    const registry = createEmptyPluginRegistry();
     const onResolved = vi.fn(async () => undefined);
     registry.conversationBindingResolvedHandlers.push({
       pluginId: "codex",
@@ -591,7 +592,7 @@ describe("plugin conversation binding approvals", () => {
   });
 
   it("notifies the owning plugin when a bind approval is denied", async () => {
-    const registry = createPluginRegistryStub();
+    const registry = createEmptyPluginRegistry();
     const onResolved = vi.fn(async () => undefined);
     registry.conversationBindingResolvedHandlers.push({
       pluginId: "codex",
@@ -646,7 +647,7 @@ describe("plugin conversation binding approvals", () => {
   });
 
   it("does not wait for an approved bind callback before returning", async () => {
-    const registry = createPluginRegistryStub();
+    const registry = createEmptyPluginRegistry();
     const callbackGate = createDeferredVoid();
     const onResolved = vi.fn(async () => callbackGate.promise);
     registry.conversationBindingResolvedHandlers.push({
@@ -697,7 +698,7 @@ describe("plugin conversation binding approvals", () => {
   });
 
   it("does not wait for a denied bind callback before returning", async () => {
-    const registry = createPluginRegistryStub();
+    const registry = createEmptyPluginRegistry();
     const callbackGate = createDeferredVoid();
     const onResolved = vi.fn(async () => callbackGate.promise);
     registry.conversationBindingResolvedHandlers.push({

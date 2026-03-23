@@ -22,6 +22,9 @@ const MINIMAX_API_COST = { input: 0.3, output: 1.2, cacheRead: 0.06, cacheWrite:
 const MINIMAX_HOSTED_COST = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
 const MINIMAX_LM_STUDIO_COST = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
 const MINIMAX_MODEL_CATALOG = {
+  "MiniMax-M2": { name: "MiniMax M2", reasoning: true },
+  "MiniMax-M2.1": { name: "MiniMax M2.1", reasoning: true },
+  "MiniMax-M2.1-highspeed": { name: "MiniMax M2.1 Highspeed", reasoning: true },
   "MiniMax-M2.7": { name: "MiniMax M2.7", reasoning: true },
   "MiniMax-M2.7-highspeed": { name: "MiniMax M2.7 Highspeed", reasoning: true },
   "MiniMax-M2.5": { name: "MiniMax M2.5", reasoning: true },
@@ -337,8 +340,7 @@ function buildZaiModelDefinition(params: {
     name: params.name ?? catalog?.name ?? `GLM ${params.id}`,
     reasoning: params.reasoning ?? catalog?.reasoning ?? true,
     input:
-      params.input ??
-      (catalog?.input ? ([...catalog.input] as ("text" | "image")[]) : ["text"]),
+      params.input ?? (catalog?.input ? ([...catalog.input] as ("text" | "image")[]) : ["text"]),
     cost: params.cost ?? catalog?.cost ?? ZAI_DEFAULT_COST,
     contextWindow: params.contextWindow ?? catalog?.contextWindow ?? 204800,
     maxTokens: params.maxTokens ?? catalog?.maxTokens ?? 131072,

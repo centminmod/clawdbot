@@ -476,6 +476,19 @@ function resolvePackageEntrySource(params: {
     rejectHardlinks: params.rejectHardlinks ?? true,
   });
   if (!opened.ok) {
+    if (opened.reason === "path") {
+      // File missing (ENOENT) — skip, not a security violation.
+      return null;
+    }
+    if (opened.reason === "io") {
+      // Filesystem error (EACCES, EMFILE, etc.) — warn but don't abort.
+      params.diagnostics.push({
+        level: "warn",
+        message: `extension entry unreadable (I/O error): ${params.entryPath}`,
+        source: params.sourceLabel,
+      });
+      return null;
+    }
     params.diagnostics.push({
       level: "error",
       message: `extension entry escapes package directory: ${params.entryPath}`,
