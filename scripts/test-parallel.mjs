@@ -49,6 +49,7 @@ const cleanupTempArtifacts = () => {
   tempArtifactDir = null;
 };
 const existingUnitConfigFiles = (entries) => existingFiles(entries).filter(isUnitConfigTestFile);
+const baseThreadSingletonFiles = existingFiles(behaviorManifest.base?.threadSingleton ?? []);
 const unitBehaviorIsolatedFiles = existingUnitConfigFiles(behaviorManifest.unit.isolated);
 const unitSingletonIsolatedFiles = existingUnitConfigFiles(behaviorManifest.unit.singletonIsolated);
 const unitThreadSingletonFiles = existingUnitConfigFiles(behaviorManifest.unit.threadSingleton);
@@ -94,7 +95,12 @@ const isMacMiniProfile = testProfile === "macmini";
 // Preserve OPENCLAW_TEST_VM_FORKS=1 as the explicit override/debug escape hatch.
 const supportsVmForks = Number.isFinite(nodeMajor) ? nodeMajor <= 24 : true;
 const useVmForks = process.env.OPENCLAW_TEST_VM_FORKS === "1" && supportsVmForks;
-const disableIsolation = process.env.OPENCLAW_TEST_NO_ISOLATE === "1";
+const forceIsolation =
+  process.env.OPENCLAW_TEST_ISOLATE === "1" || process.env.OPENCLAW_TEST_ISOLATE === "true";
+const disableIsolation =
+  !forceIsolation &&
+  process.env.OPENCLAW_TEST_NO_ISOLATE !== "0" &&
+  process.env.OPENCLAW_TEST_NO_ISOLATE !== "false";
 const includeGatewaySuite = process.env.OPENCLAW_TEST_INCLUDE_GATEWAY === "1";
 const includeExtensionsSuite = process.env.OPENCLAW_TEST_INCLUDE_EXTENSIONS === "1";
 // Even on low-memory hosts, keep the isolated lane split so files like
@@ -606,6 +612,7 @@ const resolveFilterMatches = (fileFilter) => {
 };
 const isVmForkSingletonUnitFile = (fileFilter) => unitVmForkSingletonFiles.includes(fileFilter);
 const isThreadSingletonUnitFile = (fileFilter) => unitThreadSingletonFiles.includes(fileFilter);
+const isBaseThreadSingletonFile = (fileFilter) => baseThreadSingletonFiles.includes(fileFilter);
 const createTargetedEntry = (owner, isolated, filters) => {
   const name = isolated ? `${owner}-isolated` : owner;
   const forceForks = isolated;
@@ -641,6 +648,12 @@ const createTargetedEntry = (owner, isolated, filters) => {
     return {
       name,
       args: ["vitest", "run", "--config", "vitest.unit.config.ts", "--pool=threads", ...filters],
+    };
+  }
+  if (owner === "base-threads") {
+    return {
+      name,
+      args: ["vitest", "run", "--config", "vitest.config.ts", "--pool=threads", ...filters],
     };
   }
   if (owner === "extensions") {
@@ -699,9 +712,41 @@ const createTargetedEntry = (owner, isolated, filters) => {
     ],
   };
 };
+const formatPerFileEntryName = (owner, file) => {
+  const baseName = path
+    .basename(file)
+    .replace(/\.live\.test\.ts$/u, "")
+    .replace(/\.e2e\.test\.ts$/u, "")
+    .replace(/\.test\.ts$/u, "");
+  return `${owner}-${baseName}`;
+};
+const createPerFileTargetedEntry = (file) => {
+  const target = inferTarget(file);
+  const owner = isThreadSingletonUnitFile(file)
+    ? "unit-threads"
+    : isVmForkSingletonUnitFile(file)
+      ? "unit-vmforks"
+      : isBaseThreadSingletonFile(file)
+        ? "base-threads"
+        : target.owner;
+  return {
+    ...createTargetedEntry(owner, target.isolated, [file]),
+    name: formatPerFileEntryName(owner, file),
+  };
+};
 const targetedEntries = (() => {
   if (passthroughFileFilters.length === 0) {
     return [];
+  }
+  if (disableIsolation) {
+    const matchedFiles = passthroughFileFilters.flatMap((fileFilter) => {
+      const resolved = resolveFilterMatches(fileFilter);
+      if (resolved.length > 0) {
+        return resolved;
+      }
+      return [normalizeRepoPath(fileFilter)];
+    });
+    return [...new Set(matchedFiles)].map((file) => createPerFileTargetedEntry(file));
   }
   const groups = passthroughFileFilters.reduce((acc, fileFilter) => {
     const matchedFiles = resolveFilterMatches(fileFilter);
@@ -712,7 +757,9 @@ const targetedEntries = (() => {
         ? "unit-threads"
         : isVmForkSingletonUnitFile(normalizedFile)
           ? "unit-vmforks"
-          : target.owner;
+          : isBaseThreadSingletonFile(normalizedFile)
+            ? "base-threads"
+            : target.owner;
       const key = `${owner}:${target.isolated ? "isolated" : "default"}`;
       const files = acc.get(key) ?? [];
       files.push(normalizedFile);
@@ -725,7 +772,9 @@ const targetedEntries = (() => {
         ? "unit-threads"
         : isVmForkSingletonUnitFile(matchedFile)
           ? "unit-vmforks"
-          : target.owner;
+          : isBaseThreadSingletonFile(matchedFile)
+            ? "base-threads"
+            : target.owner;
       const key = `${owner}:${target.isolated ? "isolated" : "default"}`;
       const files = acc.get(key) ?? [];
       files.push(matchedFile);
@@ -738,6 +787,9 @@ const targetedEntries = (() => {
     return createTargetedEntry(owner, mode === "isolated", [...new Set(filters)]);
   });
 })();
+if (disableIsolation && passthroughFileFilters.length === 0) {
+  runs = allKnownUnitFiles.map((file) => createPerFileTargetedEntry(file));
+}
 // Node 25 local runs still show cross-process worker shutdown contention even
 // after moving the known heavy files into singleton lanes.
 const topLevelParallelEnabled =
@@ -745,8 +797,17 @@ const topLevelParallelEnabled =
   testProfile !== "serial" &&
   !(!isCI && nodeMajor >= 25) &&
   !isMacMiniProfile;
-const defaultTopLevelParallelLimit =
-  testProfile === "serial"
+const defaultTopLevelParallelLimit = disableIsolation
+  ? isCI
+    ? isWindows
+      ? 2
+      : 4
+    : highMemLocalHost
+      ? Math.min(16, hostCpuCount)
+      : lowMemLocalHost
+        ? Math.min(8, hostCpuCount)
+        : Math.min(12, hostCpuCount)
+  : testProfile === "serial"
     ? 1
     : testProfile === "low"
       ? lowMemLocalHost
