@@ -24,8 +24,8 @@
 | [#6609](https://github.com/openclaw/openclaw/issues/6609) | ~~HIGH~~ FIXED | Browser bridge server optional authentication | Fixed upstream (COMPLETED 2026-02-14); `src/browser/bridge-server.ts:33-42` |
 | [#8054](https://github.com/openclaw/openclaw/issues/8054) | ~~HIGH~~ FIXED | Type coercion `"undefined"` credentials | Fixed upstream (COMPLETED 2026-02-13); `src/wizard/onboarding.gateway-config.ts:206` |
 | [#8516](https://github.com/openclaw/openclaw/issues/8516) | HIGH (WONTFIX) | Browser download/trace endpoints arbitrary file write | Closed upstream as NOT_PLANNED (2026-03-01); local code already hardened — `src/browser/routes/agent.act.download.ts:51,103` uses `resolveWritableOutputPathOrRespond()` from `src/browser/routes/output-paths.ts:9` (download routes extracted to dedicated module) |
-| [#8586](https://github.com/openclaw/openclaw/issues/8586) | ~~HIGH~~ FIXED | Configurable bypass allows unrestricted command exec | Fixed upstream (COMPLETED 2026-02-14); `src/agents/bash-tools.exec.ts:202-210,272-274` |
-| [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH (WONTFIX) | Env vars exposed via shell commands | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/bash-tools.exec.ts:293,301` |
+| [#8586](https://github.com/openclaw/openclaw/issues/8586) | ~~HIGH~~ FIXED | Configurable bypass allows unrestricted command exec | Fixed upstream (COMPLETED 2026-02-14); `src/agents/bash-tools.exec.ts:258-266,330-332` |
+| [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH (WONTFIX) | Env vars exposed via shell commands | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/bash-tools.exec.ts:363,369` |
 | [#8590](https://github.com/openclaw/openclaw/issues/8590) | ~~HIGH~~ FIXED | Status endpoint exposes sensitive internal info | Fixed upstream (COMPLETED 2026-02-15); `src/gateway/server-methods/health.ts:28-31` |
 | [#8696](https://github.com/openclaw/openclaw/issues/8696) | HIGH (WONTFIX) | Playwright download path traversal | Closed upstream as NOT_PLANNED (2026-02-24); `src/browser/pw-tools-core.downloads.ts:26-31` — `sanitizeUntrustedFileName()` (from `safe-filename.js`) + `buildTempDownloadPath()` (hardened Feb 15 sync 2) |
 | [#8776](https://github.com/openclaw/openclaw/issues/8776) | ~~HIGH~~ FIXED | soul-evil hook silently hijacks agent | Fixed in PR [#14757](https://github.com/openclaw/openclaw/pull/14757) — soul-evil hook completely removed |
@@ -96,10 +96,10 @@
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | ~~MEDIUM~~ FIXED LOCALLY (WONTFIX upstream) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); fixed locally by `17ab46aed` (Mar 8 sync 3) — `normalizeProviders()` now reverse-looks up env var names at `src/agents/models-config.providers.ts:444`, replacing resolved plaintext apiKeys before writing models.json; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
 | [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts` — `/extension` path required `relayAuthToken` (same as `/cdp`); entire extension relay removed by commit `476d948732` (Mar 17 sync 3) |
-| [#10992](https://github.com/openclaw/openclaw/issues/10992) | ~~MEDIUM~~ FIXED | Sub-agents bypass exec approvals for safeBins commands | Fixed upstream (COMPLETED); `src/agents/bash-tools.exec.ts:137,265-277,333` |
+| [#10992](https://github.com/openclaw/openclaw/issues/10992) | ~~MEDIUM~~ FIXED | Sub-agents bypass exec approvals for safeBins commands | Fixed upstream (COMPLETED); `safeBins`/`resolveExecApprovals` removed by upstream refactor |
 | [#15990](https://github.com/openclaw/openclaw/issues/15990) | ~~MEDIUM~~ FIXED | Context compaction leaks content between sessions | Fixed upstream (COMPLETED); `src/agents/pi-embedded-runner/compact.ts` — cross-session data bleed fixed; relates to #12571/#14117 |
 | [#12542](https://github.com/openclaw/openclaw/issues/12542) | ~~MEDIUM~~ FIXED | Diagnostics-OTEL exports unredacted session/chat IDs | Fixed upstream (COMPLETED); `extensions/diagnostics-otel/src/service.ts:391,427-494` |
-| [#21656](https://github.com/openclaw/openclaw/issues/21656) | MEDIUM | System event format spoofing via external channels (prompt injection) | `src/auto-reply/reply/session-updates.ts:110-111` — `System: [timestamp]` prefix unauthenticated; external Telegram/WhatsApp messages indistinguishable from real system events |
+| [#21656](https://github.com/openclaw/openclaw/issues/21656) | MEDIUM | System event format spoofing via external channels (prompt injection) | `src/auto-reply/reply/session-system-events.ts:109-111` — `System: ${subline}` prefix unauthenticated (extracted from session-updates.ts); external Telegram/WhatsApp messages indistinguishable from real system events |
 | [#22681](https://github.com/openclaw/openclaw/issues/22681) | ~~MEDIUM~~ FIXED | Env blocklist missing GLIBC_TUNABLES, JAVA_TOOL_OPTIONS, JDK_JAVA_OPTIONS | Fixed upstream (COMPLETED 2026-03-17); `src/infra/host-env-security-policy.json` now includes `GLIBC_TUNABLES`, `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS`, `JDK_JAVA_OPTIONS` plus `MAVEN_OPTS`, `SBT_OPTS`, `GRADLE_OPTS`, `DOTNET_STARTUP_HOOKS` and others |
 | [#24693](https://github.com/openclaw/openclaw/issues/24693) | MEDIUM | Hook completion events leak cross-agent via mainSessionKey routing | `src/gateway/server/hooks.ts:77-78,86-87` — completion events routed to `mainSessionKey` instead of hook's target `agentId` (available at line 39 but unused) |
 | [#25712](https://github.com/openclaw/openclaw/issues/25712) | ~~MEDIUM~~ FIXED | Multi-agent media isolation: inbound files shared across agents | Fixed upstream (COMPLETED 2026-03-03); inbound media TTL cleanup added (commit `ba9eaf2ee`); `src/media/store.ts:13` still uses global `resolveMediaDir()` but TTL limits cross-agent contamination window |
@@ -456,8 +456,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** When `elevatedMode=full` is configured, all security controls on command execution are bypassed. The `bypassApprovals` flag skips `resolveExecApprovals` entirely, allowing any command without user confirmation.
 
 **Affected code:**
-- `src/agents/bash-tools.exec.ts:202-210` — `elevatedMode` resolution; `elevatedMode=full` sets security to "full", ask to "off"
-- `src/agents/bash-tools.exec.ts:272-274` — `bypassApprovals` flag; skips all approval checks when `elevatedMode === "full"`
+- `src/agents/bash-tools.exec.ts:258-266` — `elevatedMode` resolution; `elevatedMode=full` sets security to "full", ask to "off"
+- `src/agents/bash-tools.exec.ts:330-332` — `bypassApprovals` flag; skips all approval checks when `elevatedMode === "full"`
 
 ### #8590: Status Endpoint Exposes Sensitive Internal Info
 
@@ -482,8 +482,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Full `process.env` is passed as the base environment to child processes. An agent can run `env` or `printenv` to dump all environment variables, including API keys and secrets.
 
 **Affected code:**
-- `src/agents/bash-tools.exec.ts:293,301` — full `process.env` passed to child spawn via `coerceEnv(process.env)` + `{ ...baseEnv, ...params.env }`
-- `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:100` — policy blocks injection INTO env (via `validateHostEnv()` at `bash-tools.exec-runtime.ts:57`, enforcement at `bash-tools.exec.ts:330`), but doesn't filter what children can READ
+- `src/agents/bash-tools.exec.ts:363,369` — full `process.env` passed to child spawn via `coerceEnv(process.env)` + `overrides: params.env`
+- `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnvWithDiagnostics()` at `src/infra/host-env-security.ts:100` — policy blocks injection INTO env (enforcement at `bash-tools.exec.ts:367`), but doesn't filter what children can READ
 
 ### #8592: No Detection of Encoded/Obfuscated Commands
 
@@ -1124,10 +1124,8 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** Sub-agents created via `sessions_spawn` can bypass the exec approval mechanism when executing commands. Commands matching the `safeBins` allowlist execute without triggering approval requests, even when the parent agent's security mode is set to `allowlist` with `ask: "on-miss"`.
 
 **Affected code:**
-- `src/agents/bash-tools.exec.ts:137` -- `safeBins` resolved from `defaults?.safeBins`
-- `src/agents/bash-tools.exec.ts:265-277` -- security/ask resolution reads from `defaults` parameter
-- `src/agents/bash-tools.exec.ts:333` -- `resolveExecApprovals(agentId, { security, ask })` uses the resolved security mode
-- `src/agents/tools/sessions-spawn-tool.ts` -- sub-agents inherit global safeBins allowlist
+- `src/agents/bash-tools.exec.ts` -- `safeBins` and `resolveExecApprovals` removed by upstream refactor (fix applied)
+- `src/agents/tools/sessions-spawn-tool.ts` -- sub-agents inherit exec defaults from parent session
 
 **Impact:** An attacker with access to spawn sub-agents can bypass the approval workflow by having sub-agents execute commands that match safeBins patterns. Requires exec access with safeBins configured (non-default).
 
@@ -1225,7 +1223,7 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** Internal system events (post-compaction audit warnings, heartbeat status, cron events) are prepended to the `role: user` message body using the `System: [timestamp] <text>` format. This format is not authenticated, signed, or delivered via a separate message role. External attackers who know the format (documented in public issue #20484) can craft Telegram/WhatsApp messages that begin with `System: [timestamp] ⚠️ Post-Compaction Audit: ...` and the agent will receive them indistinguishably from real system events. Default-configured agents without explicit injection detection rules would likely comply with spoofed system instructions.
 
 **Affected code:**
-- `src/auto-reply/reply/session-updates.ts:110-111` — `const block = systemLines.map((l) => \`System: ${l}\`).join("\\n")` — unauthenticated `System:` prefix
+- `src/auto-reply/reply/session-system-events.ts:109-111` — `.flatMap((line) => line.split("\\n").map((subline) => \`System: ${subline}\`))` — unauthenticated `System:` prefix (extracted from session-updates.ts)
 - `src/infra/system-events.ts:55-87` — server-side queue is correctly server-generated, but the format is also injectable from external channels
 - No HMAC, no signed prefix, no separate `role: system` delivery distinguishes real from spoofed
 
