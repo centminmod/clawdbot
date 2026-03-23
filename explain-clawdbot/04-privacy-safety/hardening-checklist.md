@@ -213,7 +213,7 @@ Or via environment variable:
 export OPENCLAW_DISABLE_BONJOUR=1
 ```
 
-Source: `src/gateway/server-discovery-runtime.ts:19,23-30`, `src/infra/bonjour.ts:28-38`
+Source: `src/gateway/server-discovery-runtime.ts:19,23-30`, `src/infra/bonjour.ts:28-39`
 
 See: [Threat model - mDNS/Bonjour](./threat-model.md#6-mdnsbonjour-network-discovery)
 
@@ -235,7 +235,7 @@ openclaw security audit
 
 If you're not using a reverse proxy, leave `trustedProxies` empty (the default).
 
-Source: `src/gateway/net.ts:145-189` (`isTrustedProxyAddress` + `resolveClientIp`)
+Source: `src/gateway/net.ts:136-180` (`isTrustedProxyAddress` + `resolveClientIp`)
 
 See: [Threat model - Trusted proxies](./threat-model.md#trusted-proxies-reverse-proxy-configuration)
 

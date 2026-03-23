@@ -67,7 +67,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 | Cache | Location | Bound | Risk |
 |-------|----------|-------|------|
-| Session store cache | `src/config/sessions/store.ts:52` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
+| Session store cache | `src/config/sessions/store-cache.ts:11-13` | 45s TTL, `structuredClone` per read | Medium — each entry holds all 500 sessions |
 | Discord presence cache | `src/discord/monitor/presence-cache.ts:9` | 5000/account LRU | Low |
 | Telegram sent message cache | `src/telegram/sent-message-cache.ts:12` | 24h TTL, 100/chat | Low-Medium |
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
@@ -576,8 +576,8 @@ The AI can actively query its memory index using two tools:
 
 | Tool | Purpose | Source |
 |------|---------|--------|
-| `memory_search` | Semantic hybrid search across all indexed memory files; returns top snippets with path + line numbers | `src/agents/tools/memory-tool.ts:96-150` |
-| `memory_get` | Read a specific file or line range from `MEMORY.md` or `memory/*.md`; use after `memory_search` to pull exact content | `src/agents/tools/memory-tool.ts:152-207` |
+| `memory_search` | Semantic hybrid search across all indexed memory files; returns top snippets with path + line numbers | `src/agents/tools/memory-tool.ts:106-161` |
+| `memory_get` | Read a specific file or line range from `MEMORY.md` or `memory/*.md`; use after `memory_search` to pull exact content | `src/agents/tools/memory-tool.ts:163-214` |
 
 The `memory_search` tool description instructs the AI to use it as a "mandatory recall step" before answering questions about prior work, decisions, preferences, or dates.
 

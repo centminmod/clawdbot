@@ -544,7 +544,7 @@ curl -v https://your-gateway-url/
 openclaw config set gateway.tailscale.mode serve
 ```
 
-Source: `src/gateway/net.ts:145-189` (`isTrustedProxyAddress` + `resolveClientIp`)
+Source: `src/gateway/net.ts:136-180` (`isTrustedProxyAddress` + `resolveClientIp`)
 
 ---
 
