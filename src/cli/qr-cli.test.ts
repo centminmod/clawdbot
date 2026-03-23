@@ -6,6 +6,9 @@ const mocks = vi.hoisted(() => ({
   runtime: {
     log: vi.fn(),
     error: vi.fn(),
+    writeStdout: vi.fn((value: string) => {
+      mocks.runtime.log(value.endsWith("\n") ? value.slice(0, -1) : value);
+    }),
     writeJson: vi.fn((value: unknown, space = 2) => {
       mocks.runtime.log(JSON.stringify(value, null, space > 0 ? space : undefined));
     }),
@@ -24,7 +27,10 @@ const mocks = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock("../runtime.js", () => ({ defaultRuntime: mocks.runtime }));
+vi.mock("../runtime.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../runtime.js")>()),
+  defaultRuntime: mocks.runtime,
+}));
 vi.mock("../config/config.js", () => ({ loadConfig: mocks.loadConfig }));
 vi.mock("../process/exec.js", () => ({ runCommandWithTimeout: mocks.runCommandWithTimeout }));
 vi.mock("./command-secret-gateway.js", () => ({

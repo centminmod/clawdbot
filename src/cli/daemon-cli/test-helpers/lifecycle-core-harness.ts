@@ -25,7 +25,7 @@ export const defaultRuntime: LifecycleRuntimeHarness = {
     runtimeLogs.push(args.map((arg) => String(arg)).join(" "));
   },
   writeStdout: (value: string) => {
-    runtimeLogs.push(value);
+    runtimeLogs.push(value.endsWith("\n") ? value.slice(0, -1) : value);
   },
   writeJson: (value: unknown, space = 2) => {
     runtimeLogs.push(JSON.stringify(value, null, space > 0 ? space : undefined));
