@@ -110,7 +110,7 @@ OpenClaw uses a custom header when calling MiniMax's vision-language model API:
 MM-API-Source: OpenClaw
 ```
 
-**Source:** `src/agents/minimax-vlm.ts:73`
+**Source:** `src/agents/minimax-vlm.ts:86`
 ```typescript
 "MM-API-Source": "OpenClaw",
 ```
@@ -353,7 +353,7 @@ export type GatewayClientInfo = {
 | `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:56` | OpenRouter/Perplexity |
 | `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:57` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw Web Search` | `extensions/perplexity/src/perplexity-web-search-provider.ts:252` | Perplexity search |
-| `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:73` | MiniMax VLM |
+| `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:86` | MiniMax VLM |
 
 ### Recommendation
 
