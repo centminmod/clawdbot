@@ -47,7 +47,7 @@
 
 | # | Article Claim | Verdict | Codebase Evidence |
 |---|---------------|---------|-------------------|
-| 1 | `openclaw.json` contains gateway token | **CONFIRMED** | `gateway.auth.token` field; stored as plaintext JSON5 with `0o600` perms (`src/config/io.ts:1297`) |
+| 1 | `openclaw.json` contains gateway token | **CONFIRMED** | `gateway.auth.token` field; stored as plaintext JSON5 with `0o600` perms (`src/config/io.ts:1319`) |
 | 2 | `openclaw.json` contains email address | **LIKELY** | `auth.profiles.*.email` optional string field exists (`src/config/types.auth.ts:10`); OAuth profiles commonly include email |
 | 3 | `openclaw.json` contains workspace path | **CONFIRMED** | `agents[].dir` field configures workspace directories |
 | 4 | `device.json` contains crypto keys | **CONFIRMED** | ED25519 private + public key pair, device ID (SHA256 fingerprint) (`src/infra/device-identity.ts:57-63`); stored at `~/.openclaw/identity/device.json` (`src/infra/device-identity.ts:20-21`) with `0o600` perms (`src/infra/device-identity.ts:84,116-118`) |
