@@ -666,7 +666,7 @@ A configurable **fallback provider** (`memorySearch.fallback`) is tried if the p
 | `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:105` |
 | `maxResults` | 6 | `src/agents/memory-search.ts:100` |
 | `minScore` | 0.35 | `src/agents/memory-search.ts:101` |
-| Snippet cap | 700 chars | `src/memory/manager.ts:34` |
+| Snippet cap | 700 chars | `src/memory/manager.ts:33` |
 
 With defaults: 24 candidates are fetched (6 × 4), merged and scored, then the top 6 with score ≥ 0.35 are returned, each snippet capped at 700 characters.
 
