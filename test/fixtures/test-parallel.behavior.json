@@ -95,8 +95,16 @@
         "reason": "This Telegram transport suite measured ~759.3 MiB RSS growth locally; keep it in its own forked channel lane so the shared channels worker can recycle immediately after the hotspot file."
       },
       {
+        "file": "extensions/telegram/src/monitor.test.ts",
+        "reason": "This Telegram monitor suite measured ~748.4 MiB RSS growth locally; keep it in its own forked channel lane so the shared channels worker can recycle immediately after the hotspot file."
+      },
+      {
         "file": "extensions/telegram/src/webhook.test.ts",
         "reason": "This Telegram webhook suite hoists grammY bot and InputFile mocks; keep it in its own forked channel lane so shared workers do not reuse telegram runtime modules with mismatched constructors."
+      },
+      {
+        "file": "extensions/slack/src/action-runtime.test.ts",
+        "reason": "This Slack action runtime suite measured ~766.2 MiB RSS growth locally; keep it in its own forked channel lane so the shared channels worker can recycle immediately after the hotspot file."
       }
     ]
   },
