@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch.
 
 ### Advisory Summary
 
@@ -290,6 +290,32 @@
 | [GHSA-xwcj-hwhf-h378](https://github.com/openclaw/openclaw/security/advisories/GHSA-xwcj-hwhf-h378) | MEDIUM | Telegram media fetch errors exposed bot tokens in logged file URLs | - | v2026.3.13 | @space08 |
 | [GHSA-g2f6-pwvx-r275](https://github.com/openclaw/openclaw/security/advisories/GHSA-g2f6-pwvx-r275) | MEDIUM | Unsanitized iMessage attachment paths allowed SCP remote-path command injection | - | v2026.3.13 | @lintsinghua |
 | [GHSA-63f5-hhc7-cx6p](https://github.com/openclaw/openclaw/security/advisories/GHSA-63f5-hhc7-cx6p) | HIGH | Bootstrap setup codes could be replayed to escalate pending pairing scopes before approval | - | v2026.3.13 | @tdjackey |
+| [GHSA-hf68-49fm-59cq](https://github.com/openclaw/openclaw/security/advisories/GHSA-hf68-49fm-59cq) | CRITICAL | Gateway device.pair.approve lets operator.pairing escalate a new device into operator.admin, reaching Node RCE | - | pending | - |
+| [GHSA-7xr2-q9vf-x4r5](https://github.com/openclaw/openclaw/security/advisories/GHSA-7xr2-q9vf-x4r5) | HIGH | Incomplete fix for CVE-2026-32013: symlink traversal via IDENTITY.md appendFile in agents.create/update | - | pending | - |
+| [GHSA-wq58-2pvg-5h4f](https://github.com/openclaw/openclaw/security/advisories/GHSA-wq58-2pvg-5h4f) | HIGH | Gateway agent /reset exposes admin session reset to operator.write callers | - | pending | - |
+| [GHSA-cg6c-q2hx-69h7](https://github.com/openclaw/openclaw/security/advisories/GHSA-cg6c-q2hx-69h7) | HIGH | Plivo V2 verified replay identity drifts on query-only variants | - | pending | - |
+| [GHSA-qm9x-v7cx-7rq4](https://github.com/openclaw/openclaw/security/advisories/GHSA-qm9x-v7cx-7rq4) | HIGH | system.run allowlist bypass via unregistered time dispatch wrapper | - | pending | - |
+| [GHSA-wv46-v6xc-2qhf](https://github.com/openclaw/openclaw/security/advisories/GHSA-wv46-v6xc-2qhf) | HIGH | Synology Chat reply delivery could be rebound through username-based user resolution | - | pending | - |
+| [GHSA-65h8-27jh-q8wv](https://github.com/openclaw/openclaw/security/advisories/GHSA-65h8-27jh-q8wv) | HIGH | Nostr inbound DMs could trigger unauthenticated crypto work before sender policy enforcement | - | pending | - |
+| [GHSA-48vw-m3qc-wr99](https://github.com/openclaw/openclaw/security/advisories/GHSA-48vw-m3qc-wr99) | HIGH | Trusted-proxy Control UI sessions could retain self-declared privileged scopes without device identity | - | pending | - |
+| [GHSA-cxmw-p77q-wchg](https://github.com/openclaw/openclaw/security/advisories/GHSA-cxmw-p77q-wchg) | HIGH | Unvalidated WebView JavascriptInterface allows attacker-controlled pages to inject and execute arbitrary instructions via the Android canvas bridge | - | pending | - |
+| [GHSA-39pp-xp36-q6mg](https://github.com/openclaw/openclaw/security/advisories/GHSA-39pp-xp36-q6mg) | HIGH | Gateway host exec env override handling did not consistently apply the shared host env policy | - | pending | - |
+| [GHSA-74wf-h43j-vvmj](https://github.com/openclaw/openclaw/security/advisories/GHSA-74wf-h43j-vvmj) | HIGH | ACP rawInput tool identity spoof could suppress dangerous-tool prompting | - | pending | - |
+| [GHSA-mp66-rf4f-mhh8](https://github.com/openclaw/openclaw/security/advisories/GHSA-mp66-rf4f-mhh8) | HIGH | Google Chat app-url webhook auth accepted non-deployment add-on principals | - | pending | - |
+| [GHSA-cfp9-w5v9-3q4h](https://github.com/openclaw/openclaw/security/advisories/GHSA-cfp9-w5v9-3q4h) | MEDIUM | Image tool bypassed tools.fs.workspaceOnly and could read mounted files outside the workspace | - | pending | - |
+| [GHSA-6mqc-jqh6-x8fc](https://github.com/openclaw/openclaw/security/advisories/GHSA-6mqc-jqh6-x8fc) | MEDIUM | Gateway Canvas local-direct requests bypass Canvas HTTP and WebSocket authentication | - | pending | - |
+| [GHSA-4qwc-c7g9-4xcw](https://github.com/openclaw/openclaw/security/advisories/GHSA-4qwc-c7g9-4xcw) | MEDIUM | Remote media error responses could trigger unbounded memory allocation before failure | - | pending | - |
+| [GHSA-h3x4-hc5v-v2gm](https://github.com/openclaw/openclaw/security/advisories/GHSA-h3x4-hc5v-v2gm) | MEDIUM | Windows media loaders accepted remote-host file URLs before local path validation | - | pending | - |
+| [GHSA-rvqr-hrcc-j9vv](https://github.com/openclaw/openclaw/security/advisories/GHSA-rvqr-hrcc-j9vv) | MEDIUM | TXT-only Bonjour and DNS-SD discovery metadata could steer CLI routing when service resolution failed | - | pending | - |
+| [GHSA-rm59-992w-x2mv](https://github.com/openclaw/openclaw/security/advisories/GHSA-rm59-992w-x2mv) | MEDIUM | Voice Call webhook buffered request bodies before provider signature checks, enabling bounded unauthenticated resource exhaustion | - | pending | - |
+| [GHSA-wj55-88gf-x564](https://github.com/openclaw/openclaw/security/advisories/GHSA-wj55-88gf-x564) | MEDIUM | Queued node actions were not revalidated against current command policy | - | pending | - |
+| [GHSA-rqp8-q22p-5j9q](https://github.com/openclaw/openclaw/security/advisories/GHSA-rqp8-q22p-5j9q) | MEDIUM | Synology Chat shared webhook path route replacement collapses multi-account policy contexts and bypasses DM access control | - | pending | - |
+| [GHSA-x2cm-hg9c-mf5w](https://github.com/openclaw/openclaw/security/advisories/GHSA-x2cm-hg9c-mf5w) | MEDIUM | Sessions send action missing controlScope enforcement allows leaf subagents to message controlled children | - | pending | - |
+| [GHSA-844j-xrrq-wgh4](https://github.com/openclaw/openclaw/security/advisories/GHSA-844j-xrrq-wgh4) | MEDIUM | XFF loopback spoofing bypasses canvas auth and rate limiter when trustedProxies configured | - | pending | - |
+| [GHSA-ppwq-6v66-5m6j](https://github.com/openclaw/openclaw/security/advisories/GHSA-ppwq-6v66-5m6j) | MEDIUM | Gateway operator.read exposes credentials embedded in baseUrl fields via config.get and channels.status | - | pending | - |
+| [GHSA-8883-9w57-vwv6](https://github.com/openclaw/openclaw/security/advisories/GHSA-8883-9w57-vwv6) | MEDIUM | Mattermost callback dispatch allowed non-allowlisted sender actions | - | pending | - |
+| [GHSA-xhq5-45pm-2gjr](https://github.com/openclaw/openclaw/security/advisories/GHSA-xhq5-45pm-2gjr) | MEDIUM | Nextcloud Talk room allowlist matched colliding room names instead of stable room tokens | - | pending | - |
+| [GHSA-pw7h-9g6p-c378](https://github.com/openclaw/openclaw/security/advisories/GHSA-pw7h-9g6p-c378) | MEDIUM | Tlon settings empty-allowlist reconciliation bypassed intended revocation | - | pending | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -2702,6 +2728,344 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** Privilege escalation on pending device pairings via bootstrap token replay before approval.
 
 **Fix:** `openclaw@2026.3.13` makes bootstrap setup codes single-use via `src/infra/device-bootstrap.ts`; the bootstrap token record is consumed on the first successful verification.
+
+### GHSA-hf68-49fm-59cq: device.pair.approve Privilege Escalation to operator.admin / Node RCE
+
+**Severity:** CRITICAL
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The `device.pair.approve` gateway method allowed callers holding the `operator.pairing` scope to escalate a newly paired device directly into the `operator.admin` role. Because `operator.admin` grants full gateway control including `system.exec` and arbitrary Node invocation, this constitutes a privilege escalation path to remote code execution from a pairing-only credential.
+
+**Impact:** An attacker holding `operator.pairing` scope could pair a device and immediately receive `operator.admin`, bypassing the intended scope assignment flow and achieving Node RCE without operator consent.
+
+**Fix:** Pending patch.
+
+### GHSA-7xr2-q9vf-x4r5: Incomplete Fix for CVE-2026-32013 — Symlink Traversal via IDENTITY.md appendFile
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The prior fix for CVE-2026-32013 (symlink traversal in `agents.create`/`agents.update`) left a residual path: `IDENTITY.md` writes performed via `appendFile` did not re-validate the resolved path against the agents directory root after symlink resolution. A crafted agent name containing traversal components could still escape the expected directory boundary through the append code path.
+
+**Impact:** Partial path traversal allowing writes to files outside the agent directory via the `IDENTITY.md` append path.
+
+**Fix:** Pending patch.
+
+### GHSA-wq58-2pvg-5h4f: Gateway agent /reset Exposes Admin Session Reset to operator.write
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The gateway `agent` method's `/reset` sub-action required only `operator.write` scope rather than the `operator.admin` scope needed for destructive session operations. This allowed `operator.write` callers to reset any agent session, including sessions belonging to higher-privilege agents.
+
+**Impact:** `operator.write` principals can disrupt or reset admin-level agent sessions, creating a denial-of-service vector against running sessions.
+
+**Fix:** Pending patch.
+
+### GHSA-cg6c-q2hx-69h7: Plivo V2 Verified Replay Identity Drift on Query-Only Variants
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Plivo V2 webhook verification used the full request URL for HMAC computation on standard callbacks but silently fell back to a query-stripped URL variant for certain GET-only probe requests. An attacker who could craft a replayed request matching the stripped-URL signature could pass the verification check while injecting arbitrary body content.
+
+**Impact:** Signature bypass on Plivo V2 query-only webhook variants, allowing unauthenticated webhook injection.
+
+**Fix:** Pending patch.
+
+### GHSA-qm9x-v7cx-7rq4: system.run Allowlist Bypass via Unregistered Time Dispatch Wrapper
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The `system.run` method enforced a command allowlist against the directly requested command name. A time-based dispatch wrapper (used for deferred or scheduled execution) was not registered in the allowlist check path, allowing callers to invoke otherwise-blocked commands by routing through the wrapper.
+
+**Impact:** Allowlist bypass enabling execution of commands that should be blocked by `system.run` policy.
+
+**Fix:** Pending patch.
+
+### GHSA-wv46-v6xc-2qhf: Synology Chat Reply Delivery Rebound via Username Resolution
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Synology Chat reply routing used username-based user resolution as a fallback when the primary user ID was unavailable. An attacker who could register or rename a Synology Chat account to match a target username could cause replies intended for the target user to be delivered to the attacker's account.
+
+**Impact:** Reply interception or misdirection via username collision in Synology Chat delivery.
+
+**Fix:** Pending patch.
+
+### GHSA-65h8-27jh-q8wv: Nostr Inbound DMs Trigger Unauthenticated Crypto Work Before Sender Policy
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Nostr inbound direct messages initiated decryption and key-derivation operations before applying sender policy enforcement (allowlist/blocklist checks). An unauthenticated sender could therefore force the gateway to perform unbounded NIP-04 or NIP-44 crypto work on arbitrary payloads simply by broadcasting messages, prior to any authorization decision.
+
+**Impact:** Unauthenticated resource exhaustion via forced crypto work on Nostr DMs before sender policy runs.
+
+**Fix:** Pending patch.
+
+### GHSA-48vw-m3qc-wr99: Trusted-Proxy Control UI Sessions Retain Self-Declared Privileged Scopes Without Device Identity
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** When a Control UI session arrived via a trusted-proxy configuration, the gateway accepted self-declared scope claims from the session payload without verifying device identity. A trusted-proxy caller could craft a session asserting elevated scopes (e.g., `operator.admin`) and receive them without completing the device pairing flow.
+
+**Impact:** Privilege escalation via self-declared scopes in trusted-proxy Control UI sessions lacking device identity verification.
+
+**Fix:** Pending patch.
+
+### GHSA-cxmw-p77q-wchg: Android Canvas Bridge JavascriptInterface RCE
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The OpenClaw Android canvas bridge exposed a `JavascriptInterface`-annotated object to the embedded WebView without restricting the origin of pages that could access it. Pages loaded from attacker-controlled origins (via open redirect, content injection, or navigation manipulation) could invoke the bridge's methods to inject and execute arbitrary instructions through the canvas channel.
+
+**Impact:** Remote code execution reachable from attacker-controlled web content loaded in the Android canvas WebView.
+
+**Fix:** Pending patch.
+
+### GHSA-39pp-xp36-q6mg: Gateway Host Exec Env Override Inconsistently Applies Host Env Policy
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Gateway host execution accepted an `env` override parameter that merged caller-supplied environment variables into the subprocess environment. The shared host environment policy (blocklists, required vars) was applied to the base environment but not re-evaluated after the override merge, allowing callers to reinstate blocked variables or override policy-enforced values by supplying them in the override map.
+
+**Impact:** Policy bypass allowing reinstatement of blocked env vars in host exec subprocesses via the env override parameter.
+
+**Fix:** Pending patch.
+
+### GHSA-74wf-h43j-vvmj: ACP rawInput Tool Identity Spoof Suppresses Dangerous-Tool Prompting
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The ACP (Agent Control Protocol) `rawInput` channel allowed a caller to specify an arbitrary tool identity in the message payload. The gateway's dangerous-tool prompting logic used this caller-supplied identity to look up prompt thresholds, allowing the caller to spoof a benign tool identity and suppress approval prompts that would otherwise be shown for dangerous operations.
+
+**Impact:** Dangerous-tool approval prompts can be suppressed by spoofing a benign tool identity via `rawInput`.
+
+**Fix:** Pending patch.
+
+### GHSA-mp66-rf4f-mhh8: Google Chat App-URL Webhook Auth Accepts Non-Deployment Add-On Principals
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Google Chat webhook authentication for app-URL integrations verified the Google-signed JWT but accepted tokens issued to any Google Workspace add-on principal rather than restricting to the specific deployment's service account. A different Google Workspace app in the same organization could therefore send signed requests that passed authentication.
+
+**Impact:** Webhook authentication bypass allowing any Google Workspace add-on principal in the organization to send authenticated messages to the OpenClaw Google Chat endpoint.
+
+**Fix:** Pending patch.
+
+### GHSA-cfp9-w5v9-3q4h: Image Tool Bypasses tools.fs.workspaceOnly for Mounted Files
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The image tool resolved file paths against the container filesystem before applying the `tools.fs.workspaceOnly` policy check. Files mounted into the container outside the workspace directory could be read by specifying their container-side path, bypassing the workspace boundary enforcement.
+
+**Impact:** Agents can read files mounted outside the workspace boundary via the image tool when `workspaceOnly` is enabled.
+
+**Fix:** Pending patch.
+
+### GHSA-6mqc-jqh6-x8fc: Gateway Canvas local-direct Requests Bypass Canvas Auth
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Canvas HTTP and WebSocket endpoints applied authentication middleware only to requests arriving on the standard canvas network interface. Requests arriving via the `local-direct` loopback path bypassed this middleware entirely, allowing any local process to interact with the canvas endpoint without credentials.
+
+**Impact:** Unauthenticated canvas access from local processes via the `local-direct` request path.
+
+**Fix:** Pending patch.
+
+### GHSA-4qwc-c7g9-4xcw: Remote Media Error Responses Trigger Unbounded Memory Allocation
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** When a remote media fetch returned an error response with a large `Content-Length` header, the media pipeline pre-allocated a buffer of the declared size before reading the body. A server returning a crafted error response with an inflated `Content-Length` could cause the gateway to allocate large memory buffers before the failure was detected.
+
+**Impact:** Bounded memory exhaustion via crafted error response `Content-Length` in remote media fetches.
+
+**Fix:** Pending patch.
+
+### GHSA-h3x4-hc5v-v2gm: Windows Media Loaders Accept Remote-Host File URLs Before Local Validation
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** On Windows, media loader path validation accepted `file://` URLs referencing remote UNC hosts (e.g., `file://attacker-host/share/file`) before applying the local-path validation logic. This allowed the media pipeline to initiate SMB connections to attacker-controlled hosts as part of path resolution.
+
+**Impact:** SSRF-adjacent: Windows media loaders can be directed to initiate SMB connections to remote hosts via `file://` UNC paths.
+
+**Fix:** Pending patch.
+
+### GHSA-rvqr-hrcc-j9vv: Bonjour/DNS-SD Discovery Metadata Steers CLI Routing When Service Resolution Fails
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** When Bonjour/DNS-SD service resolution failed to resolve a gateway service, the CLI routing layer fell back to metadata embedded in TXT records rather than treating the failure as a hard error. Attacker-controlled DNS-SD TXT records could therefore steer CLI routing to arbitrary endpoints even when the advertised service was unreachable.
+
+**Impact:** CLI routing steering via malicious DNS-SD TXT records when service resolution fails.
+
+**Fix:** Pending patch.
+
+### GHSA-rm59-992w-x2mv: Voice Call Webhook Buffers Bodies Before Signature Check
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The Voice Call extension's webhook handler read and buffered the full request body before performing the provider signature check. An unauthenticated sender could submit arbitrarily large payloads that would be fully buffered before the signature validation rejected the request, enabling bounded memory exhaustion.
+
+**Impact:** Bounded unauthenticated resource exhaustion via large webhook payloads before signature validation in the Voice Call extension.
+
+**Fix:** Pending patch.
+
+### GHSA-wj55-88gf-x564: Queued Node Actions Not Revalidated Against Current Command Policy
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Node actions that were queued for deferred execution captured the command policy state at queue time. When command policy changed between queuing and execution (e.g., a command was subsequently blocked by an operator), the queued action executed against the captured stale policy rather than the current policy.
+
+**Impact:** Policy bypass allowing execution of commands that were permitted when queued but blocked by the time they execute.
+
+**Fix:** Pending patch.
+
+### GHSA-rqp8-q22p-5j9q: Synology Chat Shared Webhook Path Collapses Multi-Account Policy Contexts
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The Synology Chat plugin used a single webhook path shared across multiple account configurations. When a webhook arrived, the routing layer selected the first matching account configuration rather than the authoritative one. A shared-path replacement attack could cause an incoming webhook to be processed under the wrong account's DM access control policy.
+
+**Impact:** DM access control bypass via webhook path collision in multi-account Synology Chat configurations.
+
+**Fix:** Pending patch.
+
+### GHSA-x2cm-hg9c-mf5w: Missing controlScope Enforcement Allows Leaf Subagents to Message Controlled Children
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The session `send` action did not enforce the `controlScope` boundary when a leaf subagent attempted to send messages to a sibling or child session it did not control. Leaf subagents could message controlled children directly, bypassing the intended scope restriction.
+
+**Impact:** Leaf subagents can bypass `controlScope` to send messages to sessions outside their permitted scope.
+
+**Fix:** Pending patch.
+
+### GHSA-844j-xrrq-wgh4: XFF Loopback Spoofing Bypasses Canvas Auth and Rate Limiter
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** When `trustedProxies` was configured, canvas authentication and rate-limiting logic trusted the `X-Forwarded-For` header to determine the originating IP. A client that could send requests through a trusted proxy could inject a loopback address (`127.0.0.1`) into the XFF header, causing the gateway to treat the request as originating from localhost and bypass canvas auth and rate limiting.
+
+**Impact:** Canvas authentication and rate-limiter bypass via XFF loopback spoofing through trusted proxies.
+
+**Fix:** Pending patch.
+
+### GHSA-ppwq-6v66-5m6j: Gateway operator.read Exposes Credentials in baseUrl Fields
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The gateway `config.get` and `channels.status` methods returned channel configuration objects that included `baseUrl` fields. Some channel configurations embed credentials (API keys, tokens) directly in the `baseUrl` as user-info components (e.g., `https://token@host/`). Callers with only `operator.read` scope could retrieve these credential-bearing URLs.
+
+**Impact:** Credential exposure to `operator.read` callers via `baseUrl` fields returned by `config.get`/`channels.status`.
+
+**Fix:** Pending patch.
+
+### GHSA-8883-9w57-vwv6: Mattermost Callback Dispatch Allows Non-Allowlisted Sender Actions
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Mattermost interactive message callback dispatch verified the webhook signature but did not check whether the `action` field in the callback payload was on the configured allowlist. Mattermost users could therefore invoke arbitrary action identifiers via callback payloads, including actions not intended to be accessible from interactive messages.
+
+**Impact:** Allowlist bypass allowing arbitrary Mattermost callback action invocation by authenticated Mattermost users.
+
+**Fix:** Pending patch.
+
+### GHSA-xhq5-45pm-2gjr: Nextcloud Talk Room Allowlist Matches Colliding Room Names
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** The Nextcloud Talk channel's room allowlist compared incoming requests against display names (human-readable room titles) rather than stable room tokens. Two rooms with the same display name (colliding names) would both match the allowlist entry intended for only one of them, allowing access to an unintended room.
+
+**Impact:** Room allowlist bypass in Nextcloud Talk when multiple rooms share the same display name.
+
+**Fix:** Pending patch.
+
+### GHSA-pw7h-9g6p-c378: Tlon Settings Empty-Allowlist Reconciliation Bypasses Revocation
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** pending
+**Credits:** -
+
+**Description:** Tlon channel settings reconciliation treated an empty allowlist in the incoming settings payload as "no change" rather than "revoke all." When an operator pushed settings with an empty allowlist intending to revoke all permitted senders, the reconciliation logic preserved the existing non-empty allowlist, silently ignoring the revocation intent.
+
+**Impact:** Allowlist revocation bypass in Tlon channel — clearing the allowlist via settings update does not take effect.
+
+**Fix:** Pending patch.
 
 ### Relationship to Third-Party Audits
 
