@@ -78,10 +78,10 @@ Or:
 npm install -g openclaw@latest
 ```
 
-Verify Node.js version (22.12.0+ recommended for security patches):
+Verify Node.js version (22.14.0+ required):
 
 ```bash
-node --version  # Should be v22.12.0 or later
+node --version  # Should be v22.14.0 or later
 ```
 
 ### 3) Onboard and install the background service
@@ -226,10 +226,10 @@ Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-
 - [ ] Run the gateway service under that user
 
 ### Node.js Version
-Ensure Node.js 22.12.0+ (includes critical security patches):
+Ensure Node.js 22.14.0+ (minimum required per package.json engines field):
 
 ```bash
-node --version  # Should be v22.12.0 or later
+node --version  # Should be v22.14.0 or later
 ```
 
 ### Gateway Security
