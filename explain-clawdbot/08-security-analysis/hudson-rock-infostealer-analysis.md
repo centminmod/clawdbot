@@ -52,7 +52,7 @@
 | 3 | `openclaw.json` contains workspace path | **CONFIRMED** | `agents[].dir` field configures workspace directories |
 | 4 | `device.json` contains crypto keys | **CONFIRMED** | ED25519 private + public key pair, device ID (SHA256 fingerprint) (`src/infra/device-identity.ts:57-63`); stored at `~/.openclaw/identity/device.json` (`src/infra/device-identity.ts:20-21`) with `0o600` perms (`src/infra/device-identity.ts:84,116-118`) |
 | 5 | `soul.md` contains agent principles | **CONFIRMED** | User-defined workspace `.md` file loaded into system prompt (`src/agents/workspace.ts:487-547`). Note: located in workspace dir, NOT in `~/.openclaw/` |
-| 6 | Stolen gateway token enables remote connection | **CONFIRMED** | If port is exposed: WebSocket full access, HTTP `/tools/invoke` including exec (`src/gateway/tools-invoke-http.ts:127-324`), `/v1/chat/completions` |
+| 6 | Stolen gateway token enables remote connection | **CONFIRMED** | If port is exposed: WebSocket full access, HTTP `/tools/invoke` including exec (`src/gateway/tools-invoke-http.ts:127-361`), `/v1/chat/completions` |
 | 7 | Token allows "masquerade as the client" | **CONFIRMED** | Gateway tokens are not device-bound; any bearer can authenticate (`src/gateway/auth.ts`) |
 | 8 | VirusTotal partnership for ClawHub | **CONFIRMED** | 6-step pipeline, 70+ AV engines, Gemini code review, daily rescans ([blog](https://openclaw.ai/blog/virustotal-partnership)) |
 | 9 | Lookalike website bypass technique | **NEW** | Not previously documented; OpenSourceMalware team finding |
@@ -71,7 +71,7 @@ This section focuses on **what an attacker can do** with each stolen file, not j
 
 **Attacker capabilities:**
 - **Remote gateway access** — If the gateway port is exposed (not loopback-only), the stolen `gateway.auth.token` grants WebSocket full-duplex control and HTTP tool invocation
-- **Remote code execution** — Via `POST /tools/invoke` with the exec tool, an attacker can run arbitrary shell commands (`src/gateway/tools-invoke-http.ts:127-324`)
+- **Remote code execution** — Via `POST /tools/invoke` with the exec tool, an attacker can run arbitrary shell commands (`src/gateway/tools-invoke-http.ts:127-361`)
 - **API billing fraud** — If `auth-profiles.json` was also stolen (likely), attacker gets all AI provider API keys (Anthropic, OpenAI, etc.)
 - **Workspace reconnaissance** — `agents[].dir` reveals workspace paths, aiding further targeted attacks
 
