@@ -294,7 +294,7 @@ Each agent can have its own allow/deny tool list. The precedence chain is:
 
 If agent-specific lists are set, they take priority over global lists.
 
-Source: `src/agents/sandbox/tool-policy.ts:35` (`resolveSandboxToolPolicyForAgent()`)
+Source: `src/agents/sandbox/tool-policy.ts:208` (`resolveSandboxToolPolicyForAgent()`)
 
 ### Named tool profiles
 

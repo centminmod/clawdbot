@@ -36,7 +36,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 10 | **Ed25519 keypair generation** — asymmetric crypto on first run / device identity creation | `src/infra/device-identity.ts:57` | Low (one-time) | Like generating a strong password — intensive but happens only once |
 | 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager-sync-ops.ts:696` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:648-737` | Medium | API calls are remote but audio buffer conversion is local CPU work |
-| 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:77` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
+| 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:78` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
 | 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:547` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
 
 ### Other CPU consumers
@@ -126,7 +126,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
 | Browser user-data profiles | `src/browser/chrome.ts:80-82` | Full Chromium profile — can reach GBs |
 | SQLite databases | `src/memory/manager-sync-ops.ts:252-262` | **No VACUUM** — database grows unbounded without periodic vacuuming (uses default DELETE journal mode, no WAL) |
-| Per-day log file size | `src/logging/logger.ts:50,193-207` | **Capped** — 500MB default (`DEFAULT_MAX_LOG_FILE_BYTES`), configurable via `logging.maxFileBytes`; warns once then suppresses writes when reached |
+| Per-day log file size | `src/logging/logger.ts:49,187-202` | **Capped** — 500MB default (`DEFAULT_MAX_LOG_FILE_BYTES`), configurable via `logging.maxFileBytes`; warns once then suppresses writes when reached |
 | Voice-call `calls.jsonl` | `extensions/voice-call/src/manager/store.ts:7-10` | **Append-only, no rotation** + full-file reads on load |
 
 > *Transcript JSONL files:* Like a chat log that records every message forever but never archives or deletes old conversations — a busy bot can accumulate gigabytes over months.
@@ -140,7 +140,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Resource | Limit | Location |
 |----------|-------|----------|
 | Media files | 2min TTL auto-cleanup | `src/media/store.ts:16,94-130` |
-| Rolling logs | 24h age pruning | `src/logging/logger.ts:49,360` |
+| Rolling logs | 24h age pruning | `src/logging/logger.ts:48,357` |
 | Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store-maintenance.ts:12-14` |
 | Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:82-83` |
 | TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:24,538-548` |
