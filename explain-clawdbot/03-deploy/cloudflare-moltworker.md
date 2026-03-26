@@ -1,7 +1,7 @@
 # Deployment runbook: Cloudflare Moltworker (serverless)
 
 > **Note:** This guide is for OpenClaw (formerly Moltbot/Clawdbot). Moltworker is a proof-of-concept serverless deployment — not an official Cloudflare product.
-
+>
 > **Supplementary resource:** [Kimi K2.5 Cloudflare Guide](../../explain-clawdbot-kilocode-kimi-k2.5/cloudflare-moltworker.md) provides additional explanations for D1 Database, KV, and Queues with beginner-friendly analogies. Note: it does not cover Sandbox SDK (the core runtime) and its security analysis contains inaccuracies -- use this guide for actual deployment.
 
 ## Table of contents (Explain OpenClaw)
@@ -696,7 +696,7 @@ Verify your token:
 
 ```bash
 # Set via secret
-wrangler secret put OPENCLAW_GATEWAY_TOKEN
+wrangler secret put MOLTBOT_GATEWAY_TOKEN
 
 # Test
 curl -H "Authorization: Bearer YOUR_TOKEN" \

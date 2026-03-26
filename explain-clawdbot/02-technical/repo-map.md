@@ -111,14 +111,14 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 | `src/plugins/` | ~84 | Plugin runtime and loading |
 | `src/media-understanding/` | ~63 | Image/audio/video understanding via AI |
 | `src/tui/` | ~45 | Terminal UI |
-| `src/daemon/` | ~32 | Cross-platform Gateway service lifecycle (systemd, launchd, schtasks) |
+| `src/daemon/` | ~57 | Cross-platform Gateway service lifecycle (systemd, launchd, schtasks) |
 | `src/hooks/` | — | Lifecycle hooks system |
 | `src/media/` | — | Media handling (upload, download, conversion) |
 | `src/plugin-sdk/` | — | Plugin SDK for extension authors |
-| `src/providers/` | — | LLM provider integrations (Anthropic, OpenAI, Ollama, etc.) |
 | `src/routing/` | — | Message routing, session key derivation |
 | `src/sessions/` | — | Session management and compaction |
 | `src/tts/` | — | Text-to-speech |
+| `src/web-search/` | — | Web search integration and retrieval |
 | `src/wizard/` | — | Setup wizard |
 | `src/logging/` | — | Logging, redaction |
 | `src/link-understanding/` | — | URL preview / link understanding |
@@ -132,8 +132,8 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 | `src/acp/` | — | ACP (Agent Communication Protocol) |
 | `src/canvas-host/` | — | Canvas/drawing host |
 | `src/compat/` | — | Compatibility layers |
+| `src/context-engine/` | — | Context management and orchestration |
 | `src/docs/` | — | In-app documentation helpers |
-| `src/macos/` | — | macOS-specific native integrations |
 | `src/markdown/` | — | Markdown processing |
 | `src/scripts/` | — | Source-level scripts |
 | `src/test-helpers/` | — | Test helper utilities |
