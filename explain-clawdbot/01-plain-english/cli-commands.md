@@ -80,6 +80,8 @@ openclaw [--dev] [--profile <name>] <command>
   models auth add|setup-token|...    # manage model provider auth
   models aliases|fallbacks|...       # aliases + fallback chains
 
+  mcp list|show|set|unset            # manage MCP server config
+
   security audit                     # security scan
   approvals get|set|allowlist        # exec approval policy
 
@@ -916,6 +918,50 @@ Options: `--agent <id>` to scope to a specific agent, `--json` for output.
 
 ---
 
+## MCP server configuration
+
+These commands manage Model Context Protocol (MCP) server entries in your OpenClaw config. MCP servers extend agent capabilities with custom tools (e.g., `context7`, `filesystem`, custom REST APIs).
+
+### `openclaw mcp list`
+
+**What it does:** List all configured MCP servers.
+
+```bash
+openclaw mcp list
+openclaw mcp list --json
+```
+
+### `openclaw mcp show`
+
+**What it does:** Show config for one MCP server (or all servers if no name given).
+
+```bash
+openclaw mcp show
+openclaw mcp show context7
+openclaw mcp show context7 --json
+```
+
+### `openclaw mcp set`
+
+**What it does:** Add or update one MCP server from a JSON config object.
+
+```bash
+openclaw mcp set context7 '{"command":"uvx","args":["context7-mcp"]}'
+openclaw mcp set myserver '{"command":"node","args":["/path/to/server.js"]}'
+```
+
+The value must be a valid JSON object describing how to launch the MCP server.
+
+### `openclaw mcp unset`
+
+**What it does:** Remove a configured MCP server.
+
+```bash
+openclaw mcp unset context7
+```
+
+---
+
 ## 8. Security
 
 ### `openclaw security audit`
@@ -1431,6 +1477,45 @@ openclaw skills check                 # readiness summary
 | `-v` / `--verbose` | Include missing requirements detail |
 
 Tip: use `npx clawhub` to search, install, and sync skills from the marketplace.
+
+---
+
+### `openclaw voicecall` (voice-call plugin)
+
+**What it does:** Initiate and manage outbound voice calls. This command is provided by the `voice-call` plugin and only appears when that plugin is installed and enabled. See `openclaw plugins install voice-call` to add it.
+
+**Subcommands:**
+
+```bash
+# Initiate a call
+openclaw voicecall call -m "Your gateway had an alert" -t +15551234567
+openclaw voicecall call -m "Hello" --mode notify     # hang up after message
+
+# Alias for call:
+openclaw voicecall start --to +15551234567 --message "Hello"
+
+# Manage an active call (use the call-id from the call/start output):
+openclaw voicecall continue --call-id <id> --message "Press 1 to confirm"
+openclaw voicecall speak --call-id <id> --message "Done"   # no wait for response
+openclaw voicecall end --call-id <id>
+openclaw voicecall status --call-id <id>
+
+# Observe call logs:
+openclaw voicecall tail                    # stream new JSONL entries
+openclaw voicecall latency --last 100      # latency summary
+
+# Webhook exposure (Tailscale):
+openclaw voicecall expose --mode funnel    # public URL via Tailscale Funnel
+openclaw voicecall expose --mode serve     # tailnet-only
+openclaw voicecall expose --mode off       # remove exposure
+```
+
+| Option | What it does |
+|--------|-------------|
+| `-m` / `--message` | Message to speak when the call connects |
+| `-t` / `--to` | Phone number (E.164 format, e.g. `+15551234567`) |
+| `--mode notify\|conversation` | `notify` = hang up after message; `conversation` = stay open |
+| `--call-id` | ID returned by `call` or `start` |
 
 ---
 

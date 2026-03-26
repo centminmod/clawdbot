@@ -77,7 +77,7 @@ This is a "practical navigation guide" for new contributors/readers.
 
 - `src/auto-reply/` — reply pipeline
 - `src/auto-reply/reply/agent-runner.ts` — core agent-turn orchestrator
-- `src/agents/` — agent framework (~817 files, 12 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
+- `src/agents/` — agent framework (~1005 files, 12 subdirectories): tools, sandbox, auth profiles, skills, multi-agent
 
 ### Routing
 
@@ -96,21 +96,21 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 
 | Directory | Files (approx.) | Purpose |
 |-----------|-----------------|---------|
-| `src/agents/` | ~467 | Agent framework, tools, sandbox, auth profiles, skills |
-| `src/gateway/` | ~229 | Gateway server, WS runtime, RPC handlers, config validation |
-| `src/auto-reply/` | ~282 | Reply pipeline, agent turn orchestration |
-| `src/cli/` | ~285 | CLI command definitions and parsing |
-| `src/commands/` | ~352 | CLI command implementations |
-| `src/infra/` | ~361 | Infrastructure: networking, SSRF guards, exec safety, archiving |
-| `src/config/` | ~217 | Configuration schema, types, validation, migrations |
-| `src/browser/` | ~146 | Browser automation (CDP/Puppeteer) |
-| `src/channels/` | ~174 | Shared channel logic, identities, allowlists, registry |
-| `src/memory/` | ~96 | Memory/context management, QMD |
-| `src/secrets/` | ~44 | Secret reference resolution, env substitution, audit |
-| `src/cron/` | ~102 | Cron job scheduling |
-| `src/plugins/` | ~84 | Plugin runtime and loading |
-| `src/media-understanding/` | ~63 | Image/audio/video understanding via AI |
-| `src/tui/` | ~45 | Terminal UI |
+| `src/agents/` | ~1005 | Agent framework, tools, sandbox, auth profiles, skills |
+| `src/gateway/` | ~410 | Gateway server, WS runtime, RPC handlers, config validation |
+| `src/auto-reply/` | ~355 | Reply pipeline, agent turn orchestration |
+| `src/cli/` | ~331 | CLI command definitions and parsing |
+| `src/commands/` | ~429 | CLI command implementations |
+| `src/infra/` | ~538 | Infrastructure: networking, SSRF guards, exec safety, archiving |
+| `src/config/` | ~266 | Configuration schema, types, validation, migrations |
+| `src/browser/` | ~163 | Browser automation (CDP/Puppeteer) |
+| `src/channels/` | ~191 | Shared channel logic, identities, allowlists, registry |
+| `src/memory/` | ~106 | Memory/context management, QMD |
+| `src/secrets/` | ~53 | Secret reference resolution, env substitution, audit |
+| `src/cron/` | ~118 | Cron job scheduling |
+| `src/plugins/` | ~245 | Plugin runtime and loading |
+| `src/media-understanding/` | ~56 | Image/audio/video understanding via AI |
+| `src/tui/` | ~48 | Terminal UI |
 | `src/daemon/` | ~57 | Cross-platform Gateway service lifecycle (systemd, launchd, schtasks) |
 | `src/hooks/` | — | Lifecycle hooks system |
 | `src/media/` | — | Media handling (upload, download, conversion) |
@@ -196,7 +196,7 @@ From repo root:
 
 ## Documentation Coverage
 
-This section tracks how well the `explain-clawdbot/` documentation covers the codebase. Snapshot verified on 2026-03-15.
+This section tracks how well the `explain-clawdbot/` documentation covers the codebase. Snapshot verified on 2026-03-26.
 
 ### Coverage by Area
 
