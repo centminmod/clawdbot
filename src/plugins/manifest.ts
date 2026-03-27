@@ -13,6 +13,7 @@ export type PluginManifestChannelConfig = {
   uiHints?: Record<string, PluginConfigUiHint>;
   label?: string;
   description?: string;
+  preferOver?: string[];
 };
 
 export type PluginManifest = {
@@ -131,27 +132,6 @@ function normalizeManifestContracts(value: unknown): PluginManifestContracts | u
   return Object.keys(contracts).length > 0 ? contracts : undefined;
 }
 
-function normalizeLegacyCapabilityContracts(
-  raw: Record<string, unknown>,
-): PluginManifestContracts | undefined {
-  return normalizeManifestContracts({
-    speechProviders: raw.speechProviders,
-    mediaUnderstandingProviders: raw.mediaUnderstandingProviders,
-    imageGenerationProviders: raw.imageGenerationProviders,
-  });
-}
-
-function mergeManifestContracts(
-  fallback: PluginManifestContracts | undefined,
-  primary: PluginManifestContracts | undefined,
-): PluginManifestContracts | undefined {
-  const merged = {
-    ...fallback,
-    ...primary,
-  } satisfies PluginManifestContracts;
-  return Object.keys(merged).length > 0 ? merged : undefined;
-}
-
 function normalizeProviderAuthChoices(
   value: unknown,
 ): PluginManifestProviderAuthChoice[] | undefined {
@@ -223,11 +203,13 @@ function normalizeChannelConfigs(
       : undefined;
     const label = typeof rawEntry.label === "string" ? rawEntry.label.trim() : "";
     const description = typeof rawEntry.description === "string" ? rawEntry.description.trim() : "";
+    const preferOver = normalizeStringList(rawEntry.preferOver);
     normalized[channelId] = {
       schema,
       ...(uiHints ? { uiHints } : {}),
       ...(label ? { label } : {}),
       ...(description ? { description } : {}),
+      ...(preferOver.length > 0 ? { preferOver } : {}),
     };
   }
   return Object.keys(normalized).length > 0 ? normalized : undefined;
@@ -303,10 +285,7 @@ export function loadPluginManifest(
   const providerAuthEnvVars = normalizeStringListRecord(raw.providerAuthEnvVars);
   const providerAuthChoices = normalizeProviderAuthChoices(raw.providerAuthChoices);
   const skills = normalizeStringList(raw.skills);
-  const contracts = mergeManifestContracts(
-    normalizeLegacyCapabilityContracts(raw),
-    normalizeManifestContracts(raw.contracts),
-  );
+  const contracts = normalizeManifestContracts(raw.contracts);
   const channelConfigs = normalizeChannelConfigs(raw.channelConfigs);
 
   let uiHints: Record<string, PluginConfigUiHint> | undefined;

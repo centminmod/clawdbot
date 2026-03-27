@@ -614,14 +614,19 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
       return { cancel: true };
     }
 
-    const apiKey = await ctx.modelRegistry.getApiKey(model);
-    if (!apiKey) {
+    const fallbackHeaders =
+      model.headers && typeof model.headers === "object" && !Array.isArray(model.headers)
+        ? model.headers
+        : undefined;
+    const apiKey = (await ctx.modelRegistry.getApiKey(model)) ?? "";
+    const headers = fallbackHeaders;
+    if (!apiKey && !headers) {
       log.warn(
-        "Compaction safeguard: no API key available; cancelling compaction to preserve history.",
+        "Compaction safeguard: no request auth available; cancelling compaction to preserve history.",
       );
       setCompactionSafeguardCancelReason(
         ctx.sessionManager,
-        `Compaction safeguard could not resolve an API key for ${model.provider}/${model.id}.`,
+        `Compaction safeguard could not resolve request auth for ${model.provider}/${model.id}.`,
       );
       return { cancel: true };
     }
@@ -688,6 +693,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
                   messages: pruned.droppedMessagesList,
                   model,
                   apiKey,
+                  headers,
                   signal,
                   reserveTokens: Math.max(1, Math.floor(preparation.settings.reserveTokens)),
                   maxChunkTokens: droppedMaxChunkTokens,
@@ -759,6 +765,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
                   messages: messagesToSummarize,
                   model,
                   apiKey,
+                  headers,
                   signal,
                   reserveTokens,
                   maxChunkTokens,
@@ -775,6 +782,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
               messages: turnPrefixMessages,
               model,
               apiKey,
+              headers,
               signal,
               reserveTokens,
               maxChunkTokens,
