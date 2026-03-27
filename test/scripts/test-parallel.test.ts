@@ -13,6 +13,7 @@ import {
   hasFatalTestRunOutput,
   resolveTestRunExitCode,
 } from "../../scripts/test-parallel-utils.mjs";
+import { loadTestCatalog } from "../../scripts/test-planner/catalog.mjs";
 
 const clearPlannerShardEnv = (env) => {
   const nextEnv = { ...env };
@@ -22,8 +23,72 @@ const clearPlannerShardEnv = (env) => {
   delete nextEnv.OPENCLAW_TEST_FORCE_FORKS;
   delete nextEnv.OPENCLAW_TEST_DISABLE_THREAD_EXPANSION;
   delete nextEnv.OPENCLAW_TEST_SHOW_POOL_DECISION;
+  delete nextEnv.OPENCLAW_TEST_PROFILE;
+  delete nextEnv.OPENCLAW_TEST_WORKERS;
+  delete nextEnv.OPENCLAW_TEST_SKIP_DEFAULT;
+  delete nextEnv.OPENCLAW_TEST_INCLUDE_EXTENSIONS;
+  delete nextEnv.OPENCLAW_TEST_INCLUDE_CHANNELS;
+  delete nextEnv.OPENCLAW_TEST_INCLUDE_GATEWAY;
   return nextEnv;
 };
+
+const sharedTargetedChannelProxyFiles = (() => {
+  const catalog = loadTestCatalog();
+  return catalog.allKnownTestFiles
+    .filter((file) => {
+      const classification = catalog.classifyTestFile(file);
+      return classification.surface === "channels" && !classification.isolated;
+    })
+    .slice(0, 100);
+})();
+
+const sharedTargetedUnitProxyFiles = (() => {
+  const catalog = loadTestCatalog();
+  return catalog.allKnownTestFiles
+    .filter((file) => {
+      const classification = catalog.classifyTestFile(file);
+      return classification.surface === "unit" && !classification.isolated;
+    })
+    .slice(0, 100);
+})();
+
+const targetedChannelProxyFiles = [
+  ...sharedTargetedChannelProxyFiles,
+  "extensions/discord/src/monitor/message-handler.preflight.acp-bindings.test.ts",
+  "extensions/discord/src/monitor/monitor.agent-components.test.ts",
+  "extensions/telegram/src/bot.create-telegram-bot.test.ts",
+  "extensions/whatsapp/src/monitor-inbox.streams-inbound-messages.test.ts",
+];
+
+const targetedUnitProxyFiles = [
+  ...sharedTargetedUnitProxyFiles,
+  "src/cli/qr-dashboard.integration.test.ts",
+];
+
+const REPO_ROOT = path.resolve(import.meta.dirname, "../..");
+
+function runPlannerPlan(args: string[], env: NodeJS.ProcessEnv): string {
+  return execFileSync("node", ["scripts/test-parallel.mjs", ...args], {
+    cwd: REPO_ROOT,
+    env,
+    encoding: "utf8",
+  });
+}
+
+function runHighMemoryLocalMultiSurfacePlan(): string {
+  return runPlannerPlan(
+    ["--plan", "--surface", "unit", "--surface", "extensions", "--surface", "channels"],
+    {
+      ...clearPlannerShardEnv(process.env),
+      CI: "",
+      GITHUB_ACTIONS: "",
+      RUNNER_OS: "macOS",
+      OPENCLAW_TEST_HOST_CPU_COUNT: "12",
+      OPENCLAW_TEST_HOST_MEMORY_GIB: "128",
+      OPENCLAW_TEST_LOAD_AWARE: "0",
+    },
+  );
+}
 
 describe("scripts/test-parallel fatal output guard", () => {
   it("fails a zero exit when V8 reports an out-of-memory fatal", () => {
@@ -200,7 +265,134 @@ describe("scripts/test-parallel lane planning", () => {
 
     expect(output).toContain("mode=local intent=normal memoryBand=mid");
     expect(output).toContain("unit-fast filters=all maxWorkers=");
-    expect(output).toContain("extensions filters=all maxWorkers=");
+    expect(output).toMatch(/extensions(?:-batch-1)? filters=all maxWorkers=/);
+  });
+
+  it("uses higher shared extension worker counts on high-memory local hosts", () => {
+    const repoRoot = path.resolve(import.meta.dirname, "../..");
+    const highMemoryOutput = execFileSync(
+      "node",
+      ["scripts/test-parallel.mjs", "--plan", "--surface", "extensions"],
+      {
+        cwd: repoRoot,
+        env: {
+          ...clearPlannerShardEnv(process.env),
+          CI: "",
+          GITHUB_ACTIONS: "",
+          RUNNER_OS: "macOS",
+          OPENCLAW_TEST_HOST_CPU_COUNT: "12",
+          OPENCLAW_TEST_HOST_MEMORY_GIB: "128",
+          OPENCLAW_TEST_LOAD_AWARE: "0",
+        },
+        encoding: "utf8",
+      },
+    );
+    const midMemoryOutput = execFileSync(
+      "node",
+      ["scripts/test-parallel.mjs", "--plan", "--surface", "extensions"],
+      {
+        cwd: repoRoot,
+        env: {
+          ...clearPlannerShardEnv(process.env),
+          CI: "",
+          GITHUB_ACTIONS: "",
+          RUNNER_OS: "macOS",
+          OPENCLAW_TEST_HOST_CPU_COUNT: "10",
+          OPENCLAW_TEST_HOST_MEMORY_GIB: "64",
+          OPENCLAW_TEST_LOAD_AWARE: "0",
+        },
+        encoding: "utf8",
+      },
+    );
+
+    expect(midMemoryOutput).toContain("extensions-batch-1 filters=all maxWorkers=3");
+    expect(midMemoryOutput).toContain("extensions-batch-3 filters=all maxWorkers=3");
+    expect(highMemoryOutput).toContain("extensions-batch-1 filters=all maxWorkers=5");
+    expect(highMemoryOutput).toContain("extensions-batch-3 filters=all maxWorkers=5");
+    expect(highMemoryOutput).not.toContain("extensions-batch-4");
+  });
+
+  it("starts isolated channel lanes before shared extension batches on high-memory local hosts", () => {
+    const output = runHighMemoryLocalMultiSurfacePlan();
+
+    const firstChannelIsolated = output.indexOf(
+      "message-handler.preflight.acp-bindings-channels-isolated",
+    );
+    const firstExtensionBatch = output.indexOf("extensions-batch-1");
+    const firstChannelBatch = output.indexOf("channels-batch-1");
+    expect(firstChannelIsolated).toBeGreaterThanOrEqual(0);
+    expect(firstExtensionBatch).toBeGreaterThan(firstChannelIsolated);
+    expect(firstChannelBatch).toBeGreaterThan(firstExtensionBatch);
+    expect(output).toContain("channels-batch-1 filters=all maxWorkers=5");
+  });
+
+  it("uses coarser unit-fast batching for high-memory local multi-surface runs", () => {
+    const output = runHighMemoryLocalMultiSurfacePlan();
+
+    expect(output).toContain("unit-fast-batch-4");
+    expect(output).not.toContain("unit-fast-batch-5");
+  });
+
+  it("uses earlier targeted channel batching on high-memory local hosts", () => {
+    const repoRoot = path.resolve(import.meta.dirname, "../..");
+    const output = execFileSync(
+      "node",
+      [
+        "scripts/test-parallel.mjs",
+        "--plan",
+        "--surface",
+        "channels",
+        ...targetedChannelProxyFiles.flatMap((file) => ["--files", file]),
+      ],
+      {
+        cwd: repoRoot,
+        env: {
+          ...clearPlannerShardEnv(process.env),
+          CI: "",
+          GITHUB_ACTIONS: "",
+          RUNNER_OS: "macOS",
+          OPENCLAW_TEST_HOST_CPU_COUNT: "12",
+          OPENCLAW_TEST_HOST_MEMORY_GIB: "128",
+          OPENCLAW_TEST_LOAD_AWARE: "0",
+        },
+        encoding: "utf8",
+      },
+    );
+
+    expect(output).toContain("channels-batch-1 filters=33");
+    expect(output).toContain("channels-batch-2 filters=33");
+    expect(output).toContain("channels-batch-3 filters=34");
+  });
+
+  it("uses targeted unit batching on high-memory local hosts", () => {
+    const repoRoot = path.resolve(import.meta.dirname, "../..");
+    const output = execFileSync(
+      "node",
+      [
+        "scripts/test-parallel.mjs",
+        "--plan",
+        "--surface",
+        "unit",
+        ...targetedUnitProxyFiles.flatMap((file) => ["--files", file]),
+      ],
+      {
+        cwd: repoRoot,
+        env: {
+          ...clearPlannerShardEnv(process.env),
+          CI: "",
+          GITHUB_ACTIONS: "",
+          RUNNER_OS: "macOS",
+          OPENCLAW_TEST_HOST_CPU_COUNT: "12",
+          OPENCLAW_TEST_HOST_MEMORY_GIB: "128",
+          OPENCLAW_TEST_LOAD_AWARE: "0",
+        },
+        encoding: "utf8",
+      },
+    );
+
+    expect(output).toContain("unit-batch-1 filters=50");
+    expect(output).toContain("unit-batch-2 filters=49");
+    expect(output).not.toContain("unit-batch-3");
   });
 
   it("explains targeted file ownership and execution policy", () => {

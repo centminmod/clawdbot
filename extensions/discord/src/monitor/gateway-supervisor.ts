@@ -94,14 +94,22 @@ export function createDiscordGatewaySupervisor(params: {
       ),
     );
   };
+  const logLateDisposedEvent = (event: DiscordGatewayEvent) => {
+    params.runtime.error?.(
+      danger(
+        `discord: suppressed late gateway ${event.type} error after dispose: ${event.message}`,
+      ),
+    );
+  };
   const onGatewayError = (err: unknown) => {
-    if (disposed) {
-      return;
-    }
     const event = classifyDiscordGatewayEvent({
       err,
       isDisallowedIntentsError: params.isDisallowedIntentsError,
     });
+    if (phase === "disposed") {
+      logLateDisposedEvent(event);
+      return;
+    }
     if (phase === "active" && lifecycleHandler) {
       lifecycleHandler(event);
       return;
@@ -145,7 +153,6 @@ export function createDiscordGatewaySupervisor(params: {
       lifecycleHandler = undefined;
       phase = "disposed";
       pending.length = 0;
-      emitter.removeListener("error", onGatewayError);
     },
   };
 }
