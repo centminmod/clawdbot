@@ -325,6 +325,7 @@
 - [Mar 26 sync 6 (28 commits, 1 security)](./post-merge-hardening/2026-03-26-sync-6.md)
 - [Mar 27 sync 1 (75 commits, 19 security)](./post-merge-hardening/2026-03-27-sync-1.md)
 - [Mar 27 sync 2 (75 commits, 11 security)](./post-merge-hardening/2026-03-27-sync-2.md)
+- [Mar 27 sync 3 (75 commits, 7 security)](./post-merge-hardening/2026-03-27-sync-3.md)
 
 ## Post-Merge Security Hardening
 
@@ -408,7 +409,7 @@ Additional security hardening:
 
 One security-relevant commit:
 
-- **`a1e89afcc`** — Secure Chrome extension relay CDP: Adds token-based authentication (`x-openclaw-relay-token` header) and loopback address validation (`src/browser/extension-relay.ts:84,105-134,181-182`) to the Chrome DevTools Protocol relay. Prevents unauthorized CDP access from non-localhost sources.
+- **`a1e89afcc`** — Secure Chrome extension relay CDP: Adds token-based authentication (`x-openclaw-relay-token` header) and loopback address validation (`src/browser/extension-relay.ts:84,105-134,181-182`) to the Chrome DevTools Protocol relay. Prevents unauthorized CDP access from non-localhost sources. (Note: extension-relay.ts was subsequently removed in Mar 17 sync 3.)
 
 ### Post-Merge Hardening (PR #12 — 64 commits)
 

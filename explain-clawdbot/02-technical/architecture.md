@@ -139,7 +139,7 @@ Docs: https://docs.openclaw.ai/gateway/configuration
 - `src/security/`. Security audit (`openclaw security audit`), scan path helpers, fix application.
 
 ### Browser
-- `src/browser/`. Chromium automation via Playwright CDP. Screenshot normalization, AX tree traversal. Simplified to autoConnect-only (headless/remote MCP attach modes and chrome-relay auto-creation were dropped).
+- `extensions/browser/src/browser/`. Chromium automation via Playwright CDP. Screenshot normalization, AX tree traversal. Simplified to autoConnect-only (headless/remote MCP attach modes and chrome-relay auto-creation were dropped). (Moved from `src/browser/` in Mar 27 sync 3.)
 
 ### TTS
 - `src/tts/`. Text-to-speech via ElevenLabs/OpenAI/Edge TTS APIs.

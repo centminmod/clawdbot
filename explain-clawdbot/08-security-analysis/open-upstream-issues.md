@@ -16,20 +16,20 @@
 | [#50626](https://github.com/openclaw/openclaw/issues/50626) | HIGH | IDOR: device.token.rotate — any operator.pairing client can rotate another device's token | `src/gateway/server-methods/devices.ts:177-254` — handler checks device exists and caller scopes, but no `client.connect.deviceId === params.deviceId` ownership check; any device with `operator.pairing` scope can rotate any other device's token and receive plaintext credential |
 | [#20305](https://github.com/openclaw/openclaw/issues/20305) | ~~HIGH~~ WONTFIX | message tool cross-user sends in multi-tenant deployments (no per-agent scoping) | Closed upstream as NOT_PLANNED (2026-03-24); `src/infra/outbound/message-action-runner.ts` — no `allowedRecipients` or per-agent channel filtering; affects deployments with `dmScope: "per-channel-peer"` and 200+ agents |
 | [#3277](https://github.com/openclaw/openclaw/issues/3277) | ~~HIGH~~ FIXED | Path validation bypass via `startsWith` prefix | Fixed upstream (COMPLETED 2026-02-15, consolidated Feb 19 sync 2); `src/infra/archive-path.ts:12,50` - `validateArchiveEntryPath()` + `resolveArchiveOutputPath()` (hardened Feb 15, consolidated to module Feb 19) |
-| [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH (WONTFIX) | Browser control server DNS rebinding | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/server.ts:65`; no Host header validation |
-| [#4950](https://github.com/openclaw/openclaw/issues/4950) | HIGH (WONTFIX) | Arbitrary JS execution via browser evaluate (default on) | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true` |
+| [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH (WONTFIX) | Browser control server DNS rebinding | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `extensions/browser/src/server.ts:68`; no Host header validation |
+| [#4950](https://github.com/openclaw/openclaw/issues/4950) | HIGH (WONTFIX) | Arbitrary JS execution via browser evaluate (default on) | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `extensions/browser/src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true` |
 | [#4995](https://github.com/openclaw/openclaw/issues/4995) | HIGH (WONTFIX) | iMessage dmPolicy auto-responds with pairing codes | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/imessage/monitor/monitor-provider.ts:120,247-278` |
 | [#5052](https://github.com/openclaw/openclaw/issues/5052) | ~~HIGH~~ FIXED | Config validation fail-open returns `{}` | Fixed upstream (COMPLETED 2026-03-07); commit `f53e10e3f` — `src/config/io.ts:1333` now throws `INVALID_CONFIG` error instead of returning `{}`; fail-closed behavior confirmed locally |
-| [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH (WONTFIX) | Browser file upload arbitrary read | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `src/browser/pw-tools-core.interactions.ts:656` |
+| [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH (WONTFIX) | Browser file upload arbitrary read | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `extensions/browser/src/browser/pw-tools-core.interactions.ts:656` |
 | [#5995](https://github.com/openclaw/openclaw/issues/5995) | HIGH (WONTFIX) | Secrets exposed in session transcripts | Closed upstream as NOT_PLANNED (2026-03-01); `config.get` redacted via `redactConfigSnapshot()` (PR #9858); by-design transcript exposure |
 | [#6606](https://github.com/openclaw/openclaw/issues/6606) | HIGH (WONTFIX) | Telegram webhook binds to 0.0.0.0 with optional secret | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/telegram/webhook.ts:107,118,119-125` |
-| [#6609](https://github.com/openclaw/openclaw/issues/6609) | ~~HIGH~~ FIXED | Browser bridge server optional authentication | Fixed upstream (COMPLETED 2026-02-14); `src/browser/bridge-server.ts:33-42` |
+| [#6609](https://github.com/openclaw/openclaw/issues/6609) | ~~HIGH~~ FIXED | Browser bridge server optional authentication | Fixed upstream (COMPLETED 2026-02-14); `extensions/browser/src/browser/bridge-server.ts:33-42` |
 | [#8054](https://github.com/openclaw/openclaw/issues/8054) | ~~HIGH~~ FIXED | Type coercion `"undefined"` credentials | Fixed upstream (COMPLETED 2026-02-13); `src/wizard/onboarding.gateway-config.ts:206` |
-| [#8516](https://github.com/openclaw/openclaw/issues/8516) | HIGH (WONTFIX) | Browser download/trace endpoints arbitrary file write | Closed upstream as NOT_PLANNED (2026-03-01); local code already hardened — `src/browser/routes/agent.act.download.ts:51,103` uses `resolveWritableOutputPathOrRespond()` from `src/browser/routes/output-paths.ts:9` (download routes extracted to dedicated module) |
+| [#8516](https://github.com/openclaw/openclaw/issues/8516) | HIGH (WONTFIX) | Browser download/trace endpoints arbitrary file write | Closed upstream as NOT_PLANNED (2026-03-01); local code already hardened — `extensions/browser/src/browser/routes/agent.act.download.ts:51,103` uses `resolveWritableOutputPathOrRespond()` from `extensions/browser/src/browser/routes/output-paths.ts:9` (download routes extracted to dedicated module) |
 | [#8586](https://github.com/openclaw/openclaw/issues/8586) | ~~HIGH~~ FIXED | Configurable bypass allows unrestricted command exec | Fixed upstream (COMPLETED 2026-02-14); `src/agents/bash-tools.exec.ts:258-266,330-332` |
 | [#8591](https://github.com/openclaw/openclaw/issues/8591) | HIGH (WONTFIX) | Env vars exposed via shell commands | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/agents/bash-tools.exec.ts:363,369` |
 | [#8590](https://github.com/openclaw/openclaw/issues/8590) | ~~HIGH~~ FIXED | Status endpoint exposes sensitive internal info | Fixed upstream (COMPLETED 2026-02-15); `src/gateway/server-methods/health.ts:28-31` |
-| [#8696](https://github.com/openclaw/openclaw/issues/8696) | HIGH (WONTFIX) | Playwright download path traversal | Closed upstream as NOT_PLANNED (2026-02-24); `src/browser/pw-tools-core.downloads.ts:26-31` — `sanitizeUntrustedFileName()` (from `safe-filename.js`) + `buildTempDownloadPath()` (hardened Feb 15 sync 2) |
+| [#8696](https://github.com/openclaw/openclaw/issues/8696) | HIGH (WONTFIX) | Playwright download path traversal | Closed upstream as NOT_PLANNED (2026-02-24); `extensions/browser/src/browser/pw-tools-core.downloads.ts:26-31` — `sanitizeUntrustedFileName()` (from `safe-filename.js`) + `buildTempDownloadPath()` (hardened Feb 15 sync 2) |
 | [#8776](https://github.com/openclaw/openclaw/issues/8776) | ~~HIGH~~ FIXED | soul-evil hook silently hijacks agent | Fixed in PR [#14757](https://github.com/openclaw/openclaw/pull/14757) — soul-evil hook completely removed |
 | [#9435](https://github.com/openclaw/openclaw/issues/9435) | ~~HIGH~~ FIXED | Gateway auth token exposed in URL query params | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token acceptance removed from `src/gateway/hooks.ts`, dashboard URL no longer passes `?token=` |
 | [#9512](https://github.com/openclaw/openclaw/issues/9512) | ~~HIGH~~ FIXED | Skill download archive path traversal | Fixed upstream (COMPLETED 2026-02-14); `src/agents/skills-install.ts:331,342` — now calls `extractArchiveSafe()` |
@@ -65,10 +65,10 @@
 | [#7139](https://github.com/openclaw/openclaw/issues/7139) | ~~MEDIUM~~ FIXED | Default config: sandbox off, plaintext creds | Fixed upstream (COMPLETED); `src/agents/sandbox/config.ts:244` — sandbox default changed |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM (WONTFIX) | Orphaned tool_use blocks from backgrounded exec | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/agents/session-transcript-repair.ts:349` (reactive repair, not proactive) |
 | [#11900](https://github.com/openclaw/openclaw/issues/11900) | ~~MEDIUM~~ WONTFIX | Context files (USER.md, SOUL.md) loaded for all senders | Closed upstream as NOT_PLANNED (2026-03-25); `src/agents/bootstrap-files.ts:64-96` — no `senderIsOwner` check; `attempt.ts:1726` calls unconditionally |
-| [#50628](https://github.com/openclaw/openclaw/issues/50628) | MEDIUM | Browser control server installs no authentication when gateway auth mode is trusted-proxy | `src/browser/control-auth.ts:65-67` — `ensureBrowserControlAuth()` returns empty auth object for `trusted-proxy` mode; `installBrowserAuthMiddleware` skips when token+password both undefined; browser automation API accessible to any loopback process without auth |
+| [#50628](https://github.com/openclaw/openclaw/issues/50628) | MEDIUM | Browser control server installs no authentication when gateway auth mode is trusted-proxy | `extensions/browser/src/browser/control-auth.ts:65-67` — `ensureBrowserControlAuth()` returns empty auth object for `trusted-proxy` mode; `installBrowserAuthMiddleware` skips when token+password both undefined; browser automation API accessible to any loopback process without auth |
 | [#50630](https://github.com/openclaw/openclaw/issues/50630) | MEDIUM | Tailscale serve + auth.mode=none bypasses startup validation | `src/gateway/server-runtime-config.ts:125` — funnel mode validates `authMode !== "password"` and errors; no equivalent guard for `tailscale.mode=serve` + `auth.mode=none`; config combination exposes gateway to all Tailnet peers without authentication |
 | [#50635](https://github.com/openclaw/openclaw/issues/50635) | MEDIUM | `*.ts.net` Host header accepted as local-direct — bypasses gateway token auth | `src/gateway/net.ts:361` — `isLocalishHost()` returns `true` for any `*.ts.net` Host header; `src/gateway/auth.ts:136` — `isLocalDirectRequest()` trusts this header; any loopback process can forge `Host: evil.ts.net` to bypass canvas/readiness/a2ui endpoint auth |
-| [#50644](https://github.com/openclaw/openclaw/issues/50644) | MEDIUM | auth.mode=none propagates silently to browser control server | `src/browser/control-auth.ts:61-63` — `ensureBrowserControlAuth()` returns empty auth for `auth.mode=none` (same as trusted-proxy); browser control server starts without any auth middleware; relates to #50628 |
+| [#50644](https://github.com/openclaw/openclaw/issues/50644) | MEDIUM | auth.mode=none propagates silently to browser control server | `extensions/browser/src/browser/control-auth.ts:61-63` — `ensureBrowserControlAuth()` returns empty auth for `auth.mode=none` (same as trusted-proxy); browser control server starts without any auth middleware; relates to #50628 |
 | [#53412](https://github.com/openclaw/openclaw/issues/53412) | MEDIUM | Feishu encryptKey bypasses config redaction — leaked via config.get to operator.read clients | `src/config/schema.hints.ts:111-117` — `SENSITIVE_PATTERNS` does not match `encryptKey` (`/token$/i`, `/password/i`, `/secret/i`, `/api.?key/i` all miss); `extensions/feishu/src/config-schema.ts:197` — `buildSecretInputSchema()` is UI-only, not global redaction; `encryptKey` leaked in `config.get` response enabling Feishu webhook forgery |
 | [#54737](https://github.com/openclaw/openclaw/issues/54737) | MEDIUM | Prompt injection via unsanitized group chat metadata (GroupSubject, GroupMembers) | `src/auto-reply/reply/groups.ts:136-153` — `buildGroupChatContext()` embeds `GroupSubject` and `GroupMembers` directly in system prompt string without `sanitizeForPromptLiteral()`; attackers who control a group name (e.g., Discord/Telegram group with malicious title) can inject arbitrary LLM instructions |
 | [#12571](https://github.com/openclaw/openclaw/issues/12571) | MEDIUM (WONTFIX) | Session isolation leak in cron jobs after ~24h | Closed upstream as NOT_PLANNED; still affects local code at `src/cron/service/jobs.ts` — isolated sessions leak to main session after extended runtime |
@@ -103,7 +103,7 @@
 | [#14117](https://github.com/openclaw/openclaw/issues/14117) | ~~MEDIUM~~ FIXED | Session isolation & message attribution failure | Fixed upstream (COMPLETED 2026-02-14); cross-session message leakage; relates to #12571 |
 | [#14808](https://github.com/openclaw/openclaw/issues/14808) | ~~MEDIUM~~ FIXED LOCALLY (WONTFIX upstream) | apiKey resolved to plaintext in models.json cache | Closed upstream as NOT_PLANNED (2026-02-13); fixed locally by `17ab46aed` (Mar 8 sync 3) — `normalizeProviders()` now reverse-looks up env var names at `src/agents/models-config.providers.ts:483`, replacing resolved plaintext apiKeys before writing models.json; relates to #9627/#13683 |
 | [#11202](https://github.com/openclaw/openclaw/issues/11202) | MEDIUM | Model catalog apiKeys injected into LLM prompt context every turn | `src/agents/models-config.ts` — `normalizeProviders()` includes resolved `apiKey` in model catalog serialized to LLM; all provider keys sent to active provider |
-| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `src/browser/extension-relay.ts` — `/extension` path required `relayAuthToken` (same as `/cdp`); entire extension relay removed by commit `476d948732` (Mar 17 sync 3) |
+| [#16059](https://github.com/openclaw/openclaw/issues/16059) | ~~MEDIUM~~ FIXED | Extension relay /extension WebSocket unauthenticated | Fixed upstream (sync 15); `extensions/browser/extensions/browser/src/browser/extension-relay.ts` (removed) — `/extension` path required `relayAuthToken` (same as `/cdp`); entire extension relay removed by commit `476d948732` (Mar 17 sync 3) |
 | [#10992](https://github.com/openclaw/openclaw/issues/10992) | ~~MEDIUM~~ FIXED | Sub-agents bypass exec approvals for safeBins commands | Fixed upstream (COMPLETED); `safeBins`/`resolveExecApprovals` removed by upstream refactor |
 | [#15990](https://github.com/openclaw/openclaw/issues/15990) | ~~MEDIUM~~ FIXED | Context compaction leaks content between sessions | Fixed upstream (COMPLETED); `src/agents/pi-embedded-runner/compact.ts` — cross-session data bleed fixed; relates to #12571/#14117 |
 | [#12542](https://github.com/openclaw/openclaw/issues/12542) | ~~MEDIUM~~ FIXED | Diagnostics-OTEL exports unredacted session/chat IDs | Fixed upstream (COMPLETED); `extensions/diagnostics-otel/src/service.ts:391,427-494` |
@@ -116,9 +116,9 @@
 | [#10659](https://github.com/openclaw/openclaw/issues/10659) | ENHANCEMENT | Feature: Masked secrets to prevent agent reading raw API keys | Enhancement request; relates to #10033 (secrets management) |
 | [#38604](https://github.com/openclaw/openclaw/issues/38604) | MEDIUM | Sandbox containers have no default pidsLimit — fork bomb risk | `src/agents/sandbox/config.ts:114` — `pidsLimit: agentDocker?.pidsLimit ?? globalDocker?.pidsLimit` has no fallback default; `src/agents/sandbox/docker.ts:398-399` only adds `--pids-limit` when explicitly set |
 | [#45740](https://github.com/openclaw/openclaw/issues/45740) | MEDIUM | gh-issues skill: untrusted issue body injected into sub-agent prompt | `skills/gh-issues/SKILL.md:369` — `Body: {body}` injected verbatim into fix sub-agent prompt with full shell access; XML tag injection bypasses any prompt-level fence; exploitable in `--cron --yes` unattended mode |
-| [#45502](https://github.com/openclaw/openclaw/issues/45502) | MEDIUM | Multi-vuln report: eval in browser context + SSRF Azure hostname gap | `src/browser/pw-tools-core.interactions.ts:354-376` — `eval("(" + fnBody + ")")` in browser context (by design for Playwright automation); `src/infra/net/ssrf.ts:40-44` — `metadata.azure.internal` NOT in BLOCKED_HOSTNAMES (IP-based blocking covers 169.254.169.254 + 100.100.100.200); exec() claim at `src/gateway/server-methods/config.ts:506` invalid (JSON.stringify escaping) |
+| [#45502](https://github.com/openclaw/openclaw/issues/45502) | MEDIUM | Multi-vuln report: eval in browser context + SSRF Azure hostname gap | `extensions/browser/src/browser/pw-tools-core.interactions.ts:354-376` — `eval("(" + fnBody + ")")` in browser context (by design for Playwright automation); `src/infra/net/ssrf.ts:40-44` — `metadata.azure.internal` NOT in BLOCKED_HOSTNAMES (IP-based blocking covers 169.254.169.254 + 100.100.100.200); exec() claim at `src/gateway/server-methods/config.ts:506` invalid (JSON.stringify escaping) |
 | [#46457](https://github.com/openclaw/openclaw/issues/46457) | MEDIUM | WhatsApp self-reply bypasses pattern-based mention gating in groups | `extensions/whatsapp/src/auto-reply/monitor/group-gating.ts:147-152` — `implicitMention = identitiesOverlap(self, replyContext?.sender)` triggers on self-reply (JIDs, LIDs, and E.164 compared); `src/channels/mention-gating.ts:31-35` — implicit mention makes `effectiveWasMentioned=true`, bypassing `requireMention` gate |
-| [#45153](https://github.com/openclaw/openclaw/issues/45153) | MEDIUM | Sandbox browser ignores top-level browser.ssrfPolicy — always strictest | `src/agents/sandbox/browser.ts:64-97` — `buildSandboxBrowserResolvedConfig` omits `ssrfPolicy` from returned config; `src/browser/config.ts:101-128` — `resolveBrowserSsrFPolicy()` never called for sandbox; fails secure (more restrictive than configured) |
+| [#45153](https://github.com/openclaw/openclaw/issues/45153) | MEDIUM | Sandbox browser ignores top-level browser.ssrfPolicy — always strictest | `src/agents/sandbox/browser.ts:64-97` — `buildSandboxBrowserResolvedConfig` omits `ssrfPolicy` from returned config; `extensions/browser/src/browser/config.ts:101-128` — `resolveBrowserSsrFPolicy()` never called for sandbox; fails secure (more restrictive than configured) |
 | [#29829](https://github.com/openclaw/openclaw/issues/29829) | ~~MEDIUM~~ FIXED | EXEC_SECRET_REF_ID_PATTERN allows path traversal sequences | Fixed by `d30dc28b8` — `validateExecSecretRefId()` now splits by `/` and rejects `.` and `..` segments (`src/secrets/ref-contract.ts:86-95`); JSON schema pattern has negative lookahead rejecting `../`; confirmed COMPLETED upstream (2026-03-13) |
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | N/A (CLOSED) | Skill removal without notification | Closed upstream as NOT_PLANNED (2026-03-01); ClawHub platform moderation issue |
 | [#11879](https://github.com/openclaw/openclaw/issues/11879) | N/A (CLOSED) | Malicious ClawHub skill exfiltrating to Feishu | Closed upstream as NOT_PLANNED (2026-03-07); ecosystem/marketplace issue; 13,981 installs |
@@ -173,7 +173,7 @@
 
 2. **Tool call IDs** (`src/auto-reply/reply/get-reply-inline-actions.ts:244`): **Fixed by commit `265386cd6b` (Mar 22 sync 1)** — now uses `generateSecureToken(8)` (Node.js `crypto` module, 8 bytes of cryptographically secure random data) instead of `Math.random()`.
 
-**Secondary:** Tmp file suffixes in `src/cron/store.ts:140`, `src/cron/run-log.ts:130-131`, `src/browser/trash.ts:16` (low risk, collision-resistant via PID/timestamp). Note: `src/tts/tts.ts:422` formerly on this list now uses `randomBytes(8).toString("hex")` (fixed by commit `662031a88e`, Mar 17 sync 5).
+**Secondary:** Tmp file suffixes in `src/cron/store.ts:140`, `src/cron/run-log.ts:130-131`, `extensions/browser/src/browser/trash.ts:16` (low risk, collision-resistant via PID/timestamp). Note: `src/tts/tts.ts:422` formerly on this list now uses `randomBytes(8).toString("hex")` (fixed by commit `662031a88e`, Mar 17 sync 5).
 
 **Confirmed safe:** 52 files use `crypto.randomUUID`/`randomBytes` for proper crypto paths.
 
@@ -212,7 +212,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** The `setInputFilesViaPlaywright` function accepts user-controlled file paths and passes them directly to Playwright without validation. Attackers with browser control access can read arbitrary files readable by the OpenClaw process.
 
-**Affected code:** `src/browser/pw-tools-core.interactions.ts:656` - `opts.paths` passed directly to `setInputFiles()` without path validation.
+**Affected code:** `extensions/browser/src/browser/pw-tools-core.interactions.ts:656` - `opts.paths` passed directly to `setInputFiles()` without path validation.
 
 ### #5995: Secrets in Session Transcripts
 
@@ -261,12 +261,12 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Browser bridge server's authentication token is optional. When started without `authToken`, all browser automation endpoints are exposed without authentication.
 
 **Affected code:**
-- `src/browser/bridge-server.ts:24` - `authToken?: string` (optional parameter)
-- `src/browser/bridge-server.ts:32-51` - Auth now required; loopback check + express setup with abort handling
+- `extensions/browser/src/browser/bridge-server.ts:24` - `authToken?: string` (optional parameter)
+- `extensions/browser/src/browser/bridge-server.ts:32-51` - Auth now required; loopback check + express setup with abort handling
 
 **Verification:**
 - `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:355-366` WITH `authToken` and `authPassword` parameters
-- Bridge auth registry at `src/browser/bridge-auth-registry.ts` manages ephemeral port auth
+- Bridge auth registry at `extensions/browser/src/browser/bridge-auth-registry.ts` manages ephemeral port auth
 
 ### #8696: Playwright Download Path Traversal
 
@@ -276,9 +276,9 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Playwright download helpers use the server's suggested filename without sanitization, allowing path traversal writes outside `/tmp/openclaw/downloads`. A malicious `Content-Disposition` header like `filename=../../../../../etc/passwd` can write files to arbitrary locations.
 
 **Affected code:**
-- `src/browser/pw-tools-core.downloads.ts:26` - `sanitizeUntrustedFileName()` (from `safe-filename.js`) applies `path.posix.basename()` + `path.win32.basename()` + control char stripping (hardened Feb 15 sync 2; function renamed from `sanitizeDownloadFileName` in Mar 2 sync 7)
-- `src/browser/pw-tools-core.downloads.ts:28-31` - `buildTempDownloadPath()` calls `sanitizeUntrustedFileName()`
-- `src/browser/pw-tools-core.downloads.ts:90` - `suggestedFilename()` now sanitized before use
+- `extensions/browser/src/browser/pw-tools-core.downloads.ts:26` - `sanitizeUntrustedFileName()` (from `safe-filename.js`) applies `path.posix.basename()` + `path.win32.basename()` + control char stripping (hardened Feb 15 sync 2; function renamed from `sanitizeDownloadFileName` in Mar 2 sync 7)
+- `extensions/browser/src/browser/pw-tools-core.downloads.ts:28-31` - `buildTempDownloadPath()` calls `sanitizeUntrustedFileName()`
+- `extensions/browser/src/browser/pw-tools-core.downloads.ts:90` - `suggestedFilename()` now sanitized before use
 
 **Verification (post-hardening):**
 - `sanitizeUntrustedFileName()` applies dual `path.basename()` (posix + win32) and strips control chars
@@ -336,8 +336,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Browser control server binds to `127.0.0.1` but performs no Host header validation. DNS rebinding attacks can bypass localhost restriction to reach browser automation endpoints from a remote origin.
 
 **Affected code:**
-- `src/browser/server.ts:65` - binds to `"127.0.0.1"` (middleware extracted to `src/browser/server-middleware.ts:24-35`)
-- `src/browser/server.ts:20-86` - auth now required via `isAuthorizedBrowserRequest()` (commit `9230a2ae1`, refactored in `28014de97`), but still no Host header or origin validation
+- `extensions/browser/src/server.ts:68` - binds to `"127.0.0.1"` (middleware extracted to `extensions/browser/src/browser/server-middleware.ts:24-35`)
+- `extensions/browser/src/server.ts:20-87` - auth now required via `isAuthorizedBrowserRequest()` (commit `9230a2ae1`, refactored in `28014de97`), but still no Host header or origin validation
 
 **Partial mitigation (Feb 13 sync 5):** Commit `9230a2ae1` adds bearer token / password auth middleware to all browser control HTTP routes. DNS rebinding still possible but requests now need valid authentication credentials, significantly raising the bar. New `browser.control_no_auth` audit check flags when no auth is configured.
 
@@ -349,8 +349,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Browser evaluate tool is enabled by default (`DEFAULT_BROWSER_EVALUATE_ENABLED = true`), allowing execution of arbitrary JavaScript in the browser context without sandboxing.
 
 **Affected code:**
-- `src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true`
-- `src/browser/pw-tools-core.interactions.ts:288` - `evaluateViaPlaywright()` passes JS directly to `page.evaluate()` without sandbox
+- `extensions/browser/src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true`
+- `extensions/browser/src/browser/pw-tools-core.interactions.ts:288` - `evaluateViaPlaywright()` passes JS directly to `page.evaluate()` without sandbox
 
 **Note:** Config flag exists (commit `78f0bc3`) but defaults to enabled. Users must explicitly opt out.
 
@@ -449,8 +449,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Browser download and trace endpoints accept arbitrary file paths without validation or authentication. POST `/download` and `/trace/stop` pass `body.path` directly to file system operations.
 
 **Affected code:**
-- `src/browser/routes/agent.act.download.ts:51,103` - POST `/wait/download` and POST `/download` use `resolveWritableOutputPathOrRespond()` from `src/browser/routes/output-paths.ts:9` (download routes extracted to dedicated module)
-- `src/browser/routes/agent.debug.ts:119-150` - POST `/trace/stop` uses `body.path` without validation
+- `extensions/browser/src/browser/routes/agent.act.download.ts:51,103` - POST `/wait/download` and POST `/download` use `resolveWritableOutputPathOrRespond()` from `extensions/browser/src/browser/routes/output-paths.ts:9` (download routes extracted to dedicated module)
+- `extensions/browser/src/browser/routes/agent.debug.ts:119-150` - POST `/trace/stop` uses `body.path` without validation
 
 **Note:** Related to #8696 (Playwright download path traversal) but affects different endpoints.
 
@@ -1120,9 +1120,9 @@ All changes take effect immediately via automatic restart.
 **Fix:** The `/extension` upgrade path now requires the same `relayAuthToken` check as `/cdp`. Both paths call `getRelayAuthTokenFromRequest()` and reject with HTTP 401 if the token is absent or mismatched.
 
 **Affected code (current):**
-- `src/browser/extension-relay.ts:703-707` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
-- `src/browser/extension-relay.ts:709-714` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
-- `src/browser/extension-relay.ts:734-739` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
+- `extensions/browser/extensions/browser/src/browser/extension-relay.ts:703-707 (file removed)` — Origin check (unchanged): rejects non-`chrome-extension://` origins when present
+- `extensions/browser/extensions/browser/src/browser/extension-relay.ts:709-714 (file removed)` — `/extension` path now requires `relayAuthToken` via `RELAY_AUTH_HEADER`
+- `extensions/browser/extensions/browser/src/browser/extension-relay.ts:734-739 (file removed)` — `/cdp` path requires `relayAuthToken` via `RELAY_AUTH_HEADER` (unchanged)
 
 ### #10992: Sub-Agents Bypass Exec Approvals for safeBins Commands
 

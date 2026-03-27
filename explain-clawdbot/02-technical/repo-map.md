@@ -103,7 +103,7 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 | `src/commands/` | ~429 | CLI command implementations |
 | `src/infra/` | ~538 | Infrastructure: networking, SSRF guards, exec safety, archiving |
 | `src/config/` | ~266 | Configuration schema, types, validation, migrations |
-| `src/browser/` | ~163 | Browser automation (CDP/Puppeteer) |
+| `extensions/browser/src/browser/` | ~96 | Browser automation (CDP/Playwright) — moved from `src/browser/` in Mar 27 sync 3 |
 | `src/channels/` | ~191 | Shared channel logic, identities, allowlists, registry |
 | `src/memory/` | ~106 | Memory/context management, QMD |
 | `src/secrets/` | ~53 | Secret reference resolution, env substitution, audit |

@@ -24,13 +24,13 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 | # | Operation | Source | Impact | Plain English |
 |---|-----------|--------|--------|---------------|
-| 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `src/browser/screenshot.ts:35-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
+| 1 | **Screenshot normalization** — nested loop of up to 7 sizes x 6 qualities = 42 sharp resize ops per screenshot | `extensions/browser/src/browser/screenshot.ts:35-57` | Very High | Like resizing a photo 42 different ways to find which version fits in an envelope — each resize takes real effort |
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
 | 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `src/memory/embeddings.ts:103-164` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
 | 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:725-748` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
 | 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
 | 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/pdf-extract.ts:42-103` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
-| 7 | **Full AX tree traversal** — `Accessibility.getFullAXTree` on complex browser pages | `src/browser/cdp.ts:251-264` | Medium-High | Like reading every element on a web page aloud for accessibility — hundreds of elements on complex pages |
+| 7 | **Full AX tree traversal** — `Accessibility.getFullAXTree` on complex browser pages | `extensions/browser/src/browser/cdp.ts:282-295` | Medium-High | Like reading every element on a web page aloud for accessibility — hundreds of elements on complex pages |
 | 8 | **Image resize via sips** — macOS-specific process spawning for each HEIC conversion/resize | `src/media/image-ops.ts:136-274` | Medium | Like opening a separate program for each photo conversion — the per-process overhead adds up |
 | 9 | **Media understanding** — sending media to AI providers (Whisper/Gemini/OpenAI) for transcription | `src/media-understanding/runner.ts:576-809` | Medium | CPU cost is mostly on the provider side, but local buffering and encoding still takes cycles |
 | 10 | **Ed25519 keypair generation** — asymmetric crypto on first run / device identity creation | `src/infra/device-identity.ts:57` | Low (one-time) | Like generating a strong password — intensive but happens only once |
@@ -73,7 +73,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:9` | 5000 max, 20min TTL | Well bounded |
 | Gateway dedupe | `src/gateway/server-constants.ts:26-27` | 1000 max, 5min TTL | Well bounded |
-| Browser roleRefs | `src/browser/pw-session.ts:112-113` | 50 max LRU | Well bounded |
+| Browser roleRefs | `extensions/browser/src/browser/pw-session.ts:112-113` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:19` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
 | Agent run sequence | `src/gateway/server-runtime-state.ts:227` | Bounded at `AGENT_RUN_SEQ_MAX` = 10,000 (pruned by maintenance timer) | Well bounded |
@@ -90,10 +90,10 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 ### Browser memory
 
-- **Chromium instance** (Playwright CDP): `src/browser/pw-session.ts:119` — singleton, but Chromium itself can consume **200MB to 2GB+**
+- **Chromium instance** (Playwright CDP): `extensions/browser/src/browser/pw-session.ts:119` — connection cache (`cachedByCdpUrl`), but Chromium itself can consume **200MB to 2GB+**
   > *Like having a full web browser running invisibly in the background — it alone can use more memory than everything else combined.*
-- Per-page state caps: console (500), errors (200), network requests (500) — `src/browser/pw-session.ts:115-117`
-- WeakMaps used for page/context state (GC-friendly): `src/browser/pw-session.ts:105-108`
+- Per-page state caps: console (500), errors (200), network requests (500) — `extensions/browser/src/browser/pw-session.ts:115-117`
+- WeakMaps used for page/context state (GC-friendly): `extensions/browser/src/browser/pw-session.ts:105-106`
 
 ### Model context accumulation
 
@@ -124,7 +124,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Transcript `.jsonl` files | `src/config/sessions/transcript.ts:133-209` | **No rotation, no size limit** — grows forever per session |
 | Command logger | `src/hooks/bundled/command-logger/handler.ts:47-62` | **No rotation** — `commands.log` grows unbounded |
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
-| Browser user-data profiles | `src/browser/chrome.ts:80-82` | Full Chromium profile — can reach GBs |
+| Browser user-data profiles | `extensions/browser/src/browser/chrome.ts:80-81` | Full Chromium profile — can reach GBs |
 | SQLite databases | `src/memory/manager-sync-ops.ts:252-262` | **No VACUUM** — database grows unbounded without periodic vacuuming (uses default DELETE journal mode, no WAL) |
 | Per-day log file size | `src/logging/logger.ts:49,187-202` | **Capped** — 500MB default (`DEFAULT_MAX_LOG_FILE_BYTES`), configurable via `logging.maxFileBytes`; warns once then suppresses writes when reached |
 | Voice-call `calls.jsonl` | `extensions/voice-call/src/manager/store.ts:7-10` | **Append-only, no rotation** + full-file reads on load |
@@ -156,7 +156,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Documents | 100MB | `src/media/constants.ts:4` |
 | WS frame | 25MB | `src/gateway/server-constants.ts:3` |
 | WS buffer | 50MB/connection | `src/gateway/server-constants.ts:4` |
-| Browser screenshot | 5MB | `src/browser/screenshot.ts:4` |
+| Browser screenshot | 5MB | `extensions/browser/src/browser/screenshot.ts:9` |
 
 ### No disk-space checks
 
