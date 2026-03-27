@@ -120,7 +120,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 
 | Control Layer | Where It Lives | Enforcement |
 |---|---|---|
-| System prompt | `src/agents/system-prompt.ts:476` | Soft — model can ignore |
+| System prompt | `src/agents/system-prompt.ts:473` | Soft — model can ignore |
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
@@ -917,7 +917,7 @@ OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:949`)
 
 Additionally, extensible maps like `env` and plugin `config` sections accept arbitrary string keys, providing another vector for injecting unexpected values.
 
-Source: `src/config/validation.ts:235-255`
+Source: `src/config/validation.ts:384-403`
 
 ### Persistence Mechanisms
 
