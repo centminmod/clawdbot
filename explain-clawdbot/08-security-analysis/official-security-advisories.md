@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 and GHSA-fqw4-mph7-2vr8 pending.
 
 ### Advisory Summary
 
@@ -316,6 +316,25 @@
 | [GHSA-8883-9w57-vwv6](https://github.com/openclaw/openclaw/security/advisories/GHSA-8883-9w57-vwv6) | MEDIUM | Mattermost callback dispatch allowed non-allowlisted sender actions | - | pending | - |
 | [GHSA-xhq5-45pm-2gjr](https://github.com/openclaw/openclaw/security/advisories/GHSA-xhq5-45pm-2gjr) | MEDIUM | Nextcloud Talk room allowlist matched colliding room names instead of stable room tokens | - | pending | - |
 | [GHSA-pw7h-9g6p-c378](https://github.com/openclaw/openclaw/security/advisories/GHSA-pw7h-9g6p-c378) | MEDIUM | Tlon settings empty-allowlist reconciliation bypassed intended revocation | - | pending | - |
+| [GHSA-9hjh-fr4f-gxc4](https://github.com/openclaw/openclaw/security/advisories/GHSA-9hjh-fr4f-gxc4) | CRITICAL | Gateway Backend Reconnect lets Non-Admin Operator Scopes Self-Claim operator.admin | - | Mar 27 sync 1 (d3d8e316bd) | - |
+| [GHSA-fqw4-mph7-2vr8](https://github.com/openclaw/openclaw/security/advisories/GHSA-fqw4-mph7-2vr8) | CRITICAL | Gateway local shared-auth reconnect silently widens paired device scope from operator.read to operator.admin and reach node RCE | - | pending | - |
+| [GHSA-9p93-7j67-5pc2](https://github.com/openclaw/openclaw/security/advisories/GHSA-9p93-7j67-5pc2) | HIGH | Gateway HTTP /sessions/:sessionKey/kill Reaches Admin Kill Path Without Caller Scope Binding | - | pending | - |
+| [GHSA-h4jx-hjr3-fhgc](https://github.com/openclaw/openclaw/security/advisories/GHSA-h4jx-hjr3-fhgc) | HIGH | Gateway Plugin Subagent Fallback deleteSession Uses Synthetic operator.admin | - | Mar 27 sync 1 (b5d785f1a5) | - |
+| [GHSA-q2qc-744p-66r2](https://github.com/openclaw/openclaw/security/advisories/GHSA-q2qc-744p-66r2) | HIGH | session_status sessionId resolution bypasses sandboxed session-tree visibility | - | Mar 27 sync 1 (d9810811b6) | - |
+| [GHSA-qm2m-28pf-hgjw](https://github.com/openclaw/openclaw/security/advisories/GHSA-qm2m-28pf-hgjw) | HIGH | Gateway Plugin HTTP auth: "gateway" mints operator.admin runtime scope | - | Mar 27 sync 1 (ec2dbcff9a) | - |
+| [GHSA-rhfg-j8jq-7v2h](https://github.com/openclaw/openclaw/security/advisories/GHSA-rhfg-j8jq-7v2h) | HIGH | SSRF via Unguarded Configured Base URLs in Multiple Channel Extensions (Incomplete Fix for CVE-2026-28476) | CWE-918 | Mar 27 sync 1 (f92c92515b + e43600c9e5 + 2513a8d852) | - |
+| [GHSA-3h52-cx59-c456](https://github.com/openclaw/openclaw/security/advisories/GHSA-3h52-cx59-c456) | MEDIUM | Feishu webhook reads and parses unauthenticated request bodies before signature validation | - | Mar 27 sync 1 (5e8cb22176) | - |
+| [GHSA-4hmj-39m8-jwc7](https://github.com/openclaw/openclaw/security/advisories/GHSA-4hmj-39m8-jwc7) | MEDIUM | ACP CLI approval prompt ANSI escape sequence injection | - | Mar 27 sync 1 (464e2c10a5) | - |
+| [GHSA-52q4-3xjc-6778](https://github.com/openclaw/openclaw/security/advisories/GHSA-52q4-3xjc-6778) | MEDIUM | Google Chat Authz Bypass via Group Policy Rebinding with Mutable Space displayName | - | Mar 27 sync 1 (11ea1f6786) | - |
+| [GHSA-5jvj-hxmh-6h6j](https://github.com/openclaw/openclaw/security/advisories/GHSA-5jvj-hxmh-6h6j) | MEDIUM | Gateway HTTP Session History Route Bypasses Operator Read Scope | - | Mar 27 sync 1 (1c45123231) | - |
+| [GHSA-77w2-crqv-cmv3](https://github.com/openclaw/openclaw/security/advisories/GHSA-77w2-crqv-cmv3) | MEDIUM | Feishu Raw card Send Surface Can Mint Legacy Card Callbacks That Bypass DM Pairing | - | Mar 27 sync 1 (81c45976db) | - |
+| [GHSA-9wqx-g2cw-vc7r](https://github.com/openclaw/openclaw/security/advisories/GHSA-9wqx-g2cw-vc7r) | MEDIUM | Matrix Verification Notices Bypass Matrix DM Policy and Reply to Unpaired DM Peers | - | Mar 27 sync 1 (2383daf5c4) | - |
+| [GHSA-j4c9-w69r-cw33](https://github.com/openclaw/openclaw/security/advisories/GHSA-j4c9-w69r-cw33) | MEDIUM | Telegram DM-Scoped Inline Button Callbacks Bypass DM Pairing and Mutate Session State | - | Mar 27 sync 1 (269282ac69) | - |
+| [GHSA-mf5g-6r6f-ghhm](https://github.com/openclaw/openclaw/security/advisories/GHSA-mf5g-6r6f-ghhm) | MEDIUM | Synology Chat Webhook Pre-Auth Rate-Limit Bypass Enables Brute-Force Guessing of Weak Webhook Token | - | Mar 27 sync 1 (0b4d073374) | - |
+| [GHSA-mw7w-g3mg-xqm7](https://github.com/openclaw/openclaw/security/advisories/GHSA-mw7w-g3mg-xqm7) | MEDIUM | BlueBubbles Group Reactions Bypass requireMention and Still Enqueue Agent-Visible System Events | - | Mar 27 sync 1 (f8c9863078) | - |
+| [GHSA-rf6h-5gpw-qrgq](https://github.com/openclaw/openclaw/security/advisories/GHSA-rf6h-5gpw-qrgq) | MEDIUM | MS Teams Feedback Invoke Bypasses Sender Allowlists and Records Unauthorized Session Feedback | - | Mar 27 sync 1 (c5415a474b) | - |
+| [GHSA-vcx4-4qxg-mfp4](https://github.com/openclaw/openclaw/security/advisories/GHSA-vcx4-4qxg-mfp4) | MEDIUM | Telegram Webhook Missing Guess Rate Limiting Enables Brute-Force Guessing of Weak Webhook Secret | - | Mar 27 sync 1 (c2c136ae95) | - |
+| [GHSA-xq8g-hgh6-87hv](https://github.com/openclaw/openclaw/security/advisories/GHSA-xq8g-hgh6-87hv) | MEDIUM | BlueBubbles Webhook Missing Guess Rate Limiting Enables Brute-Force Guessing of Weak Webhook Password | - | Mar 27 sync 1 (5e08ce36d5) | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -3066,6 +3085,253 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** Allowlist revocation bypass in Tlon channel — clearing the allowlist via settings update does not take effect.
 
 **Fix:** Pending patch.
+
+### GHSA-9hjh-fr4f-gxc4: Gateway Backend Reconnect Self-Claim of operator.admin
+
+**Severity:** CRITICAL
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (d3d8e316bd)
+**Credits:** -
+
+**Description:** The gateway's WebSocket reconnect path allowed a backend client holding any operator scope to skip pairing requirements when requesting scope upgrades. `shouldSkipBackendSelfPairing()` in `src/gateway/server/ws-connection/handshake-auth-helpers.ts` permitted backend self-connections to silently upgrade their scope to `operator.admin` without a user-visible pairing approval flow.
+
+**Impact:** A local backend process (or compromised plugin) could self-escalate to `operator.admin`, granting full gateway control including `system.exec` and arbitrary Node invocation (RCE).
+
+**Fix:** Commit `d3d8e316bd` removes `shouldSkipBackendSelfPairing()` and the `shouldAllowSilentLocalPairing` shortcut in `message-handler.ts`. Backend clients must now complete normal pairing to obtain elevated scopes.
+
+### GHSA-fqw4-mph7-2vr8: Gateway Shared-Auth Reconnect Widens Scope to operator.admin (RCE)
+
+**Severity:** CRITICAL
+**Published:** 2026-03-26
+**Patched:** pending
+**Credits:** -
+
+**Description:** A separate reconnect path in the gateway using local shared-auth silently widened an already-paired device's scope from `operator.read` to `operator.admin` on reconnect. Unlike GHSA-9hjh-fr4f-gxc4, this affects already-paired devices rather than new backend self-connections.
+
+**Impact:** A paired device with `operator.read` scope could silently acquire `operator.admin` on reconnect, enabling RCE via `system.exec`.
+
+**Fix:** Pending patch.
+
+### GHSA-9p93-7j67-5pc2: Gateway HTTP Session Kill Without Caller Scope Binding
+
+**Severity:** HIGH
+**Published:** 2026-03-26
+**Patched:** pending
+**Credits:** -
+
+**Description:** The `DELETE /sessions/:sessionKey/kill` HTTP endpoint routed to an admin kill path without enforcing that the caller held the required scope. HTTP callers with weaker scopes could terminate arbitrary sessions.
+
+**Impact:** Unauthorized session termination via the HTTP kill endpoint by callers lacking admin scope.
+
+**Fix:** Pending patch.
+
+### GHSA-h4jx-hjr3-fhgc: Gateway Subagent deleteSession Uses Synthetic operator.admin
+
+**Severity:** HIGH
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (b5d785f1a5)
+**Credits:** -
+
+**Description:** `createGatewaySubagentRuntime().deleteSession()` in `src/gateway/server-plugins.ts` injected `syntheticScopes: [ADMIN_SCOPE]` before dispatching the delete, bypassing the caller's declared scopes.
+
+**Impact:** Any subagent runtime could delete sessions regardless of its actual declared operator scope.
+
+**Fix:** Commit `b5d785f1a5` removes the synthetic scope injection so `deleteSession` dispatches with the caller's actual scopes.
+
+### GHSA-q2qc-744p-66r2: session_status sessionId Bypasses Sandboxed Session Visibility
+
+**Severity:** HIGH
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (d9810811b6)
+**Credits:** -
+
+**Description:** In `src/agents/tools/session-status-tool.ts`, providing a `sessionId` (rather than an explicit `agent:` key) to the `session_status` tool caused the visibility guard to be silently skipped. The sessionId resolution block rewrote `requestedKeyRaw` to an `agent:...` form, causing the guard condition `!requestedKeyRaw.startsWith("agent:")` to always be false for subsequently resolved inputs.
+
+**Impact:** Sandboxed agents could read arbitrary session status by supplying a sessionId, bypassing the tree-visibility restriction.
+
+**Fix:** Commit `d9810811b6` changes the guard condition to test `!isExplicitAgentKey` (a boolean captured before resolution), ensuring the visibility guard always applies to sessionId inputs.
+
+### GHSA-qm2m-28pf-hgjw: Gateway Plugin HTTP Mints operator.admin Runtime Scope
+
+**Severity:** HIGH
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (ec2dbcff9a)
+**Credits:** -
+
+**Description:** `createGatewayPluginRequestHandler()` in `src/gateway/server/plugins-http.ts` conditionally granted broader scopes to plugin HTTP route handlers when `gatewayAuthSatisfied` was true — a parameter the plugin itself could influence — effectively allowing plugins to mint `operator.admin` scope for their runtime clients.
+
+**Impact:** A plugin could obtain `operator.admin` scope for its HTTP runtime, bypassing the least-privilege intent of the gateway plugin isolation model.
+
+**Fix:** Commit `ec2dbcff9a` enforces `matchedPluginRoutesRequireGatewayAuth` at line 79 and always uses `WRITE_SCOPE` for plugin route runtime clients, removing the conditional admin-scope grant.
+
+### GHSA-rhfg-j8jq-7v2h: SSRF via Unguarded Base URLs in Multiple Extensions
+
+**Severity:** HIGH
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (f92c92515b + e43600c9e5 + 2513a8d852)
+**Credits:** -
+
+**Description:** Multiple channel extensions (BlueBubbles, Mattermost, Nextcloud Talk, Thread Ownership) made raw `fetch()` calls to configured base URLs without routing through the SSRF guard. This constituted an incomplete fix for CVE-2026-28476: the guard was present in some paths but callers omitting `allowPrivateNetwork` fell through to unguarded `fetch()`, and the send path in BlueBubbles entirely bypassed the account resolver.
+
+**Impact:** Attackers who could influence the configured base URL or serverUrl could trigger SSRF against private network addresses (localhost, 127.0.0.1, RFC 1918 ranges) via these extensions.
+
+**Fix:** Commit `f92c92515b` routes all fetch calls through `fetchWithSsrFGuard()` from `src/infra/net/fetch-guard.js`. Commit `e43600c9e5` adds automatic private-network allowlisting in `resolveBlueBubblesServerAccount()`. Commit `2513a8d852` extends the resolver to the BlueBubbles send path.
+
+### GHSA-3h52-cx59-c456: Feishu Webhook Parses Body Before Signature Validation
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (5e8cb22176)
+**Credits:** -
+
+**Description:** `isFeishuWebhookSignatureValid()` in `extensions/feishu/src/monitor.transport.ts` previously accepted a pre-parsed `payload: Record<string, unknown>` and computed the HMAC over a re-serialized JSON object, allowing the signature to be computed over different bytes than what was received. Webhook bodies were parsed before validation, enabling attacks where malformed payloads could pass HMAC checks via serialization differences.
+
+**Impact:** Webhook signature bypass in Feishu integration; attacker-controlled payloads could pass authentication.
+
+**Fix:** Commit `5e8cb22176` refactors `isFeishuWebhookSignatureValid()` to accept `rawBody: string` and adds `parseFeishuWebhookPayload()` that parses only after validation passes. Adds `scripts/check-webhook-auth-body-order.mjs` to enforce validate-before-parse ordering.
+
+### GHSA-4hmj-39m8-jwc7: ACP Approval Prompt ANSI Escape Injection
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (464e2c10a5)
+**Credits:** -
+
+**Description:** The ACP permission approval prompt at `src/acp/client.ts` displayed untrusted tool call titles without sanitizing ANSI/CSI escape sequences. A malicious tool could inject cursor-movement or SGR escape sequences into the permission prompt terminal, potentially hiding the real command being approved or manipulating the displayed prompt.
+
+**Impact:** Terminal control-sequence injection in ACP permission prompts via crafted tool titles; could mislead users into approving dangerous tool invocations.
+
+**Fix:** Commit `464e2c10a5` applies `sanitizeTerminalText()` to `toolTitle` at `src/acp/client.ts:298` and `escapeInlineControlChars()` in `formatToolTitle()` at `src/acp/event-mapper.ts:311`. Extends the ANSI CSI pattern from SGR-only to all CSI sequences.
+
+### GHSA-52q4-3xjc-6778: Google Chat Authz Bypass via Mutable Space displayName
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (11ea1f6786)
+**Credits:** -
+
+**Description:** `resolveGroupConfig()` in `extensions/googlechat/src/monitor-access.ts` accepted mutable display names as group configuration keys in addition to stable `spaces/<id>` IDs. An attacker who could rename a Google Chat space to match a configured group name could rebind that group's authorization policy to an unintended space.
+
+**Impact:** Google Chat group authorization policy rebinding via mutable space display name, enabling unauthorized access to spaces whose display names match configured group keys.
+
+**Fix:** Commit `11ea1f6786` requires stable `spaces/` IDs as configuration keys. Name-keyed entries return `undefined` (fail-closed) with a `deprecatedNameMatch` flag and `warnMutableGroupKeysConfigured()` deprecation warning.
+
+### GHSA-5jvj-hxmh-6h6j: Gateway HTTP Session History Bypasses Operator Read Scope
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (1c45123231)
+**Credits:** -
+
+**Description:** The HTTP transport for `GET /sessions/{id}/history` lacked the operator scope gate present on the WebSocket transport. HTTP callers could retrieve session history without declaring the required operator read scopes.
+
+**Impact:** Session history accessible via HTTP without scope declaration; HTTP/WS scope parity gap.
+
+**Fix:** Commit `1c45123231` adds `resolveGatewayRequestedOperatorScopes()` in `src/gateway/http-auth-helpers.ts` and enforces `authorizeOperatorScopesForMethod("chat.history")` in `src/gateway/sessions-history-http.ts`.
+
+### GHSA-77w2-crqv-cmv3: Feishu Legacy Card Callbacks Bypass DM Pairing
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (81c45976db)
+**Credits:** -
+
+**Description:** The Feishu channel accepted unversioned (legacy) interactive card button payloads that contained `command` or `text` action values. These legacy callbacks bypassed DM pairing checks because they were processed through a different routing path than modern versioned card interactions.
+
+**Impact:** Unpaired users could trigger command execution via legacy Feishu card button callbacks, bypassing DM access policy.
+
+**Fix:** Commit `81c45976db` adds `containsLegacyFeishuCardCommandValue()` in `extensions/feishu/src/channel.ts` and rejects payloads containing legacy (non-`FEISHU_CARD_INTERACTION_VERSION`) card action values.
+
+### GHSA-9wqx-g2cw-vc7r: Matrix Verification Notices Bypass DM Policy
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (2383daf5c4)
+**Credits:** -
+
+**Description:** Matrix cross-signing verification notices were sent without checking the DM access policy. An unpaired user could send a verification notice to a DM where DM ingress was restricted (`pairing`/`allowlist`) or disabled, causing the OpenClaw bot to respond to an unauthorized sender.
+
+**Impact:** Matrix DM policy bypass via verification notices; unpaired senders could interact with the bot in restricted DM contexts.
+
+**Fix:** Commit `2383daf5c4` adds `isVerificationNoticeAuthorized()` in `extensions/matrix/src/matrix/monitor/verification-events.ts` that evaluates the sender against the configured `dmPolicy` before processing verification events.
+
+### GHSA-j4c9-w69r-cw33: Telegram DM Callback Bypasses DM Pairing
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (269282ac69)
+**Credits:** -
+
+**Description:** In `extensions/telegram/src/bot-handlers.runtime.ts`, inline keyboard callbacks in DM contexts fell through to `callback-scope` mode instead of `callback-allowlist` mode because the outer `isGroup` check was incorrectly absent from the `authorizationMode` condition. Unpaired DM senders could invoke session-state mutations via inline button callbacks.
+
+**Impact:** Telegram DM pairing bypass via inline keyboard callbacks; unauthorized users could mutate session state via callback interactions.
+
+**Fix:** Commit `269282ac69` adds `!isGroup ||` to the `authorizationMode` condition, ensuring DM callbacks enforce the same sender authorization gate as normal DM commands.
+
+### GHSA-mf5g-6r6f-ghhm: Synology Chat Webhook Brute-Force via Missing Rate Limit
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (0b4d073374)
+**Credits:** -
+
+**Description:** The Synology Chat webhook endpoint performed token validation but did not rate-limit failed authentication attempts. An attacker could brute-force the webhook token at high throughput.
+
+**Impact:** Webhook token disclosure via unrestricted brute-force guessing against the Synology Chat webhook endpoint.
+
+**Fix:** Commit `0b4d073374` adds `createFixedWindowRateLimiter` in `extensions/synology-chat/src/security.ts` with lockout after repeated failures.
+
+### GHSA-mw7w-g3mg-xqm7: BlueBubbles Group Reactions Bypass requireMention
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (f8c9863078)
+**Credits:** -
+
+**Description:** `processReaction()` in `extensions/bluebubbles/src/monitor-processing.ts` routed group reactions without checking the `requireMention` group setting. Group members who sent reactions would trigger agent-visible system events even when the group was configured to require explicit mention.
+
+**Impact:** Unauthorized information leak via BlueBubbles group reactions; group members could enqueue agent-visible events without being mentioned.
+
+**Fix:** Commit `f8c9863078` adds a `requireMention` check via `core.channel.groups.resolveRequireMention()` and returns early if the check is true.
+
+### GHSA-rf6h-5gpw-qrgq: MS Teams Feedback Invoke Bypasses Sender Allowlists
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (c5415a474b)
+**Credits:** -
+
+**Description:** The MS Teams feedback invoke handler did not apply the configured sender allowlist before processing feedback submissions. Unauthorized users could invoke feedback actions via MS Teams adaptive cards, including from group contexts that should have been blocked by the allowlist.
+
+**Impact:** Unauthorized MS Teams feedback invocation and session feedback recording by non-allowlisted senders.
+
+**Fix:** Commit `c5415a474b` extracts `resolveMSTeamsSenderAccess()` into `extensions/msteams/src/monitor-handler/access.ts`, applying full DM and group authorization policy evaluation for feedback invocations.
+
+### GHSA-vcx4-4qxg-mfp4: Telegram Webhook Brute-Force via Missing Rate Limit
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (c2c136ae95)
+**Credits:** -
+
+**Description:** The Telegram webhook endpoint performed signature verification but did not rate-limit failed authentication attempts, enabling brute-force guessing of the webhook secret.
+
+**Impact:** Webhook secret disclosure via unrestricted brute-force guessing against Telegram webhook endpoints.
+
+**Fix:** Commit `c2c136ae95` adds `createFixedWindowRateLimiter` per-listener in `extensions/telegram/src/webhook.ts` with per-bot rate-limit buckets.
+
+### GHSA-xq8g-hgh6-87hv: BlueBubbles Webhook Brute-Force via Missing Rate Limit
+
+**Severity:** MEDIUM
+**Published:** 2026-03-26
+**Patched:** Mar 27 sync 1 (5e08ce36d5)
+**Credits:** -
+
+**Description:** The BlueBubbles webhook endpoint performed password validation but did not rate-limit failed authentication attempts, enabling brute-force guessing of the webhook password.
+
+**Impact:** Webhook password disclosure via unrestricted brute-force guessing against the BlueBubbles webhook endpoint.
+
+**Fix:** Commit `5e08ce36d5` adds `createFixedWindowRateLimiter` (`webhookRateLimiter`) in `extensions/bluebubbles/src/monitor.ts` with trusted proxy IP resolution for accurate client IP keying.
 
 ### Relationship to Third-Party Audits
 

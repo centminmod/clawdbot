@@ -58,7 +58,7 @@ With no rate limiting applied, the browser could send authentication attempts as
 
 **Step 4 — Silent auto-pairing registers attacker as trusted device**
 
-After a successful auth, the gateway checks whether to auto-approve device pairing (`src/gateway/server/ws-connection/handshake-auth-helpers.ts:49-61`):
+After a successful auth, the gateway checks whether to auto-approve device pairing (`src/gateway/server/ws-connection/handshake-auth-helpers.ts:47-59`):
 
 ```typescript
 function shouldAllowSilentLocalPairing(params: {
@@ -76,7 +76,7 @@ function shouldAllowSilentLocalPairing(params: {
 }
 ```
 
-Before the fix, a browser WebSocket connection from localhost set `isLocalClient: true` but did not set `hasBrowserOriginHeader` in the path that reached this check — so silent pairing was allowed. When `pairing.request.silent === true`, the gateway immediately auto-approves without any user prompt (`src/gateway/server/ws-connection/message-handler.ts:738-759`):
+Before the fix, a browser WebSocket connection from localhost set `isLocalClient: true` but did not set `hasBrowserOriginHeader` in the path that reached this check — so silent pairing was allowed. When `pairing.request.silent === true`, the gateway immediately auto-approves without any user prompt (`src/gateway/server/ws-connection/message-handler.ts:803-820`):
 
 ```typescript
 if (pairing.request.silent === true) {
@@ -102,7 +102,7 @@ Three targeted hardening changes closed the attack chain:
 
 **1. Browser-origin loopback remapped to synthetic IP**
 
-The gateway now detects when a connection carries an HTTP `Origin` header (indicating a browser WebSocket, not a CLI tool) and the client IP is a loopback address. In that case, the rate limiter sees the synthetic IP `198.18.0.1` instead of `127.0.0.1` (`src/gateway/server/ws-connection/handshake-auth-helpers.ts:10,26-47`):
+The gateway now detects when a connection carries an HTTP `Origin` header (indicating a browser WebSocket, not a CLI tool) and the client IP is a loopback address. In that case, the rate limiter sees the synthetic IP `198.18.0.1` instead of `127.0.0.1` (`src/gateway/server/ws-connection/handshake-auth-helpers.ts:10,24-45`):
 
 ```typescript
 const BROWSER_ORIGIN_LOOPBACK_RATE_LIMIT_IP = "198.18.0.1";
