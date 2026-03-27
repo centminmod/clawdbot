@@ -154,8 +154,8 @@ vi.mock("../acp/control-plane/manager.js", () => ({
   }),
 }));
 
-vi.mock("../browser/session-tab-registry.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../browser/session-tab-registry.js")>();
+vi.mock("../plugin-sdk/browser-runtime.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../plugin-sdk/browser-runtime.js")>();
   return {
     ...actual,
     closeTrackedBrowserTabsForSessions: browserSessionTabMocks.closeTrackedBrowserTabsForSessions,
@@ -304,6 +304,7 @@ describe("gateway server sessions", () => {
         providerOverride?: string;
         modelOverride?: string;
         parentSessionKey?: string;
+        sessionFile?: string;
       };
     }>(ws, "sessions.create", {
       agentId: "ops",
@@ -318,6 +319,7 @@ describe("gateway server sessions", () => {
     expect(created.payload?.entry?.providerOverride).toBe("openai");
     expect(created.payload?.entry?.modelOverride).toBe("gpt-test-a");
     expect(created.payload?.entry?.parentSessionKey).toBe("agent:main:main");
+    expect(created.payload?.entry?.sessionFile).toBeTruthy();
     expect(created.payload?.sessionId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     );
@@ -330,6 +332,7 @@ describe("gateway server sessions", () => {
         providerOverride?: string;
         modelOverride?: string;
         parentSessionKey?: string;
+        sessionFile?: string;
       }
     >;
     const key = created.payload?.key as string;
@@ -340,6 +343,7 @@ describe("gateway server sessions", () => {
       modelOverride: "gpt-test-a",
       parentSessionKey: "agent:main:main",
     });
+    expect(created.payload?.entry?.sessionFile).toBe(rawStore[key]?.sessionFile);
 
     const transcriptPath = path.join(dir, `${created.payload?.sessionId}.jsonl`);
     const transcript = await fs.readFile(transcriptPath, "utf-8");
@@ -587,6 +591,106 @@ describe("gateway server sessions", () => {
         estimatedCostUsd: 0,
         modelProvider: "openai-codex",
         model: "gpt-5.3-codex-spark",
+      }),
+      new Set(["conn-1"]),
+      { dropIfSlow: true },
+    );
+  });
+
+  test("sessions.changed mutation events include live session setting metadata", async () => {
+    await createSessionStoreDir();
+    await writeSessionStore({
+      entries: {
+        main: {
+          sessionId: "sess-main",
+          updatedAt: Date.now(),
+          verboseLevel: "on",
+          responseUsage: "full",
+          fastMode: true,
+        },
+      },
+    });
+
+    const broadcastToConnIds = vi.fn();
+    const respond = vi.fn();
+    const sessionsHandlers = await getSessionsHandlers();
+    await sessionsHandlers["sessions.patch"]({
+      req: {} as never,
+      params: {
+        key: "main",
+        verboseLevel: "on",
+      },
+      respond,
+      context: {
+        broadcastToConnIds,
+        getSessionEventSubscriberConnIds: () => new Set(["conn-1"]),
+        loadGatewayModelCatalog: async () => ({ providers: [] }),
+      } as never,
+      client: null,
+      isWebchatConnect: () => false,
+    });
+
+    expect(respond).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ ok: true, key: "agent:main:main" }),
+      undefined,
+    );
+    expect(broadcastToConnIds).toHaveBeenCalledWith(
+      "sessions.changed",
+      expect.objectContaining({
+        sessionKey: "agent:main:main",
+        reason: "patch",
+        verboseLevel: "on",
+        responseUsage: "full",
+        fastMode: true,
+      }),
+      new Set(["conn-1"]),
+      { dropIfSlow: true },
+    );
+  });
+
+  test("sessions.changed mutation events include sendPolicy metadata", async () => {
+    await createSessionStoreDir();
+    await writeSessionStore({
+      entries: {
+        main: {
+          sessionId: "sess-main",
+          updatedAt: Date.now(),
+          sendPolicy: "deny",
+        },
+      },
+    });
+
+    const broadcastToConnIds = vi.fn();
+    const respond = vi.fn();
+    const sessionsHandlers = await getSessionsHandlers();
+    await sessionsHandlers["sessions.patch"]({
+      req: {} as never,
+      params: {
+        key: "main",
+        sendPolicy: "deny",
+      },
+      respond,
+      context: {
+        broadcastToConnIds,
+        getSessionEventSubscriberConnIds: () => new Set(["conn-1"]),
+        loadGatewayModelCatalog: async () => ({ providers: [] }),
+      } as never,
+      client: null,
+      isWebchatConnect: () => false,
+    });
+
+    expect(respond).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ ok: true, key: "agent:main:main" }),
+      undefined,
+    );
+    expect(broadcastToConnIds).toHaveBeenCalledWith(
+      "sessions.changed",
+      expect.objectContaining({
+        sessionKey: "agent:main:main",
+        reason: "patch",
+        sendPolicy: "deny",
       }),
       new Set(["conn-1"]),
       { dropIfSlow: true },
