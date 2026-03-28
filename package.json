@@ -1,6 +1,6 @@
 {
   "name": "openclaw",
-  "version": "2026.3.26",
+  "version": "2026.3.27",
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": [],
   "homepage": "https://github.com/openclaw/openclaw#readme",
@@ -303,6 +303,14 @@
     "./plugin-sdk/command-auth": {
       "types": "./dist/plugin-sdk/command-auth.d.ts",
       "default": "./dist/plugin-sdk/command-auth.js"
+    },
+    "./plugin-sdk/compat": {
+      "types": "./dist/plugin-sdk/compat.d.ts",
+      "default": "./dist/plugin-sdk/compat.js"
+    },
+    "./plugin-sdk/direct-dm": {
+      "types": "./dist/plugin-sdk/direct-dm.d.ts",
+      "default": "./dist/plugin-sdk/direct-dm.js"
     },
     "./plugin-sdk/deepseek": {
       "types": "./dist/plugin-sdk/deepseek.d.ts",
