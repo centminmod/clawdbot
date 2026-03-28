@@ -1111,7 +1111,7 @@ openclaw config set tools.profile coding
 openclaw config set tools.deny '["gateway"]'
 ```
 
-Source: `src/agents/tool-catalog.ts:256-268`
+Source: `src/agents/tool-catalog.ts:264-280`
 
 Cross-reference: [AI Self-Misconfiguration Guide](./ai-self-misconfiguration.md)
 

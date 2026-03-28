@@ -24,7 +24,7 @@ openclaw config set tools.profile coding
 openclaw config set tools.deny '["gateway"]'
 ```
 
-Source: `src/agents/tool-catalog.ts:256-268` — the `"coding"` profile excludes the `gateway` tool entirely.
+Source: `src/agents/tool-catalog.ts:264-280` — the `"coding"` profile excludes the `gateway` tool entirely.
 
 ### 2. Keep config commands disabled
 
@@ -124,7 +124,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
-| Tool profiles (`"coding"`) | `src/agents/tool-catalog.ts:256-268` | **Hard — code enforced** |
+| Tool profiles (`"coding"`) | `src/agents/tool-catalog.ts:264-280` | **Hard — code enforced** |
 | `set -euo pipefail` in scripts | Shell | **Hard — shell enforced** |
 | PreToolUse hooks | `.claude/hooks/` | **Hard — hook enforced** |
 
@@ -952,7 +952,7 @@ Organized from most to least effective:
 - Blocks `config.apply` and `config.patch` entirely
 - Also blocks `config.get` reconnaissance
 - Also blocks `update.run` (trigger updates)
-- The `"coding"` tool profile does this by default (`src/agents/tool-catalog.ts:256-268`)
+- The `"coding"` tool profile does this by default (`src/agents/tool-catalog.ts:264-280`)
 - `configWrites: false` only blocks the `/config set` chat command — it does NOT block the gateway tool
 
 ### Detective Defenses
@@ -1049,7 +1049,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1197-1290` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:92` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:1725,1857` |
-| **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:256-268` |
+| **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:264-280` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:473` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
 | **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:949` |

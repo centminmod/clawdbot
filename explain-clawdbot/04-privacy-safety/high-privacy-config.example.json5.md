@@ -172,7 +172,7 @@ Source: `src/config/types.gateway.ts`
 | `"messaging"` | Messaging group, session management |
 | `null` (empty) | All tools available |
 
-Source: `src/agents/tool-catalog.ts:256-268`
+Source: `src/agents/tool-catalog.ts:264-280`
 
 ---
 
