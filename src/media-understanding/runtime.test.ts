@@ -3,13 +3,54 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import {
+  withBundledPluginAllowlistCompat,
+  withBundledPluginEnablementCompat,
+  withBundledPluginVitestCompat,
+} from "../plugins/bundled-compat.js";
+import { __testing as loaderTesting } from "../plugins/loader.js";
+import { loadPluginManifestRegistry } from "../plugins/manifest-registry.js";
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
+import { setActivePluginRegistry } from "../plugins/runtime.js";
 
 let describeImageFile: typeof import("./runtime.js").describeImageFile;
 let runMediaUnderstandingFile: typeof import("./runtime.js").runMediaUnderstandingFile;
 let resolveRuntimePluginRegistryMock: ReturnType<
   typeof vi.fn<(params?: unknown) => ReturnType<typeof createEmptyPluginRegistry> | undefined>
 >;
+
+function setCompatibleActiveMediaUnderstandingRegistry(
+  pluginRegistry: ReturnType<typeof createEmptyPluginRegistry>,
+  cfg: OpenClawConfig,
+) {
+  const pluginIds = loadPluginManifestRegistry({
+    config: cfg,
+    env: process.env,
+  })
+    .plugins.filter(
+      (plugin) =>
+        plugin.origin === "bundled" &&
+        (plugin.contracts?.mediaUnderstandingProviders?.length ?? 0) > 0,
+    )
+    .map((plugin) => plugin.id)
+    .toSorted((left, right) => left.localeCompare(right));
+  const compatibleConfig = withBundledPluginVitestCompat({
+    config: withBundledPluginEnablementCompat({
+      config: withBundledPluginAllowlistCompat({
+        config: cfg,
+        pluginIds,
+      }),
+      pluginIds,
+    }),
+    pluginIds,
+    env: process.env,
+  });
+  const { cacheKey } = loaderTesting.resolvePluginLoadCacheContext({
+    config: compatibleConfig,
+    env: process.env,
+  });
+  setActivePluginRegistry(pluginRegistry, cacheKey);
+}
 
 describe("media-understanding runtime helpers", () => {
   afterEach(() => {
@@ -56,6 +97,7 @@ describe("media-understanding runtime helpers", () => {
         },
       },
     } as OpenClawConfig;
+    setCompatibleActiveMediaUnderstandingRegistry(pluginRegistry, cfg);
 
     const result = await describeImageFile({
       filePath: imagePath,

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { capturePluginRegistration } from "../../src/plugins/captured-registration.js";
 import { withEnv } from "../../test/helpers/extensions/env.js";
+import xaiPlugin from "./index.js";
 import { resolveXaiCatalogEntry } from "./model-definitions.js";
 import { isModernXaiModel, resolveXaiForwardCompatModel } from "./provider-models.js";
 import { __testing, createXaiWebSearchProvider } from "./web-search.js";
@@ -104,6 +106,60 @@ describe("xai web search config resolution", () => {
       await expect(maybeTool.execute({ query: "OpenClaw" })).resolves.toMatchObject({
         error: "missing_xai_api_key",
       });
+    });
+  });
+
+  it("reuses the plugin web search api key for provider auth fallback", () => {
+    const captured = capturePluginRegistration(xaiPlugin);
+    const provider = captured.providers[0];
+    expect(
+      provider?.resolveSyntheticAuth?.({
+        config: {
+          plugins: {
+            entries: {
+              xai: {
+                config: {
+                  webSearch: {
+                    apiKey: "xai-provider-fallback", // pragma: allowlist secret
+                  },
+                },
+              },
+            },
+          },
+        },
+        provider: "xai",
+        providerConfig: undefined,
+      }),
+    ).toEqual({
+      apiKey: "xai-provider-fallback",
+      source: "plugins.entries.xai.config.webSearch.apiKey",
+      mode: "api-key",
+    });
+  });
+
+  it("reuses the legacy grok web search api key for provider auth fallback", () => {
+    const captured = capturePluginRegistration(xaiPlugin);
+    const provider = captured.providers[0];
+    expect(
+      provider?.resolveSyntheticAuth?.({
+        config: {
+          tools: {
+            web: {
+              search: {
+                grok: {
+                  apiKey: "xai-legacy-fallback", // pragma: allowlist secret
+                },
+              },
+            },
+          },
+        },
+        provider: "xai",
+        providerConfig: undefined,
+      }),
+    ).toEqual({
+      apiKey: "xai-legacy-fallback",
+      source: "plugins.entries.xai.config.webSearch.apiKey",
+      mode: "api-key",
     });
   });
 
@@ -303,7 +359,7 @@ describe("xai provider models", () => {
         modelId: "grok-4-1-fast",
         modelRegistry: { find: () => null } as never,
         providerConfig: {
-          api: "openai-completions",
+          api: "openai-responses",
           baseUrl: "https://api.x.ai/v1",
         },
       },
@@ -315,7 +371,7 @@ describe("xai provider models", () => {
         modelId: "grok-4.20-beta-latest-reasoning",
         modelRegistry: { find: () => null } as never,
         providerConfig: {
-          api: "openai-completions",
+          api: "openai-responses",
           baseUrl: "https://api.x.ai/v1",
         },
       },
@@ -327,7 +383,7 @@ describe("xai provider models", () => {
         modelId: "grok-3-mini-fast",
         modelRegistry: { find: () => null } as never,
         providerConfig: {
-          api: "openai-completions",
+          api: "openai-responses",
           baseUrl: "https://api.x.ai/v1",
         },
       },
@@ -336,7 +392,7 @@ describe("xai provider models", () => {
     expect(grok41).toMatchObject({
       provider: "xai",
       id: "grok-4-1-fast",
-      api: "openai-completions",
+      api: "openai-responses",
       baseUrl: "https://api.x.ai/v1",
       reasoning: true,
       contextWindow: 2_000_000,
@@ -345,7 +401,7 @@ describe("xai provider models", () => {
     expect(grok420).toMatchObject({
       provider: "xai",
       id: "grok-4.20-beta-latest-reasoning",
-      api: "openai-completions",
+      api: "openai-responses",
       baseUrl: "https://api.x.ai/v1",
       reasoning: true,
       input: ["text", "image"],
@@ -355,7 +411,7 @@ describe("xai provider models", () => {
     expect(grok3Mini).toMatchObject({
       provider: "xai",
       id: "grok-3-mini-fast",
-      api: "openai-completions",
+      api: "openai-responses",
       baseUrl: "https://api.x.ai/v1",
       reasoning: true,
       contextWindow: 131_072,
@@ -371,7 +427,7 @@ describe("xai provider models", () => {
         modelId: "grok-4.20-multi-agent-experimental-beta-0304",
         modelRegistry: { find: () => null } as never,
         providerConfig: {
-          api: "openai-completions",
+          api: "openai-responses",
           baseUrl: "https://api.x.ai/v1",
         },
       },
