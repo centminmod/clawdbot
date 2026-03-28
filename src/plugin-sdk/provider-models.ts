@@ -1,9 +1,9 @@
 // Public model/catalog helpers for provider plugins.
 
-import type { ModelDefinitionConfig } from "../config/types.models.js";
+import type { BedrockDiscoveryConfig, ModelDefinitionConfig } from "../config/types.models.js";
 
 export type { ModelApi, ModelProviderConfig } from "../config/types.models.js";
-export type { ModelDefinitionConfig } from "../config/types.models.js";
+export type { BedrockDiscoveryConfig, ModelDefinitionConfig } from "../config/types.models.js";
 export type { ProviderPlugin } from "../plugins/types.js";
 export type { KilocodeModelCatalogEntry } from "../plugins/provider-model-kilocode.js";
 
@@ -150,4 +150,4 @@ export {
   MODELSTUDIO_DEFAULT_MODEL_ID,
   MODELSTUDIO_DEFAULT_MODEL_REF,
   MODELSTUDIO_GLOBAL_BASE_URL,
-} from "./modelstudio-definitions.js";
+} from "./modelstudio.js";
