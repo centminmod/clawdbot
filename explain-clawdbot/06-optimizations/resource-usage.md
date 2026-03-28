@@ -76,7 +76,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | Browser roleRefs | `extensions/browser/src/browser/pw-session.ts:112-113` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:19` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
-| Agent run sequence | `src/gateway/server-runtime-state.ts:227` | Bounded at `AGENT_RUN_SEQ_MAX` = 10,000 (pruned by maintenance timer) | Well bounded |
+| Agent run sequence | `src/gateway/server-runtime-state.ts:234` | Bounded at `AGENT_RUN_SEQ_MAX` = 10,000 (pruned by maintenance timer) | Well bounded |
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:105` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:115` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:60` | 30s TTL per entry, **no max entry count** | Low-Medium |
@@ -143,7 +143,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Rolling logs | 24h age pruning | `src/logging/logger.ts:48,357` |
 | Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store-maintenance.ts:12-14` |
 | Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:82-83` |
-| TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:24,538-548` |
+| TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:15,197-209` |
 | Pairing requests | 3/channel, 1h TTL | `src/pairing/pairing-store.ts:14-15` |
 
 ### Size limits on inbound data

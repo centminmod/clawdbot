@@ -281,7 +281,7 @@ X-Goog-Api-Client: google-cloud-sdk vscode_cloudshelleditor/0.1
 
 The Gateway uses WebSocket-based client identification for its internal control protocol. These identifiers are **not sent over external HTTP** — they exist only in the Gateway ↔ client communication channel.
 
-**Source:** `src/gateway/protocol/client-info.ts:1-14`
+**Source:** `src/gateway/protocol/client-info.ts:1-15`
 ```typescript
 export const GATEWAY_CLIENT_IDS = {
   WEBCHAT_UI: "webchat-ui",
@@ -301,7 +301,7 @@ export const GATEWAY_CLIENT_IDS = {
 
 Each client also sends metadata:
 
-**Source:** `src/gateway/protocol/client-info.ts:34-43`
+**Source:** `src/gateway/protocol/client-info.ts:35-44`
 ```typescript
 export type GatewayClientInfo = {
   id: GatewayClientId;

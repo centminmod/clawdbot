@@ -465,7 +465,7 @@ Each change had a plausible justification in the AI's response. None were what t
 
 > **The Root Cause:** The AI doesn't understand the security implications of config changes. It optimizes for the goal you stated ("performance") and confidently disables safety mechanisms that it perceives as overhead.
 
-Source: `src/agents/tools/gateway-tool.ts:77,197-208` (owner-only + `config.patch` action), `src/agents/tools/gateway.ts:147` (least-privilege scopes), `src/gateway/server-methods.ts:39-66` (scope enforcement)
+Source: `src/agents/tools/gateway-tool.ts:145,257-289` (owner-only + `config.patch` action), `src/agents/tools/gateway.ts:147` (least-privilege scopes), `src/gateway/server-methods.ts:39-66` (scope enforcement)
 
 ### The Fix
 

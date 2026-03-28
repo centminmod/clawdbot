@@ -194,7 +194,7 @@ Every path through which the AI can modify system state:
 | Gateway tool: `config.schema` | owner-only + read scope path | 🟡 Recon | Reads full schema for targeted attacks |
 
 **Source references:**
-- Gateway tool owner-only policy and write actions: `src/agents/tools/gateway-tool.ts:31-38,72,175-214`
+- Gateway tool owner-only policy and write actions: `src/agents/tools/gateway-tool.ts:138-145,257-289`
 - Gateway call least-privilege scopes: `src/agents/tools/gateway.ts:147`
 - Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:39-66,104-129`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
