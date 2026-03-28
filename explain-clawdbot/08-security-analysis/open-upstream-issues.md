@@ -44,7 +44,7 @@
 | [#4940](https://github.com/openclaw/openclaw/issues/4940) | MEDIUM (WONTFIX) | commands.restart bypass via exec tool | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/agents/bash-tools.exec.ts` (no commands.restart check) |
 | [#5120](https://github.com/openclaw/openclaw/issues/5120) | ~~MEDIUM~~ FIXED | Webhook token accepted via query parameters | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token extraction removed from `src/gateway/hooks.ts`; upstream issue confirmed CLOSED/NOT_PLANNED (2026-02-17) |
 | [#5122](https://github.com/openclaw/openclaw/issues/5122) | ~~MEDIUM~~ WONTFIX | readJsonBody() Slowloris DoS (no read timeout) | Closed upstream as NOT_PLANNED (2026-02-17); local mitigation remains: `src/gateway/hooks.ts:156-175` delegates to `readJsonBodyWithLimit()` with 30s timeout (commit `3cbcba10c`) |
-| [#5123](https://github.com/openclaw/openclaw/issues/5123) | ~~MEDIUM (WONTFIX)~~ FIXED LOCALLY | ReDoS in session filter regex | Closed upstream NOT_PLANNED (2026-02-17); fixed locally by `a2dfe9879` (Feb 24 sync 7): `matchSessionFilter()` now uses `compileConfigRegex()` at `src/infra/exec-approval-forwarder.ts:60-69` |
+| [#5123](https://github.com/openclaw/openclaw/issues/5123) | ~~MEDIUM (WONTFIX)~~ FIXED LOCALLY | ReDoS in session filter regex | Closed upstream NOT_PLANNED (2026-02-17); fixed locally by `a2dfe9879` (Feb 24 sync 7): `matchSessionFilter()` now uses `compileConfigRegex()` at `src/infra/exec-approval-forwarder.ts:66-74` |
 | [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:50-60` |
 | [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); fully mitigated locally ��� node token uses `verifyPairingToken()` at `src/infra/node-pairing.ts:214` which delegates to `safeEqualSecret()` (constant-time) |
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | ~~MEDIUM~~ FIXED | Session transcripts 644 instead of 600 (fixed upstream and locally) | Fixed upstream COMPLETED (2026-02-16); 0o600 fix applied upstream; `src/auto-reply/reply/session-fork.runtime.ts:45`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts` |
@@ -173,7 +173,7 @@
 
 2. **Tool call IDs** (`src/auto-reply/reply/get-reply-inline-actions.ts:244`): **Fixed by commit `265386cd6b` (Mar 22 sync 1)** — now uses `generateSecureToken(8)` (Node.js `crypto` module, 8 bytes of cryptographically secure random data) instead of `Math.random()`.
 
-**Secondary:** Tmp file suffixes in `src/cron/store.ts:140`, `src/cron/run-log.ts:130-131`, `extensions/browser/src/browser/trash.ts:16` (low risk, collision-resistant via PID/timestamp). Note: `src/tts/tts.ts:422` formerly on this list now uses `randomBytes(8).toString("hex")` (fixed by commit `662031a88e`, Mar 17 sync 5).
+**Secondary:** Tmp file suffixes in `src/cron/store.ts:146` (uses `randomBytes(8).toString("hex")`), `src/cron/run-log.ts:130-131`, `extensions/browser/src/browser/trash.ts:16` (low risk, collision-resistant via PID/timestamp). Note: `src/tts/tts.ts` formerly on this list — tts.ts is now a 36-line re-export barrel; TTS implementation moved to `plugin-sdk/speech-runtime.js`.
 
 **Confirmed safe:** 52 files use `crypto.randomUUID`/`randomBytes` for proper crypto paths.
 
