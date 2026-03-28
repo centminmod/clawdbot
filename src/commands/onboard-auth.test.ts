@@ -3,47 +3,45 @@ import os from "node:os";
 import path from "node:path";
 import type { OAuthCredentials } from "@mariozechner/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
-import { applyLitellmProviderConfig } from "../../extensions/litellm/onboard.js";
 import {
-  applyMinimaxApiConfig,
-  applyMinimaxApiProviderConfig,
-} from "../../extensions/minimax/onboard.js";
-import { buildMistralModelDefinition as buildBundledMistralModelDefinition } from "../../extensions/mistral/model-definitions.js";
-import {
-  applyMistralConfig,
-  applyMistralProviderConfig,
-} from "../../extensions/mistral/onboard.js";
-import {
-  applyOpencodeGoConfig,
-  applyOpencodeGoProviderConfig,
-} from "../../extensions/opencode-go/onboard.js";
-import {
-  applyOpencodeZenConfig,
-  applyOpencodeZenProviderConfig,
-} from "../../extensions/opencode/onboard.js";
-import {
-  applyOpenrouterConfig,
-  applyOpenrouterProviderConfig,
-} from "../../extensions/openrouter/onboard.js";
-import {
-  applySyntheticConfig,
-  applySyntheticProviderConfig,
-  SYNTHETIC_DEFAULT_MODEL_REF,
-} from "../../extensions/synthetic/onboard.js";
-import {
-  applyXaiConfig,
-  applyXaiProviderConfig,
-  XAI_DEFAULT_MODEL_REF,
-} from "../../extensions/xai/onboard.js";
-import { applyXiaomiConfig, applyXiaomiProviderConfig } from "../../extensions/xiaomi/onboard.js";
-import { applyZaiConfig, applyZaiProviderConfig } from "../../extensions/zai/onboard.js";
+  createConfigWithFallbacks,
+  createLegacyProviderConfig,
+  EXPECTED_FALLBACKS,
+} from "../../test/helpers/extensions/onboard-config.js";
 import { SYNTHETIC_DEFAULT_MODEL_ID } from "../agents/synthetic-models.js";
 import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveAgentModelFallbackValues,
   resolveAgentModelPrimaryValue,
 } from "../config/model-input.js";
-import type { ModelApi } from "../config/types.models.js";
+import { applyLitellmProviderConfig } from "../plugin-sdk/litellm.js";
+import { applyMinimaxApiConfig, applyMinimaxApiProviderConfig } from "../plugin-sdk/minimax.js";
+import { buildMistralModelDefinition as buildBundledMistralModelDefinition } from "../plugin-sdk/mistral.js";
+import {
+  applyMistralConfig,
+  applyMistralProviderConfig,
+  MISTRAL_DEFAULT_MODEL_REF,
+} from "../plugin-sdk/mistral.js";
+import { applyOpencodeGoConfig, applyOpencodeGoProviderConfig } from "../plugin-sdk/opencode-go.js";
+import { applyOpencodeZenConfig, applyOpencodeZenProviderConfig } from "../plugin-sdk/opencode.js";
+import {
+  applyOpenrouterConfig,
+  applyOpenrouterProviderConfig,
+  OPENROUTER_DEFAULT_MODEL_REF,
+} from "../plugin-sdk/openrouter.js";
+import {
+  applySyntheticConfig,
+  applySyntheticProviderConfig,
+  SYNTHETIC_DEFAULT_MODEL_REF,
+} from "../plugin-sdk/synthetic.js";
+import {
+  applyXaiConfig,
+  applyXaiProviderConfig,
+  XAI_DEFAULT_MODEL_REF,
+} from "../plugin-sdk/xai.js";
+import { applyXiaomiConfig, applyXiaomiProviderConfig } from "../plugin-sdk/xiaomi.js";
+import { ZAI_CODING_CN_BASE_URL, ZAI_GLOBAL_BASE_URL } from "../plugin-sdk/zai.js";
+import { applyZaiConfig, applyZaiProviderConfig } from "../plugin-sdk/zai.js";
 import { applyAuthProfileConfig } from "../plugins/provider-auth-helpers.js";
 import { setMinimaxApiKey, writeOAuthCredentials } from "../plugins/provider-auth-storage.js";
 import {
@@ -51,6 +49,26 @@ import {
   readAuthProfilesForAgent,
   setupAuthTestEnv,
 } from "./test-wizard-helpers.js";
+
+function expectPrimaryModelPreserved(cfg: OpenClawConfig): void {
+  expect(resolveAgentModelPrimaryValue(cfg.agents?.defaults?.model)).toBe(
+    "anthropic/claude-opus-4-5",
+  );
+}
+
+function expectFallbacksPreserved(cfg: OpenClawConfig): void {
+  expect(resolveAgentModelFallbackValues(cfg.agents?.defaults?.model)).toEqual([
+    ...EXPECTED_FALLBACKS,
+  ]);
+}
+
+function expectAllowlistContains(cfg: OpenClawConfig, modelRef: string): void {
+  expect(Object.keys(cfg.agents?.defaults?.models ?? {})).toContain(modelRef);
+}
+
+function expectAliasPreserved(cfg: OpenClawConfig, modelRef: string, alias: string): void {
+  expect(cfg.agents?.defaults?.models?.[modelRef]?.alias).toBe(alias);
+}
 
 describe("writeOAuthCredentials", () => {
   const lifecycle = createAuthTestLifecycle([
@@ -648,11 +666,14 @@ describe("applyMistralProviderConfig", () => {
     expect(mistralDefault?.maxTokens).toBe(16384);
   });
 
-  it("keeps the core and bundled mistral defaults aligned", () => {
+  it("uses the bundled mistral default model definition", () => {
     const bundled = buildBundledMistralModelDefinition();
-    const core = buildCoreMistralModelDefinition();
+    const cfg = applyMistralProviderConfig({});
+    const defaultModel = cfg.models?.providers?.mistral?.models.find(
+      (model) => model.id === bundled.id,
+    );
 
-    expect(core).toMatchObject({
+    expect(defaultModel).toMatchObject({
       id: bundled.id,
       contextWindow: bundled.contextWindow,
       maxTokens: bundled.maxTokens,

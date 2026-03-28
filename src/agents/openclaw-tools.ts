@@ -1,7 +1,10 @@
 import type { OpenClawConfig } from "../config/config.js";
 import { callGateway } from "../gateway/call.js";
 import { resolvePluginTools } from "../plugins/tools.js";
-import { getActiveRuntimeWebToolsMetadata } from "../secrets/runtime.js";
+import {
+  getActiveSecretsRuntimeSnapshot,
+  getActiveRuntimeWebToolsMetadata,
+} from "../secrets/runtime.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentWorkspaceDir, resolveSessionAgentId } from "./agent-scope.js";
@@ -27,7 +30,7 @@ import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 import { createSessionsYieldTool } from "./tools/sessions-yield-tool.js";
 import { createSubagentsTool } from "./tools/subagents-tool.js";
 import { createTtsTool } from "./tools/tts-tool.js";
-import { createWebFetchTool, createWebSearchTool, createXSearchTool } from "./tools/web-tools.js";
+import { createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
 import { resolveWorkspaceRoot } from "./workspace-dir.js";
 
 type OpenClawToolsDeps = {
@@ -120,6 +123,7 @@ export function createOpenClawTools(
     threadId: options?.agentThreadId,
   });
   const runtimeWebTools = getActiveRuntimeWebToolsMetadata();
+  const runtimeSnapshot = getActiveSecretsRuntimeSnapshot();
   const sandbox =
     options?.sandboxRoot && options?.sandboxFsBridge
       ? { root: options.sandboxRoot, bridge: options.sandboxFsBridge }
@@ -154,10 +158,6 @@ export function createOpenClawTools(
     config: options?.config,
     sandboxed: options?.sandboxed,
     runtimeWebSearch: runtimeWebTools?.search,
-  });
-  const xSearchTool = createXSearchTool({
-    config: options?.config,
-    runtimeXSearch: runtimeWebTools?.xSearch,
   });
   const webFetchTool = createWebFetchTool({
     config: options?.config,
@@ -255,7 +255,6 @@ export function createOpenClawTools(
       sandboxed: options?.sandboxed,
     }),
     ...(webSearchTool ? [webSearchTool] : []),
-    ...(xSearchTool ? [xSearchTool] : []),
     ...(webFetchTool ? [webFetchTool] : []),
     ...(imageTool ? [imageTool] : []),
     ...(pdfTool ? [pdfTool] : []),
@@ -264,6 +263,7 @@ export function createOpenClawTools(
   const pluginTools = resolvePluginTools({
     context: {
       config: options?.config,
+      runtimeConfig: runtimeSnapshot?.config,
       workspaceDir,
       agentDir: options?.agentDir,
       agentId: sessionAgentId,

@@ -1,28 +1,83 @@
 import { Type } from "@sinclair/typebox";
+import { getRuntimeConfigSnapshot } from "openclaw/plugin-sdk/config-runtime";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/plugin-entry";
 import {
-  __testing as xaiXSearchTesting,
+  jsonResult,
+  readCache,
+  readConfiguredSecretString,
+  readProviderEnvValue,
+  readStringArrayParam,
+  readStringParam,
+  resolveCacheTtlMs,
+  resolveProviderWebSearchPluginConfig,
+  resolveTimeoutSeconds,
+  writeCache,
+} from "openclaw/plugin-sdk/provider-web-search";
+import {
   buildXaiXSearchPayload,
   requestXaiXSearch,
   resolveXaiXSearchInlineCitations,
   resolveXaiXSearchMaxTurns,
   resolveXaiXSearchModel,
   type XaiXSearchOptions,
-} from "../../../extensions/xai/src/x-search-shared.js";
-import type { OpenClawConfig } from "../../config/config.js";
-import type { RuntimeWebXSearchMetadata } from "../../secrets/runtime-web-tools.types.js";
-import { jsonResult, readStringArrayParam, readStringParam, ToolInputError } from "./common.js";
-import {
-  readConfiguredSecretString,
-  readProviderEnvValue,
-  SEARCH_CACHE,
-} from "./web-search-provider-common.js";
-import { readCache, resolveCacheTtlMs, resolveTimeoutSeconds, writeCache } from "./web-shared.js";
+} from "./src/x-search-shared.js";
 
 type XSearchConfig = NonNullable<OpenClawConfig["tools"]>["web"] extends infer Web
   ? Web extends { x_search?: infer XSearch }
     ? XSearch
     : undefined
   : undefined;
+
+class PluginToolInputError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ToolInputError";
+  }
+}
+
+const X_SEARCH_CACHE_KEY = Symbol.for("openclaw.xai.x-search.cache");
+
+type XSearchCacheEntry = {
+  expiresAt: number;
+  insertedAt: number;
+  value: Record<string, unknown>;
+};
+
+function getSharedXSearchCache(): Map<string, XSearchCacheEntry> {
+  const root = globalThis as Record<PropertyKey, unknown>;
+  const existing = root[X_SEARCH_CACHE_KEY];
+  if (existing instanceof Map) {
+    return existing as Map<string, XSearchCacheEntry>;
+  }
+  const next = new Map<string, XSearchCacheEntry>();
+  root[X_SEARCH_CACHE_KEY] = next;
+  return next;
+}
+
+const X_SEARCH_CACHE = getSharedXSearchCache();
+
+function readLegacyGrokApiKey(cfg?: OpenClawConfig): string | undefined {
+  const search = cfg?.tools?.web?.search;
+  if (!search || typeof search !== "object") {
+    return undefined;
+  }
+  const grok = (search as Record<string, unknown>).grok;
+  return readConfiguredSecretString(
+    grok && typeof grok === "object" ? (grok as Record<string, unknown>).apiKey : undefined,
+    "tools.web.search.grok.apiKey",
+  );
+}
+
+function readPluginXaiWebSearchApiKey(cfg?: OpenClawConfig): string | undefined {
+  return readConfiguredSecretString(
+    resolveProviderWebSearchPluginConfig(cfg as Record<string, unknown> | undefined, "xai")?.apiKey,
+    "plugins.entries.xai.config.webSearch.apiKey",
+  );
+}
+
+function resolveFallbackXaiApiKey(cfg?: OpenClawConfig): string | undefined {
+  return readPluginXaiWebSearchApiKey(cfg) ?? readLegacyGrokApiKey(cfg);
+}
 
 function resolveXSearchConfig(cfg?: OpenClawConfig): XSearchConfig {
   const xSearch = cfg?.tools?.web?.x_search;
@@ -33,25 +88,48 @@ function resolveXSearchConfig(cfg?: OpenClawConfig): XSearchConfig {
 }
 
 function resolveXSearchEnabled(params: {
+  cfg?: OpenClawConfig;
   config?: XSearchConfig;
-  runtimeXSearch?: RuntimeWebXSearchMetadata;
+  runtimeConfig?: OpenClawConfig;
 }): boolean {
   if (params.config?.enabled === false) {
     return false;
   }
-  if (params.runtimeXSearch?.active) {
+  const runtimeXSearchConfig =
+    params.runtimeConfig && params.runtimeConfig !== params.cfg
+      ? resolveXSearchConfig(params.runtimeConfig)
+      : undefined;
+  if (
+    readConfiguredSecretString(runtimeXSearchConfig?.apiKey, "tools.web.x_search.apiKey") ||
+    resolveFallbackXaiApiKey(params.runtimeConfig)
+  ) {
     return true;
   }
   const configuredApiKey = readConfiguredSecretString(
     params.config?.apiKey,
     "tools.web.x_search.apiKey",
   );
-  return Boolean(configuredApiKey || readProviderEnvValue(["XAI_API_KEY"]));
+  return Boolean(
+    configuredApiKey ||
+    resolveFallbackXaiApiKey(params.cfg) ||
+    readProviderEnvValue(["XAI_API_KEY"]),
+  );
 }
 
-function resolveXSearchApiKey(config?: XSearchConfig): string | undefined {
+function resolveXSearchApiKey(params: {
+  sourceConfig?: OpenClawConfig;
+  runtimeConfig?: OpenClawConfig;
+}): string | undefined {
+  const sourceXSearchConfig = resolveXSearchConfig(params.sourceConfig);
+  const runtimeXSearchConfig =
+    params.runtimeConfig && params.runtimeConfig !== params.sourceConfig
+      ? resolveXSearchConfig(params.runtimeConfig)
+      : undefined;
   return (
-    readConfiguredSecretString(config?.apiKey, "tools.web.x_search.apiKey") ??
+    readConfiguredSecretString(runtimeXSearchConfig?.apiKey, "tools.web.x_search.apiKey") ??
+    readConfiguredSecretString(sourceXSearchConfig?.apiKey, "tools.web.x_search.apiKey") ??
+    resolveFallbackXaiApiKey(params.runtimeConfig) ??
+    resolveFallbackXaiApiKey(params.sourceConfig) ??
     readProviderEnvValue(["XAI_API_KEY"])
   );
 }
@@ -65,7 +143,7 @@ function normalizeOptionalIsoDate(value: string | undefined, label: string): str
     return undefined;
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-    throw new ToolInputError(`${label} must use YYYY-MM-DD`);
+    throw new PluginToolInputError(`${label} must use YYYY-MM-DD`);
   }
   const [year, month, day] = trimmed.split("-").map((entry) => Number.parseInt(entry, 10));
   const date = new Date(Date.UTC(year, month - 1, day));
@@ -74,7 +152,7 @@ function normalizeOptionalIsoDate(value: string | undefined, label: string): str
     date.getUTCMonth() !== month - 1 ||
     date.getUTCDate() !== day
   ) {
-    throw new ToolInputError(`${label} must be a valid calendar date`);
+    throw new PluginToolInputError(`${label} must be a valid calendar date`);
   }
   return trimmed;
 }
@@ -103,10 +181,17 @@ function buildXSearchCacheKey(params: {
 
 export function createXSearchTool(options?: {
   config?: OpenClawConfig;
-  runtimeXSearch?: RuntimeWebXSearchMetadata;
+  runtimeConfig?: OpenClawConfig | null;
 }) {
   const xSearchConfig = resolveXSearchConfig(options?.config);
-  if (!resolveXSearchEnabled({ config: xSearchConfig, runtimeXSearch: options?.runtimeXSearch })) {
+  const runtimeConfig = options?.runtimeConfig ?? getRuntimeConfigSnapshot();
+  if (
+    !resolveXSearchEnabled({
+      cfg: options?.config,
+      config: xSearchConfig,
+      runtimeConfig: runtimeConfig ?? undefined,
+    })
+  ) {
     return null;
   }
 
@@ -114,7 +199,7 @@ export function createXSearchTool(options?: {
     label: "X Search",
     name: "x_search",
     description:
-      "Search X (formerly Twitter) using xAI. Returns AI-synthesized answers with citations from real-time X post search.",
+      "Search X (formerly Twitter) using xAI, including targeted post or thread lookups. For per-post stats like reposts, replies, bookmarks, or views, prefer the exact post URL or status ID.",
     parameters: Type.Object({
       query: Type.String({ description: "X search query string." }),
       allowed_x_handles: Type.Optional(
@@ -141,12 +226,15 @@ export function createXSearchTool(options?: {
       ),
     }),
     execute: async (_toolCallId: string, args: Record<string, unknown>) => {
-      const apiKey = resolveXSearchApiKey(xSearchConfig);
+      const apiKey = resolveXSearchApiKey({
+        sourceConfig: options?.config,
+        runtimeConfig: runtimeConfig ?? undefined,
+      });
       if (!apiKey) {
         return jsonResult({
           error: "missing_xai_api_key",
           message:
-            "x_search needs an xAI API key. Set XAI_API_KEY in the Gateway environment, or configure tools.web.x_search.apiKey.",
+            "x_search needs an xAI API key. Set XAI_API_KEY in the Gateway environment, or configure tools.web.x_search.apiKey or plugins.entries.xai.config.webSearch.apiKey.",
           docs: "https://docs.openclaw.ai/tools/web",
         });
       }
@@ -157,7 +245,7 @@ export function createXSearchTool(options?: {
       const fromDate = normalizeOptionalIsoDate(readStringParam(args, "from_date"), "from_date");
       const toDate = normalizeOptionalIsoDate(readStringParam(args, "to_date"), "to_date");
       if (fromDate && toDate && fromDate > toDate) {
-        throw new ToolInputError("from_date must be on or before to_date");
+        throw new PluginToolInputError("from_date must be on or before to_date");
       }
 
       const xSearchOptions: XaiXSearchOptions = {
@@ -187,7 +275,7 @@ export function createXSearchTool(options?: {
           enableVideoUnderstanding: xSearchOptions.enableVideoUnderstanding,
         },
       });
-      const cached = readCache(SEARCH_CACHE, cacheKey);
+      const cached = readCache(X_SEARCH_CACHE, cacheKey);
       if (cached) {
         return jsonResult({ ...cached.value, cached: true });
       }
@@ -211,7 +299,7 @@ export function createXSearchTool(options?: {
         options: xSearchOptions,
       });
       writeCache(
-        SEARCH_CACHE,
+        X_SEARCH_CACHE,
         cacheKey,
         payload,
         resolveCacheTtlMs(xSearchConfig?.cacheTtlMinutes, 15),
@@ -220,12 +308,3 @@ export function createXSearchTool(options?: {
     },
   };
 }
-
-export const __testing = {
-  buildXSearchCacheKey,
-  normalizeOptionalIsoDate,
-  resolveXSearchApiKey,
-  resolveXSearchConfig,
-  resolveXSearchEnabled,
-  ...xaiXSearchTesting,
-} as const;
