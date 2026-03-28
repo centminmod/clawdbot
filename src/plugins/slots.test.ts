@@ -29,6 +29,25 @@ describe("applyExclusiveSlotSelection", () => {
       },
     });
 
+  function expectMemorySelectionState(
+    result: ReturnType<typeof applyExclusiveSlotSelection>,
+    params: {
+      changed: boolean;
+      selectedId?: string;
+      disabledCompetingPlugin?: boolean;
+    },
+  ) {
+    expect(result.changed).toBe(params.changed);
+    if (params.selectedId) {
+      expect(result.config.plugins?.slots?.memory).toBe(params.selectedId);
+    }
+    if (params.disabledCompetingPlugin != null) {
+      expect(result.config.plugins?.entries?.["memory-core"]?.enabled).toBe(
+        params.disabledCompetingPlugin,
+      );
+    }
+  }
+
   function expectSelectionWarnings(
     warnings: string[],
     params: {
@@ -36,11 +55,11 @@ describe("applyExclusiveSlotSelection", () => {
       excludes?: readonly string[];
     },
   ) {
-    for (const warning of params.contains ?? []) {
-      expect(warnings).toContain(warning);
+    if (params.contains?.length) {
+      expect(warnings).toEqual(expect.arrayContaining([...params.contains]));
     }
     for (const warning of params.excludes ?? []) {
-      expect(warnings).not.toContain(warning);
+      expect(warnings).not.toEqual(expect.arrayContaining([warning]));
     }
   }
 
@@ -51,13 +70,17 @@ describe("applyExclusiveSlotSelection", () => {
     });
     const result = runMemorySelection(config);
 
-    expect(result.changed).toBe(true);
-    expect(result.config.plugins?.slots?.memory).toBe("memory");
-    expect(result.config.plugins?.entries?.["memory-core"]?.enabled).toBe(false);
-    expect(result.warnings).toContain(
-      'Exclusive slot "memory" switched from "memory-core" to "memory".',
-    );
-    expect(result.warnings).toContain('Disabled other "memory" slot plugins: memory-core.');
+    expectMemorySelectionState(result, {
+      changed: true,
+      selectedId: "memory",
+      disabledCompetingPlugin: false,
+    });
+    expectSelectionWarnings(result.warnings, {
+      contains: [
+        'Exclusive slot "memory" switched from "memory-core" to "memory".',
+        'Disabled other "memory" slot plugins: memory-core.',
+      ],
+    });
   });
 
   it("does nothing when the slot already matches", () => {
@@ -103,10 +126,10 @@ describe("applyExclusiveSlotSelection", () => {
   ] as const)("$name", ({ config, selectedId, expectedDisabled, warningChecks }) => {
     const result = runMemorySelection(config, selectedId);
 
-    expect(result.changed).toBe(true);
-    if (expectedDisabled != null) {
-      expect(result.config.plugins?.entries?.["memory-core"]?.enabled).toBe(expectedDisabled);
-    }
+    expectMemorySelectionState(result, {
+      changed: true,
+      ...(expectedDisabled != null ? { disabledCompetingPlugin: expectedDisabled } : {}),
+    });
     expectSelectionWarnings(result.warnings, warningChecks);
   });
 

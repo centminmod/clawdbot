@@ -1,24 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createHookRunner } from "./hooks.js";
-import { addTestHook } from "./hooks.test-helpers.js";
+import { addStaticTestHooks } from "./hooks.test-helpers.js";
 import { createEmptyPluginRegistry, type PluginRegistry } from "./registry.js";
 import type { PluginHookToolContext } from "./types.js";
-import type { PluginHookBeforeToolCallResult, PluginHookRegistration } from "./types.js";
-
-function addBeforeToolCallHook(
-  registry: PluginRegistry,
-  pluginId: string,
-  handler: () => PluginHookBeforeToolCallResult | Promise<PluginHookBeforeToolCallResult>,
-  priority?: number,
-) {
-  addTestHook({
-    registry,
-    pluginId,
-    hookName: "before_tool_call",
-    handler: handler as PluginHookRegistration["handler"],
-    priority,
-  });
-}
+import type { PluginHookBeforeToolCallResult } from "./types.js";
 
 const stubCtx: PluginHookToolContext = {
   toolName: "bash",
@@ -34,11 +19,29 @@ async function runBeforeToolCallWithHooks(
     priority?: number;
   }>,
 ) {
-  for (const { pluginId, result, priority } of hooks) {
-    addBeforeToolCallHook(registry, pluginId, () => result, priority);
-  }
+  addStaticTestHooks(registry, {
+    hookName: "before_tool_call",
+    hooks,
+  });
   const runner = createHookRunner(registry);
   return await runner.runBeforeToolCall({ toolName: "bash", params: {} }, stubCtx);
+}
+
+function expectRequireApprovalResult(
+  result: PluginHookBeforeToolCallResult | undefined,
+  expected: {
+    block?: boolean;
+    blockReason?: string;
+    params?: Record<string, unknown>;
+    requireApproval?: Record<string, unknown>;
+  },
+) {
+  expect(result?.block).toBe(expected.block);
+  expect(result?.blockReason).toBe(expected.blockReason);
+  expect(result?.params).toEqual(expected.params);
+  expect(result?.requireApproval).toEqual(
+    expected.requireApproval ? expect.objectContaining(expected.requireApproval) : undefined,
+  );
 }
 
 describe("before_tool_call hook merger — requireApproval", () => {
@@ -139,7 +142,7 @@ describe("before_tool_call hook merger — requireApproval", () => {
     },
   ] as const)("$name", async ({ hooks, expectedApproval }) => {
     const result = await runBeforeToolCallWithHooks(registry, hooks);
-    expect(result?.requireApproval).toEqual(expect.objectContaining(expectedApproval));
+    expectRequireApprovalResult(result, { requireApproval: expectedApproval });
   });
 
   it("merges block and requireApproval from different plugins", async () => {
@@ -235,9 +238,6 @@ describe("before_tool_call hook merger — requireApproval", () => {
     },
   ] as const)("$name", async ({ hooks, expected }) => {
     const result = await runBeforeToolCallWithHooks(registry, hooks);
-    expect(result?.block).toBe(expected.block);
-    expect(result?.blockReason).toBe(expected.blockReason);
-    expect(result?.params).toEqual(expected.params);
-    expect(result?.requireApproval).toEqual(expect.objectContaining(expected.requireApproval));
+    expectRequireApprovalResult(result, expected);
   });
 });

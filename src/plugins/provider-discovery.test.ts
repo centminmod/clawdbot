@@ -33,6 +33,32 @@ function makeModelProviderConfig(overrides?: Partial<ModelProviderConfig>): Mode
   };
 }
 
+function expectGroupedProviderIds(
+  providers: readonly ProviderPlugin[],
+  expected: Record<ProviderDiscoveryOrder | "late", readonly string[]>,
+) {
+  const grouped = groupPluginDiscoveryProvidersByOrder([...providers]);
+
+  expect(grouped.simple.map((provider) => provider.id)).toEqual(expected.simple);
+  expect(grouped.profile.map((provider) => provider.id)).toEqual(expected.profile);
+  expect(grouped.paired.map((provider) => provider.id)).toEqual(expected.paired);
+  expect(grouped.late.map((provider) => provider.id)).toEqual(expected.late);
+}
+
+function createCatalogRuntimeContext() {
+  return {
+    config: {},
+    env: {},
+    resolveProviderApiKey: () => ({ apiKey: undefined }),
+    resolveProviderAuth: () => ({
+      apiKey: undefined,
+      discoveryApiKey: undefined,
+      mode: "none" as const,
+      source: "none" as const,
+    }),
+  };
+}
+
 describe("groupPluginDiscoveryProvidersByOrder", () => {
   it.each([
     {
@@ -64,12 +90,7 @@ describe("groupPluginDiscoveryProvidersByOrder", () => {
       },
     },
   ] as const)("$name", ({ providers, expected }) => {
-    const grouped = groupPluginDiscoveryProvidersByOrder([...providers]);
-
-    expect(grouped.simple.map((provider) => provider.id)).toEqual(expected.simple);
-    expect(grouped.profile.map((provider) => provider.id)).toEqual(expected.profile);
-    expect(grouped.paired.map((provider) => provider.id)).toEqual(expected.paired);
-    expect(grouped.late.map((provider) => provider.id)).toEqual(expected.late);
+    expectGroupedProviderIds(providers, expected);
   });
 });
 
@@ -131,15 +152,7 @@ describe("runProviderCatalog", () => {
         catalog: { run: catalogRun },
         discovery: { run: discoveryRun },
       },
-      config: {},
-      env: {},
-      resolveProviderApiKey: () => ({ apiKey: undefined }),
-      resolveProviderAuth: () => ({
-        apiKey: undefined,
-        discoveryApiKey: undefined,
-        mode: "none",
-        source: "none",
-      }),
+      ...createCatalogRuntimeContext(),
     });
 
     expect(result).toEqual({

@@ -70,6 +70,36 @@ function expectBundledCompatLoadPath(params: {
   });
 }
 
+function createCompatChainConfig() {
+  const cfg = { plugins: { allow: ["custom-plugin"] } } as OpenClawConfig;
+  const allowlistCompat = { plugins: { allow: ["custom-plugin", "openai"] } };
+  const enablementCompat = {
+    plugins: {
+      allow: ["custom-plugin", "openai"],
+      entries: { openai: { enabled: true } },
+    },
+  };
+  return { cfg, allowlistCompat, enablementCompat };
+}
+
+function setBundledCapabilityFixture(contractKey: string) {
+  mocks.loadPluginManifestRegistry.mockReturnValue({
+    plugins: [
+      {
+        id: "openai",
+        origin: "bundled",
+        contracts: { [contractKey]: ["openai"] },
+      },
+      {
+        id: "custom-plugin",
+        origin: "workspace",
+        contracts: {},
+      },
+    ] as never,
+    diagnostics: [],
+  });
+}
+
 describe("resolvePluginCapabilityProviders", () => {
   beforeEach(async () => {
     vi.resetModules();
@@ -119,29 +149,8 @@ describe("resolvePluginCapabilityProviders", () => {
     ["mediaUnderstandingProviders", "mediaUnderstandingProviders"],
     ["imageGenerationProviders", "imageGenerationProviders"],
   ] as const)("applies bundled compat before fallback loading for %s", (key, contractKey) => {
-    const cfg = { plugins: { allow: ["custom-plugin"] } } as OpenClawConfig;
-    const allowlistCompat = { plugins: { allow: ["custom-plugin", "openai"] } };
-    const enablementCompat = {
-      plugins: {
-        allow: ["custom-plugin", "openai"],
-        entries: { openai: { enabled: true } },
-      },
-    };
-    mocks.loadPluginManifestRegistry.mockReturnValue({
-      plugins: [
-        {
-          id: "openai",
-          origin: "bundled",
-          contracts: { [contractKey]: ["openai"] },
-        },
-        {
-          id: "custom-plugin",
-          origin: "workspace",
-          contracts: {},
-        },
-      ] as never,
-      diagnostics: [],
-    });
+    const { cfg, allowlistCompat, enablementCompat } = createCompatChainConfig();
+    setBundledCapabilityFixture(contractKey);
     mocks.withBundledPluginAllowlistCompat.mockReturnValue(allowlistCompat);
     mocks.withBundledPluginEnablementCompat.mockReturnValue(enablementCompat);
     mocks.withBundledPluginVitestCompat.mockReturnValue(enablementCompat);

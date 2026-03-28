@@ -35,31 +35,54 @@ function createCatalogContext(params: {
   };
 }
 
+function expectSingleCatalogProvider(
+  result: Awaited<ReturnType<typeof buildSingleProviderApiKeyCatalog>>,
+  expected: ModelProviderConfig & { apiKey: string },
+) {
+  expect(result).toEqual({
+    provider: expected,
+  });
+}
+
+function expectPairedCatalogProviders(
+  result: Awaited<ReturnType<typeof buildPairedProviderApiKeyCatalog>>,
+  expected: Record<string, ModelProviderConfig & { apiKey: string }>,
+) {
+  expect(result).toEqual({
+    providers: expected,
+  });
+}
+
 describe("buildSingleProviderApiKeyCatalog", () => {
-  it("matches provider templates case-insensitively", () => {
-    const result = findCatalogTemplate({
+  it.each([
+    {
+      name: "matches provider templates case-insensitively",
       entries: [
         { provider: "Demo Provider", id: "demo-model" },
         { provider: "other", id: "fallback" },
       ],
       providerId: "demo provider",
       templateIds: ["missing", "DEMO-MODEL"],
-    });
-
-    expect(result).toEqual({ provider: "Demo Provider", id: "demo-model" });
-  });
-
-  it("matches provider templates across canonical provider aliases", () => {
-    const result = findCatalogTemplate({
+      expected: { provider: "Demo Provider", id: "demo-model" },
+    },
+    {
+      name: "matches provider templates across canonical provider aliases",
       entries: [
         { provider: "z.ai", id: "glm-4.7" },
         { provider: "other", id: "fallback" },
       ],
       providerId: "z-ai",
       templateIds: ["GLM-4.7"],
+      expected: { provider: "z.ai", id: "glm-4.7" },
+    },
+  ] as const)("$name", ({ entries, providerId, templateIds, expected }) => {
+    const result = findCatalogTemplate({
+      entries,
+      providerId,
+      templateIds,
     });
 
-    expect(result).toEqual({ provider: "z.ai", id: "glm-4.7" });
+    expect(result).toEqual(expected);
   });
   it.each([
     ["returns null when api key is missing", createCatalogContext({}), undefined, null],
@@ -134,13 +157,11 @@ describe("buildSingleProviderApiKeyCatalog", () => {
       allowExplicitBaseUrl: true,
     });
 
-    expect(result).toEqual({
-      provider: {
-        api: "openai-completions",
-        baseUrl: "https://api.z.ai/custom",
-        models: [],
-        apiKey: "secret-key",
-      },
+    expectSingleCatalogProvider(result, {
+      api: "openai-completions",
+      baseUrl: "https://api.z.ai/custom",
+      models: [],
+      apiKey: "secret-key",
     });
   });
 
@@ -156,20 +177,18 @@ describe("buildSingleProviderApiKeyCatalog", () => {
       }),
     });
 
-    expect(result).toEqual({
-      providers: {
-        alpha: {
-          api: "openai-completions",
-          baseUrl: "https://default.example/v1",
-          models: [],
-          apiKey: "secret-key",
-        },
-        beta: {
-          api: "openai-completions",
-          baseUrl: "https://default.example/v1",
-          models: [],
-          apiKey: "secret-key",
-        },
+    expectPairedCatalogProviders(result, {
+      alpha: {
+        api: "openai-completions",
+        baseUrl: "https://default.example/v1",
+        models: [],
+        apiKey: "secret-key",
+      },
+      beta: {
+        api: "openai-completions",
+        baseUrl: "https://default.example/v1",
+        models: [],
+        apiKey: "secret-key",
       },
     });
   });

@@ -19,6 +19,21 @@ function createRegistryWithChannel(pluginId = "demo-channel") {
   return { registry, plugin };
 }
 
+function createChannelRegistryPair(pluginId = "demo-channel") {
+  return {
+    first: createRegistryWithChannel(pluginId),
+    second: createRegistryWithChannel(pluginId),
+  };
+}
+
+function createRegistrySet() {
+  return {
+    startup: createEmptyPluginRegistry(),
+    replacement: createEmptyPluginRegistry(),
+    unrelated: createEmptyPluginRegistry(),
+  };
+}
+
 describe("channel registry pinning", () => {
   afterEach(() => {
     resetPluginRuntimeStateForTest();
@@ -44,13 +59,14 @@ describe("channel registry pinning", () => {
   });
 
   it("re-pin invalidates cached channel lookups", () => {
-    const { registry: setup, plugin: setupPlugin } = createRegistryWithChannel();
+    const { first, second } = createChannelRegistryPair();
+    const { registry: setup, plugin: setupPlugin } = first;
     setActivePluginRegistry(setup);
     pinActivePluginChannelRegistry(setup);
 
     expect(getChannelPlugin("demo-channel")).toBe(setupPlugin);
 
-    const { registry: full, plugin: fullPlugin } = createRegistryWithChannel();
+    const { registry: full, plugin: fullPlugin } = second;
     setActivePluginRegistry(full);
 
     expect(getChannelPlugin("demo-channel")).toBe(setupPlugin);
@@ -87,10 +103,8 @@ describe("channel registry pinning", () => {
       expectAfterSwap: "first",
     },
   ] as const)("$name", ({ pin, releasePinnedRegistry, expectDuringPin, expectAfterSwap }) => {
-    const startup = createEmptyPluginRegistry();
+    const { startup, replacement, unrelated } = createRegistrySet();
     setActivePluginRegistry(startup);
-    const unrelated = createEmptyPluginRegistry();
-    const replacement = createEmptyPluginRegistry();
     if (pin) {
       pinActivePluginChannelRegistry(startup);
     }
@@ -115,13 +129,12 @@ describe("channel registry pinning", () => {
   });
 
   it("resetPluginRuntimeStateForTest clears channel pin", () => {
-    const startup = createEmptyPluginRegistry();
+    const { startup, replacement: fresh } = createRegistrySet();
     setActivePluginRegistry(startup);
     pinActivePluginChannelRegistry(startup);
 
     resetPluginRuntimeStateForTest();
 
-    const fresh = createEmptyPluginRegistry();
     setActivePluginRegistry(fresh);
     expect(getActivePluginChannelRegistry()).toBe(fresh);
   });

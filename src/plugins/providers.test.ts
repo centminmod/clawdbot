@@ -24,6 +24,67 @@ function cloneOptions<T>(value: T): T {
   return structuredClone(value);
 }
 
+function expectLastLoadPluginsCall(params?: {
+  env?: NodeJS.ProcessEnv;
+  onlyPluginIds?: readonly string[];
+}) {
+  expect(loadOpenClawPluginsMock).toHaveBeenCalledWith(
+    expect.objectContaining({
+      cache: false,
+      activate: false,
+      ...(params?.env ? { env: params.env } : {}),
+      ...(params?.onlyPluginIds ? { onlyPluginIds: params.onlyPluginIds } : {}),
+    }),
+  );
+}
+
+function getLastResolvedPluginConfig() {
+  return getLastLoadPluginsCall().config as
+    | {
+        plugins?: {
+          allow?: string[];
+          entries?: Record<string, { enabled?: boolean }>;
+        };
+      }
+    | undefined;
+}
+
+function createBundledProviderCompatOptions(params?: { onlyPluginIds?: readonly string[] }) {
+  return {
+    config: {
+      plugins: {
+        allow: ["openrouter"],
+      },
+    },
+    bundledProviderAllowlistCompat: true,
+    ...(params?.onlyPluginIds ? { onlyPluginIds: params.onlyPluginIds } : {}),
+  };
+}
+
+function expectResolvedAllowlistState(params?: {
+  expectedAllow?: readonly string[];
+  unexpectedAllow?: readonly string[];
+  expectedEntries?: Record<string, { enabled?: boolean }>;
+  expectedOnlyPluginIds?: readonly string[];
+}) {
+  expectLastLoadPluginsCall(
+    params?.expectedOnlyPluginIds ? { onlyPluginIds: params.expectedOnlyPluginIds } : undefined,
+  );
+
+  const config = getLastResolvedPluginConfig();
+  const allow = config?.plugins?.allow ?? [];
+
+  if (params?.expectedAllow) {
+    expect(allow).toEqual(expect.arrayContaining([...params.expectedAllow]));
+  }
+  if (params?.expectedEntries) {
+    expect(config?.plugins?.entries).toEqual(expect.objectContaining(params.expectedEntries));
+  }
+  params?.unexpectedAllow?.forEach((disallowedPluginId) => {
+    expect(allow).not.toContain(disallowedPluginId);
+  });
+}
+
 describe("resolvePluginProviders", () => {
   beforeEach(async () => {
     vi.resetModules();
@@ -69,14 +130,7 @@ describe("resolvePluginProviders", () => {
   it.each([
     {
       name: "can augment restrictive allowlists for bundled provider compatibility",
-      options: {
-        config: {
-          plugins: {
-            allow: ["openrouter"],
-          },
-        },
-        bundledProviderAllowlistCompat: true,
-      },
+      options: createBundledProviderCompatOptions(),
       expectedAllow: ["openrouter", "google", "kilocode", "moonshot"],
       expectedEntries: {
         google: { enabled: true },
@@ -86,40 +140,20 @@ describe("resolvePluginProviders", () => {
     },
     {
       name: "does not reintroduce the retired google auth plugin id into compat allowlists",
-      options: {
-        config: {
-          plugins: {
-            allow: ["openrouter"],
-          },
-        },
-        bundledProviderAllowlistCompat: true,
-      },
+      options: createBundledProviderCompatOptions(),
       expectedAllow: ["google"],
       unexpectedAllow: ["google-gemini-cli-auth"],
     },
     {
       name: "does not inject non-bundled provider plugin ids into compat allowlists",
-      options: {
-        config: {
-          plugins: {
-            allow: ["openrouter"],
-          },
-        },
-        bundledProviderAllowlistCompat: true,
-      },
+      options: createBundledProviderCompatOptions(),
       unexpectedAllow: ["workspace-provider"],
     },
     {
       name: "scopes bundled provider compat expansion to the requested plugin ids",
-      options: {
-        config: {
-          plugins: {
-            allow: ["openrouter"],
-          },
-        },
-        bundledProviderAllowlistCompat: true,
+      options: createBundledProviderCompatOptions({
         onlyPluginIds: ["moonshot"],
-      },
+      }),
       expectedAllow: ["openrouter", "moonshot"],
       unexpectedAllow: ["google", "kilocode"],
       expectedOnlyPluginIds: ["moonshot"],
@@ -131,34 +165,12 @@ describe("resolvePluginProviders", () => {
         cloneOptions(options) as unknown as Parameters<typeof resolvePluginProviders>[0],
       );
 
-      expect(loadOpenClawPluginsMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cache: false,
-          activate: false,
-          ...(expectedOnlyPluginIds ? { onlyPluginIds: expectedOnlyPluginIds } : {}),
-        }),
-      );
-
-      const call = getLastLoadPluginsCall();
-      const config = call.config as
-        | {
-            plugins?: {
-              allow?: string[];
-              entries?: Record<string, { enabled?: boolean }>;
-            };
-          }
-        | undefined;
-      const allow = config?.plugins?.allow ?? [];
-
-      if (expectedAllow) {
-        expect(allow).toEqual(expect.arrayContaining([...expectedAllow]));
-      }
-      if (expectedEntries) {
-        expect(config?.plugins?.entries).toEqual(expect.objectContaining(expectedEntries));
-      }
-      for (const disallowedPluginId of unexpectedAllow ?? []) {
-        expect(allow).not.toContain(disallowedPluginId);
-      }
+      expectResolvedAllowlistState({
+        expectedAllow,
+        expectedEntries,
+        expectedOnlyPluginIds,
+        unexpectedAllow,
+      });
     },
   );
 
@@ -168,20 +180,17 @@ describe("resolvePluginProviders", () => {
       bundledProviderVitestCompat: true,
     });
 
-    expect(loadOpenClawPluginsMock).toHaveBeenCalledWith(
+    expectLastLoadPluginsCall();
+    expect(getLastResolvedPluginConfig()).toEqual(
       expect.objectContaining({
-        config: expect.objectContaining({
-          plugins: expect.objectContaining({
-            enabled: true,
-            allow: expect.arrayContaining(["google", "moonshot"]),
-            entries: expect.objectContaining({
-              google: { enabled: true },
-              moonshot: { enabled: true },
-            }),
+        plugins: expect.objectContaining({
+          enabled: true,
+          allow: expect.arrayContaining(["google", "moonshot"]),
+          entries: expect.objectContaining({
+            google: { enabled: true },
+            moonshot: { enabled: true },
           }),
         }),
-        cache: false,
-        activate: false,
       }),
     );
   });
@@ -215,11 +224,9 @@ describe("resolvePluginProviders", () => {
       bundledProviderAllowlistCompat: true,
     });
 
-    expect(loadOpenClawPluginsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        onlyPluginIds: ["google", "kilocode", "moonshot"],
-      }),
-    );
+    expectLastLoadPluginsCall({
+      onlyPluginIds: ["google", "kilocode", "moonshot"],
+    });
   });
   it("maps provider ids to owning plugin ids via manifests", () => {
     loadPluginManifestRegistryMock.mockReturnValue({

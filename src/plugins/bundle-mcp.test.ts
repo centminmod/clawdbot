@@ -28,6 +28,10 @@ async function expectResolvedPathEqual(actual: unknown, expected: string): Promi
   );
 }
 
+function expectNoDiagnostics(diagnostics: unknown[]) {
+  expect(diagnostics).toEqual([]);
+}
+
 const tempHarness = createBundleMcpTempHarness();
 
 afterEach(async () => {
@@ -50,6 +54,29 @@ async function withBundleHomeEnv<T>(
   } finally {
     env.restore();
   }
+}
+
+function createEnabledBundleConfig(pluginIds: string[]): OpenClawConfig {
+  return {
+    plugins: {
+      entries: Object.fromEntries(pluginIds.map((pluginId) => [pluginId, { enabled: true }])),
+    },
+  };
+}
+
+async function writeInlineClaudeBundleManifest(params: {
+  homeDir: string;
+  pluginId: string;
+  manifest: Record<string, unknown>;
+}) {
+  const pluginRoot = path.join(params.homeDir, ".openclaw", "extensions", params.pluginId);
+  await fs.mkdir(path.join(pluginRoot, ".claude-plugin"), { recursive: true });
+  await fs.writeFile(
+    path.join(pluginRoot, ".claude-plugin", "plugin.json"),
+    `${JSON.stringify(params.manifest, null, 2)}\n`,
+    "utf-8",
+  );
+  return pluginRoot;
 }
 
 describe("loadEnabledBundleMcpConfig", () => {
@@ -75,7 +102,7 @@ describe("loadEnabledBundleMcpConfig", () => {
       const loadedServerPath = typeof loadedArgs?.[0] === "string" ? loadedArgs[0] : undefined;
       const resolvedPluginRoot = await fs.realpath(pluginRoot);
 
-      expect(loaded.diagnostics).toEqual([]);
+      expectNoDiagnostics(loaded.diagnostics);
       expect(isRecord(loadedServer) ? loadedServer.command : undefined).toBe("node");
       expect(loadedArgs).toHaveLength(1);
       expect(loadedServerPath).toBeDefined();
@@ -91,57 +118,43 @@ describe("loadEnabledBundleMcpConfig", () => {
 
   it("merges inline bundle MCP servers and skips disabled bundles", async () => {
     await withBundleHomeEnv("openclaw-bundle-inline", async ({ homeDir, workspaceDir }) => {
-      const enabledRoot = path.join(homeDir, ".openclaw", "extensions", "inline-enabled");
-      const disabledRoot = path.join(homeDir, ".openclaw", "extensions", "inline-disabled");
-      await fs.mkdir(path.join(enabledRoot, ".claude-plugin"), { recursive: true });
-      await fs.mkdir(path.join(disabledRoot, ".claude-plugin"), { recursive: true });
-      await fs.writeFile(
-        path.join(enabledRoot, ".claude-plugin", "plugin.json"),
-        `${JSON.stringify(
-          {
-            name: "inline-enabled",
-            mcpServers: {
-              enabledProbe: {
-                command: "node",
-                args: ["./enabled.mjs"],
-              },
+      await writeInlineClaudeBundleManifest({
+        homeDir,
+        pluginId: "inline-enabled",
+        manifest: {
+          name: "inline-enabled",
+          mcpServers: {
+            enabledProbe: {
+              command: "node",
+              args: ["./enabled.mjs"],
             },
-          },
-          null,
-          2,
-        )}\n`,
-        "utf-8",
-      );
-      await fs.writeFile(
-        path.join(disabledRoot, ".claude-plugin", "plugin.json"),
-        `${JSON.stringify(
-          {
-            name: "inline-disabled",
-            mcpServers: {
-              disabledProbe: {
-                command: "node",
-                args: ["./disabled.mjs"],
-              },
-            },
-          },
-          null,
-          2,
-        )}\n`,
-        "utf-8",
-      );
-
-      const config: OpenClawConfig = {
-        plugins: {
-          entries: {
-            "inline-enabled": { enabled: true },
-            "inline-disabled": { enabled: false },
           },
         },
-      };
+      });
+      await writeInlineClaudeBundleManifest({
+        homeDir,
+        pluginId: "inline-disabled",
+        manifest: {
+          name: "inline-disabled",
+          mcpServers: {
+            disabledProbe: {
+              command: "node",
+              args: ["./disabled.mjs"],
+            },
+          },
+        },
+      });
 
       const loaded = loadEnabledBundleMcpConfig({
         workspaceDir,
-        cfg: config,
+        cfg: {
+          plugins: {
+            entries: {
+              ...createEnabledBundleConfig(["inline-enabled"]).plugins?.entries,
+              "inline-disabled": { enabled: false },
+            },
+          },
+        },
       });
 
       expect(loaded.config.mcpServers.enabledProbe).toBeDefined();
@@ -153,39 +166,27 @@ describe("loadEnabledBundleMcpConfig", () => {
     await withBundleHomeEnv(
       "openclaw-bundle-inline-placeholder",
       async ({ homeDir, workspaceDir }) => {
-        const pluginRoot = path.join(homeDir, ".openclaw", "extensions", "inline-claude");
-        await fs.mkdir(path.join(pluginRoot, ".claude-plugin"), { recursive: true });
-        await fs.writeFile(
-          path.join(pluginRoot, ".claude-plugin", "plugin.json"),
-          `${JSON.stringify(
-            {
-              name: "inline-claude",
-              mcpServers: {
-                inlineProbe: {
-                  command: "${CLAUDE_PLUGIN_ROOT}/bin/server.sh",
-                  args: ["${CLAUDE_PLUGIN_ROOT}/servers/probe.mjs", "./local-probe.mjs"],
-                  cwd: "${CLAUDE_PLUGIN_ROOT}",
-                  env: {
-                    PLUGIN_ROOT: "${CLAUDE_PLUGIN_ROOT}",
-                  },
+        const pluginRoot = await writeInlineClaudeBundleManifest({
+          homeDir,
+          pluginId: "inline-claude",
+          manifest: {
+            name: "inline-claude",
+            mcpServers: {
+              inlineProbe: {
+                command: "${CLAUDE_PLUGIN_ROOT}/bin/server.sh",
+                args: ["${CLAUDE_PLUGIN_ROOT}/servers/probe.mjs", "./local-probe.mjs"],
+                cwd: "${CLAUDE_PLUGIN_ROOT}",
+                env: {
+                  PLUGIN_ROOT: "${CLAUDE_PLUGIN_ROOT}",
                 },
               },
             },
-            null,
-            2,
-          )}\n`,
-          "utf-8",
-        );
+          },
+        });
 
         const loaded = loadEnabledBundleMcpConfig({
           workspaceDir,
-          cfg: {
-            plugins: {
-              entries: {
-                "inline-claude": { enabled: true },
-              },
-            },
-          },
+          cfg: createEnabledBundleConfig(["inline-claude"]),
         });
         const loadedServer = loaded.config.mcpServers.inlineProbe;
         const loadedArgs = getServerArgs(loadedServer);
@@ -194,7 +195,7 @@ describe("loadEnabledBundleMcpConfig", () => {
         const loadedEnv =
           isRecord(loadedServer) && isRecord(loadedServer.env) ? loadedServer.env : {};
 
-        expect(loaded.diagnostics).toEqual([]);
+        expectNoDiagnostics(loaded.diagnostics);
         await expectResolvedPathEqual(loadedCwd, pluginRoot);
         expect(typeof loadedCommand).toBe("string");
         expect(loadedArgs).toHaveLength(2);

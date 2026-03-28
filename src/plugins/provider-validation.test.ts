@@ -21,6 +21,33 @@ function makeProvider(overrides: Partial<ProviderPlugin>): ProviderPlugin {
   };
 }
 
+function expectDiagnosticMessages(
+  diagnostics: PluginDiagnostic[],
+  expectedDiagnostics: ReadonlyArray<{ level: PluginDiagnostic["level"]; message: string }>,
+) {
+  expect(diagnostics.map((diag) => ({ level: diag.level, message: diag.message }))).toEqual(
+    expectedDiagnostics,
+  );
+}
+
+function expectDiagnosticText(diagnostics: PluginDiagnostic[], messages: readonly string[]) {
+  expect(diagnostics.map((diag) => diag.message)).toEqual([...messages]);
+}
+
+function normalizeProviderFixture(provider: ProviderPlugin) {
+  const { diagnostics, pushDiagnostic } = collectDiagnostics();
+  const normalizedProvider = normalizeRegisteredProvider({
+    pluginId: "demo-plugin",
+    source: "/tmp/demo/index.ts",
+    provider,
+    pushDiagnostic,
+  });
+  return {
+    diagnostics,
+    provider: normalizedProvider,
+  };
+}
+
 describe("normalizeRegisteredProvider", () => {
   it.each([
     {
@@ -132,7 +159,7 @@ describe("normalizeRegisteredProvider", () => {
         diagnostics: PluginDiagnostic[],
       ) => {
         expect(provider?.wizard).toBeUndefined();
-        expect(diagnostics.map((diag) => diag.message)).toEqual([
+        expectDiagnosticText(diagnostics, [
           'provider "demo" setup metadata ignored because it has no auth methods',
           'provider "demo" model-picker metadata ignored because it has no auth methods',
         ]);
@@ -141,13 +168,7 @@ describe("normalizeRegisteredProvider", () => {
   ] as const)(
     "$name",
     ({ provider: inputProvider, expectedProvider, expectedDiagnostics, assert }) => {
-      const { diagnostics, pushDiagnostic } = collectDiagnostics();
-      const provider = normalizeRegisteredProvider({
-        pluginId: "demo-plugin",
-        source: "/tmp/demo/index.ts",
-        provider: inputProvider,
-        pushDiagnostic,
-      });
+      const { diagnostics, provider } = normalizeProviderFixture(inputProvider);
 
       if (assert) {
         assert(provider, diagnostics);
@@ -155,19 +176,13 @@ describe("normalizeRegisteredProvider", () => {
       }
 
       expect(provider).toMatchObject(expectedProvider);
-      expect(diagnostics.map((diag) => ({ level: diag.level, message: diag.message }))).toEqual(
-        expectedDiagnostics,
-      );
+      expectDiagnosticMessages(diagnostics, expectedDiagnostics);
     },
   );
 
   it("prefers catalog when a provider registers both catalog and discovery", () => {
-    const { diagnostics, pushDiagnostic } = collectDiagnostics();
-
-    const provider = normalizeRegisteredProvider({
-      pluginId: "demo-plugin",
-      source: "/tmp/demo/index.ts",
-      provider: makeProvider({
+    const { diagnostics, provider } = normalizeProviderFixture(
+      makeProvider({
         catalog: {
           run: async () => null,
         },
@@ -180,12 +195,11 @@ describe("normalizeRegisteredProvider", () => {
           }),
         },
       }),
-      pushDiagnostic,
-    });
+    );
 
     expect(provider?.catalog).toBeDefined();
     expect(provider?.discovery).toBeUndefined();
-    expect(diagnostics.map((diag) => diag.message)).toEqual([
+    expectDiagnosticText(diagnostics, [
       'provider "demo" registered both catalog and discovery; using catalog',
     ]);
   });
