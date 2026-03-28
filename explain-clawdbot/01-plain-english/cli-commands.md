@@ -1755,7 +1755,7 @@ These override config-file settings. Useful for scripting, CI/CD, or running mul
 | `CUSTOM_API_KEY` | API key for custom providers (used with `--auth-choice custom-api-key`) | *(none)* |
 | `NO_COLOR` | Disable ANSI colors (`1` = no color) | *(off)* |
 
-Legacy aliases (`CLAWDBOT_STATE_DIR`, `CLAWDBOT_CONFIG_PATH`, `CLAWDBOT_GATEWAY_PORT`) still work for backward compatibility.
+**Removed:** `CLAWDBOT_STATE_DIR`, `CLAWDBOT_CONFIG_PATH`, and `CLAWDBOT_GATEWAY_PORT` legacy aliases were dropped in 2026.3.22. Use the `OPENCLAW_*` equivalents only.
 
 ---
 

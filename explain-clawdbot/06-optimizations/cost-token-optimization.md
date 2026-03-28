@@ -207,10 +207,10 @@ entries:
     runtime_refs: [src/agents/memory-search.ts]
   - id: TOKCFG_SESSION_MEMORY_INDEXING
     paths: [agents.defaults.memorySearch.experimental.sessionMemory, agents.defaults.memorySearch.sources, agents.defaults.memorySearch.sync.sessions.deltaBytes, agents.defaults.memorySearch.sync.sessions.deltaMessages]
-    runtime_refs: [src/agents/memory-search.ts, src/memory/manager-sync-ops.ts, src/memory/session-files.ts]
+    runtime_refs: [src/agents/memory-search.ts, extensions/memory-core/src/memory/manager-sync-ops.ts, extensions/memory-core/src/memory/session-files.ts]
   - id: TOKCFG_QMD_SNIPPET_BUDGET
     paths: [memory.qmd.limits.maxResults, memory.qmd.limits.maxSnippetChars, memory.qmd.limits.maxInjectedChars, memory.qmd.sessions.enabled]
-    runtime_refs: [src/memory/backend-config.ts, src/memory/qmd-manager.ts]
+    runtime_refs: [extensions/memory-core/src/memory/backend-config.ts, extensions/memory-core/src/memory/qmd-manager.ts]
   - id: TOKCFG_WEB_SEARCH_FETCH_BOUNDS
     paths: [tools.web.search.maxResults, tools.web.search.perplexity.model, tools.web.search.grok.model, tools.web.fetch.maxChars, tools.web.fetch.maxCharsCap]
     runtime_refs: [src/agents/tools/web-search.ts, src/agents/tools/web-fetch.ts]

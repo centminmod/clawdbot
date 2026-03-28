@@ -283,7 +283,7 @@ openclaw config set gateway.auth.mode token
 
 ```typescript
 // From src/gateway/auth.ts
-const token = authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? env.CLAWDBOT_GATEWAY_TOKEN;
+const token = authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN;
 // If all of these are undefined, token is null, and auth may be bypassed
 ```
 

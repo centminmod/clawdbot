@@ -247,10 +247,10 @@ On the VPS:
 curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
-Verify Node.js version (22.12.0+ recommended for security patches):
+Verify Node.js version (>=22.14.0 required):
 
 ```bash
-node --version  # Should be v22.12.0 or later
+node --version  # Should be v22.14.0 or later
 ```
 
 Then onboard — this walks you through initial setup and creates a background service:
@@ -1434,7 +1434,7 @@ Based on [VibeProof Security Guide](https://vibeproof.dev/blog/moltbot-security-
 ### System Maintenance
 
 - [ ] Automatic security updates enabled
-- [ ] Node.js 22.12.0+ installed
+- [ ] Node.js >=22.14.0 installed
 - [ ] Systemd resource limits configured
 
 ### Observability
