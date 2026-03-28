@@ -32,6 +32,7 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+- Mistral: move Mistral OpenAI-compatible request-shape normalization onto the bundled provider plugin and apply it across direct and gateway model resolution, fixing remaining `422 status code (no body)` chat failures on official Mistral API runs.
 - ACP/ACPX agent registry: align OpenClaw's ACPX built-in agent mirror with the latest `openclaw/acpx` command defaults and built-in aliases, pin versioned `npx` built-ins to exact versions, and stop unknown ACP agent ids from falling through to raw `--agent` command execution on the MCP-proxy path. (#28321) Thanks @m0nkmaster and @vincentkoc.
 - Control UI/config: keep sensitive raw config hidden by default, replace the blank blocked editor with an explicit reveal-to-edit state, and restore raw JSON editing without auto-exposing secrets. Fixes #55322.
 - WhatsApp: fix infinite echo loop in self-chat DM mode where the bot's own outbound replies were re-processed as new inbound user messages. (#54570) Thanks @joelnishanth
@@ -105,8 +106,11 @@ Docs: https://docs.openclaw.ai
 - Plugins/diffs: load bundled Pierre themes without JSON module imports so diff rendering keeps working on newer Node builds. (#45869) thanks @NickHood1984.
 - Plugins/uninstall: remove owned `channels.<id>` config when uninstalling channel plugins, and keep the uninstall preview aligned with explicit channel ownership so built-in channels and shared keys stay intact. (#35915) Thanks @wbxl2000.
 - Plugins/Matrix: prefer explicit DM signals when choosing outbound direct rooms and routing unmapped verification summaries, so strict 2-person fallback rooms do not outrank the real DM. (#56076) thanks @gumadeiras
+- Plugins/Matrix: resolve env-backed `accessToken` and `password` SecretRefs against the active Matrix config env path during startup, and officially accept SecretRef `accessToken` config values. (#54980) thanks @kakahu2015.
 - Microsoft Teams/proactive DMs: prefer the freshest personal conversation reference for `user:<aadObjectId>` sends when multiple stored references exist, so replies stop targeting stale DM threads. (#54702) Thanks @gumclaw.
 - Gateway/plugins: reuse the session workspace when building HTTP `/tools/invoke` tool lists and harden tool construction to infer the session agent workspace by default, so workspace plugins do not re-register on repeated HTTP tool calls. (#56101) thanks @neeravmakwana
+- Brave/web search: normalize unsupported Brave `country` filters to `ALL` before request and cache-key generation so locale-derived values like `VN` stop failing with upstream 422 validation errors. (#55695) Thanks @chen-zhang-cs-code.
+- Discord/replies: preserve leading indentation when stripping inline reply tags so reply-tagged plain text and fenced code blocks keep their formatting. (#55960) Thanks @Nanako0129.
 
 ## 2026.3.24
 
@@ -1925,6 +1929,7 @@ Docs: https://docs.openclaw.ai
 - FS/Sandbox workspace boundaries: add a dedicated `outside-workspace` safe-open error code for root-escape checks, and propagate specific outside-workspace messages across edit/browser/media consumers instead of generic not-found/invalid-path fallbacks. (#29715) Thanks @YuzuruS.
 - Diagnostics/Stuck session signal: add configurable stuck-session warning threshold via `diagnostics.stuckSessionWarnMs` (default 120000ms) to reduce false-positive warnings on long multi-tool turns. (#31032)
 - Agents/error classification: check billing errors before context overflow heuristics in the agent runner catch block so spend-limit and quota errors show the billing-specific message instead of being misclassified as "Context overflow: prompt too large". (#40409) Thanks @ademczuk.
+- Memory/MMR CJK tokenization: add Han, kana, and hangul tokens plus adjacent bigrams so memory-search reranking can detect overlap for CJK text instead of treating unrelated snippets as identical. (#29396) Thanks @buyitsydney.
 
 ## 2026.2.26
 

@@ -8,7 +8,14 @@ import { clearPluginCommands, getPluginCommandSpecs } from "./command-registry-s
 import { clearPluginDiscoveryCache } from "./discovery.js";
 import { getGlobalHookRunner, resetGlobalHookRunner } from "./hook-runner-global.js";
 import { createHookRunner } from "./hooks.js";
-import { __testing, clearPluginLoaderCache, loadOpenClawPlugins } from "./loader.js";
+import {
+  __testing,
+  clearPluginLoaderCache,
+  getCompatibleActivePluginRegistry,
+  loadOpenClawPlugins,
+  resolveRuntimePluginRegistry,
+  resolvePluginLoadCacheContext,
+} from "./loader.js";
 import { clearPluginManifestRegistryCache } from "./manifest-registry.js";
 import {
   getMemoryEmbeddingProvider,
@@ -27,6 +34,7 @@ import { createEmptyPluginRegistry } from "./registry.js";
 import {
   getActivePluginRegistry,
   getActivePluginRegistryKey,
+  resetPluginRuntimeStateForTest,
   setActivePluginRegistry,
 } from "./runtime.js";
 
@@ -763,6 +771,7 @@ afterEach(() => {
   clearPluginLoaderCache();
   clearPluginDiscoveryCache();
   clearPluginManifestRegistryCache();
+  resetPluginRuntimeStateForTest();
   resetDiagnosticEventsForTest();
   if (prevBundledDir === undefined) {
     delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
@@ -3536,6 +3545,107 @@ export const runtimeValue = helperValue;`,
 
     const record = registry.plugins.find((entry) => entry.id === "source-runtime-shim");
     expect(record?.status).toBe("loaded");
+  });
+});
+
+describe("getCompatibleActivePluginRegistry", () => {
+  it("reuses the active registry only when the load context cache key matches", () => {
+    const registry = createEmptyPluginRegistry();
+    const loadOptions = {
+      config: {
+        plugins: {
+          allow: ["demo"],
+          load: { paths: ["/tmp/demo.js"] },
+        },
+      },
+      workspaceDir: "/tmp/workspace-a",
+      runtimeOptions: {
+        allowGatewaySubagentBinding: true,
+      },
+    };
+    const { cacheKey } = resolvePluginLoadCacheContext(loadOptions);
+    setActivePluginRegistry(registry, cacheKey);
+
+    expect(getCompatibleActivePluginRegistry(loadOptions)).toBe(registry);
+    expect(
+      getCompatibleActivePluginRegistry({
+        ...loadOptions,
+        workspaceDir: "/tmp/workspace-b",
+      }),
+    ).toBeUndefined();
+    expect(
+      getCompatibleActivePluginRegistry({
+        ...loadOptions,
+        onlyPluginIds: ["demo"],
+      }),
+    ).toBeUndefined();
+    expect(
+      getCompatibleActivePluginRegistry({
+        ...loadOptions,
+        runtimeOptions: undefined,
+      }),
+    ).toBeUndefined();
+  });
+
+  it("falls back to the current active runtime when no compatibility-shaping inputs are supplied", () => {
+    const registry = createEmptyPluginRegistry();
+    setActivePluginRegistry(registry, "startup-registry");
+
+    expect(getCompatibleActivePluginRegistry()).toBe(registry);
+  });
+
+  it("does not reuse the active registry when core gateway method names differ", () => {
+    const registry = createEmptyPluginRegistry();
+    const loadOptions = {
+      config: {
+        plugins: {
+          allow: ["demo"],
+          load: { paths: ["/tmp/demo.js"] },
+        },
+      },
+      workspaceDir: "/tmp/workspace-a",
+      coreGatewayHandlers: {
+        "sessions.get": () => undefined,
+      },
+    };
+    const { cacheKey } = resolvePluginLoadCacheContext(loadOptions);
+    setActivePluginRegistry(registry, cacheKey);
+
+    expect(getCompatibleActivePluginRegistry(loadOptions)).toBe(registry);
+    expect(
+      getCompatibleActivePluginRegistry({
+        ...loadOptions,
+        coreGatewayHandlers: {
+          "sessions.get": () => undefined,
+          "sessions.list": () => undefined,
+        },
+      }),
+    ).toBeUndefined();
+  });
+});
+
+describe("resolveRuntimePluginRegistry", () => {
+  it("reuses the compatible active registry before attempting a fresh load", () => {
+    const registry = createEmptyPluginRegistry();
+    const loadOptions = {
+      config: {
+        plugins: {
+          allow: ["demo"],
+        },
+      },
+      workspaceDir: "/tmp/workspace-a",
+    };
+    const { cacheKey } = resolvePluginLoadCacheContext(loadOptions);
+    setActivePluginRegistry(registry, cacheKey);
+
+    expect(resolveRuntimePluginRegistry(loadOptions)).toBe(registry);
+  });
+
+  it("falls back to the current active runtime when no explicit load context is provided", () => {
+    const registry = createEmptyPluginRegistry();
+    setActivePluginRegistry(registry, "startup-registry");
+
+    expect(resolveRuntimePluginRegistry()).toBe(registry);
   });
 });
 

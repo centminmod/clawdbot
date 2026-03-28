@@ -126,6 +126,15 @@ describe("channel-auth", () => {
     );
   });
 
+  it("does not auto-pick enabled-only channel stubs when channel is omitted", async () => {
+    mocks.loadConfig.mockReturnValue({ channels: { whatsapp: { enabled: false } } });
+
+    await expect(runChannelLogin({}, runtime)).rejects.toThrow(
+      "Channel is required (no configured channels support login).",
+    );
+    expect(mocks.login).not.toHaveBeenCalled();
+  });
+
   it("ignores configured channels that do not support login when channel is omitted", async () => {
     const telegramPlugin = {
       id: "telegram",

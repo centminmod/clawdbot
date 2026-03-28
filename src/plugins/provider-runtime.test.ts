@@ -60,6 +60,7 @@ const MODEL: ProviderRuntimeModel = {
   maxTokens: 8_192,
 };
 const DEMO_PROVIDER_ID = "demo";
+const EMPTY_MODEL_REGISTRY = { find: () => null } as never;
 
 function createOpenAiCatalogProviderPlugin(
   overrides: Partial<ProviderPlugin> = {},
@@ -134,6 +135,12 @@ function createDemoResolvedModelContext<TContext extends Record<string, unknown>
   });
 }
 
+function expectCalledOnce(...mocks: Array<{ mock: { calls: unknown[] } }>) {
+  for (const mockFn of mocks) {
+    expect(mockFn).toHaveBeenCalledTimes(1);
+  }
+}
+
 describe("provider-runtime", () => {
   beforeEach(async () => {
     vi.resetModules();
@@ -205,6 +212,49 @@ describe("provider-runtime", () => {
     expectProviderRuntimePluginLoad({
       provider: "anthropic",
     });
+  });
+
+  it("invalidates cached runtime providers when config mutates in place", () => {
+    const config = {
+      plugins: {
+        entries: {
+          demo: { enabled: false },
+        },
+      },
+    } as { plugins: { entries: { demo: { enabled: boolean } } } };
+    resolveOwningPluginIdsForProviderMock.mockReturnValue(["demo"]);
+    resolvePluginProvidersMock.mockImplementation((params) => {
+      const runtimeConfig = params?.config as typeof config | undefined;
+      const enabled = runtimeConfig?.plugins?.entries?.demo?.enabled === true;
+      return enabled
+        ? [
+            {
+              id: DEMO_PROVIDER_ID,
+              label: "Demo",
+              auth: [],
+            },
+          ]
+        : [];
+    });
+
+    expect(
+      resolveProviderRuntimePlugin({
+        provider: DEMO_PROVIDER_ID,
+        config: config as never,
+      }),
+    ).toBeUndefined();
+
+    config.plugins.entries.demo.enabled = true;
+
+    expect(
+      resolveProviderRuntimePlugin({
+        provider: DEMO_PROVIDER_ID,
+        config: config as never,
+      }),
+    ).toMatchObject({
+      id: DEMO_PROVIDER_ID,
+    });
+    expect(resolvePluginProvidersMock).toHaveBeenCalledTimes(2);
   });
 
   it("dispatches runtime hooks for the matched provider", async () => {
@@ -307,7 +357,7 @@ describe("provider-runtime", () => {
       runProviderDynamicModel({
         provider: DEMO_PROVIDER_ID,
         context: createDemoRuntimeContext({
-          modelRegistry: { find: () => null } as never,
+          modelRegistry: EMPTY_MODEL_REGISTRY,
         }),
       }),
     ).toMatchObject(MODEL);
@@ -315,7 +365,7 @@ describe("provider-runtime", () => {
     await prepareProviderDynamicModel({
       provider: DEMO_PROVIDER_ID,
       context: createDemoRuntimeContext({
-        modelRegistry: { find: () => null } as never,
+        modelRegistry: EMPTY_MODEL_REGISTRY,
       }),
     });
 
@@ -555,13 +605,15 @@ describe("provider-runtime", () => {
     expectCodexBuiltInSuppression(resolveProviderBuiltInModelSuppression);
     await expectAugmentedCodexCatalog(augmentModelCatalogWithProviderPlugins);
 
-    expect(prepareDynamicModel).toHaveBeenCalledTimes(1);
-    expect(refreshOAuth).toHaveBeenCalledTimes(1);
-    expect(resolveSyntheticAuth).toHaveBeenCalledTimes(1);
-    expect(buildUnknownModelHint).toHaveBeenCalledTimes(1);
-    expect(prepareRuntimeAuth).toHaveBeenCalledTimes(1);
-    expect(resolveUsageAuth).toHaveBeenCalledTimes(1);
-    expect(fetchUsageSnapshot).toHaveBeenCalledTimes(1);
+    expectCalledOnce(
+      prepareDynamicModel,
+      refreshOAuth,
+      resolveSyntheticAuth,
+      buildUnknownModelHint,
+      prepareRuntimeAuth,
+      resolveUsageAuth,
+      fetchUsageSnapshot,
+    );
   });
 
   it("resolves bundled catalog hooks through provider plugins", async () => {
