@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
 import { applyExclusiveSlotSelection } from "./slots.js";
+import type { PluginKind } from "./types.js";
 
 describe("applyExclusiveSlotSelection", () => {
   const createMemoryConfig = (plugins?: OpenClawConfig["plugins"]): OpenClawConfig => ({
@@ -68,6 +69,29 @@ describe("applyExclusiveSlotSelection", () => {
     expect(result.warnings).toHaveLength(0);
   }
 
+  function expectUnchangedSelectionCase(params: {
+    config: OpenClawConfig;
+    selectedId: string;
+    selectedKind?: PluginKind;
+    registry?: { plugins: ReadonlyArray<{ id: string; kind?: PluginKind }> };
+  }) {
+    const result = applyExclusiveSlotSelection({
+      config: params.config,
+      selectedId: params.selectedId,
+      ...(params.selectedKind ? { selectedKind: params.selectedKind } : {}),
+      ...(params.registry
+        ? {
+            registry: {
+              plugins: [...params.registry.plugins],
+            },
+          }
+        : {}),
+    });
+
+    expectUnchangedSelection(result);
+    expect(result.config).toBe(params.config);
+  }
+
   it("selects the slot and disables other entries for the same kind", () => {
     const config = createMemoryConfig({
       slots: { memory: "memory-core" },
@@ -88,19 +112,28 @@ describe("applyExclusiveSlotSelection", () => {
     });
   });
 
-  it("does nothing when the slot already matches", () => {
-    const config = createMemoryConfig({
-      slots: { memory: "memory" },
-    });
-    const result = applyExclusiveSlotSelection({
-      config,
+  it.each([
+    {
+      name: "does nothing when the slot already matches",
+      config: createMemoryConfig({
+        slots: { memory: "memory" },
+      }),
       selectedId: "memory",
       selectedKind: "memory",
       registry: { plugins: [{ id: "memory", kind: "memory" }] },
+    },
+    {
+      name: "skips changes when no exclusive slot applies",
+      config: {} as OpenClawConfig,
+      selectedId: "custom",
+    },
+  ] as const)("$name", ({ config, selectedId, selectedKind, registry }) => {
+    expectUnchangedSelectionCase({
+      config,
+      selectedId,
+      ...(selectedKind ? { selectedKind } : {}),
+      ...(registry ? { registry: { plugins: [...registry.plugins] } } : {}),
     });
-
-    expectUnchangedSelection(result);
-    expect(result.config).toBe(config);
   });
 
   it.each([
@@ -135,16 +168,5 @@ describe("applyExclusiveSlotSelection", () => {
       ...(expectedDisabled != null ? { disabledCompetingPlugin: expectedDisabled } : {}),
     });
     expectSelectionWarnings(result.warnings, warningChecks);
-  });
-
-  it("skips changes when no exclusive slot applies", () => {
-    const config: OpenClawConfig = {};
-    const result = applyExclusiveSlotSelection({
-      config,
-      selectedId: "custom",
-    });
-
-    expectUnchangedSelection(result);
-    expect(result.config).toBe(config);
   });
 });

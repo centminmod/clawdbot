@@ -32,7 +32,7 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
-- Mistral: move Mistral OpenAI-compatible request-shape normalization onto the bundled provider plugin and apply it across direct and gateway model resolution, fixing remaining `422 status code (no body)` chat failures on official Mistral API runs.
+- Mistral: normalize OpenAI-compatible request flags so official Mistral API runs no longer fail with remaining `422 status code (no body)` chat errors.
 - ACP/ACPX agent registry: align OpenClaw's ACPX built-in agent mirror with the latest `openclaw/acpx` command defaults and built-in aliases, pin versioned `npx` built-ins to exact versions, and stop unknown ACP agent ids from falling through to raw `--agent` command execution on the MCP-proxy path. (#28321) Thanks @m0nkmaster and @vincentkoc.
 - Control UI/config: keep sensitive raw config hidden by default, replace the blank blocked editor with an explicit reveal-to-edit state, and restore raw JSON editing without auto-exposing secrets. Fixes #55322.
 - WhatsApp: fix infinite echo loop in self-chat DM mode where the bot's own outbound replies were re-processed as new inbound user messages. (#54570) Thanks @joelnishanth
@@ -78,6 +78,7 @@ Docs: https://docs.openclaw.ai
 - Agents/compaction: trigger timeout recovery compaction before retrying high-context LLM timeouts so embedded runs stop repeating oversized requests. (#46417) thanks @joeykrug.
 - Agents/compaction: reconcile `sessions.json.compactionCount` after a late embedded auto-compaction success so persisted session counts catch up once the handler reports completion. (#45493) Thanks @jackal092927.
 - Agents/failover: classify Codex accountId token extraction failures as auth errors so model fallback continues to the next configured candidate. (#55206) Thanks @cosmicnet.
+- Plugins/runtime: reuse only compatible active plugin registries across tools, providers, web search, and channel bootstrap, align `/tools/invoke` plugin loading with the session workspace, and retry outbound channel recovery when the pinned channel surface changes so plugin tools and channels stop disappearing or re-registering from mismatched runtime loads. Thanks @gumadeiras.
 - Talk/macOS: stop direct system-voice failures from replaying system speech, use app-locale fallback for shared watchdog timing, and add regression coverage for the macOS fallback route and language-aware timeout policy. (#53511) thanks @hongsw.
 - Discord/gateway cleanup: keep late Carbon reconnect-exhausted errors suppressed through startup/dispose cleanup so Discord monitor shutdown no longer crashes on late gateway close events. (#55373) Thanks @Takhoffman.
 - Discord/gateway shutdown: treat expected reconnect-exhausted events during intentional lifecycle stop as clean shutdowns so startup-abort cleanup no longer surfaces false gateway failures. (#55324) Thanks @joelnishanth.

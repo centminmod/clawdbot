@@ -72,6 +72,38 @@ function expectResolvedBundledDir(params: {
   );
 }
 
+function expectResolvedBundledDirFromRoot(params: {
+  repoRoot: string;
+  expectedRelativeDir: string;
+  argv1?: string;
+  bundledDirOverride?: string;
+  vitest?: string;
+  cwd?: string;
+}) {
+  expectResolvedBundledDir({
+    cwd: params.cwd ?? params.repoRoot,
+    expectedDir: path.join(params.repoRoot, params.expectedRelativeDir),
+    ...(params.argv1 ? { argv1: params.argv1 } : {}),
+    ...(params.bundledDirOverride ? { bundledDirOverride: params.bundledDirOverride } : {}),
+    ...(params.vitest !== undefined ? { vitest: params.vitest } : {}),
+  });
+}
+
+function expectInstalledBundledDirScenario(params: {
+  installedRoot: string;
+  cwd?: string;
+  argv1?: string;
+  bundledDirOverride?: string;
+}) {
+  expectResolvedBundledDirFromRoot({
+    repoRoot: params.installedRoot,
+    cwd: params.cwd ?? process.cwd(),
+    ...(params.argv1 ? { argv1: params.argv1 } : {}),
+    ...(params.bundledDirOverride ? { bundledDirOverride: params.bundledDirOverride } : {}),
+    expectedRelativeDir: path.join("dist", "extensions"),
+  });
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   if (originalBundledDir === undefined) {
@@ -142,10 +174,10 @@ describe("resolveBundledPluginsDir", () => {
     ],
   ] as const)("%s", (_name, layout, expectation) => {
     const repoRoot = createOpenClawRoot(layout);
-    expectResolvedBundledDir({
-      cwd: repoRoot,
-      expectedDir: path.join(repoRoot, expectation.expectedRelativeDir),
-      vitest: "vitest" in expectation ? expectation.vitest : undefined,
+    expectResolvedBundledDirFromRoot({
+      repoRoot,
+      expectedRelativeDir: expectation.expectedRelativeDir,
+      ...("vitest" in expectation ? { vitest: expectation.vitest } : {}),
     });
   });
 
@@ -161,10 +193,10 @@ describe("resolveBundledPluginsDir", () => {
       hasGitCheckout: true,
     });
 
-    expectResolvedBundledDir({
+    expectInstalledBundledDirScenario({
+      installedRoot,
       cwd: cwdRepoRoot,
       argv1: path.join(installedRoot, "openclaw.mjs"),
-      expectedDir: path.join(installedRoot, "dist", "extensions"),
     });
   });
 
@@ -173,12 +205,10 @@ describe("resolveBundledPluginsDir", () => {
       prefix: "openclaw-bundled-dir-override-",
       hasDistExtensions: true,
     });
-
-    expectResolvedBundledDir({
-      cwd: process.cwd(),
+    expectInstalledBundledDirScenario({
+      installedRoot,
       argv1: path.join(installedRoot, "openclaw.mjs"),
       bundledDirOverride: path.join(installedRoot, "missing-extensions"),
-      expectedDir: path.join(installedRoot, "dist", "extensions"),
     });
   });
 });

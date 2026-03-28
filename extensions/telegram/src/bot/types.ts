@@ -5,7 +5,8 @@ export type TelegramStreamMode = "off" | "partial" | "block";
 
 export type TelegramGetFile = () => Promise<{ file_path?: string }>;
 export type TelegramChatDetails = {
-  available_reactions?: ChatFullInfo["available_reactions"];
+  id?: number | string;
+  available_reactions?: ChatFullInfo["available_reactions"] | null;
   is_forum?: boolean;
 };
 export type TelegramGetChat = (chatId: number | string) => Promise<TelegramChatDetails>;

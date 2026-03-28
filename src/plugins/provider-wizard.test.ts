@@ -94,6 +94,64 @@ function createWizardRuntimeParams(params?: {
   };
 }
 
+function expectWizardResolutionCount(params: {
+  provider: ProviderPlugin;
+  config?: object;
+  env?: NodeJS.ProcessEnv;
+  expectedCount: number;
+}) {
+  setResolvedProviders(params.provider);
+  resolveProviderWizardOptions(
+    createWizardRuntimeParams({
+      config: params.config,
+      env: params.env,
+    }),
+  );
+  resolveProviderWizardOptions(
+    createWizardRuntimeParams({
+      config: params.config,
+      env: params.env,
+    }),
+  );
+  expectProviderResolutionCall({
+    config: params.config,
+    env: params.env,
+    count: params.expectedCount,
+  });
+}
+
+function expectWizardCacheInvalidationCount(params: {
+  provider: ProviderPlugin;
+  config: { [key: string]: unknown };
+  env: NodeJS.ProcessEnv;
+  mutate: () => void;
+  expectedCount?: number;
+}) {
+  setResolvedProviders(params.provider);
+
+  resolveProviderWizardOptions(
+    createWizardRuntimeParams({
+      config: params.config,
+      env: params.env,
+    }),
+  );
+
+  params.mutate();
+
+  resolveProviderWizardOptions(
+    createWizardRuntimeParams({
+      config: params.config,
+      env: params.env,
+    }),
+  );
+
+  expectProviderResolutionCall({
+    config: params.config,
+    env: params.env,
+    count: params.expectedCount ?? 2,
+  });
+}
+
 function expectProviderResolutionCall(params?: {
   config?: object;
   env?: NodeJS.ProcessEnv;
@@ -110,21 +168,6 @@ function expectProviderResolutionCall(params?: {
 
 function setResolvedProviders(...providers: ProviderPlugin[]) {
   resolvePluginProviders.mockReturnValue(providers);
-}
-
-function resolveWizardOptionsTwice(params: {
-  config?: object;
-  env: NodeJS.ProcessEnv;
-  workspaceDir?: string;
-}) {
-  const runtimeParams = createWizardRuntimeParams(params);
-  resolveProviderWizardOptions(runtimeParams);
-  resolveProviderWizardOptions(runtimeParams);
-}
-
-function expectWizardProviderCacheMiss(params: { config?: object; env: NodeJS.ProcessEnv }) {
-  resolveWizardOptionsTwice(params);
-  expectProviderResolutionCall({ ...params, count: 2 });
 }
 
 function expectSingleWizardChoice(params: {
@@ -330,23 +373,18 @@ describe("provider wizard boundaries", () => {
   });
 
   it("invalidates the wizard cache when config or env contents change in place", () => {
-    const provider = createSglangSetupProvider();
     const config = createSglangConfig();
     const env = createHomeEnv("-a");
-    setResolvedProviders(provider);
 
-    expect(resolveProviderWizardOptions(createWizardRuntimeParams({ config, env }))).toHaveLength(
-      1,
-    );
-
-    config.plugins.allow = ["vllm"];
-    env.OPENCLAW_HOME = "/tmp/openclaw-home-b";
-
-    expect(resolveProviderWizardOptions(createWizardRuntimeParams({ config, env }))).toHaveLength(
-      1,
-    );
-
-    expectProviderResolutionCall({ config, env, count: 2 });
+    expectWizardCacheInvalidationCount({
+      provider: createSglangSetupProvider(),
+      config,
+      env,
+      mutate: () => {
+        config.plugins.allow = ["vllm"];
+        env.OPENCLAW_HOME = "/tmp/openclaw-home-b";
+      },
+    });
   });
 
   it.each([
@@ -363,11 +401,12 @@ describe("provider wizard boundaries", () => {
       }),
     },
   ] as const)("$name", ({ env }) => {
-    const provider = createSglangSetupProvider();
-    const config = createSglangConfig();
-    setResolvedProviders(provider);
-
-    expectWizardProviderCacheMiss({ config, env });
+    expectWizardResolutionCount({
+      provider: createSglangSetupProvider(),
+      config: createSglangConfig(),
+      env,
+      expectedCount: 2,
+    });
   });
 
   it("expires provider-wizard memoization after the shortest plugin cache ttl", () => {
@@ -391,20 +430,19 @@ describe("provider wizard boundaries", () => {
   });
 
   it("invalidates provider-wizard snapshots when cache-control env values change in place", () => {
-    const provider = createSglangSetupProvider();
     const config = {};
     const env = createHomeEnv("", {
       OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS: "1000",
     });
-    setResolvedProviders(provider);
 
-    resolveProviderWizardOptions(createWizardRuntimeParams({ config, env }));
-
-    env.OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS = "5";
-
-    resolveProviderWizardOptions(createWizardRuntimeParams({ config, env }));
-
-    expectProviderResolutionCall({ config, env, count: 2 });
+    expectWizardCacheInvalidationCount({
+      provider: createSglangSetupProvider(),
+      config,
+      env,
+      mutate: () => {
+        env.OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS = "5";
+      },
+    });
   });
 
   it("routes model-selected hooks only to the matching provider", async () => {
