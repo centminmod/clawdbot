@@ -28,13 +28,13 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 2 | **PNG image optimization** — grid of 5 sizes x 4 compression levels = 20 sharp ops (mozjpeg is CPU-heavy) | `src/media/image-ops.ts:400-457` | Very High | Like printing the same photo in 20 different quality settings to find the smallest file — each print job takes CPU time |
 | 3 | **Local embedding inference** — on-device GGUF model via node-llama-cpp, `Promise.all` over all texts | `extensions/memory-core/src/memory/embeddings.ts:103-164` | Very High (when local) | Like running a mini-ChatGPT on your own machine to understand your notes — powerful but demands serious CPU |
 | 4 | **Plugin loading via jiti** — synchronous TypeScript transpilation per plugin at startup | `src/plugins/loader.ts:823-850` | High (startup) | Like compiling a recipe book from scratch every time you open the kitchen, instead of using a pre-printed copy |
-| 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `extensions/memory-core/src/memory/manager-search.ts:71-93` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
+| 5 | **Cosine similarity fallback** — O(n) full-scan vector comparison when sqlite-vec unavailable | `extensions/memory-core/src/memory/manager-search.ts:74-149` | High (per query) | Like comparing a new photo to every single photo in your album one-by-one, instead of using a smart index |
 | 6 | **PDF-to-image rendering** — per-page canvas creation + PNG encoding via `@napi-rs/canvas` | `src/media/pdf-extract.ts:42-103` | High (per PDF) | Like photocopying each page of a PDF into a separate image file — each page takes a rendering pass |
 | 7 | **Full AX tree traversal** — `Accessibility.getFullAXTree` on complex browser pages | `extensions/browser/src/browser/cdp.ts:282-295` | Medium-High | Like reading every element on a web page aloud for accessibility — hundreds of elements on complex pages |
 | 8 | **Image resize via sips** — macOS-specific process spawning for each HEIC conversion/resize | `src/media/image-ops.ts:136-274` | Medium | Like opening a separate program for each photo conversion — the per-process overhead adds up |
 | 9 | **Media understanding** — sending media to AI providers (Whisper/Gemini/OpenAI) for transcription | `src/media-understanding/runner.ts:576-809` | Medium | CPU cost is mostly on the provider side, but local buffering and encoding still takes cycles |
 | 10 | **Ed25519 keypair generation** — asymmetric crypto on first run / device identity creation | `src/infra/device-identity.ts:57` | Low (one-time) | Like generating a strong password — intensive but happens only once |
-| 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `extensions/memory-core/src/memory/manager-sync-ops.ts:696` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
+| 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `extensions/memory-core/src/memory/manager-sync-ops.ts:693` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts` (barrel → `plugin-sdk/speech-runtime.js`) | Medium | API calls are remote but audio buffer conversion is local CPU work |
 | 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:115` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
 | 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:547` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
@@ -125,7 +125,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Command logger | `src/hooks/bundled/command-logger/handler.ts:47-62` | **No rotation** — `commands.log` grows unbounded |
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
 | Browser user-data profiles | `extensions/browser/src/browser/chrome.ts:80-81` | Full Chromium profile — can reach GBs |
-| SQLite databases | `extensions/memory-core/src/memory/manager-sync-ops.ts:252-262` | **No VACUUM** — database grows unbounded without periodic vacuuming (uses default DELETE journal mode, no WAL) |
+| SQLite databases | `extensions/memory-core/src/memory/manager-sync-ops.ts:265-275` | **No VACUUM** — database grows unbounded without periodic vacuuming (uses default DELETE journal mode, no WAL) |
 | Per-day log file size | `src/logging/logger.ts:49,187-202` | **Capped** — 500MB default (`DEFAULT_MAX_LOG_FILE_BYTES`), configurable via `logging.maxFileBytes`; warns once then suppresses writes when reached |
 | Voice-call `calls.jsonl` | `extensions/voice-call/src/manager/store.ts:7-10` | **Append-only, no rotation** + full-file reads on load |
 
@@ -588,7 +588,7 @@ The `memory_search` tool description instructs the AI to use it as a "mandatory 
 | Workspace directory | `~/.openclaw/workspace/` | `src/agents/workspace.ts:12-21` |
 | Primary memory file | `~/.openclaw/workspace/MEMORY.md` (or `memory.md`) | `src/agents/workspace.ts:32-33` |
 | Memory subdirectory | `~/.openclaw/workspace/memory/*.md` (recursive) | `extensions/memory-core/src/memory/internal.ts:80-146` |
-| SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:129-137` |
+| SQLite index database | `~/.openclaw/memory/{agentId}.sqlite` | `src/agents/memory-search.ts:132-140` |
 | Additional paths | Configured via `memorySearch.extraPaths[]` | `extensions/memory-core/src/memory/internal.ts:35-46` |
 
 The `listMemoryFiles()` function (`internal.ts:79-146`) scans these locations, skips symlinks, filters for `.md` extensions only, and deduplicates by resolved path.
@@ -618,7 +618,7 @@ The `chunkMarkdown()` function (`extensions/memory-core/src/memory/internal.ts:1
 5. Long lines (> `maxChars`) are split into segments, each preserving the original line number
 6. Repeat until all lines are processed
 
-Source references: defaults at `src/agents/memory-search.ts:91-92`
+Source references: defaults at `src/agents/memory-search.ts:99-100`
 
 ### F4. Embedding providers
 
@@ -631,7 +631,7 @@ Source references: defaults at `src/agents/memory-search.ts:91-92`
 | **Voyage** | `voyage-4-large` | 32,000 | 1,024 | Cloud API |
 | **Local** | `embeddinggemma-300M` (GGUF) | varies | ~300 | On-device via `node-llama-cpp` |
 
-Source: model defaults at `src/agents/memory-search.ts:91-92`, local model at `extensions/memory-core/src/memory/embeddings.ts:73-74`
+Source: model defaults at `src/agents/memory-search.ts:99-100`, local model at `extensions/memory-core/src/memory/embeddings.ts:73-74`
 
 **Auto-selection order** (`extensions/memory-core/src/memory/embeddings.ts:166-286`):
 
@@ -652,8 +652,8 @@ A configurable **fallback provider** (`memorySearch.fallback`) is tried if the p
 **How a search query is processed:**
 
 1. **Embed the query** — convert to a vector using the configured embedding provider
-2. **Vector search** — find similar chunks via `vec_distance_cosine()` in sqlite-vec, or fall back to O(n) cosine similarity scan if sqlite-vec is unavailable (`extensions/memory-core/src/memory/manager-search.ts:20-94`)
-3. **Keyword search** — FTS5 BM25 ranking via the `chunks_fts` virtual table (`extensions/memory-core/src/memory/manager-search.ts:136-191`)
+2. **Vector search** — find similar chunks via `vec_distance_cosine()` in sqlite-vec, or fall back to O(n) cosine similarity scan if sqlite-vec is unavailable (`extensions/memory-core/src/memory/manager-search.ts:22-148`)
+3. **Keyword search** — FTS5 BM25 ranking via the `chunks_fts` virtual table (`extensions/memory-core/src/memory/manager-search.ts:190-263`)
 4. **Merge results** — combined score: `vectorWeight × vectorScore + textWeight × textScore` (`extensions/memory-core/src/memory/hybrid.ts:128`)
 5. **Filter and cap** — discard results below `minScore`, return top `maxResults`
 
@@ -661,11 +661,11 @@ A configurable **fallback provider** (`memorySearch.fallback`) is tried if the p
 
 | Parameter | Default | Source |
 |-----------|---------|--------|
-| `vectorWeight` | 0.7 | `src/agents/memory-search.ts:99` |
-| `textWeight` | 0.3 | `src/agents/memory-search.ts:100` |
-| `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:101` |
-| `maxResults` | 6 | `src/agents/memory-search.ts:96` |
-| `minScore` | 0.35 | `src/agents/memory-search.ts:97` |
+| `vectorWeight` | 0.7 | `src/agents/memory-search.ts:102` |
+| `textWeight` | 0.3 | `src/agents/memory-search.ts:103` |
+| `candidateMultiplier` | 4 (fetch 4× candidates, then trim) | `src/agents/memory-search.ts:104` |
+| `maxResults` | 6 | `src/agents/memory-search.ts:99` |
+| `minScore` | 0.35 | `src/agents/memory-search.ts:100` |
 | Snippet cap | 700 chars | `extensions/memory-core/src/memory/manager.ts:33` |
 
 With defaults: 24 candidates are fetched (6 × 4), merged and scored, then the top 6 with score ≥ 0.35 are returned, each snippet capped at 700 characters.
@@ -707,7 +707,7 @@ Source: `extensions/memory-core/src/memory/memory-schema.ts:9-82`
 | `sync.onSearch` | `true` | Sync before search if dirty flag is set |
 | `sync.intervalMinutes` | 0 (disabled) | Periodic sync timer |
 
-Source: `extensions/memory-core/src/memory/manager-sync-ops.ts:385-439` (watcher setup), `src/agents/memory-search.ts:93` (debounce default)
+Source: `extensions/memory-core/src/memory/manager-sync-ops.ts:378-432` (watcher setup), `src/agents/memory-search.ts:96` (debounce default)
 
 **Session delta tracking** (for session memory source):
 
@@ -716,15 +716,15 @@ Source: `extensions/memory-core/src/memory/manager-sync-ops.ts:385-439` (watcher
 | `sync.sessions.deltaBytes` | 100,000 (100KB) | Re-index session after this many new bytes |
 | `sync.sessions.deltaMessages` | 50 | Re-index session after this many new messages |
 
-Source: `src/agents/memory-search.ts:94-95`, `extensions/memory-core/src/memory/manager-sync-ops.ts:463-499`
+Source: `src/agents/memory-search.ts:97-98`, `extensions/memory-core/src/memory/manager-sync-ops.ts:464-500`
 
 **Sync triggers** in order of priority:
 
-1. **Session start** — if `sync.onSessionStart` is true (`manager.ts:224-238`)
-2. **Before search** — if dirty flag is set and `sync.onSearch` is true (`manager.ts:248-253`)
-3. **File watch** — after debounce period (`manager-sync-ops.ts:602-614`)
-4. **Session delta** — when byte/message threshold is exceeded (`manager-sync-ops.ts:407-472`)
-5. **Interval timer** — if `intervalMinutes > 0` (`manager-sync-ops.ts:589-600`)
+1. **Session start** — if `sync.onSessionStart` is true (`manager.ts:299-315`)
+2. **Before search** — if dirty flag is set and `sync.onSearch` is true (`manager.ts:315-333`)
+3. **File watch** — after debounce period (`manager-sync-ops.ts:657-668`)
+4. **Session delta** — when byte/message threshold is exceeded (`manager-sync-ops.ts:439-500`)
+5. **Interval timer** — if `intervalMinutes > 0` (`manager-sync-ops.ts:646-655`)
 
 During sync, unchanged files are skipped (hash comparison against the `files` table), and stale files are removed from the index.
 
@@ -815,7 +815,7 @@ All settings live under `agents.defaults.memorySearch` in the OpenClaw config. P
 | `cache.maxEntries` | number | — | Max cached embeddings (unlimited if unset) |
 | `experimental.sessionMemory` | boolean | `false` | Enable session transcript indexing |
 
-Source: `src/agents/memory-search.ts:8-391`
+Source: `src/agents/memory-search.ts:8-398`
 
 ### F12. Resource impact summary
 
