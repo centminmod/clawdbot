@@ -73,9 +73,10 @@ Examples:
 - iMessage (macOS integration)
 - Slack
 - Signal
-- Feishu (with streaming cards, reasoning stream, card actions)
+- Feishu (with streaming cards, reasoning stream, interactive approval/quick-action cards, ACP session binding)
+- Microsoft Teams (v2026.3.24+: official SDK with streaming 1:1 replies, welcome cards, AI labeling, message edit/delete)
 - Webchat (browser-based, built into the Control UI)
-- plus plugins for many more (Matrix, Zalo, IRC, Nostr, Twitch, etc.)
+- plus plugins for many more (Matrix with official `matrix-js-sdk`, Zalo, IRC, Nostr, Twitch, etc.)
 
 Channels normalize “incoming message events” into a common internal shape.
 
@@ -106,7 +107,7 @@ Docs: https://docs.openclaw.ai/concepts/agent
 Tools let the model do more than output text.
 
 Depending on what you enable, tools can include:
-- web fetch/search (including Brave LLM Context mode for grounding snippets)
+- web fetch/search (including Brave, Exa, Tavily, Firecrawl as bundled web-search plugins; Brave LLM Context mode for grounding snippets)
 - browser automation
 - cron/automation
 - exec or node/device invocations
@@ -134,6 +135,7 @@ Examples:
 - notifications
 - canvas/webviews
 - (on macOS) remote execution with approvals
+- (on Android, v2026.3.22+) call log search, SMS search, gateway-backed TTS
 
 Docs: https://docs.openclaw.ai/nodes
 
@@ -168,6 +170,33 @@ Docs: https://docs.openclaw.ai/gateway/security
 
 ### Not "privacy magic"
 OpenClaw keeps state locally, but your chosen model provider still receives the prompts you send for inference unless you run a local model.
+
+---
+
+## Recent notable changes (v2026.3.22–3.28-beta.1)
+
+### Breaking changes
+- **Plugin SDK**: `openclaw/extension-api` removed; use `openclaw/plugin-sdk/*` subpaths. See migration guide: https://docs.openclaw.ai/plugins/sdk-migration
+- **ClawHub-first installs**: `openclaw plugins install <name>` now prefers ClawHub over npm
+- **Chrome MCP extension removed**: `driver: "extension"` and `browser.relayBindHost` gone. Run `openclaw doctor --fix` to migrate
+- **Legacy env vars removed**: `CLAWDBOT_*` and `MOLTBOT_*` no longer work; use `OPENCLAW_*`
+- **Legacy state dir removed**: `~/.moltbot` auto-detection removed; use `~/.openclaw` or set `OPENCLAW_STATE_DIR`
+- **`nano-banana-pro` skill removed**: use `agents.defaults.imageGenerationModel` instead
+- **Matrix plugin rewritten**: now backed by official `matrix-js-sdk` (migration guide: https://docs.openclaw.ai/install/migrating-matrix)
+
+### New capabilities
+- **ACP**: Spawn sub-agent workspaces in Discord, iMessage, BlueBubbles, Feishu with `/acp spawn --bind here`
+- **Sandbox backends**: Pluggable (Docker, OpenShell with mirror/remote, SSH)
+- **New providers**: Anthropic Vertex AI, Chutes, Xiaomi MiMo V2, gpt-5.4/mini/nano
+- **Web search plugins**: Exa, Tavily, Firecrawl as bundled providers
+- **Microsoft Teams**: Official SDK with streaming, welcome cards, AI labeling, edit/delete
+- **Telegram**: Custom Bot API endpoints (`apiRoot`), auto topic labels, silent error replies, topic editing
+- **Feishu**: Interactive approval cards, ACP binding, streaming reasoning tokens
+- **Android**: Call log search, SMS search, gateway TTS, system dark theme
+- **Control UI**: Skills management with status tabs, markdown preview, roundness slider, expand-to-canvas
+- **MiniMax**: Image generation (`image-01`), M2.7 default model
+- **Gateway**: OpenAI-compatible `/v1/models` and `/v1/embeddings` endpoints
+- **CLI**: `--container` for Docker/Podman, `config schema`, expanded `config set`
 
 ---
 

@@ -344,6 +344,7 @@
 | [GHSA-xp9r-prpg-373r](https://github.com/openclaw/openclaw/security/advisories/GHSA-xp9r-prpg-373r) | HIGH | browser.request still allows POST /reset-profile through the operator.write surface | CWE-863 | pending | @tdjackey |
 | [GHSA-m3mh-3mpg-37hw](https://github.com/openclaw/openclaw/security/advisories/GHSA-m3mh-3mpg-37hw) | HIGH | openclaw Arbitrary Malicious Code Execution Vulnerability | - | pending | @ChangeYourWay |
 | [GHSA-w6m8-cqvj-pg5v](https://github.com/openclaw/openclaw/security/advisories/GHSA-w6m8-cqvj-pg5v) | MEDIUM | Incomplete Fix for CVE-2026-32011: Feishu Webhook Pre-Auth Body Parsing DoS (Slow-Body / Slowloris Variant) | CWE-400 | pending | - |
+| [GHSA-7jrw-x62h-64p8](https://github.com/openclaw/openclaw/security/advisories/GHSA-7jrw-x62h-64p8) | HIGH | Device Token Rotate Deny Handling Allows Scope Escalation | CWE-269 | v2026.3.22 | - |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 

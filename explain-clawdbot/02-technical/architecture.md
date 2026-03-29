@@ -71,7 +71,7 @@ The Gateway:
 - binds a single port (default `18789`) and multiplexes:
   - WebSocket control plane
   - Control UI / dashboard (v2: modular views, command palette, mobile tabs, richer chat tools)
-  - optional HTTP endpoints (`/v1/chat/completions`, `/v1/responses`, `/tools/invoke`)
+  - OpenAI-compatible HTTP endpoints: `/v1/chat/completions`, `/v1/responses`, `/v1/models` (v2026.3.24+), `/v1/embeddings` (v2026.3.24+), `/tools/invoke`. The `/v1/models` and `/v1/embeddings` additions enable broader RAG client compatibility and explicit model overrides through the HTTP surface.
   - container health probes (`/health`, `/healthz`, `/ready`, `/readyz`) for Docker/Kubernetes
 - owns channel connections (WhatsApp Web session, Telegram bot long-poll, etc.)
 - owns local state (config, credentials, transcripts)
@@ -134,6 +134,20 @@ Docs: https://docs.openclaw.ai/gateway/configuration
 
 ### Plugins
 - `src/plugins/`. Plugin loading via jiti, hook registration, marketplace integration. Since v2026.3.12, LLM providers (Ollama, vLLM, SGLang) are also provider plugins with provider-owned onboarding and discovery.
+- **Plugin SDK** (v2026.3.22+): public surface is `openclaw/plugin-sdk/*` subpaths. The legacy `openclaw/extension-api` monolithic import was removed. Bundled plugins must use injected runtime for host-side operations and narrow SDK subpaths.
+- **Bundled provider plugins** (v2026.3.22+): OpenRouter, GitHub Copilot, OpenAI Codex, Chutes, MiniMax, and DeepSeek are now implemented as bundled plugins with plugin-owned auth, model fallback, and runtime wrappers.
+- **CLI backend plugins** (v2026.3.28-beta.1+): Claude CLI, Codex CLI, and Gemini CLI inference defaults are on the plugin surface with auto-load from explicit config refs.
+- **Plugin hooks**: `before_tool_call` supports async `requireApproval` for user confirmation via exec approval overlay, Telegram buttons, Discord interactions, or `/approve` command. `before_dispatch` provides canonical inbound metadata for route handling.
+
+### ACP (Agent Communication Protocol)
+- `src/acp/`. Protocol for spawning and managing sub-agent sessions. Supports current-conversation binds for Discord, BlueBubbles, iMessage, and Feishu so `/acp spawn codex --bind here` runs an ACP workspace directly in the active chat without creating a child thread. ACPX agent registry mirrors built-in agent aliases with versioned `npx` built-ins.
+
+### Sandbox backends
+- `src/sandbox/`. Pluggable sandbox backend system (v2026.3.22+). Ships three backends:
+  - **Docker** — original container-based backend
+  - **OpenShell** — newer backend with `mirror` (sync workspace into sandbox) and `remote` (use existing remote shell) modes
+  - **SSH** — core SSH backend with secret-backed key, certificate, and known_hosts inputs
+- `openclaw sandbox list/recreate/prune` are backend-aware (not Docker-only).
 
 ### Security
 - `src/security/`. Security audit (`openclaw security audit`), scan path helpers, fix application.

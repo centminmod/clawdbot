@@ -476,6 +476,73 @@ openclaw config set gateway.http.securityHeaders.strictTransportSecurity "max-ag
 
 Source: `src/config/schema.labels.ts:106`, `src/config/schema.help.ts:133-135`
 
+## 18) Exec environment sandbox (v2026.3.22+)
+
+The exec sandbox now blocks several host environment variable injection vectors:
+
+- **JVM injection**: `MAVEN_OPTS`, `SBT_OPTS`, `GRADLE_OPTS`, `ANT_OPTS` are blocked from propagating into exec sessions
+- **glibc tunable exploitation**: `GLIBC_TUNABLES` is blocked
+- **.NET dependency hijack**: `DOTNET_ADDITIONAL_DEPS` is blocked
+- **Gradle init script redirect**: `GRADLE_USER_HOME` is restricted as override-only (user-configured Gradle homes still propagate)
+
+These are automatic — no user action needed. If you run JVM-based tools via exec, be aware that `*_OPTS` environment variables from the host will not pass through.
+
+## 19) Dotenv filtering (v2026.3.24+)
+
+Untrusted CWD and workspace-config `.env` entries are now filtered before startup and config loading. This prevents dotenv-based host-env takeover where a malicious `.env` file in the workspace could rewrite runtime state or package registries.
+
+**Action:** No user action needed — automatic protection. However, if you rely on `.env` files in workspaces, be aware that entries conflicting with OpenClaw internals will be filtered.
+
+## 20) Media path traversal protection (v2026.3.24+)
+
+The shared media parse layer now rejects traversal patterns (`../`) and home-directory patterns (`~/`) in media paths, preventing parsed media paths from escaping into arbitrary file reads.
+
+Additionally, on Windows, remote-host `file://` media URLs and UNC/network paths are blocked before local filesystem resolution, preventing outbound SMB credential handshakes.
+
+## 21) Path resolution hardening (v2026.3.24+)
+
+OpenClaw now prefers non-user-writable absolute helper binary paths for CLI, ffmpeg, and OpenSSL resolution. This prevents PATH hijack attacks where attacker-controlled executables could replace trusted helpers.
+
+## 22) Gateway config mutation guards (v2026.3.24+)
+
+Agent `config.apply` and `config.patch` writes to `tools.exec.ask` and `tools.exec.security` are now blocked. This prevents a prompt-injected agent from silently disabling exec approvals or broadening exec security policy.
+
+Additionally, `operator.admin` scope is now required for:
+- System provenance injection via `chat.send`
+- Telegram target writeback through gateway message flows
+- Talk Voice `/voice set` config writes
+
+## 23) Sandbox and OpenShell security (v2026.3.24+)
+
+- **Sandbox media dispatch**: The `mediaUrl`/`fileUrl` alias bypass is closed — outbound tool and message actions cannot escape media-root restrictions
+- **OpenShell mirror**: Workspace `hooks/` directories are excluded from mirror sync, preventing untrusted sandbox files from becoming trusted host hooks on gateway startup
+
+## 24) Exec approval hardening (v2026.3.22–3.24)
+
+Multiple exec approval hardening rounds:
+- `/usr/bin/script` is treated as a transparent wrapper during trust-plan resolution
+- `time` is treated as a transparent dispatch wrapper during allowlist evaluation
+- Blank Hangul filler code points are escaped in approval prompts (prevents visually hiding command text)
+- Shell-wrapper positional-argv allowlist matching rejects `$0`/`$n` tokens and disallows newline-separated `exec`
+- `jq` was removed from the default safe-bin allowlist; `jq env` builtin is blocked when `jq` is explicitly re-allowed
+- `tools.exec.strictInlineEval` available for stricter inline interpreter eval handling
+
+## 25) Network and proxy SSRF hardening (v2026.3.22+)
+
+- Explicit-proxy SSRF pinning translates target-hop transport hints onto HTTPS proxy tunnels and fails closed for plain HTTP guarded fetches
+- Gateway discovery fails closed on unresolved Bonjour and DNS-SD service endpoints
+- Spoofed loopback hops in trusted forwarding chains are ignored
+- Browser remote CDP targets honor strict SSRF policy during reachability checks
+
+## 26) Channel-specific security (v2026.3.22+)
+
+- **Nostr**: Inbound DM policy is enforced before decrypt, with pre-crypto rate and size guards
+- **Synology Chat**: Per-account webhook paths required by default for multi-account setups
+- **Feishu**: Webhook signature verification uses constant-time comparison; uploads route through media local-roots enforcement
+- **iOS pairing**: Setup codes are bound to the intended node profile; broader scope redemption is rejected
+- **Group mentions**: Unsafe nested-repetition `mentionPatterns` are rejected to prevent ReDoS
+- **Skills**: Installer metadata validated against strict regex allowlists per package manager; URL protocol allowlisting for skill homepage links
+
 ---
 
 See also: [High privacy config example](./high-privacy-config.example.json5.md) for a complete hardened configuration.

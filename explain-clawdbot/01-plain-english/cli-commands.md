@@ -383,7 +383,21 @@ openclaw config path
 | `config unset <path>` | Remove a value |
 | `config path` | Print the path to the active config file |
 | `config file` | Print the active config file path (resolved from `OPENCLAW_CONFIG_PATH` or default) |
+| `config schema` | Print the generated JSON schema for `openclaw.json` (useful for IDE autocompletion and validation) |
 | `config validate` | Validate config before gateway startup (`--json` for structured output) |
+
+**`config set` advanced modes (v2026.3.22+):**
+
+```bash
+# SecretRef assignment
+openclaw config set models.providers.openai.apiKey "env:OPENAI_API_KEY"
+
+# JSON/batch assignment
+openclaw config set agents.defaults '{"model":{"primary":"anthropic/claude-sonnet-4-6"}}'
+
+# Dry-run validation (structured JSON output, no write)
+openclaw config set --dry-run gateway.bind "lan"
+```
 
 ---
 
@@ -417,7 +431,7 @@ openclaw gateway run --verbose
 | `--raw-stream` | Dump raw stream to stdout |
 | `--raw-stream-path <path>` | Save raw stream output to file |
 | `--reset` | Reset dev config + credentials + sessions + workspace (dev mode only) |
-| `--claude-cli-logs` | Filter logs to agent/claude-cli only |
+| `--cli-backend-logs` | Filter logs to CLI backend agents (Claude CLI, Codex CLI, Gemini CLI). Replaces legacy `--claude-cli-logs` (still accepted as alias) |
 | `--compact` | Alias for `--ws-log compact` |
 
 ---
@@ -1476,7 +1490,14 @@ openclaw skills check                 # readiness summary
 | `--json` | Machine-readable output |
 | `-v` / `--verbose` | Include missing requirements detail |
 
-Tip: use `npx clawhub` to search, install, and sync skills from the marketplace.
+**ClawHub marketplace (native):** Since v2026.3.22, bare `openclaw plugins install <package>` prefers ClawHub before npm. Use the native flows:
+
+```bash
+openclaw skills search <query>      # search ClawHub marketplace
+openclaw skills install <package>   # install from ClawHub (falls back to npm)
+openclaw skills update <package>    # update a ClawHub-installed skill
+openclaw plugins install clawhub:<package>  # explicit ClawHub source
+```
 
 ---
 
@@ -1724,6 +1745,7 @@ These work with any `openclaw` command:
 | `--profile <name>` | Isolate state under `~/.openclaw-<name>` |
 | `--no-color` | Disable ANSI colors |
 | `--update` | Shorthand for `openclaw update` (source installs only) |
+| `--container <name>` | Run the command inside a running Docker or Podman OpenClaw container (also `OPENCLAW_CONTAINER` env var) |
 | `-V` / `--version` / `-v` | Print version and exit |
 
 ### Output styling
@@ -1753,6 +1775,7 @@ These override config-file settings. Useful for scripting, CI/CD, or running mul
 | `OPENCLAW_NIX_MODE` | Nix mode (`1` = no auto-install flows, Nix-specific errors) | *(off)* |
 | `OPENCLAW_DISABLE_LAZY_SUBCOMMANDS` | Eagerly register all subcommands (`1` = eager) | *(off)* |
 | `CUSTOM_API_KEY` | API key for custom providers (used with `--auth-choice custom-api-key`) | *(none)* |
+| `OPENCLAW_CONTAINER` | Container name for `--container` mode (Docker/Podman) | *(none)* |
 | `NO_COLOR` | Disable ANSI colors (`1` = no color) | *(off)* |
 
 **Removed:** `CLAWDBOT_STATE_DIR`, `CLAWDBOT_CONFIG_PATH`, and `CLAWDBOT_GATEWAY_PORT` legacy aliases were dropped in 2026.3.22. Use the `OPENCLAW_*` equivalents only.
