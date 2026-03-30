@@ -40,6 +40,8 @@ import {
   listDiscordDirectoryPeersFromConfig,
 } from "./directory-config.js";
 import {
+  getDiscordExecApprovalApprovers,
+  isDiscordExecApprovalApprover,
   isDiscordExecApprovalClientEnabled,
   shouldSuppressLocalDiscordExecApprovalPrompt,
 } from "./exec-approvals.js";
@@ -300,7 +302,10 @@ function buildDiscordCrossContextComponents(params: {
 function hasDiscordExecApprovalDmRoute(cfg: OpenClawConfig): boolean {
   return listDiscordAccountIds(cfg).some((accountId) => {
     const execApprovals = resolveDiscordAccount({ cfg, accountId }).config.execApprovals;
-    if (!execApprovals?.enabled || (execApprovals.approvers?.length ?? 0) === 0) {
+    if (
+      !execApprovals?.enabled ||
+      getDiscordExecApprovalApprovers({ cfg, accountId }).length === 0
+    ) {
       return false;
     }
     const target = execApprovals.target ?? "dm";
@@ -488,8 +493,18 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
         },
       },
       execApprovals: {
+        authorizeCommand: ({ cfg, accountId, senderId, kind }) =>
+          isDiscordExecApprovalApprover({ cfg, accountId, senderId })
+            ? { authorized: true }
+            : {
+                authorized: false,
+                reason:
+                  kind === "plugin"
+                    ? "❌ You are not authorized to approve plugin requests on Discord."
+                    : "❌ You are not authorized to approve exec requests on Discord.",
+              },
         getInitiatingSurfaceState: ({ cfg, accountId }) =>
-          isDiscordExecApprovalClientEnabled({ cfg, accountId })
+          getDiscordExecApprovalApprovers({ cfg, accountId }).length > 0
             ? { kind: "enabled" }
             : { kind: "disabled" },
         shouldSuppressLocalPrompt: ({ cfg, accountId, payload }) =>

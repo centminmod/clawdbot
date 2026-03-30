@@ -52,6 +52,9 @@ import {
   shouldSuppressTelegramExecApprovalForwardingFallback,
 } from "./exec-approval-forwarding.js";
 import {
+  getTelegramExecApprovalApprovers,
+  isTelegramExecApprovalApprover,
+  isTelegramExecApprovalAuthorizedSender,
   isTelegramExecApprovalClientEnabled,
   resolveTelegramExecApprovalTarget,
 } from "./exec-approvals.js";
@@ -457,8 +460,24 @@ export const telegramPlugin = createChatChannelPlugin({
       },
     },
     execApprovals: {
+      authorizeCommand: ({ cfg, accountId, senderId, kind }) => {
+        const params = { cfg, accountId, senderId };
+        const authorized =
+          kind === "plugin"
+            ? isTelegramExecApprovalApprover(params)
+            : isTelegramExecApprovalAuthorizedSender(params);
+        return authorized
+          ? { authorized: true }
+          : {
+              authorized: false,
+              reason:
+                kind === "plugin"
+                  ? "❌ You are not authorized to approve plugin requests on Telegram."
+                  : "❌ You are not authorized to approve exec requests on Telegram.",
+            };
+      },
       getInitiatingSurfaceState: ({ cfg, accountId }) =>
-        isTelegramExecApprovalClientEnabled({ cfg, accountId })
+        getTelegramExecApprovalApprovers({ cfg, accountId }).length > 0
           ? { kind: "enabled" }
           : { kind: "disabled" },
       hasConfiguredDmRoute: ({ cfg }) => hasTelegramExecApprovalDmRoute(cfg),
