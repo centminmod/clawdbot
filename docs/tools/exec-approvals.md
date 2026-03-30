@@ -387,8 +387,9 @@ independent config under `approvals.plugin`. Enabling or disabling one does not 
 The config shape is identical to `approvals.exec`: `enabled`, `mode`, `agentFilter`,
 `sessionFilter`, and `targets` work the same way.
 
-Channels that support interactive exec approval buttons (such as Telegram) also render buttons for
-plugin approvals. Channels without adapter support fall back to plain text with `/approve` instructions.
+Channels that support shared interactive replies render the same approval buttons for both exec and
+plugin approvals. Channels without shared interactive UI fall back to plain text with `/approve`
+instructions.
 
 ### Same-chat approvals on any channel
 
@@ -398,7 +399,7 @@ Microsoft Teams in addition to the existing Web UI and terminal UI flows.
 
 This shared text-command path uses the normal channel auth model for that conversation. If the
 originating chat can already send commands and receive replies, approval requests no longer need a
-separate channel-specific approval client just to stay pending.
+separate native delivery adapter just to stay pending.
 
 Discord and Telegram also support same-chat `/approve`, but those channels still use their
 resolved approver list for authorization even when native approval delivery is disabled.
@@ -410,8 +411,8 @@ Discord and Telegram can also act as native approval-delivery adapters with chan
 - Discord: `channels.discord.execApprovals.*`
 - Telegram: `channels.telegram.execApprovals.*`
 
-These native delivery adapters are opt-in. They add DM routing, channel fanout, and interactive UI on
-top of the shared same-chat `/approve` flow.
+These native delivery adapters are opt-in. They add DM routing and channel fanout on top of the
+shared same-chat `/approve` flow and the shared approval buttons.
 
 Shared behavior:
 
