@@ -218,7 +218,7 @@ Content-Type: application/json
 Authorization: Bearer <api_key>
 ```
 
-**Source:** `src/agents/tools/web-search-provider-common.ts:112-116`
+**Source:** `src/agents/tools/web-search-provider-common.ts:99-104`
 ```typescript
 headers: {
   Accept: "application/json",
@@ -556,7 +556,7 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 | Setting | Config path | Required value | Why |
 |---|---|---|---|
 | Bind mode | `gateway.bind` | `"lan"` or `gateway.customBindHost` | Must not be `"loopback"` — Cloudflare needs to reach the Gateway's port |
-| Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:124`), unless `auth.mode="trusted-proxy"` |
+| Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:128`), unless `auth.mode="trusted-proxy"` |
 | Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:136-180`) |
 
 **Source:** `src/config/types.gateway.ts:427`
