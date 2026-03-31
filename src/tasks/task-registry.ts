@@ -15,12 +15,14 @@ import {
   resetTaskRegistryRuntimeForTests,
   type TaskRegistryHookEvent,
 } from "./task-registry.store.js";
+import { summarizeTaskRecords } from "./task-registry.summary.js";
 import type {
   TaskDeliveryStatus,
   TaskEventKind,
   TaskEventRecord,
   TaskNotifyPolicy,
   TaskRecord,
+  TaskRegistrySummary,
   TaskRegistrySnapshot,
   TaskRuntime,
   TaskStatus,
@@ -70,6 +72,24 @@ function emitTaskRegistryHookEvent(createEvent: () => TaskRegistryHookEvent): vo
 
 function persistTaskRegistry() {
   getTaskRegistryStore().saveSnapshot(tasks);
+}
+
+function persistTaskUpsert(task: TaskRecord) {
+  const store = getTaskRegistryStore();
+  if (store.upsertTask) {
+    store.upsertTask(task);
+    return;
+  }
+  store.saveSnapshot(tasks);
+}
+
+function persistTaskDelete(taskId: string) {
+  const store = getTaskRegistryStore();
+  if (store.deleteTask) {
+    store.deleteTask(taskId);
+    return;
+  }
+  store.saveSnapshot(tasks);
 }
 
 function ensureDeliveryStatus(requesterSessionKey: string): TaskDeliveryStatus {
@@ -352,7 +372,7 @@ function updateTask(taskId: string, patch: Partial<TaskRecord>): TaskRecord | nu
   if (patch.runId && patch.runId !== current.runId) {
     rebuildRunIdIndex();
   }
-  persistTaskRegistry();
+  persistTaskUpsert(next);
   emitTaskRegistryHookEvent(() => ({
     kind: "upserted",
     task: cloneTaskRecord(next),
@@ -836,7 +856,7 @@ export function createTaskRecord(params: {
   }
   tasks.set(taskId, record);
   addRunIdIndex(taskId, record.runId);
-  persistTaskRegistry();
+  persistTaskUpsert(record);
   emitTaskRegistryHookEvent(() => ({
     kind: "upserted",
     task: cloneTaskRecord(record),
@@ -1049,6 +1069,11 @@ export function listTaskRecords(): TaskRecord[] {
     .toSorted((a, b) => b.createdAt - a.createdAt);
 }
 
+export function getTaskRegistrySummary(): TaskRegistrySummary {
+  ensureTaskRegistryReady();
+  return summarizeTaskRecords(tasks.values());
+}
+
 export function getTaskRegistrySnapshot(): TaskRegistrySnapshot {
   return {
     tasks: listTaskRecords(),
@@ -1093,7 +1118,7 @@ export function deleteTaskRecordById(taskId: string): boolean {
   }
   tasks.delete(taskId);
   rebuildRunIdIndex();
-  persistTaskRegistry();
+  persistTaskDelete(taskId);
   emitTaskRegistryHookEvent(() => ({
     kind: "deleted",
     taskId: current.taskId,
