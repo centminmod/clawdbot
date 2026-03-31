@@ -182,6 +182,15 @@ describe("QmdMemoryManager", () => {
     // install explicit shim fixtures inline.
     cfg = {
       agents: {
+        defaults: {
+          workspace: workspaceDir,
+          memorySearch: {
+            provider: "openai",
+            model: "mock-embed",
+            store: { path: path.join(workspaceDir, "index.sqlite"), vector: { enabled: false } },
+            sync: { watch: false, onSessionStart: false, onSearch: false },
+          },
+        },
         list: [{ id: agentId, default: true, workspace: workspaceDir }],
       },
       memory: {
@@ -608,6 +617,55 @@ describe("QmdMemoryManager", () => {
 
     const addCalls = commands.filter((args) => args[0] === "collection" && args[1] === "add");
     expect(addCalls).toHaveLength(0);
+  });
+
+  it("rebinds collection when qmd text output exposes a changed pattern without a path", async () => {
+    cfg = {
+      ...cfg,
+      memory: {
+        backend: "qmd",
+        qmd: {
+          includeDefaultMemory: false,
+          update: { interval: "0s", debounceMs: 60_000, onBoot: false },
+          paths: [{ path: workspaceDir, pattern: "**/*.md", name: "workspace" }],
+        },
+      },
+    } as OpenClawConfig;
+
+    spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+      if (args[0] === "collection" && args[1] === "list") {
+        const child = createMockChild({ autoClose: false });
+        emitAndClose(
+          child,
+          "stdout",
+          ["workspace-main (qmd://workspace-main/)", "  Pattern:  *.txt", "  Files:    17"].join(
+            "\n",
+          ),
+        );
+        return child;
+      }
+      return createMockChild();
+    });
+
+    const { manager } = await createManager({ mode: "full" });
+    await manager.close();
+
+    const commands = spawnMock.mock.calls.map((call: unknown[]) => call[1] as string[]);
+    const removeCalls = commands.filter(
+      (args) => args[0] === "collection" && args[1] === "remove" && args[2] === "workspace-main",
+    );
+    expect(removeCalls).toHaveLength(1);
+
+    const addCall = commands.find((args) => {
+      if (args[0] !== "collection" || args[1] !== "add") {
+        return false;
+      }
+      const nameIdx = args.indexOf("--name");
+      return nameIdx >= 0 && args[nameIdx + 1] === "workspace-main";
+    });
+    expect(addCall).toBeDefined();
+    expect(addCall?.[2]).toBe(workspaceDir);
+    expect(addCall).toContain("**/*.md");
   });
 
   it("migrates unscoped legacy collections before adding scoped names", async () => {
@@ -3316,6 +3374,99 @@ describe("QmdMemoryManager", () => {
         source: "memory",
       },
     ]);
+    await manager.close();
+  });
+
+  it("returns collection-scoped qmd paths when session exports live under the workspace qmd directory", async () => {
+    workspaceDir = path.join(stateDir, "agents", agentId);
+    await fs.mkdir(workspaceDir, { recursive: true });
+    cfg = {
+      agents: {
+        list: [{ id: agentId, default: true, workspace: workspaceDir }],
+      },
+      memory: {
+        backend: "qmd",
+        qmd: {
+          includeDefaultMemory: false,
+          sessions: { enabled: true },
+          update: { interval: "0s", debounceMs: 60_000, onBoot: false },
+          paths: [{ path: workspaceDir, pattern: "**/*.md", name: "workspace" }],
+        },
+      },
+    } as OpenClawConfig;
+
+    spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+      if (args[0] === "search") {
+        const child = createMockChild({ autoClose: false });
+        emitAndClose(
+          child,
+          "stdout",
+          JSON.stringify([
+            {
+              file: "qmd://sessions-main/session-1.md",
+              score: 0.84,
+              snippet: "@@ -2,1\nsession canary",
+            },
+          ]),
+        );
+        return child;
+      }
+      return createMockChild();
+    });
+
+    const { manager } = await createManager({ mode: "full" });
+    const inner = manager as unknown as {
+      collectionRoots: Map<string, { path: string }>;
+      resolveReadPath: (relPath: string) => string;
+    };
+    const sessionRoot = inner.collectionRoots.get("sessions-main");
+    expect(sessionRoot?.path).toBeTruthy();
+    const exportedSessionPath = path.join(sessionRoot!.path, "session-1.md");
+
+    const results = await manager.search("session canary", {
+      sessionKey: "agent:main:slack:dm:u123",
+    });
+    expect(results).toEqual([
+      {
+        path: "qmd/sessions-main/session-1.md",
+        startLine: 2,
+        endLine: 2,
+        score: 0.84,
+        snippet: "@@ -2,1\nsession canary",
+        source: "sessions",
+      },
+    ]);
+
+    expect(inner.resolveReadPath(results[0]!.path)).toBe(exportedSessionPath);
+    const realLstat = fs.lstat;
+    const lstatSpy = vi.spyOn(fs, "lstat").mockImplementation(async (target, options) => {
+      if (typeof target === "string" && path.resolve(target) === exportedSessionPath) {
+        return {
+          isFile: () => true,
+          isSymbolicLink: () => false,
+        } as Awaited<ReturnType<typeof realLstat>>;
+      }
+      return await realLstat(target, options);
+    });
+    const realReadFile = fs.readFile;
+    const readSpy = vi.spyOn(fs, "readFile").mockImplementation(async (target, options) => {
+      if (typeof target === "string" && path.resolve(target) === exportedSessionPath) {
+        return "# Session session-1\n\nsession canary\n";
+      }
+      return await realReadFile(target, options as never);
+    });
+
+    try {
+      const readResult = await manager.readFile({ relPath: results[0]!.path });
+      expect(readResult).toEqual({
+        path: "qmd/sessions-main/session-1.md",
+        text: "# Session session-1\n\nsession canary\n",
+      });
+    } finally {
+      lstatSpy.mockRestore();
+      readSpy.mockRestore();
+    }
+
     await manager.close();
   });
 

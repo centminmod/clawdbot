@@ -9,17 +9,21 @@ import { peekSystemEvents, resetSystemEventsForTest } from "../infra/system-even
 import { withTempDir } from "../test-helpers/temp-dir.js";
 import {
   createTaskRecord,
+  findLatestTaskForSessionKey,
   findTaskByRunId,
   getTaskById,
   getTaskRegistrySummary,
+  listTasksForSessionKey,
   listTaskRecords,
   maybeDeliverTaskStateChangeUpdate,
   maybeDeliverTaskTerminalUpdate,
+  markTaskRunningByRunId,
+  recordTaskProgressByRunId,
   resetTaskRegistryForTests,
   resolveTaskForLookupToken,
+  setTaskProgressById,
+  setTaskTimingById,
   updateTaskNotifyPolicyById,
-  updateTaskRecordById,
-  updateTaskStateByRunId,
 } from "./task-registry.js";
 import {
   getInspectableTaskAuditSummary,
@@ -440,7 +444,8 @@ describe("task-registry", () => {
         startedAt: 100,
       });
 
-      updateTaskRecordById(findTaskByRunId("run-detail-leak")!.taskId, {
+      setTaskProgressById({
+        taskId: findTaskByRunId("run-detail-leak")!.taskId,
         progressSummary:
           "I am loading the local session context and checking helper command availability before writing the file.",
       });
@@ -786,6 +791,38 @@ describe("task-registry", () => {
     });
   });
 
+  it("indexes tasks by session key for latest and list lookups", async () => {
+    await withTempDir({ prefix: "openclaw-task-registry-" }, async (root) => {
+      process.env.OPENCLAW_STATE_DIR = root;
+      resetTaskRegistryForTests({ persist: false });
+      const nowSpy = vi.spyOn(Date, "now");
+      nowSpy.mockReturnValue(1_700_000_000_000);
+
+      const older = createTaskRecord({
+        runtime: "acp",
+        requesterSessionKey: "agent:main:main",
+        childSessionKey: "agent:main:subagent:child-1",
+        runId: "run-session-lookup-1",
+        task: "Older task",
+      });
+      const latest = createTaskRecord({
+        runtime: "subagent",
+        requesterSessionKey: "agent:main:main",
+        childSessionKey: "agent:main:subagent:child-2",
+        runId: "run-session-lookup-2",
+        task: "Latest task",
+      });
+      nowSpy.mockRestore();
+
+      expect(findLatestTaskForSessionKey("agent:main:main")?.taskId).toBe(latest.taskId);
+      expect(listTasksForSessionKey("agent:main:main").map((task) => task.taskId)).toEqual([
+        latest.taskId,
+        older.taskId,
+      ]);
+      expect(findLatestTaskForSessionKey("agent:main:subagent:child-1")?.taskId).toBe(older.taskId);
+    });
+  });
+
   it("projects inspection-time orphaned tasks as lost without mutating the registry", async () => {
     await withTempDir({ prefix: "openclaw-task-registry-" }, async (root) => {
       process.env.OPENCLAW_STATE_DIR = root;
@@ -800,7 +837,8 @@ describe("task-registry", () => {
         status: "running",
         deliveryStatus: "pending",
       });
-      updateTaskRecordById(task.taskId, {
+      setTaskTimingById({
+        taskId: task.taskId,
         lastEventAt: Date.now() - 10 * 60_000,
       });
 
@@ -814,6 +852,39 @@ describe("task-registry", () => {
         status: "running",
       });
       expect(peekSystemEvents("agent:main:main")).toEqual([]);
+    });
+  });
+
+  it("marks orphaned tasks lost with cleanupAfter in a single maintenance pass", async () => {
+    await withTempDir({ prefix: "openclaw-task-registry-" }, async (root) => {
+      process.env.OPENCLAW_STATE_DIR = root;
+      resetTaskRegistryForTests();
+      const now = Date.now();
+
+      const task = createTaskRecord({
+        runtime: "acp",
+        requesterSessionKey: "agent:main:main",
+        childSessionKey: "agent:main:acp:missing",
+        runId: "run-lost-maintenance",
+        task: "Missing child",
+        status: "running",
+        deliveryStatus: "pending",
+      });
+      setTaskTimingById({
+        taskId: task.taskId,
+        lastEventAt: now - 10 * 60_000,
+      });
+
+      expect(runTaskRegistryMaintenance()).toEqual({
+        reconciled: 1,
+        cleanupStamped: 0,
+        pruned: 0,
+      });
+      expect(getTaskById(task.taskId)).toMatchObject({
+        status: "lost",
+        error: "backing session missing",
+      });
+      expect(getTaskById(task.taskId)?.cleanupAfter).toBeGreaterThan(now);
     });
   });
 
@@ -832,7 +903,8 @@ describe("task-registry", () => {
         deliveryStatus: "not_applicable",
         startedAt: Date.now() - 9 * 24 * 60 * 60_000,
       });
-      updateTaskRecordById(task.taskId, {
+      setTaskTimingById({
+        taskId: task.taskId,
         endedAt: Date.now() - 8 * 24 * 60 * 60_000,
         lastEventAt: Date.now() - 8 * 24 * 60 * 60_000,
       });
@@ -853,8 +925,8 @@ describe("task-registry", () => {
       const now = Date.now();
       configureTaskRegistryRuntime({
         store: {
-          loadSnapshot: () =>
-            new Map([
+          loadSnapshot: () => ({
+            tasks: new Map([
               [
                 "task-missing-cleanup",
                 {
@@ -872,6 +944,8 @@ describe("task-registry", () => {
                 },
               ],
             ]),
+            deliveryStates: new Map(),
+          }),
           saveSnapshot: () => {},
         },
       });
@@ -898,8 +972,8 @@ describe("task-registry", () => {
       const now = Date.now();
       configureTaskRegistryRuntime({
         store: {
-          loadSnapshot: () =>
-            new Map([
+          loadSnapshot: () => ({
+            tasks: new Map([
               [
                 "task-audit-summary",
                 {
@@ -917,6 +991,8 @@ describe("task-registry", () => {
                 },
               ],
             ]),
+            deliveryStates: new Map(),
+          }),
           saveSnapshot: () => {},
         },
       });
@@ -961,9 +1037,8 @@ describe("task-registry", () => {
         notifyPolicy: "done_only",
       });
 
-      updateTaskStateByRunId({
+      markTaskRunningByRunId({
         runId: "run-state-change",
-        status: "running",
         eventSummary: "Started.",
       });
       await waitForAssertion(() => expect(hoisted.sendMessageMock).not.toHaveBeenCalled());
@@ -972,7 +1047,7 @@ describe("task-registry", () => {
         taskId: task.taskId,
         notifyPolicy: "state_changes",
       });
-      updateTaskStateByRunId({
+      recordTaskProgressByRunId({
         runId: "run-state-change",
         eventSummary: "No output for 60s. It may be waiting for input.",
       });
@@ -987,13 +1062,6 @@ describe("task-registry", () => {
       );
       expect(findTaskByRunId("run-state-change")).toMatchObject({
         notifyPolicy: "state_changes",
-        lastNotifiedEventAt: expect.any(Number),
-        recentEvents: expect.arrayContaining([
-          expect.objectContaining({
-            kind: "progress",
-            summary: "No output for 60s. It may be waiting for input.",
-          }),
-        ]),
       });
       await maybeDeliverTaskStateChangeUpdate(task.taskId);
       expect(hoisted.sendMessageMock).toHaveBeenCalledTimes(1);
