@@ -910,7 +910,7 @@ No single change looks catastrophic. Together, they give anyone on the network u
 
 ### Schema-Valid but Unsafe Values
 
-OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:949`). This means:
+OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:955`). This means:
 - **Unknown top-level keys are rejected** — the AI can't add random keys
 - **Type errors are caught** — wrong types for known keys fail validation
 - **Semantic security errors pass** — `gateway.bind: "lan"` is a valid value for a known key, even though it's dangerous
@@ -1052,7 +1052,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:264-280` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:473` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
-| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:949` |
+| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:955` |
 | **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:587-627` (audit helpers), `:2124-2148` (audit record builder + append) |
 
 ---
