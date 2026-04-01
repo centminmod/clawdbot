@@ -737,8 +737,8 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Two session store write methods call `loadSessionStore()` without `skipCache: true`, reading stale cached data even though they hold the write lock. Concurrent requests to the same session can silently lose metadata updates.
 
 **Affected code:**
-- `src/config/sessions/store.ts:842` — `updateSessionStoreEntry()` inside `withSessionStoreLock()` calls `loadSessionStore(storePath)` **without `skipCache: true`**
-- `src/config/sessions/store.ts:801` — `withSessionStoreLock()` helper
+- `src/config/sessions/store.ts:846` — `updateSessionStoreEntry()` — **fixed**: now calls `loadSessionStore(storePath, { skipCache: true })` (Apr 1 sync 5)
+- `src/config/sessions/store.ts:920` — `updateLastRoute()` inside `withSessionStoreLock()` still calls `loadSessionStore(storePath)` **without `skipCache: true`**
 - `src/config/sessions/store.ts:603` — `updateSessionStore()` NOW correctly uses `{ skipCache: true }` (bug partially fixed in session pruning refactor)
 
 **Impact:** 8 callers in hot paths (agent runner, channels, Slack, LINE, web) can lose session metadata updates under concurrent load.
