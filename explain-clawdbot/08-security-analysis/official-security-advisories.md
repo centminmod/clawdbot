@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 patched in Mar 27 sync 2 (02cf12371f); GHSA-fqw4-mph7-2vr8 pending; Mar 27 late batch (9 new advisories, 4 HIGH + 5 MEDIUM) published 2026-03-27, GHSA-68f8-9mhj-h2mp patched in Mar 28 sync 1 (2d80dbfeba); 8 remaining pending; Mar 29 batch (24 new advisories, 3 CRITICAL + 13 HIGH + 7 MEDIUM + 1 LOW) published 2026-03-29, all patched in v2026.3.22–v2026.3.28.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 patched in Mar 27 sync 2 (02cf12371f); GHSA-fqw4-mph7-2vr8 pending; Mar 27 late batch (9 new advisories, 4 HIGH + 5 MEDIUM) published 2026-03-27, GHSA-68f8-9mhj-h2mp patched in Mar 28 sync 1 (2d80dbfeba); 8 remaining pending; Mar 29 batch (24 new advisories, 3 CRITICAL + 13 HIGH + 7 MEDIUM + 1 LOW) published 2026-03-29, all patched in v2026.3.22–v2026.3.28; Mar 31 batch (59 new advisories, 1 CRITICAL + 14 HIGH + 29 MEDIUM + 15 LOW) published 2026-03-31, 9 patched in v2026.3.22–v2026.3.28, 50 pending.
 
 ### Advisory Summary
 
@@ -369,6 +369,65 @@
 | [GHSA-3cw3-5vxw-g2h3](https://github.com/openclaw/openclaw/security/advisories/GHSA-3cw3-5vxw-g2h3) | HIGH | CLI Remote Onboarding Persists Unauthenticated Discovery Endpoint and Exfiltrates Gateway Credentials | - | v2026.3.28 | @nexrin |
 | [GHSA-8689-gm9g-jgr6](https://github.com/openclaw/openclaw/security/advisories/GHSA-8689-gm9g-jgr6) | HIGH | Voice-call Plivo V3 webhook replay key uses unsorted URL, allowing replay via query-parameter reordering | - | v2026.3.28 | @zsxsoft |
 | [GHSA-v2v2-f783-358j](https://github.com/openclaw/openclaw/security/advisories/GHSA-v2v2-f783-358j) | MEDIUM | Zalo channel downloads media before sender authorization | - | v2026.3.28 | @forgreatagent |
+| [GHSA-cqgw-44wg-44rf](https://github.com/openclaw/openclaw/security/advisories/GHSA-cqgw-44wg-44rf) | MEDIUM | Discord voice manager bypasses channel-level member access allowlist | - | pending | - |
+| [GHSA-mhgq-xpfq-6r66](https://github.com/openclaw/openclaw/security/advisories/GHSA-mhgq-xpfq-6r66) | MEDIUM | Unauthenticated plugin-auth HTTP routes receive operator runtime scopes | - | pending | @davidluzsilva |
+| [GHSA-jjw7-3vjf-fg5j](https://github.com/openclaw/openclaw/security/advisories/GHSA-jjw7-3vjf-fg5j) | MEDIUM | OpenClaw Nostr privateKey config redaction bypass leaks plaintext signing key via config.get | - | pending | @ccreater222 |
+| [GHSA-89r3-6x4j-v7wf](https://github.com/openclaw/openclaw/security/advisories/GHSA-89r3-6x4j-v7wf) | LOW | Voice-call Plivo replay mutates in-process callback origin before replay rejection | - | pending | @zsxsoft |
+| [GHSA-3qpv-xf3v-mm45](https://github.com/openclaw/openclaw/security/advisories/GHSA-3qpv-xf3v-mm45) | HIGH | Workspace `.env` can override the bundled hooks root and load attacker hook code | - | pending | @nexrin |
+| [GHSA-hhq4-97c2-p447](https://github.com/openclaw/openclaw/security/advisories/GHSA-hhq4-97c2-p447) | LOW | Zalo webhook replay cache cross-target messageId scope bypass | - | pending | - |
+| [GHSA-3pm9-5j7m-59vc](https://github.com/openclaw/openclaw/security/advisories/GHSA-3pm9-5j7m-59vc) | LOW | Tlon Startup Migration Rehydrates Empty-Array Revocations From File Config | - | pending | - |
+| [GHSA-qcj9-wwgw-6gm8](https://github.com/openclaw/openclaw/security/advisories/GHSA-qcj9-wwgw-6gm8) | HIGH | Workspace `.env` can override the bundled plugin trust root | - | pending | @nexrin |
+| [GHSA-rfqg-qgf8-xr9x](https://github.com/openclaw/openclaw/security/advisories/GHSA-rfqg-qgf8-xr9x) | LOW | Gateway `device.token.rotate` does not terminate active WebSocket sessions after credential rotation | - | pending | @zsxsoft |
+| [GHSA-9p3r-hh9g-5cmg](https://github.com/openclaw/openclaw/security/advisories/GHSA-9p3r-hh9g-5cmg) | CRITICAL | Sandbox escape via TOCTOU race in remote FS bridge readFile | - | pending | @AntAISecurityLab |
+| [GHSA-7ggg-pvrf-458v](https://github.com/openclaw/openclaw/security/advisories/GHSA-7ggg-pvrf-458v) | HIGH | `PIP_INDEX_URL` and `UV_INDEX_URL` bypass host exec env sanitization and redirect Python package-index traffic | - | pending | @nexrin |
+| [GHSA-2w79-r9g8-wmcr](https://github.com/openclaw/openclaw/security/advisories/GHSA-2w79-r9g8-wmcr) | MEDIUM | Incomplete fix for CVE-2026-32062: voice-call still parses large WebSocket frames before start validation | - | pending | @Kazamayc |
+| [GHSA-x2m8-53h4-6hch](https://github.com/openclaw/openclaw/security/advisories/GHSA-x2m8-53h4-6hch) | MEDIUM | Discord voice ingress authorization can be bypassed via channel, name, and stale-role validation gaps | - | pending | @cyjhhh |
+| [GHSA-877v-w3f5-3pcq](https://github.com/openclaw/openclaw/security/advisories/GHSA-877v-w3f5-3pcq) | MEDIUM | Feishu thread history and quoted messages bypass sender allowlist | - | pending | @AntAISecurityLab |
+| [GHSA-rg8m-3943-vm6q](https://github.com/openclaw/openclaw/security/advisories/GHSA-rg8m-3943-vm6q) | MEDIUM | Matrix thread root and reply context bypass sender allowlist | - | pending | @AntAISecurityLab |
+| [GHSA-6p8r-6m93-557f](https://github.com/openclaw/openclaw/security/advisories/GHSA-6p8r-6m93-557f) | LOW | Fake DeviceToken Bypasses Shared Auth Rate Limiting | - | pending | @kexinoh |
+| [GHSA-g5cg-8x5w-7jpm](https://github.com/openclaw/openclaw/security/advisories/GHSA-g5cg-8x5w-7jpm) | HIGH | Heartbeat context inheritance bypasses sandbox via senderIsOwner escalation | - | pending | @AntAISecurityLab |
+| [GHSA-cwq8-6f96-g3q4](https://github.com/openclaw/openclaw/security/advisories/GHSA-cwq8-6f96-g3q4) | LOW | Security Scan Failure Does Not Block Plugin Installation (Fail-Open) | - | pending | @davidluzsilva |
+| [GHSA-chfm-xgc4-47rj](https://github.com/openclaw/openclaw/security/advisories/GHSA-chfm-xgc4-47rj) | MEDIUM | MSTeams thread history bypasses sender allowlist via Graph API | - | pending | @AntAISecurityLab |
+| [GHSA-xj9w-5r6q-x6v4](https://github.com/openclaw/openclaw/security/advisories/GHSA-xj9w-5r6q-x6v4) | HIGH | Device-Paired Node Skips Node Scope Gate, enabling host RCE | - | pending | @AntAISecurityLab |
+| [GHSA-qcc3-jqwp-5vh2](https://github.com/openclaw/openclaw/security/advisories/GHSA-qcc3-jqwp-5vh2) | LOW | LINE webhook handler lacks shared pre-auth concurrency budget before signature verification | - | pending | @nexrin |
+| [GHSA-37v6-fxx8-xjmx](https://github.com/openclaw/openclaw/security/advisories/GHSA-37v6-fxx8-xjmx) | LOW | Telnyx Webhook Replay Detection Bypass via Base64 Signature Re-encoding | - | pending | @AntAISecurityLab |
+| [GHSA-3xv9-89fm-7h4r](https://github.com/openclaw/openclaw/security/advisories/GHSA-3xv9-89fm-7h4r) | LOW | diffs viewer misclassifies proxied remote requests as loopback when `allowRemoteViewer` is disabled | - | pending | - |
+| [GHSA-f693-58pc-2gfr](https://github.com/openclaw/openclaw/security/advisories/GHSA-f693-58pc-2gfr) | LOW | Telegram legacy allowFrom migration fans default-account trust into all named accounts | - | pending | - |
+| [GHSA-q9w8-cf67-r238](https://github.com/openclaw/openclaw/security/advisories/GHSA-q9w8-cf67-r238) | MEDIUM | macOS Wide-Area Discovery Accepts Arbitrary Tailnet Peer as DNS Authority and Exfiltrates Operator Credentials | - | pending | @nexrin |
+| [GHSA-9f4w-67g7-mqwv](https://github.com/openclaw/openclaw/security/advisories/GHSA-9f4w-67g7-mqwv) | MEDIUM | Remote onboarding preserves attacker-discovered endpoint after trust decline, routing gateway credentials to it | - | pending | @zsxsoft |
+| [GHSA-4g5x-2jfc-xm98](https://github.com/openclaw/openclaw/security/advisories/GHSA-4g5x-2jfc-xm98) | LOW | Tlon media downloads can bypass core safety limits and exhaust disk | - | pending | @AntAISecurityLab |
+| [GHSA-9q7v-8mr7-g23p](https://github.com/openclaw/openclaw/security/advisories/GHSA-9q7v-8mr7-g23p) | MEDIUM | SSRF via Unguarded `fetch()` in Marketplace Plugin Download and Ollama Model Discovery | - | pending | @tdjackey |
+| [GHSA-g8xp-qx39-9jq9](https://github.com/openclaw/openclaw/security/advisories/GHSA-g8xp-qx39-9jq9) | MEDIUM | Incomplete `host-env-security-policy.json` allows untrusted model to substitute compiler binaries via env overrides | - | pending | @tdjackey |
+| [GHSA-w85g-3h6x-4xh2](https://github.com/openclaw/openclaw/security/advisories/GHSA-w85g-3h6x-4xh2) | MEDIUM | Image pixel-limit guard can fail open on sips and allow decompression-bomb DoS | - | pending | @AntAISecurityLab |
+| [GHSA-j9pv-rrcj-6pfx](https://github.com/openclaw/openclaw/security/advisories/GHSA-j9pv-rrcj-6pfx) | LOW | SSH-based sandbox backends pass unsanitized process.env to child processes | - | pending | @AntAISecurityLab |
+| [GHSA-fv94-qvg8-xqpw](https://github.com/openclaw/openclaw/security/advisories/GHSA-fv94-qvg8-xqpw) | HIGH | SSH sandbox tar upload follows symlinks, enabling arbitrary file write on remote host | - | pending | @AntAISecurityLab |
+| [GHSA-68v4-hmwv-f43h](https://github.com/openclaw/openclaw/security/advisories/GHSA-68v4-hmwv-f43h) | MEDIUM | Media download follows cross-origin redirects with Authorization headers intact | - | pending | @AntAISecurityLab |
+| [GHSA-vjx8-8p7h-82gr](https://github.com/openclaw/openclaw/security/advisories/GHSA-vjx8-8p7h-82gr) | MEDIUM | Marketplace Plugin Download Follows Redirects Without SSRF Protection | - | pending | @AntAISecurityLab |
+| [GHSA-9gp8-hjxr-6f34](https://github.com/openclaw/openclaw/security/advisories/GHSA-9gp8-hjxr-6f34) | MEDIUM | Host exec environment overrides miss proxy, TLS, Docker, and Git TLS controls | - | pending | @AntAISecurityLab |
+| [GHSA-57gh-m6rq-54cf](https://github.com/openclaw/openclaw/security/advisories/GHSA-57gh-m6rq-54cf) | MEDIUM | Media Local Roots Self-Whitelisting in appendLocalMediaParentRoots allows model-initiated arbitrary file read | - | pending | @tdjackey |
+| [GHSA-cg7q-fg22-4g98](https://github.com/openclaw/openclaw/security/advisories/GHSA-cg7q-fg22-4g98) | MEDIUM | Host exec environment sanitization misses package, registry, Docker, compiler, and TLS override variables | - | pending | @tdjackey |
+| [GHSA-m6fx-m8hc-572m](https://github.com/openclaw/openclaw/security/advisories/GHSA-m6fx-m8hc-572m) | MEDIUM | Telegram audio preflight transcription enables resource consumption by unauthorized senders | - | pending | @AntAISecurityLab |
+| [GHSA-hhff-fj5f-qg48](https://github.com/openclaw/openclaw/security/advisories/GHSA-hhff-fj5f-qg48) | MEDIUM | Discord audio preflight transcription before member authorization | - | pending | @AntAISecurityLab |
+| [GHSA-cwf8-44x6-32c2](https://github.com/openclaw/openclaw/security/advisories/GHSA-cwf8-44x6-32c2) | HIGH | OpenShell Mirror Sync: Sandbox Escape via Unrestricted File Sync + Symlink Traversal | - | pending | @AntAISecurityLab |
+| [GHSA-gjm7-hw8f-73rq](https://github.com/openclaw/openclaw/security/advisories/GHSA-gjm7-hw8f-73rq) | HIGH | Paired node escalates to gateway RCE via unrestricted node.event agent dispatch | - | pending | @AntAISecurityLab |
+| [GHSA-p464-m8x6-vhv8](https://github.com/openclaw/openclaw/security/advisories/GHSA-p464-m8x6-vhv8) | MEDIUM | MS Teams webhook parses body before JWT validation, enabling unauthenticated resource exhaustion | - | pending | @AntAISecurityLab |
+| [GHSA-mhr7-2xmv-4c4q](https://github.com/openclaw/openclaw/security/advisories/GHSA-mhr7-2xmv-4c4q) | MEDIUM | HTTP operator endpoints lack browser-origin validation in trusted-proxy mode | - | pending | @AntAISecurityLab |
+| [GHSA-g374-mggx-p6xc](https://github.com/openclaw/openclaw/security/advisories/GHSA-g374-mggx-p6xc) | HIGH | Incomplete scope-clearing fix allows operator.admin escalation via trusted-proxy auth mode | - | pending | @north-echo |
+| [GHSA-58q2-7r52-jq62](https://github.com/openclaw/openclaw/security/advisories/GHSA-58q2-7r52-jq62) | MEDIUM | Path traversal via inbound channel attachment path in ACP dispatch allows arbitrary file read | - | pending | @north-echo |
+| [GHSA-rm5c-4rmf-vvhw](https://github.com/openclaw/openclaw/security/advisories/GHSA-rm5c-4rmf-vvhw) | MEDIUM | Sandbox file operations use check-then-act, bypassing fd-based TOCTOU defenses | - | pending | @AntAISecurityLab |
+| [GHSA-hr8g-2q7x-3f4w](https://github.com/openclaw/openclaw/security/advisories/GHSA-hr8g-2q7x-3f4w) | LOW | OpenClaw Gateway Control Interface Information Disclosure Vulnerability | - | pending | - |
+| [GHSA-rvvf-6vh3-9j43](https://github.com/openclaw/openclaw/security/advisories/GHSA-rvvf-6vh3-9j43) | LOW | Discord Slash Commands Bypass Group DM Channel Allowlist | - | pending | @nexrin |
+| [GHSA-h2v7-xc88-xx8c](https://github.com/openclaw/openclaw/security/advisories/GHSA-h2v7-xc88-xx8c) | MEDIUM | `/phone arm`/`/phone disarm` Bypasses `operator.admin` Scope Check for External Channels | - | v2026.3.28 | @AntAISecurityLab |
+| [GHSA-6336-qqw9-v6x6](https://github.com/openclaw/openclaw/security/advisories/GHSA-6336-qqw9-v6x6) | LOW | Discord Component Interaction Misclassifies Group DM as Direct Message | - | pending | @nexrin |
+| [GHSA-v3qc-wrwx-j3pw](https://github.com/openclaw/openclaw/security/advisories/GHSA-v3qc-wrwx-j3pw) | HIGH | Agentic Consent Bypass: LLM Agent Can Silently Disable Exec Approval via `config.patch` | - | v2026.3.28 | @YLChen-007 |
+| [GHSA-f6pf-4gjx-c94r](https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r) | HIGH | OpenClaw <= 2026.3.23 Media Parsing Path Traversal to Arbitrary File Read | - | v2026.3.28 | @wsparks-vc |
+| [GHSA-vfw7-6rhc-6xxg](https://github.com/openclaw/openclaw/security/advisories/GHSA-vfw7-6rhc-6xxg) | HIGH | Incomplete Fix for CVE-2026-4039: CLI Backend Environment Variable Injection via Workspace Config | - | v2026.3.24 | @YLChen-007 |
+| [GHSA-fwjq-xwfj-gv75](https://github.com/openclaw/openclaw/security/advisories/GHSA-fwjq-xwfj-gv75) | MEDIUM | `session_status` still bypasses configured `tools.sessions.visibility` for unsandboxed invocations | - | pending | @tdjackey |
+| [GHSA-767m-xrhc-fxm7](https://github.com/openclaw/openclaw/security/advisories/GHSA-767m-xrhc-fxm7) | MEDIUM | Gateway operator.write Can Reach Admin-Class Telegram Config and Cron Persistence via send | - | v2026.3.28 | @zpbrent |
+| [GHSA-3q42-xmxv-9vfr](https://github.com/openclaw/openclaw/security/advisories/GHSA-3q42-xmxv-9vfr) | MEDIUM | Gateway operator.write Can Reach Admin-Class Talk Voice Config Persistence via chat.send | - | v2026.3.28 | @zpbrent |
+| [GHSA-42mx-vp8m-j7qh](https://github.com/openclaw/openclaw/security/advisories/GHSA-42mx-vp8m-j7qh) | MEDIUM | OpenShell `mirror` mode can convert untrusted sandbox files into explicitly enabled workspace hooks | - | v2026.3.28 | @tdjackey |
+| [GHSA-h5hg-h7rr-gpf3](https://github.com/openclaw/openclaw/security/advisories/GHSA-h5hg-h7rr-gpf3) | HIGH | Node browser proxy `allowProfiles` bypass through persistent profile mutation and runtime profile selection | - | v2026.3.22 | - |
+| [GHSA-gg9v-mgcp-v6m7](https://github.com/openclaw/openclaw/security/advisories/GHSA-gg9v-mgcp-v6m7) | HIGH | Bootstrap setup codes were not bound to the intended device role and scopes, allowing first-use privilege escalation | - | v2026.3.22 | @tdjackey |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -3686,3 +3745,713 @@ These official CVEs are **distinct from** the two third-party security audits do
 - [Medium Article (Saad Khalid)](./medium-article-audit.md) — Manual pentest claims (0/8 exploitable)
 
 The official CVEs were responsibly disclosed through GitHub Security Advisories and patched before public disclosure. The third-party audits contain false positives, design observations, and overstated claims (see analysis sections).
+
+### GHSA-cqgw-44wg-44rf: Discord Voice Manager Bypasses Channel-Level Member Access Allowlist
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+
+**Description:** Discord voice manager accepts voice ingress before channel allowlist authorization in v2026.3.28. Voice state updates are processed before member policy checks complete.
+
+**Impact:** Discord voice channel members not in the configured allowlist can interact with the bot via voice events.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-mhgq-xpfq-6r66: Unauthenticated Plugin-Auth HTTP Routes Receive Operator Runtime Scopes
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @davidluzsilva
+
+**Description:** Plugin-auth (`auth:"plugin"`) HTTP routes receive operator WRITE_SCOPE before plugin authentication completes, allowing routes that touch privileged runtime actions to execute before the plugin is verified.
+
+**Impact:** Limited to plugin routes that actually invoke privileged runtime actions before auth completion. No arbitrary exec path without a matching plugin route.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-jjw7-3vjf-fg5j: Nostr privateKey Config Redaction Bypass Leaks Plaintext Signing Key
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @ccreater222
+
+**Description:** The Nostr extension models `privateKey` as a plain string, so `config.get` and config views can expose the plaintext Nostr private signing key. The secret-schema fix that would apply redaction is unreleased.
+
+**Impact:** Operator-level access to gateway config can retrieve the plaintext Nostr private key.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-89r3-6x4j-v7wf: Voice-Call Plivo Replay Mutates In-Process Callback Origin Before Replay Rejection
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @zsxsoft
+
+**Description:** Plivo callback origin is mutated in-process before replay rejection runs. A captured valid callback for a live call is required for exploitation.
+
+**Impact:** Low — requires captured live callback; bounded to Plivo voice-call path.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-3qpv-xf3v-mm45: Workspace `.env` Can Override Bundled Hooks Root and Load Attacker Hook Code
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** Workspace `.env` can override `OPENCLAW_BUNDLED_HOOKS_DIR`, replacing trusted default-on bundled hooks from an untrusted workspace. An attacker-controlled workspace `.env` can redirect hook execution to arbitrary code.
+
+**Impact:** Code execution via hook replacement when loading an untrusted workspace.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-hhq4-97c2-p447: Zalo Webhook Replay Cache Cross-Target messageId Scope Bypass
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+
+**Description:** Zalo webhook replay deduplication is keyed too broadly, allowing replay across sibling targets with the same messageId. Impact limited to authenticated sibling-target delivery paths.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-3pm9-5j7m-59vc: Tlon Startup Migration Rehydrates Empty-Array Revocations From File Config
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+
+**Description:** Tlon startup migration treats empty-array settings as missing and can rehydrate revoked Tlon config from file state after restart, effectively undoing operator revocations.
+
+**Impact:** Revoked Tlon channel configurations may be re-enabled after gateway restart.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-qcj9-wwgw-6gm8: Workspace `.env` Can Override Bundled Plugin Trust Root
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** Workspace `.env` can override `OPENCLAW_BUNDLED_PLUGINS_DIR`, replacing the bundled plugin trust root. Exploitation requires attacker-controlled workspace loading.
+
+**Impact:** Malicious workspace can substitute bundled plugins, enabling code execution if a user loads the workspace.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-rfqg-qgf8-xr9x: Gateway `device.token.rotate` Does Not Terminate Active WebSocket Sessions
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @zsxsoft
+
+**Description:** After `device.token.rotate`, already-authenticated WebSocket sessions are not disconnected. Old sessions remain active until they naturally disconnect, creating a post-compromise revocation gap.
+
+**Impact:** Revoked device tokens do not immediately terminate existing sessions.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-9p3r-hh9g-5cmg: Sandbox Escape via TOCTOU Race in Remote FS Bridge readFile
+
+**Severity:** CRITICAL
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Remote sandbox `readFile` does path-check then separate file read (TOCTOU), allowing a race-condition sandbox escape to read host files outside the sandbox boundary.
+
+**Impact:** Critical — arbitrary file read on the remote sandbox host via TOCTOU race.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-7ggg-pvrf-458v: `PIP_INDEX_URL` and `UV_INDEX_URL` Bypass Host Exec Env Sanitization
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** `PIP_INDEX_URL` and `UV_INDEX_URL` are not blocked by host exec env sanitization, allowing an untrusted model to redirect Python package-index traffic to attacker-controlled servers via approved exec paths.
+
+**Impact:** Supply-chain redirection for Python package installs on approved exec paths.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-2w79-r9g8-wmcr: Incomplete Fix for CVE-2026-32062 — Voice-Call Parses Large WebSocket Frames Before Start Validation
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @Kazamayc
+
+**Description:** The fix for CVE-2026-32062 is incomplete — voice-call still parses oversized pre-start WebSocket frames before start validation runs. The `maxPayload` fix is not yet shipped.
+
+**Impact:** Resource consumption via large pre-start voice-call frames.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-x2m8-53h4-6hch: Discord Voice Ingress Authorization Bypass via Channel, Name, and Stale-Role Validation Gaps
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @cyjhhh
+
+**Description:** Discord voice ingress channel and member allowlist authorization has gaps via stale-role caching, channel ID mismatches, and name-based checks that can be bypassed.
+
+**Impact:** Unauthorized Discord voice channel members may bypass allowlist controls.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-877v-w3f5-3pcq: Feishu Thread History and Quoted Messages Bypass Sender Allowlist
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Feishu quoted message and thread history content is fetched and processed bypassing sender allowlist checks. An unauthorized sender's content can reach the agent via thread/quote context.
+
+**Impact:** Allowlisted-sender bypass via thread context in Feishu channels.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-rg8m-3943-vm6q: Matrix Thread Root and Reply Context Bypass Sender Allowlist
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Matrix fetched thread-root and reply context bypasses sender allowlist checks. Thread context from non-allowlisted senders can be included in agent processing.
+
+**Impact:** Allowlisted-sender bypass via thread/reply context in Matrix channels.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-6p8r-6m93-557f: Fake DeviceToken Bypasses Shared Auth Rate Limiting
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @kexinoh
+
+**Description:** Fake device tokens can bypass shared-auth rate limiting in the mixed WebSocket auth flow. Practical risk limited to weak shared-password deployments.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-g5cg-8x5w-7jpm: Heartbeat Context Inheritance Bypasses Sandbox via senderIsOwner Escalation
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Node-originated exec completion can inherit owner identity through heartbeat delivery context. This bypasses sandbox restrictions via `senderIsOwner` escalation path.
+
+**Impact:** Sandbox bypass allowing node-level callers to reach owner-only tools.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-cwq8-6f96-g3q4: Security Scan Failure Does Not Block Plugin Installation (Fail-Open)
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @davidluzsilva
+
+**Description:** Plugin installation proceeds even when the security scan fails, failing open rather than blocking on scan error. Scan failure is visible but not enforced as a blocker.
+
+**Impact:** Untrusted packages may be installed when the security scan fails to complete.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-chfm-xgc4-47rj: MSTeams Thread History Bypasses Sender Allowlist via Graph API
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** MS Teams Graph API-fetched thread history content bypasses sender allowlist checks, similar to GHSA-877v-w3f5-3pcq (Feishu) and GHSA-rg8m-3943-vm6q (Matrix).
+
+**Impact:** Non-allowlisted sender content may reach the agent via MS Teams thread history.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-xj9w-5r6q-x6v4: Device-Paired Node Skips Node Scope Gate, Enabling Host RCE
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** A device-paired node (role=device, not role=node) can still access node-scoped commands without the node pairing requirement. Node scope gate is skipped for device-paired clients.
+
+**Impact:** Device-paired clients can escalate to node command access and reach host RCE primitives.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-qcc3-jqwp-5vh2: LINE Webhook Handler Lacks Shared Pre-Auth Concurrency Budget
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** The public LINE webhook path has no shared pre-auth concurrency budget before signature verification. High-volume unauthenticated requests can cause transient availability loss.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-37v6-fxx8-xjmx: Telnyx Webhook Replay Detection Bypass via Base64 Signature Re-encoding
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Telnyx replay detection treats equivalent Base64 and Base64URL-encoded signatures as distinct replay keys. A captured valid webhook can be replayed by re-encoding the signature. Signature verification itself still holds.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-3xv9-89fm-7h4r: Diffs Viewer Misclassifies Proxied Remote Requests as Loopback
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+
+**Description:** When `allowRemoteViewer` is disabled, the diffs viewer incorrectly classifies proxied remote requests as loopback, bypassing the remote viewer restriction.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-f693-58pc-2gfr: Telegram Legacy allowFrom Migration Fans Default-Account Trust Into All Named Accounts
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+
+**Description:** Legacy Telegram `allowFrom` migration incorrectly fans default-account trust into all named accounts, widening sender authorization beyond the operator's intent.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-q9w8-cf67-r238: macOS Wide-Area Discovery Accepts Arbitrary Tailnet Peer as DNS Authority
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** macOS wide-area discovery accepts an arbitrary same-tailnet peer as DNS authority and can be steered to exfiltrate operator credentials. Exploitation requires same-tailnet position, CA-trusted endpoint, and user confirmation of discovery.
+
+**Impact:** Discovery steering and potential credential exfiltration via malicious Tailscale peer.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-9f4w-67g7-mqwv: Remote Onboarding Preserves Attacker-Discovered Endpoint After Trust Decline
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @zsxsoft
+
+**Description:** During remote onboarding, a declined discovered gateway URL survives into the manual entry prompt as a prefill. If the operator accepts the prefill, gateway credentials are routed to the attacker-discovered endpoint.
+
+**Impact:** Credential routing to attacker-discovered gateways if operator accepts the stale prefill.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-4g5x-2jfc-xm98: Tlon Media Downloads Bypass Core Safety Limits and Exhaust Disk
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Tlon media downloads in the bundled plugin bypass core size, count, and cleanup limits, enabling disk exhaustion via large media in an optional plugin path.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-9q7v-8mr7-g23p: SSRF via Unguarded `fetch()` in Marketplace Plugin Download
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @tdjackey
+
+**Description:** The marketplace plugin download uses bare `fetch()` without SSRF protection, allowing an attacker-controlled marketplace URL to reach internal network hosts. Ollama model discovery has a similar but separate trust-model concern.
+
+**Impact:** SSRF via marketplace archive download to internal network.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-g8xp-qx39-9jq9: Incomplete host-env-security-policy.json — Compiler Binary Substitution via Env Overrides
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @tdjackey
+
+**Description:** `host-env-security-policy.json` does not block compiler override variables (`CC`, `CXX`, `CARGO_BUILD_RUSTC`, `CMAKE_C_COMPILER`), allowing an untrusted model to substitute compiler binaries on approved host exec requests.
+
+**Impact:** Compiler binary substitution on approved exec paths, enabling build-time supply chain attacks.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-w85g-3h6x-4xh2: Image Pixel-Limit Guard Fails Open on sips, Allowing Decompression-Bomb DoS
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** The image pixel-limit guard can fail open on the `sips` backend, allowing oversized pixel counts through and enabling decompression-bomb DoS attacks.
+
+**Impact:** DoS via decompression bomb in image processing on macOS `sips` path.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-j9pv-rrcj-6pfx: SSH-Based Sandbox Backends Pass Unsanitized process.env to Child Processes
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** SSH sandbox paths pass unsanitized `process.env` to local SSH child processes. Remote leakage requires non-default SSH env forwarding configuration.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-fv94-qvg8-xqpw: SSH Sandbox tar Upload Follows Symlinks, Enabling Arbitrary File Write on Remote Host
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** SSH sandbox tar upload lacked pre-upload symlink escape rejection. An attacker with sandbox write access can craft a symlink to write outside the sandbox root on the remote host.
+
+**Impact:** Arbitrary file write on remote SSH sandbox host via symlink in tar upload.
+
+**Fix:** Pending release in >= v2026.3.31. Fix committed 2026-03-31.
+
+### GHSA-68v4-hmwv-f43h: Media Download Follows Cross-Origin Redirects With Authorization Headers Intact
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Media downloads forward `Authorization` headers across cross-origin redirects, leaking credentials to redirect targets.
+
+**Impact:** Credential exfiltration to attacker-controlled servers via cross-origin media redirect.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-vjx8-8p7h-82gr: Marketplace Plugin Download Follows Redirects Without SSRF Protection
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** `src/plugins/marketplace.ts` uses bare redirect-following `fetch()` for marketplace archives, allowing redirect-based SSRF to internal network hosts. The main fix is unreleased.
+
+**Impact:** SSRF to internal network via redirect in marketplace plugin download.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-9gp8-hjxr-6f34: Host Exec Environment Overrides Miss Proxy, TLS, Docker, and Git TLS Controls
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** The host exec env policy missed proxy, TLS, Docker, and Git TLS env variables. An untrusted model can redirect outbound traffic via proxy or TLS interception on approved host exec paths. Fix committed 2026-03-31, unreleased.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-57gh-m6rq-54cf: Media Local Roots Self-Whitelisting in appendLocalMediaParentRoots
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @tdjackey
+
+**Description:** `appendLocalMediaParentRoots` self-whitelists media parent dirs in `src/media/local-roots.ts` after config has already permitted tool-fs root expansion. An untrusted model can read arbitrary host files if `tools.fs.workspaceOnly` allows it.
+
+**Impact:** Model-initiated arbitrary host file read via media local root expansion.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-cg7q-fg22-4g98: Host Exec Env Sanitization Misses Package, Registry, Docker, Compiler, and TLS Override Variables
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @tdjackey
+
+**Description:** The shipped host-env policy missed the broader package manager (`NPM_CONFIG_REGISTRY`, `PYPI_INDEX`), registry, compiler, Docker, and TLS env family. Overlaps with GHSA-9gp8-hjxr-6f34.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-m6fx-m8hc-572m: Telegram Audio Preflight Transcription Enables Resource Consumption by Unauthorized Senders
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Telegram audio preflight transcription runs before allowlist enforcement, allowing unauthorized group senders to trigger billing-impacting transcription work.
+
+**Impact:** Resource and billing consumption via unauthorized audio transcription in Telegram channels.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-hhff-fj5f-qg48: Discord Audio Preflight Transcription Before Member Authorization
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Discord audio preflight transcription runs before member allowlist rejection, similar to GHSA-m6fx-m8hc-572m (Telegram). Resource/billing consumption class.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-cwf8-44x6-32c2: OpenShell Mirror Sync — Sandbox Escape via Unrestricted File Sync + Symlink Traversal
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** OpenShell `mirror` sync lacks full symlink-escape prevention. The shipped commit (`c02ee8`) excluded hooks only; full symlink-free upload/download hardening is unreleased. Mirror mode + hooks enabled + explicit hook opt-in + restart required for exploitation.
+
+**Impact:** Sandbox escape via symlink traversal in mirror sync.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-gjm7-hw8f-73rq: Paired Node Escalates to Gateway RCE via Unrestricted node.event Agent Dispatch
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** A paired `role=node` client can drive `node.event agent.request` into broader gateway-side tool access than intended for node RPCs. Requires a trusted paired node foothold.
+
+**Impact:** Node-paired client can reach gateway-side tools beyond intended node RPC scope, enabling RCE pivot.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-p464-m8x6-vhv8: MS Teams Webhook Parses Body Before JWT Validation, Enabling Unauthenticated Resource Exhaustion
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** MS Teams webhook processes JSON body after only a Bearer-prefix gate, before real JWT validation. Auth-before-parse fix is not yet shipped.
+
+**Impact:** Unauthenticated resource exhaustion via large MS Teams webhook payloads.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-mhr7-2xmv-4c4q: HTTP Operator Endpoints Lack Browser-Origin Validation in Trusted-Proxy Mode
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** HTTP operator endpoints in trusted-proxy mode do not validate browser origin, creating a CSRF-style gap for identity-bearing trusted-proxy browser deployments.
+
+**Impact:** Cross-site request forgery against trusted-proxy gateway deployments.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-g374-mggx-p6xc: Incomplete Scope-Clearing Fix Allows operator.admin Escalation via Trusted-Proxy Auth
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @north-echo
+
+**Description:** The scope-clearing fix in v2026.3.28 missed non-Control-UI trusted-proxy clients. Self-declared operator scopes can survive on real identity-bearing auth paths for those clients.
+
+**Impact:** operator.admin escalation via trusted-proxy auth on non-Control-UI clients.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-58q2-7r52-jq62: Path Traversal via Inbound Channel Attachment Path in ACP Dispatch
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @north-echo
+
+**Description:** ACP dispatch reads attachment paths outside guarded attachment-cache or root checks. A malicious inbound attachment path can reach arbitrary files on the host.
+
+**Impact:** Arbitrary file read via path traversal in ACP inbound channel attachment dispatch.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-rm5c-4rmf-vvhw: Sandbox File Operations Use Check-Then-Act, Bypassing fd-Based TOCTOU Defenses
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @AntAISecurityLab
+
+**Description:** Released workspace-only `apply_patch` remove and mkdir operations still use check-then-act rather than fd-based atomic operations, bypassing TOCTOU defenses for those specific paths.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-hr8g-2q7x-3f4w: OpenClaw Gateway Control Interface Information Disclosure
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+
+**Description:** The Control UI bootstrap JSON exposes gateway version and assistant agent ID as fingerprinting or info disclosure data. Fix trims the payload but is unreleased (`c5c10adc`).
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-rvvf-6vh3-9j43: Discord Slash Commands Bypass Group DM Channel Allowlist
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** Native Discord slash command and autocomplete paths skip group-DM allowlist enforcement. Impact limited to already-authorized Discord users bypassing a channel restriction.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-h2v7-xc88-xx8c: `/phone arm`/`/phone disarm` Bypasses `operator.admin` Scope Check for External Channels
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** v2026.3.28 (aa66ae1fc7)
+**Credits:** @AntAISecurityLab
+
+**Description:** `/phone arm` and `/phone disarm` commands did not enforce `operator.admin` scope for external channel callers. Fixed in commit `aa66ae1fc7` on 2026-03-27, shipped in v2026.3.28.
+
+**Fix:** Commit `aa66ae1fc7` enforces `operator.admin` scope for phone command dispatch.
+
+### GHSA-6336-qqw9-v6x6: Discord Component Interaction Misclassifies Group DM as Direct Message
+
+**Severity:** LOW
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** Discord component interaction routing in `extensions/discord/src/monitor/agent-components-helpers.ts` misclassifies Group DM interactions as Direct Messages, causing Group DM policy or session misclassification.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-v3qc-wrwx-j3pw: Agentic Consent Bypass — LLM Agent Can Silently Disable Exec Approval via `config.patch`
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** v2026.3.28 (76411b2afc)
+**Credits:** @YLChen-007
+
+**Description:** An LLM agent could silently disable exec approval confirmation via `config.patch`, bypassing user consent controls. Fixed in commit `76411b2afc` on 2026-03-27, shipped in v2026.3.28.
+
+**Fix:** Commit `76411b2afc` restricts `config.patch` from modifying exec approval settings without operator-level auth.
+
+### GHSA-f6pf-4gjx-c94r: OpenClaw <= 2026.3.23 Media Parsing Path Traversal to Arbitrary File Read
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** v2026.3.28
+**Credits:** @wsparks-vc
+
+**Description:** `src/media/parse.ts` allowed path traversal to arbitrary file reads in versions <= v2026.3.23. The fix was shipped in v2026.3.28.
+
+**Fix:** Patched in v2026.3.28.
+
+### GHSA-vfw7-6rhc-6xxg: Incomplete Fix for CVE-2026-4039 — CLI Backend Environment Variable Injection via Workspace Config
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** v2026.3.24
+**Credits:** @YLChen-007
+
+**Description:** The fix for CVE-2026-4039 was incomplete. The CLI backend runner still allowed malicious workspace config to inject env vars into backend process spawn. The complete fix sanitizes backend env before spawn, shipped in v2026.3.24.
+
+**Fix:** Patched in v2026.3.24.
+
+### GHSA-fwjq-xwfj-gv75: `session_status` Bypasses Configured `tools.sessions.visibility` for Unsandboxed Invocations
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** pending
+**Credits:** @tdjackey
+
+**Description:** Non-sandboxed `session_status` invocations skip the shared `tools.sessions.visibility` guard, allowing sandboxed visibility settings to be bypassed by unsandboxed callers.
+
+**Fix:** Pending release in >= v2026.3.31.
+
+### GHSA-767m-xrhc-fxm7: Gateway operator.write Can Reach Admin-Class Telegram Config and Cron Persistence
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** v2026.3.28
+**Credits:** @zpbrent
+
+**Description:** `operator.write` callers could reach admin-class Telegram config and cron persistence operations via `chat.send`. Fixed in v2026.3.28.
+
+**Fix:** Patched in v2026.3.28.
+
+### GHSA-3q42-xmxv-9vfr: Gateway operator.write Can Reach Admin-Class Talk Voice Config Persistence
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** v2026.3.28
+**Credits:** @zpbrent
+
+**Description:** `operator.write` callers could reach admin-class Talk Voice config persistence operations via `chat.send`. Same authenticated sink-escalation class as GHSA-767m-xrhc-fxm7. Fixed in v2026.3.28.
+
+**Fix:** Patched in v2026.3.28.
+
+### GHSA-42mx-vp8m-j7qh: OpenShell `mirror` Mode Converts Untrusted Sandbox Files Into Enabled Workspace Hooks
+
+**Severity:** MEDIUM
+**Published:** 2026-03-31
+**Patched:** v2026.3.28
+**Credits:** @tdjackey
+
+**Description:** OpenShell `mirror` sync could convert untrusted sandbox files into explicitly enabled workspace hooks, which are then executed on the host at gateway startup. Requires mirror mode + hooks enabled + explicit hook opt-in + restart. Fixed in v2026.3.28.
+
+**Fix:** Patched in v2026.3.28.
+
+### GHSA-h5hg-h7rr-gpf3: Node Browser Proxy `allowProfiles` Bypass via Persistent Profile Mutation
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** v2026.3.22
+
+**Description:** The browser proxy `allowProfiles` restriction could be bypassed via persistent profile mutation and runtime profile selection. Fixed and shipped in v2026.3.22+.
+
+**Fix:** Patched in v2026.3.22.
+
+### GHSA-gg9v-mgcp-v6m7: Bootstrap Setup Codes Not Bound to Intended Device Role, Allowing First-Use Privilege Escalation
+
+**Severity:** HIGH
+**Published:** 2026-03-31
+**Patched:** v2026.3.22
+**Credits:** @tdjackey
+
+**Description:** Bootstrap setup codes were not bound to the intended device role and scopes, allowing a first-use attacker to escalate privileges during the pairing flow. Fixed and shipped in v2026.3.22+.
+
+**Fix:** Patched in v2026.3.22.
