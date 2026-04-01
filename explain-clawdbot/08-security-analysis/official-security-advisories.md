@@ -3294,7 +3294,7 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 
 **Impact:** Terminal control-sequence injection in ACP permission prompts via crafted tool titles; could mislead users into approving dangerous tool invocations.
 
-**Fix:** Commit `464e2c10a5` applies `sanitizeTerminalText()` to `toolTitle` at `src/acp/client.ts:298` and `escapeInlineControlChars()` in `formatToolTitle()` at `src/acp/event-mapper.ts:311`. Extends the ANSI CSI pattern from SGR-only to all CSI sequences.
+**Fix:** Commit `464e2c10a5` applies `sanitizeTerminalText()` to `toolTitle` at `src/acp/client.ts:120` and `escapeInlineControlChars()` in `formatToolTitle()` at `src/acp/event-mapper.ts:311`. Extends the ANSI CSI pattern from SGR-only to all CSI sequences.
 
 ### GHSA-52q4-3xjc-6778: Google Chat Authz Bypass via Mutable Space displayName
 

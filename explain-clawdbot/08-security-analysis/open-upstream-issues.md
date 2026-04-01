@@ -67,9 +67,9 @@
 | [#11900](https://github.com/openclaw/openclaw/issues/11900) | ~~MEDIUM~~ WONTFIX | Context files (USER.md, SOUL.md) loaded for all senders | Closed upstream as NOT_PLANNED (2026-03-25); `src/agents/bootstrap-files.ts:64-96` — no `senderIsOwner` check; `attempt.ts:366` calls unconditionally |
 | [#50628](https://github.com/openclaw/openclaw/issues/50628) | MEDIUM | Browser control server installs no authentication when gateway auth mode is trusted-proxy | `extensions/browser/src/browser/control-auth.ts:65-67` — `ensureBrowserControlAuth()` returns empty auth object for `trusted-proxy` mode; `installBrowserAuthMiddleware` skips when token+password both undefined; browser automation API accessible to any loopback process without auth |
 | [#50630](https://github.com/openclaw/openclaw/issues/50630) | MEDIUM | Tailscale serve + auth.mode=none bypasses startup validation | `src/gateway/server-runtime-config.ts:120` — funnel mode validates `authMode !== "password"` and errors; no equivalent guard for `tailscale.mode=serve` + `auth.mode=none`; config combination exposes gateway to all Tailnet peers without authentication |
-| [#50635](https://github.com/openclaw/openclaw/issues/50635) | ~~MEDIUM~~ FIXED | `*.ts.net` Host header accepted as local-direct — bypasses gateway token auth | Fixed locally by `1738d540f4` (Mar 30 sync 1); `isLocalDirectRequest()` at `src/gateway/auth.ts:115` rewritten to use `isLoopbackAddress(req.socket?.remoteAddress)` only — `isLocalishHost()` Host header check removed entirely; fail-closed for forwarded requests |
+| [#50635](https://github.com/openclaw/openclaw/issues/50635) | ~~MEDIUM~~ FIXED | `*.ts.net` Host header accepted as local-direct — bypasses gateway token auth | Fixed locally by `1738d540f4` (Mar 30 sync 1); `isLocalDirectRequest()` at `src/gateway/auth.ts:123` rewritten to use `isLoopbackAddress(req.socket?.remoteAddress)` only — `isLocalishHost()` Host header check removed entirely; fail-closed for forwarded requests |
 | [#50644](https://github.com/openclaw/openclaw/issues/50644) | MEDIUM | auth.mode=none propagates silently to browser control server | `extensions/browser/src/browser/control-auth.ts:61-63` — `ensureBrowserControlAuth()` returns empty auth for `auth.mode=none` (same as trusted-proxy); browser control server starts without any auth middleware; relates to #50628 |
-| [#53412](https://github.com/openclaw/openclaw/issues/53412) | MEDIUM | Feishu encryptKey bypasses config redaction — leaked via config.get to operator.read clients | `src/config/schema.hints.ts:111-117` — `SENSITIVE_PATTERNS` does not match `encryptKey` (`/token$/i`, `/password/i`, `/secret/i`, `/api.?key/i` all miss); `extensions/feishu/src/config-schema.ts:197` — `buildSecretInputSchema()` is UI-only, not global redaction; `encryptKey` leaked in `config.get` response enabling Feishu webhook forgery |
+| [#53412](https://github.com/openclaw/openclaw/issues/53412) | ~~MEDIUM~~ FIXED | Feishu encryptKey bypasses config redaction — leaked via config.get to operator.read clients | Fixed by `8e285d112d` (Mar 27 sync 3) and `57700d716f` (Apr 1 sync 7); `src/config/schema.hints.ts:134-142` — `SENSITIVE_PATTERNS` now includes `/encrypt.?key/i` (line 139) and `/private.?key/i` (line 140); `encryptKey` is redacted in `config.get` response |
 | [#54737](https://github.com/openclaw/openclaw/issues/54737) | MEDIUM | Prompt injection via unsanitized group chat metadata (GroupSubject, GroupMembers) | `src/auto-reply/reply/groups.ts:136-153` — `buildGroupChatContext()` embeds `GroupSubject` and `GroupMembers` directly in system prompt string without `sanitizeForPromptLiteral()`; attackers who control a group name (e.g., Discord/Telegram group with malicious title) can inject arbitrary LLM instructions |
 | [#12571](https://github.com/openclaw/openclaw/issues/12571) | MEDIUM (WONTFIX) | Session isolation leak in cron jobs after ~24h | Closed upstream as NOT_PLANNED; still affects local code at `src/cron/service/jobs.ts` — isolated sessions leak to main session after extended runtime |
 | [#11832](https://github.com/openclaw/openclaw/issues/11832) | ~~MEDIUM~~ FIXED | Per-agent tools.exec config not applied | Fixed upstream (COMPLETED); `src/auto-reply/reply/get-reply-directives.ts:87-103` |
@@ -87,14 +87,14 @@
 | [#11431](https://github.com/openclaw/openclaw/issues/11431) | ~~CRITICAL~~ FIXED | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | Fixed in PRs: `92702af7a` (plugins+hooks, Feb 12 sync 1) + [#14659](https://github.com/openclaw/openclaw/pull/14659) (skills, Feb 13 sync 1) — `--ignore-scripts` added to all install commands |
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH (WONTFIX) | Sandbox browser bridge started without auth token | Closed upstream as NOT_PLANNED (2026-02-13); `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:355-366` WITH `authToken` and `authPassword` (line ref updated Mar 1 sync 1; auth IS present); relates to #6609 |
 | [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH (WONTFIX) | config.patch bypasses commands.restart restriction | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-methods/config.ts:464` |
-| [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:1116-1118` |
+| [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:1168-1169` |
 | [#13786](https://github.com/openclaw/openclaw/issues/13786) | ~~HIGH~~ FIXED | BlueBubbles webhook auth bypass via loopback proxy trust | Fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) — loopback bypass removed; all requests require password auth |
-| [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:518-533`) |
+| [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:325-386`) |
 | [#13937](https://github.com/openclaw/openclaw/issues/13937) | ~~MEDIUM~~ FIXED | HTML not escaped in Control UI webchat (XSS) | Closed as COMPLETED 2026-02-11; `ui/` webchat HTML escaping fix applied upstream |
 | [#14137](https://github.com/openclaw/openclaw/issues/14137) | ~~HIGH~~ FIXED | Gateway auth has no rate limiting (CWE-307) | Fixed upstream (COMPLETED); `src/gateway/auth.ts` — rate limiting added |
 | [#13274](https://github.com/openclaw/openclaw/issues/13274) | ~~HIGH~~ FIXED | SSRF guard bypassed by IPv4-compatible IPv6 addresses | Fixed by `c0c0e0f9a` — `isPrivateIpAddress()` (`src/infra/net/ssrf.ts:116`) now handles full-form IPv4-mapped IPv6 via `extractEmbeddedIpv4FromIpv6()` at `src/shared/net/ip.ts:287` |
 | [#11738](https://github.com/openclaw/openclaw/issues/11738) | ~~HIGH~~ FIXED | Canvas authorization IP co-tenancy bypass | Fixed upstream (COMPLETED 2026-02-24); `src/gateway/server-http.ts:904-936` — canvas auth no longer relies on IP co-tenancy |
-| [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH (WONTFIX) | HTTP API session keys lack ownership validation | Closed upstream as NOT_PLANNED; still affects local code at `src/gateway/http-utils.ts:234-236` — `x-openclaw-session-key` header accepted as-is with no ownership check |
+| [#11793](https://github.com/openclaw/openclaw/issues/11793) | HIGH (WONTFIX) | HTTP API session keys lack ownership validation | Closed upstream as NOT_PLANNED; still affects local code at `src/gateway/http-utils.ts:280-282` — `x-openclaw-session-key` header accepted as-is with no ownership check |
 | [#11024](https://github.com/openclaw/openclaw/issues/11024) | ~~HIGH~~ FIXED | Gmail push endpoint embeds auth token in URL query string | Fixed upstream (COMPLETED 2026-02-14); `src/hooks/gmail-setup-utils.ts:315` |
 | [#11811](https://github.com/openclaw/openclaw/issues/11811) | ~~HIGH~~ FIXED | MSTeams attachment fetch follows redirects before allowlist checks (SSRF) | Fixed upstream (COMPLETED); `extensions/msteams/src/attachments/download.ts:93` |
 | [#15906](https://github.com/openclaw/openclaw/issues/15906) | HIGH (WONTFIX) | RCE via rogue gateway impersonation (mDNS discovery spoofing) | Closed upstream as NOT_PLANNED (2026-02-26); still affects local code at `apps/android/.../GatewayDiscovery.kt:148-162` (TLS fingerprint stored but not enforced); `apps/macos/.../ShellExecutor.swift:14-32`; partial mitigation via device pairing nonce/challenge |
@@ -244,12 +244,12 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Gateway plugin HTTP routes are dispatched without any gateway authentication checks. `createGatewayPluginRequestHandler()` accepts only `registry` and `log` parameters — no authentication context, token validator, or security gate is passed. Any network client can reach plugin HTTP endpoints even when the gateway token/password is configured.
 
 **Affected code:**
-- `src/gateway/server/plugins-http.ts:63-112` - `createGatewayPluginRequestHandler` with `route.handler(req, res)` dispatch at `:94` (auth enforcement is external, in `server-http.ts:518-533`)
+- `src/gateway/server/plugins-http.ts:63-112` - `createGatewayPluginRequestHandler` with `route.handler(req, res)` dispatch at `:94` (auth enforcement is external, in `server-http.ts:325-386`)
 
 **Verification:**
 - No imports for `authorizeGatewayConnect` or `resolvedAuth` validation in the file
 - Other endpoints (OpenAI, tools-invoke, open-responses) DO call `authorizeGatewayConnect`
-- Plugin HTTP dispatch at `server-http.ts:534` (now gateway-auth protected for `/api/channels/` routes at `:518-533`, PR #13719)
+- Plugin HTTP dispatch at `server-http.ts:534` (now gateway-auth protected for `/api/channels/` routes at `:325-386`, PR #13719)
 
 ### #6609: Browser Bridge Server Optional Authentication
 
@@ -326,7 +326,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** Webhook endpoint accepted authentication tokens via URL query parameters, causing credential leakage through logs, browser history, and Referer headers.
 
-**Fix:** Query token extraction removed entirely from `src/gateway/hooks.ts`. `extractHookToken()` now only accepts `Authorization: Bearer` header and `X-OpenClaw-Token` header. Server returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:492-498`).
+**Fix:** Query token extraction removed entirely from `src/gateway/hooks.ts`. `extractHookToken()` now only accepts `Authorization: Bearer` header and `X-OpenClaw-Token` header. Server returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:493-499`).
 
 ### #4949: Browser Control Server DNS Rebinding
 
@@ -409,7 +409,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/security/secret-equal.ts:3-16` - `safeEqualSecret` uses `timingSafeEqual` (correct)
-- `src/gateway/server-http.ts:511` - hook token now uses `safeEqualSecret()` (fixed in Feb 13 sync 4, commit `113ebfd6a`)
+- `src/gateway/server-http.ts:512` - hook token now uses `safeEqualSecret()` (fixed in Feb 13 sync 4, commit `113ebfd6a`)
 - `src/infra/node-pairing.ts:260` - node token uses `verifyPairingToken()` which calls `safeEqualSecret()` (constant-time, mitigated)
 - `src/infra/device-pairing.ts:683` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
 
@@ -555,7 +555,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** Gateway authentication tokens were passed via URL query parameters (`?token=...`) in dashboard and onboarding flows, exposing credentials through logs, browser history, and Referer headers.
 
-**Fix:** Query token acceptance completely removed. `extractHookToken()` in `src/gateway/hooks.ts:137-155` no longer reads `url.searchParams`. `src/commands/dashboard.ts` no longer constructs `?token=` URLs. `src/commands/onboard-helpers.ts` no longer passes token in URL. Server now returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:492-498`).
+**Fix:** Query token acceptance completely removed. `extractHookToken()` in `src/gateway/hooks.ts:137-155` no longer reads `url.searchParams`. `src/commands/dashboard.ts` no longer constructs `?token=` URLs. `src/commands/onboard-helpers.ts` no longer passes token in URL. Server now returns HTTP 400 when `?token=` is present (`src/gateway/server-http.ts:493-499`).
 
 ### #9627: Config Secrets Exposed in JSON After Update/Doctor
 
@@ -855,8 +855,8 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** The CLI `openclaw config get` command reads and outputs resolved config values (including secrets from `${ENV_VAR}` substitution) without applying the redaction system. The gateway RPC `config.get` handler correctly redacts via `redactConfigSnapshot()`, but the CLI path bypasses this entirely. A sandboxed agent with exec access can extract any API key configured via env var substitution.
 
 **Affected code:**
-- `src/cli/config-cli.ts:1119-1121` — `loadValidConfig()` returns resolved `snapshot.config`; `getAtPath()` reads values directly
-- `src/cli/config-cli.ts:1115-1143` — output paths (`defaultRuntime.log`) emit unredacted values
+- `src/cli/config-cli.ts:1169-1171` — `loadValidConfig()` returns resolved `snapshot.config`; `getAtPath()` reads values directly
+- `src/cli/config-cli.ts:1163-1191` — output paths (`defaultRuntime.log`) emit unredacted values
 
 **Correct implementation (for comparison):**
 - `src/gateway/server-methods/config.ts:308` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
@@ -1014,7 +1014,7 @@ All changes take effect immediately via automatic restart.
 **Vulnerability:** Multiple HTTP API endpoints accept user-controlled session keys via the `x-openclaw-session-key` header or request body without ownership validation. In multi-user deployments (Tailscale Serve), any authenticated user can read and write another user's conversation history, memories, and tool execution context by supplying a predictable session key.
 
 **Affected code:**
-- `src/gateway/http-utils.ts:228-242` — `resolveSessionKey()` returns `x-openclaw-session-key` header value as-is (line 234-236) with no ownership check
+- `src/gateway/http-utils.ts:274-288` — `resolveSessionKey()` returns `x-openclaw-session-key` header value as-is (line 280-282) with no ownership check
 - `src/gateway/tools-invoke-http.ts:56-61` — `resolveSessionKeyFromBody()` accepts arbitrary session key from request body
 - Affected endpoints: `/v1/chat/completions`, `/v1/responses`, `/tools/invoke`, `/hooks/agent`
 

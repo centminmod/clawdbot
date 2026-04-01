@@ -142,7 +142,7 @@ When OpenClaw connects to an ACP (Agent Communication Protocol) server, it ident
 { "name": "openclaw-acp-client", "version": "1.0.0" }
 ```
 
-**Source:** `src/acp/client.ts:577`
+**Source:** `src/acp/client.ts:399`
 ```typescript
 clientInfo: { name: "openclaw-acp-client", version: "1.0.0" },
 ```
@@ -184,7 +184,7 @@ headers: {
 - **SSRF guard behavior:** The internal SSRF guard may produce distinctive redirect-following or timing patterns.
 - **Static version:** The hardcoded Chrome 122 version string will become increasingly stale over time, making it detectable via version-age analysis.
 
-**Configurable:** Yes — `tools.web.fetch.userAgent` in the config (`src/config/types.tools.ts:537`).
+**Configurable:** Yes — `tools.web.fetch.userAgent` in the config (`src/config/types.tools.ts:543`).
 
 ---
 
@@ -602,9 +602,9 @@ OpenClaw's HTTP API endpoints read several custom headers from inbound requests.
 
 | Header | Read at | Purpose | HTTP endpoint(s) |
 |---|---|---|---|
-| `x-openclaw-agent-id` | `src/gateway/http-utils.ts:140` | Agent routing — selects which named agent handles the request | `/v1/chat/completions`, `/v1/responses` |
-| `x-openclaw-agent` | `src/gateway/http-utils.ts:141` | Agent routing (fallback alias for `x-openclaw-agent-id`) | Same as above |
-| `x-openclaw-session-key` | `src/gateway/http-utils.ts:234` | Session pinning — pins request to a specific named session | `/v1/chat/completions`, `/v1/responses` |
+| `x-openclaw-agent-id` | `src/gateway/http-utils.ts:186` | Agent routing — selects which named agent handles the request | `/v1/chat/completions`, `/v1/responses` |
+| `x-openclaw-agent` | `src/gateway/http-utils.ts:187` | Agent routing (fallback alias for `x-openclaw-agent-id`) | Same as above |
+| `x-openclaw-session-key` | `src/gateway/http-utils.ts:280` | Session pinning — pins request to a specific named session | `/v1/chat/completions`, `/v1/responses` |
 | `x-openclaw-token` | `src/gateway/hooks.ts:147-148` | Webhook authentication — alternative to `Authorization: Bearer` | `/hooks/*` |
 | `x-openclaw-message-channel` | `src/gateway/tools-invoke-http.ts:243` | Tool policy routing — specifies channel context (e.g., `"discord"`, `"slack"`) | `/tools/invoke` |
 | `x-openclaw-account-id` | `src/gateway/tools-invoke-http.ts:245` | Account-level tool policy routing | `/tools/invoke` |
