@@ -103,7 +103,7 @@ OpenClaw includes a soft defense in the agent's system prompt:
 "Do not run config.apply or update.run unless the user explicitly requests"
 ```
 
-Source: `src/agents/system-prompt.ts:475`
+Source: `src/agents/system-prompt.ts:485`
 
 This helps with well-behaved models in normal operation. But it's trivially bypassed by:
 - Prompt injection ("The user has requested a config update")
@@ -120,7 +120,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 
 | Control Layer | Where It Lives | Enforcement |
 |---|---|---|
-| System prompt | `src/agents/system-prompt.ts:475` | Soft — model can ignore |
+| System prompt | `src/agents/system-prompt.ts:485` | Soft — model can ignore |
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
 | Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
@@ -910,14 +910,14 @@ No single change looks catastrophic. Together, they give anyone on the network u
 
 ### Schema-Valid but Unsafe Values
 
-OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:955`). This means:
+OpenClaw uses Zod schemas with `.strict()` mode (`src/config/zod-schema.ts:957`). This means:
 - **Unknown top-level keys are rejected** — the AI can't add random keys
 - **Type errors are caught** — wrong types for known keys fail validation
 - **Semantic security errors pass** — `gateway.bind: "lan"` is a valid value for a known key, even though it's dangerous
 
 Additionally, extensible maps like `env` and plugin `config` sections accept arbitrary string keys, providing another vector for injecting unexpected values.
 
-Source: `src/config/validation.ts:455-507`
+Source: `src/config/validation.ts:451-503`
 
 ### Persistence Mechanisms
 
@@ -1048,12 +1048,12 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:65-80` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1195-1288` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:92` |
-| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:2159,2317` |
+| **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:2158,2316` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:264-280` |
-| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:475` |
+| **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:485` |
 | **Restart sentinel** | Logs timestamp, session key, message, and stats on config-triggered restarts | `src/infra/restart-sentinel.ts:30-48` |
-| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:955` |
-| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:630-724` (audit helpers), `:2234-2308` (audit record builder + append) |
+| **Strict schema validation** | Zod `.strict()` rejects unknown top-level keys and type errors | `src/config/zod-schema.ts:957` |
+| **Forensic config write audit** | Every config write logged to `config-audit.jsonl` with PID, PPID, CWD, argv, content hashes, byte sizes, gateway-mode changes, and anomaly flags (size drops >50%, missing meta, gateway-mode removal) | `src/config/io.ts:629-724` (audit helpers), `:2233-2307` (audit record builder + append) |
 
 ---
 
