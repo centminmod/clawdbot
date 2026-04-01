@@ -543,6 +543,60 @@ Multiple exec approval hardening rounds:
 - **Group mentions**: Unsafe nested-repetition `mentionPatterns` are rejected to prevent ReDoS
 - **Skills**: Installer metadata validated against strict regex allowlists per package manager; URL protocol allowlisting for skill homepage links
 
+## 27) Gateway HTTP ingress access control (Apr 1 sync 3)
+
+OpenAI HTTP and OpenResponses HTTP gateway ingresspoints now set `senderIsOwner = false` for all external callers. Previously these paths incorrectly granted owner-level tool access to external API consumers. If you operate the gateway HTTP endpoint exposed to untrusted clients, update your setup to confirm these callers receive only the scopes you explicitly grant.
+
+**Action:** If any client integration depends on the old behavior where HTTP bearer-token requests automatically received `operator.write` default scopes, review your scope grants. Clients that do not send an explicit `x-openclaw-scopes` header now fall back to `CLI_DEFAULT_OPERATOR_SCOPES` (write + read), which is the correct backward-compatible default.
+
+## 28) Bootstrap auth token lifecycle change (Apr 1 sync 3)
+
+Bootstrap authentication now uses multi-use persistent tokens instead of single-use ephemeral tokens. Operator role grants have been expanded from `[node]` to `[node, operator]`. Bootstrap tokens remain active until explicitly revoked rather than being consumed on first use.
+
+**Action:** If you generate bootstrap tokens for device pairing, be aware they are now reusable until you explicitly revoke them. Revoke bootstrap tokens promptly after a device is paired, or after the pairing window expires, to avoid leaving reusable credentials active.
+
+## 29) Node event tool allowlist (Apr 1 sync 3)
+
+A `TOOL_ALLOW_BY_MESSAGE_PROVIDER` allowlist now restricts node-context agents to a safe subset of tools: `canvas`, `image`, `pdf`, `tts`, `web_fetch`, and `web_search`. Dangerous tools including `exec`, `read`, `write`, `edit`, and `message` are blocked for node-originated calls.
+
+**Action:** No user action needed for most setups. If you rely on node-context agent tool calls beyond the allowlist subset, you must update those flows to use explicit gateway operator calls instead.
+
+## 30) HTTP token auth operator scopes restoration (Apr 1 sync 3)
+
+Default operator scopes (`CLI_DEFAULT_OPERATOR_SCOPES`, including `operator.write`) are now correctly restored for HTTP Bearer token requests that do not include an explicit `x-openclaw-scopes` header. This closes a privilege escalation path related to GHSA-6p8r-6m93-557f.
+
+**Action:** No action needed unless you are using the HTTP API without explicit scope headers — confirm your gateway operator scope defaults are as expected.
+
+## 31) Trusted-proxy scope clearing (Apr 1 sync 3)
+
+Device-less trusted-proxy authenticated connections now have unbound (unrestricted) scopes cleared via `shouldClearUnboundScopesForMissingDeviceIdentity` policy. This prevents privilege escalation when proxy authentication cannot be tied to a specific device identity.
+
+**Action:** If you run OpenClaw behind a trusted proxy without device binding (e.g., headless/shared proxy setups), confirm your sessions are receiving the correct bounded scopes.
+
+## 32) ACP attachment root enforcement (Apr 1 sync 3)
+
+ACP (Agent Code Platform) attachments are now strictly validated against configured attachment roots. Files outside the roots are rejected, remote URL fallback for denied local paths is blocked, and path traversal via `../` and symlink escapes are explicitly prevented.
+
+**Action:** If your ACP workflows reference attachment files, ensure all paths are within the configured attachment roots. Relative traversal paths and symlinks outside roots will be rejected.
+
+## 33) MS Teams JWT auth ordering (Apr 1 sync 3)
+
+The MS Teams webhook handler now validates JWT signatures via Bot Framework `JwtValidator` before parsing the JSON request body. This eliminates unauthenticated body I/O and prevents denial-of-service attacks via large forged payloads.
+
+**Action:** No user action needed — this is automatic hardening for MS Teams deployments.
+
+## 34) Extended env var blocklist (Apr 1 sync 3)
+
+`BROWSER`, `GIT_EDITOR`, and `GIT_SEQUENCE_EDITOR` are now added to the inherited host environment variable blocklist, preventing arbitrary code execution via editor/browser spawning during git operations. This closes git rebase `-i` sequence editor payload attacks.
+
+**Action:** No user action needed. If you have shell integrations that rely on `BROWSER` or `GIT_EDITOR` being passed through to OpenClaw subprocesses, set those values explicitly via OpenClaw config instead.
+
+## 35) Telegram and Discord audio preflight authorization (Apr 1 sync 3)
+
+Audio preflight transcription operations for both Telegram and Discord are now gated on sender authorization before transcription begins. Unauthorized senders can no longer trigger expensive transcription operations on audio messages.
+
+**Action:** No user action needed. If Telegram or Discord voice message transcription stops working for specific users, verify those users have appropriate sender authorization configured.
+
 ---
 
 See also: [High privacy config example](./high-privacy-config.example.json5.md) for a complete hardened configuration.

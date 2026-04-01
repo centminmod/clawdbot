@@ -44,7 +44,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 **What the code actually does:**
 
-1. **File permissions** (`src/infra/fs-safe.ts:51-52`) — files opened with `O_NOFOLLOW` on non-Windows platforms, blocking symlink-based exfiltration
+1. **File permissions** (`src/infra/fs-safe.ts:53-54`) — files opened with `O_NOFOLLOW` on non-Windows platforms, blocking symlink-based exfiltration
 2. **Symlink protection** (`src/infra/fs-safe.ts:108-110,120-122`) — double-checked via `isSymlinkOpenError()` catch and explicit `lstat().isSymbolicLink()` check
 3. **Path traversal prevention** (`src/pairing/pairing-store.ts:63-73`) — `safeChannelKey()` strips `../`, `/`, `\`, and other path traversal characters
 4. **Root escape prevention** (`src/infra/fs-safe.ts:177-210`) — `openFileWithinRoot()` verifies resolved path stays within root directory
