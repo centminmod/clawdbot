@@ -352,6 +352,7 @@
 - [Apr 2 sync 4 (95 commits, 10 security)](./post-merge-hardening/2026-04-02-sync-4.md)
 - [Apr 2 sync 6 (95 commits, 1 security)](./post-merge-hardening/2026-04-02-sync-6.md)
 - [Apr 2 sync 8 (95 commits, 8 security)](./post-merge-hardening/2026-04-02-sync-8.md)
+- [Apr 2 sync 10 (87 commits, 6 security)](./post-merge-hardening/2026-04-02-sync-10.md)
 
 ## Post-Merge Security Hardening
 
@@ -361,7 +362,7 @@
 
 Four defense-in-depth items were identified across audits:
 
-1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12; centralized Feb 21 sync 7.** Gateway now validates env vars via `src/infra/host-env-security-policy.json` (JSON-backed policy) and `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:82` (enforced at `src/agents/bash-tools.exec.ts:648` as `sanitizeHostExecEnvWithDiagnostics()`). Policy and enforcement centralized into `src/infra/host-env-security.ts` (`sanitizeHostExecEnv()` at `:224`, `sanitizeHostExecEnvWithDiagnostics()` at `:181`) by commits `2cdbadee1` + `f202e7307` (Feb 21 sync 7). Related to GHSA-82g8-464f-2mv7.
+1. ~~**Gateway-side env var blocklist:**~~ **CLOSED in PR #12; centralized Feb 21 sync 7.** Gateway now validates env vars via `src/infra/host-env-security-policy.json` (JSON-backed policy) and `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:84` (enforced at `src/agents/bash-tools.exec.ts:648` as `sanitizeHostExecEnvWithDiagnostics()`). Policy and enforcement centralized into `src/infra/host-env-security.ts` (`sanitizeHostExecEnv()` at `:224`, `sanitizeHostExecEnvWithDiagnostics()` at `:181`) by commits `2cdbadee1` + `f202e7307` (Feb 21 sync 7). Related to GHSA-82g8-464f-2mv7.
 2. **Pipe-delimited token format:** RSA signing prevents exploitation, but a structured format (JSON) would be more robust against future changes.
 3. ~~**outPath validation in reply-tool chain:**~~ **CLOSED in Apr 1 sync 3 by `566fb73d9d`.** ACP attachment root enforcement now rejects files outside configured attachment roots and blocks fallback to remote URLs for denied local paths; path traversal and symlink escape are explicitly prevented (`dispatch-acp.ts`, `attachments.cache.ts`).
 4. **Bootstrap/memory `.md` content scanning:** The built-in scanner (`src/security/skill-scanner.ts:37-48`) only scans JS/TS. Nine workspace bootstrap files are injected into the system prompt (20,000 chars each) via `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:481-541`) with no content validation. `memory/*.md` files are accessed via tool calls (4,000-char budget) through a separate pipeline (`src/memory/internal.ts:78-107`) also without content scanning. The QMD backend does not scan content. Subagent exposure is limited — `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:551-559`) restricts subagents to `AGENTS.md` + `TOOLS.md` only. See [Cisco AI Defense gap analysis](./cisco-ai-defense-skill-scanner.md#beyond-skillmd-all-persistent-md-files-are-unscanned).
@@ -443,7 +444,7 @@ One security-relevant commit:
 
 Seven security-relevant commits:
 
-- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): Original blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:82`, enforced at `src/agents/bash-tools.exec.ts:648`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.** Policy further centralized to `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:224` in Feb 21 sync 7.
+- **`0a5821a81`** + **`a87a07ec8`** — Strict environment variable validation (#4896) (thanks @HassanFleyah): Original blocklist and `validateHostEnv()` (`src/agents/bash-tools.exec-runtime.ts:84`, enforced at `src/agents/bash-tools.exec.ts:648`) now block `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, `PATH`, etc. on gateway host execution. **Closes Legitimate Gap #1.** Policy further centralized to `src/infra/host-env-security-policy.json` + `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:224` in Feb 21 sync 7.
 
 - **`b796f6ec0`** — Web tools and file parsing hardening (#4058) (thanks @VACInc)
 - **`a2b00495c`** — TLS 1.3 minimum requirement (thanks @loganaden)

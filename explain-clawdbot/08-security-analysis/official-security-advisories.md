@@ -1141,7 +1141,7 @@
 
 **Impact:** An attacker with gateway access and the ability to trigger bash tool or node-host executions could potentially inject library-loading environment variables to achieve code execution in the gateway host context. Requires authenticated gateway access plus an approved exec tool invocation.
 
-**Fix commits:** `2cdbadee1` (creates `src/infra/host-env-security.ts` with unified `sanitizeHostExecEnv()` at `:46`), `f202e7307` (centralizes policy to `src/infra/host-env-security-policy.json`, policy now shared with macOS Swift layer). `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:82` (enforced at `src/agents/bash-tools.exec.ts:648`) delegates to the centralized enforcement point.
+**Fix commits:** `2cdbadee1` (creates `src/infra/host-env-security.ts` with unified `sanitizeHostExecEnv()` at `:46`), `f202e7307` (centralizes policy to `src/infra/host-env-security-policy.json`, policy now shared with macOS Swift layer). `validateHostEnv()` at `src/agents/bash-tools.exec-runtime.ts:84` (enforced at `src/agents/bash-tools.exec.ts:648`) delegates to the centralized enforcement point.
 
 See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-sync-7.md).
 

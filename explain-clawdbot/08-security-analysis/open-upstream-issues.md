@@ -38,13 +38,13 @@
 | [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:2080` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
 | [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:2080` |
 | [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:72-82` |
-| [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID (CLOSED) | validateHostEnv skips baseEnv (by design) | Closed upstream as COMPLETED (2026-03-01); `src/agents/bash-tools.exec-runtime.ts:82` + `src/agents/bash-tools.exec.ts:648`; by-design behavior confirmed |
+| [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID (CLOSED) | validateHostEnv skips baseEnv (by design) | Closed upstream as COMPLETED (2026-03-01); `src/agents/bash-tools.exec-runtime.ts:84` + `src/agents/bash-tools.exec.ts:648`; by-design behavior confirmed |
 | [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID (CLOSED) | Fullwidth marker bypass (fold is length-preserving) | Closed upstream (COMPLETED 2026-02-15); `src/security/external-content.ts:127-167` |
 | [#9667](https://github.com/openclaw/openclaw/issues/9667) | INVALID (CLOSED) | JWT verification in nonexistent file | Closed upstream as NOT_PLANNED (2026-03-01); `src/auth/jwt.ts` does not exist |
 | [#4940](https://github.com/openclaw/openclaw/issues/4940) | MEDIUM (WONTFIX) | commands.restart bypass via exec tool | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/agents/bash-tools.exec.ts` (no commands.restart check) |
 | [#5120](https://github.com/openclaw/openclaw/issues/5120) | ~~MEDIUM~~ FIXED | Webhook token accepted via query parameters | Fixed in PR [#9436](https://github.com/openclaw/openclaw/pull/9436) — query token extraction removed from `src/gateway/hooks.ts`; upstream issue confirmed CLOSED/NOT_PLANNED (2026-02-17) |
 | [#5122](https://github.com/openclaw/openclaw/issues/5122) | ~~MEDIUM~~ WONTFIX | readJsonBody() Slowloris DoS (no read timeout) | Closed upstream as NOT_PLANNED (2026-02-17); local mitigation remains: `src/gateway/hooks.ts:157-175` delegates to `readJsonBodyWithLimit()` with 30s timeout (commit `3cbcba10c`) |
-| [#5123](https://github.com/openclaw/openclaw/issues/5123) | ~~MEDIUM (WONTFIX)~~ FIXED LOCALLY | ReDoS in session filter regex | Closed upstream NOT_PLANNED (2026-02-17); fixed locally by `a2dfe9879` (Feb 24 sync 7): `matchSessionFilter()` now uses `compileConfigRegex()` at `src/infra/exec-approval-forwarder.ts:67-75` |
+| [#5123](https://github.com/openclaw/openclaw/issues/5123) | ~~MEDIUM (WONTFIX)~~ FIXED LOCALLY | ReDoS in session filter regex | Closed upstream NOT_PLANNED (2026-02-17); fixed locally by `a2dfe9879` (Feb 24 sync 7): `matchesApprovalRequestSessionFilter()` now uses `compileConfigRegex()` at `src/infra/approval-request-filters.ts:9-19` |
 | [#5124](https://github.com/openclaw/openclaw/issues/5124) | ~~MEDIUM~~ FIXED | ReDoS in log redaction patterns | Fixed upstream (COMPLETED 2026-02-14); `src/logging/redact.ts:50-60` |
 | [#6021](https://github.com/openclaw/openclaw/issues/6021) | MEDIUM (WONTFIX) | Timing attack in non-gateway token comparisons | Closed upstream as NOT_PLANNED (2026-02-13); fully mitigated locally ��� node token uses `verifyPairingToken()` at `src/infra/node-pairing.ts:260` which delegates to `safeEqualSecret()` (constant-time) |
 | [#7862](https://github.com/openclaw/openclaw/issues/7862) | ~~MEDIUM~~ FIXED | Session transcripts 644 instead of 600 (fixed upstream and locally) | Fixed upstream COMPLETED (2026-02-16); 0o600 fix applied upstream; `src/auto-reply/reply/session-fork.runtime.ts:45`, `src/agents/pi-embedded-runner/session-manager-init.ts`, `src/gateway/server-methods/sessions.ts` |
@@ -136,7 +136,7 @@
 | [#7903](https://github.com/openclaw/openclaw/issues/7903) | ~~CRITICAL~~ WONTFIX | AUTONOMY_CONTROL | Self-talk detection runs AFTER tool execution, not before | Closed upstream as NOT_PLANNED (2026-03-13); `src/auto-reply/` — no pre-execution self-talk check; safety validation occurs post-action |
 | [#24884](https://github.com/openclaw/openclaw/issues/24884) | ~~HIGH~~ WONTFIX | CONTEXT_MGMT | Orphaned tool_use IDs after context compaction break all providers | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/agents/session-transcript-repair.ts` — `repairToolUseResultPairing()` insufficient for compaction scenarios; cross-ref #9875 |
 | [#24852](https://github.com/openclaw/openclaw/issues/24852) | ~~HIGH~~ FIXED | PERSONA_DRIFT | Subagent sessions don't load SOUL.md/workspace files | Fixed upstream (COMPLETED 2026-02-24); `src/agents/bootstrap-files.ts:98` — subagent bootstrap now received via `resolveBootstrapContextForRun()`; cross-ref #11900 |
-| [#21597](https://github.com/openclaw/openclaw/issues/21597) | ~~HIGH~~ WONTFIX | AUTONOMY_CONTROL | Heartbeat unbounded tool-call loops burn tokens | Closed upstream as NOT_PLANNED (2026-03-25); `src/agents/pi-embedded-runner/run.ts:296` — compaction cycle guard (`MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3`) exists but no tool-call loop guard for heartbeat path |
+| [#21597](https://github.com/openclaw/openclaw/issues/21597) | ~~HIGH~~ WONTFIX | AUTONOMY_CONTROL | Heartbeat unbounded tool-call loops burn tokens | Closed upstream as NOT_PLANNED (2026-03-25); `src/agents/pi-embedded-runner/run.ts:297` — compaction cycle guard (`MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3`) exists but no tool-call loop guard for heartbeat path |
 | [#21621](https://github.com/openclaw/openclaw/issues/21621) | ~~HIGH~~ WONTFIX | CONTEXT_MGMT | Browser tool triggers compaction deadlock | Closed upstream as NOT_PLANNED (2026-03-25); `src/agents/pi-embedded-runner/compact.ts` — browser tool output can trigger compaction which deadlocks on tool completion |
 | [#10649](https://github.com/openclaw/openclaw/issues/10649) | ~~HIGH~~ WONTFIX | CONTEXT_MGMT | Unexplained data appears after context compaction | Closed upstream as NOT_PLANNED (2026-03-14); `src/agents/pi-embedded-runner/compact.ts` — data integrity not fully verified post-compaction |
 | [#18223](https://github.com/openclaw/openclaw/issues/18223) | HIGH | CONTEXT_MGMT | Compaction SIGKILLs in-flight exec tool processes | `src/agents/pi-embedded-runner/compact.ts` — compaction can terminate running tool processes mid-execution |
@@ -152,7 +152,7 @@
 | [#25795](https://github.com/openclaw/openclaw/issues/25795) | ~~MEDIUM~~ WONTFIX | CONTEXT_MGMT | Suspicious 'System: Post-Compaction Audit' injected into conversation — potential prompt injection surface | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/agents/pi-hooks/compaction-safeguard.ts` — post-compaction audit injects System: prefixed message; same format as #21656 spoofing surface |
 | [#25647](https://github.com/openclaw/openclaw/issues/25647) | ~~MEDIUM~~ FIXED | TOOL_CALL | transcript-sanitize pi-extension never loaded — orphaned tool_result possible via extension path | Fixed upstream (COMPLETED 2026-03-01); `src/agents/pi-embedded-runner/extensions.ts` — extension loading path repaired |
 | [#25392](https://github.com/openclaw/openclaw/issues/25392) | ~~MEDIUM~~ FIXED | CONTEXT_MGMT | Default AGENTS.md template headings mismatch compaction code — critical context lost after every compaction | Fixed upstream (96021a2b1 Mar 5 sync 2); `src/agents/pi-hooks/compaction-safeguard.ts:537-542` now falls back to legacy section names (`"Every Session"`, `"Safety"`) so extraction succeeds regardless of AGENTS.md template version |
-| [#29363](https://github.com/openclaw/openclaw/issues/29363) | MEDIUM | PERSONA_DRIFT | Subagent sessions inject ALL workspace files instead of AGENTS.md + TOOLS.md only | `src/agents/bootstrap-files.ts:52-55` — `applyContextModeFilter()` only restricts when `contextMode==="lightweight"` (not set for subagents); `src/agents/pi-embedded-runner/run/attempt.ts:372` — `bootstrapContextMode` not set for subagent sessions; SOUL.md, IDENTITY.md, USER.md all injected |
+| [#29363](https://github.com/openclaw/openclaw/issues/29363) | MEDIUM | PERSONA_DRIFT | Subagent sessions inject ALL workspace files instead of AGENTS.md + TOOLS.md only | `src/agents/bootstrap-files.ts:52-55` — `applyContextModeFilter()` only restricts when `contextMode==="lightweight"` (not set for subagents); `src/agents/pi-embedded-runner/run/attempt.ts:371` — `bootstrapContextMode` not set for subagent sessions; SOUL.md, IDENTITY.md, USER.md all injected |
 | [#41100](https://github.com/openclaw/openclaw/issues/41100) | LOW | CONTEXT_MGMT | Compaction safeguard fails silently — returns `cancel: true` without `reason` field | `src/agents/pi-hooks/compaction-safeguard.ts` — hook cancels compaction without reason; user sees "Compaction cancelled" with no actionable explanation |
 
 ### Category Tags
@@ -384,7 +384,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** User-supplied strings were compiled into regexes via `new RegExp()` without safeguards. Malicious patterns could cause catastrophic backtracking.
 
 **Affected code (historical — now mitigated):**
-- `src/infra/exec-approval-forwarder.ts:125-133` - `matchSessionFilter()` now uses `compileConfigRegex()` (was `new RegExp()`, fixed Feb 24 sync 7)
+- `src/infra/approval-request-filters.ts:9-19` - `matchesApprovalRequestSessionFilter()` now uses `compileConfigRegex()` (was `matchSessionFilter()` with `new RegExp()` in `exec-approval-forwarder.ts:125-133`, fixed Feb 24 sync 7; extracted to approval-request-filters.ts in Apr 2 sync 10)
 - `src/discord/monitor/exec-approvals.ts:395` - now uses `buildGatewayConnectionDetails()` (refactored Feb 15 sync 2, shifted by Discord CV2 rewrite Feb 16 sync 2)
 
 ### #5124: ReDoS in Log Redaction Patterns
@@ -411,7 +411,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - `src/security/secret-equal.ts:3-16` - `safeEqualSecret` uses `timingSafeEqual` (correct)
 - `src/gateway/server-http.ts:512` - hook token now uses `safeEqualSecret()` (fixed in Feb 13 sync 4, commit `113ebfd6a`)
 - `src/infra/node-pairing.ts:260` - node token uses `verifyPairingToken()` which calls `safeEqualSecret()` (constant-time, mitigated)
-- `src/infra/device-pairing.ts:685` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
+- `src/infra/device-pairing.ts:679` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
 
 ### #6606: Telegram Webhook Binds to 0.0.0.0 with Optional Secret
 
@@ -439,7 +439,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Local status:** NOT FIXED — the 0o600 fix was applied in `ae0b110e4` but accidentally reverted by `9f261f592 revert: PR 18288 accidental merge`. Three sites remain unpatched:
 - ~~`src/auto-reply/reply/session-fork.ts:58`~~ — refactored to `src/auto-reply/reply/session-fork.runtime.ts:43`; now writes with `mode: 0o600` (FIXED in Mar 22 sync 2)
 - `src/agents/pi-embedded-runner/session-manager-init.ts` - no mode on session file reset
-- `src/gateway/server-methods/sessions.ts:1178` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
+- `src/gateway/server-methods/sessions.ts:1188` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
 
 ### #8516: Browser Download/Trace Endpoints Arbitrary File Write
 
@@ -605,7 +605,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability claimed:** `validateHostEnv` only validates agent-supplied `params.env` but not the host's own `baseEnv`, potentially allowing dangerous environment variables.
 
 **Affected code:**
-- `src/agents/bash-tools.exec-runtime.ts:82` (definition) + `src/agents/bash-tools.exec.ts:648` (call) — validation scoped to `params.env` only; centralized as `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:224` in Feb 21 sync 7
+- `src/agents/bash-tools.exec-runtime.ts:84` (definition) + `src/agents/bash-tools.exec.ts:648` (call) — validation scoped to `params.env` only; centralized as `sanitizeHostExecEnv()` at `src/infra/host-env-security.ts:224` in Feb 21 sync 7
 
 **Our analysis:** `baseEnv = coerceEnv(process.env)` is the **host's own environment**, not untrusted input. The code comment at line 969 states: "We validate BEFORE merging to prevent any dangerous vars from entering the stream." Validating `baseEnv` would **break the gateway** — the host always has `PATH` set, which `validateHostEnv` explicitly rejects (it's designed to block agents from injecting `PATH` overrides). The validation boundary is intentionally scoped to untrusted agent-supplied variables. This is a Qodo AI automated finding.
 
@@ -785,7 +785,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Affected code:**
 - `src/agents/bootstrap-files.ts:64-96` — `resolveBootstrapContextForRun()` loads all bootstrap files unconditionally
-- `src/agents/pi-embedded-runner/run/attempt.ts:366` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
+- `src/agents/pi-embedded-runner/run/attempt.ts:365` — calls `resolveBootstrapContextForRun()` without `senderIsOwner`
 - `src/agents/pi-embedded-runner/run/attempt.ts:441` — `senderIsOwner` only passed to `createOpenClawCodingTools()` for tool gating
 
 **Impact:** Non-owner senders on public channels receive responses shaped by the owner's personal context files (personality, preferences, private notes). The content is not directly exposed but indirectly leaks through response behavior. Tool access is correctly gated by `senderIsOwner`, but context/personality files are not.
@@ -1286,7 +1286,7 @@ All changes take effect immediately via automatic restart.
 
 **Affected code:**
 - `src/agents/bootstrap-files.ts:52-55` — `applyContextModeFilter()` returns all files unless `contextMode === "lightweight"` (never set for subagent sessions)
-- `src/agents/pi-embedded-runner/run/attempt.ts:372` — `contextMode: params.bootstrapContextMode` — `bootstrapContextMode` is not set for subagent sessions; defaults to `undefined`
+- `src/agents/pi-embedded-runner/run/attempt.ts:371` — `contextMode: params.bootstrapContextMode` — `bootstrapContextMode` is not set for subagent sessions; defaults to `undefined`
 
 **Impact:** Subagents receive the owner's personal context files (SOUL.md, IDENTITY.md, USER.md) on every invocation. In multi-tenant deployments, this expands the attack surface for persona hijacking via subagent prompt injection. Cross-ref #11900 (context files loaded for all senders regardless of owner status).
 

@@ -53,16 +53,16 @@ Every item ZeroLeeks claims to have "extracted" is publicly readable TypeScript 
 | 5 | `HEARTBEAT_OK` = "HEARTBEAT_OK" | `src/auto-reply/tokens.ts:3` | Yes - exact value |
 | 6 | Reply tags (`[[reply_to_current]]`, etc.) | `src/agents/system-prompt.ts:96-104` | Yes - verbatim match |
 | 7 | Tool narration policy | `src/agents/system-prompt.ts:455-460` | Yes - verbatim match |
-| 8 | SOUL.md reference/logic | `src/agents/system-prompt.ts:620-631` | Yes - verbatim match |
-| 9 | Reasoning format tags (`<think>`/`<final>`) | `src/agents/system-prompt.ts:350-360` | Yes - verbatim match |
+| 8 | SOUL.md reference/logic | `src/agents/system-prompt.ts:625-634` | Yes - verbatim match |
+| 9 | Reasoning format tags (`<think>`/`<final>`) | `src/agents/system-prompt.ts:354-364` | Yes - verbatim match |
 | 10 | Identity line ("personal assistant running inside OpenClaw") | `src/agents/system-prompt.ts:418,422` | Yes - verbatim match |
 | 11 | Silent reply rules | `src/agents/system-prompt.ts:647-656` | Yes - verbatim match |
 
 #### Critical context
 
-1. **OpenClaw is open-source software** (MIT license, `github.com/openclaw/openclaw`). Anyone can read `src/agents/system-prompt.ts` (715 lines) and `src/auto-reply/tokens.ts` directly on GitHub.
+1. **OpenClaw is open-source software** (MIT license, `github.com/openclaw/openclaw`). Anyone can read `src/agents/system-prompt.ts` (720 lines) and `src/auto-reply/tokens.ts` directly on GitHub.
 
-2. The system prompt is **dynamically built** from `buildAgentSystemPrompt()` at `src/agents/system-prompt.ts:184-676` (493 lines). It is not a secret -- it is TypeScript code compiled and shipped with every installation.
+2. The system prompt is **dynamically built** from `buildAgentSystemPrompt()` at `src/agents/system-prompt.ts:189-681` (493 lines). It is not a secret -- it is TypeScript code compiled and shipped with every installation.
 
 3. **Extraction ≠ breach** for open-source projects. This is equivalent to "extracting" the contents of a public README file. System prompt confidentiality is a meaningful finding only for proprietary, closed-source AI products where the prompt contains trade secrets.
 
