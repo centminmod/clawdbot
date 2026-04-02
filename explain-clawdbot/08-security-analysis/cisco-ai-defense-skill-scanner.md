@@ -29,7 +29,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 **What the code actually does:**
 
-1. **Exec approval system** (`src/infra/exec-approvals.ts:515`) — every shell command goes through `requiresExecApproval()` / `evaluateShellAllowlist()` with configurable policies (`deny` / `allowlist` / `full`) and per-agent scoping
+1. **Exec approval system** (`src/infra/exec-approvals.ts:677`) — every shell command goes through `requiresExecApproval()` / `evaluateShellAllowlist()` with configurable policies (`deny` / `allowlist` / `full`) and per-agent scoping
 2. **Environment variable blocklist** (`src/agents/bash-tools.exec-runtime.ts:67-81`) — dangerous env vars (`LD_PRELOAD`, `DYLD_INSERT_LIBRARIES`, `NODE_OPTIONS`, `BASH_ENV`, etc.) are blocked via `isDangerousHostEnvVarName()` (policy in `src/infra/host-env-security-policy.json`), plus prefix-based blocking for `DYLD_*` and `LD_*`
 3. **Sanitization enforcement** (`src/agents/bash-tools.exec-runtime.ts:84-103`) — `validateHostEnv()` throws `Security Violation` errors if blocked vars or PATH modifications are detected
 4. **Sandbox support** — Docker exec args (`buildDockerExecArgs`) provide container-level isolation

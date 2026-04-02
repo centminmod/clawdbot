@@ -199,7 +199,7 @@ Every path through which the AI can modify system state:
 - Gateway RPC scope enforcement + rate limiting: `src/gateway/server-methods.ts:39-66,104-129`
 - Chat command with two gates: `src/auto-reply/reply/commands-config.ts:39,54-72`
 - Cron tool: `src/gateway/server-methods/cron.ts:91-124`
-- Agent files: `src/gateway/server-methods/agents.ts:92,740`
+- Agent files: `src/gateway/server-methods/agents.ts:100,821`
 
 **Key insight:** The `/config set` chat command has dedicated chat-command gates (`commands.config` + `configWrites`). Gateway tool writes use a different control plane (owner-only tool policy + gateway auth/scopes/rate limits). So `configWrites: false` is useful defense-in-depth, but it does not block gateway-tool config changes.
 
@@ -286,7 +286,7 @@ openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth false
 openclaw config set gateway.controlUi.allowInsecureAuth false
 ```
 
-**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:565-590`).
+**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:586-612`).
 
 ---
 
@@ -846,7 +846,7 @@ openclaw cron remove <job-id>
 
 **Security impact:** Bootstrap files are loaded into the system prompt on every agent turn. Injected content appears as trusted system instructions. This persists across sessions and affects all future conversations.
 
-**Source:** `src/gateway/server-methods/agents.ts:740`
+**Source:** `src/gateway/server-methods/agents.ts:821`
 
 The `agents.files.set` method restricts writes to `ALLOWED_FILE_NAMES` only, but all allowed names (IDENTITY.md, SOUL.md, TOOLS.md, AGENTS.md, etc.) are security-sensitive — they're injected directly into the system prompt.
 
@@ -1006,7 +1006,7 @@ openclaw security audit --deep  # Extended checks
 openclaw security audit --fix   # Auto-fix common issues
 ```
 
-Source: `src/security/audit.ts:1189-1318`
+Source: `src/security/audit.ts:1375-1504`
 
 ### `openclaw doctor`
 
@@ -1047,7 +1047,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:78,312-319` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:67-81` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1195-1288` |
-| **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:92` |
+| **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:100` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:2158,2316` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:264-280` |
 | **System prompt warning** | Soft instruction to not run `config.apply` without user request | `src/agents/system-prompt.ts:490` |

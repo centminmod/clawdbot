@@ -74,7 +74,7 @@ HTTP-Referer: https://openclaw.ai
 X-OpenRouter-Title: OpenClaw
 ```
 
-**Source:** `src/agents/provider-attribution.ts:43-60`
+**Source:** `src/agents/provider-attribution.ts:182-199`
 ```typescript
 function buildOpenRouterAttributionPolicy() {
   return {
@@ -360,8 +360,8 @@ export type GatewayClientInfo = {
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:189` | Media file downloads |
 | `User-Agent: openclaw` | `src/plugins/signal-cli-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
-| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:56` | OpenRouter/Perplexity |
-| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:57` | OpenRouter/Perplexity |
+| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:195` | OpenRouter/Perplexity |
+| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:196` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw Web Search` | `extensions/perplexity/src/perplexity-web-search-provider.ts:252` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:86` | MiniMax VLM |
 

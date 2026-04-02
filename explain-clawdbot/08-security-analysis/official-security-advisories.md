@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 patched in Mar 27 sync 2 (02cf12371f); GHSA-fqw4-mph7-2vr8 pending; Mar 27 late batch (9 new advisories, 4 HIGH + 5 MEDIUM) published 2026-03-27, GHSA-68f8-9mhj-h2mp patched in Mar 28 sync 1 (2d80dbfeba); 8 remaining pending; Mar 29 batch (24 new advisories, 3 CRITICAL + 13 HIGH + 7 MEDIUM + 1 LOW) published 2026-03-29, all patched in v2026.3.22–v2026.3.28; Mar 31 batch (59 new advisories, 1 CRITICAL + 14 HIGH + 29 MEDIUM + 15 LOW) published 2026-03-31, 9 patched in v2026.3.22–v2026.3.28, 50 pending; Apr 1 sync 3 (12 advisories patched: GHSA-rfqg-qgf8-xr9x + GHSA-6p8r-6m93-557f + GHSA-g5cg-8x5w-7jpm + GHSA-3qpv-xf3v-mm45 + GHSA-qcj9-wwgw-6gm8 + GHSA-37v6-fxx8-xjmx + GHSA-9q7v-8mr7-g23p + GHSA-g8xp-qx39-9jq9 + GHSA-x2m8-53h4-6hch + GHSA-cqgw-44wg-44rf + GHSA-3xv9-89fm-7h4r + GHSA-9f4w-67g7-mqwv); Apr 1 sync 7 (14 additional advisories patched: GHSA-mhgq-xpfq-6r66 + GHSA-jjw7-3vjf-fg5j + GHSA-89r3-6x4j-v7wf + GHSA-hhq4-97c2-p447 + GHSA-2w79-r9g8-wmcr + GHSA-qcc3-jqwp-5vh2 + GHSA-877v-w3f5-3pcq + GHSA-4g5x-2jfc-xm98 + GHSA-q9w8-cf67-r238 + GHSA-f693-58pc-2gfr + GHSA-3pm9-5j7m-59vc + GHSA-7ggg-pvrf-458v + GHSA-rg8m-3943-vm6q + GHSA-w85g-3h6x-4xh2).
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 patched in Mar 27 sync 2 (02cf12371f); GHSA-fqw4-mph7-2vr8 pending; Mar 27 late batch (9 new advisories, 4 HIGH + 5 MEDIUM) published 2026-03-27, GHSA-68f8-9mhj-h2mp patched in Mar 28 sync 1 (2d80dbfeba); 8 remaining pending; Mar 29 batch (24 new advisories, 3 CRITICAL + 13 HIGH + 7 MEDIUM + 1 LOW) published 2026-03-29, all patched in v2026.3.22–v2026.3.28; Mar 31 batch (59 new advisories, 1 CRITICAL + 14 HIGH + 29 MEDIUM + 15 LOW) published 2026-03-31, 9 patched in v2026.3.22–v2026.3.28, 50 pending; Apr 1 sync 3 (12 advisories patched: GHSA-rfqg-qgf8-xr9x + GHSA-6p8r-6m93-557f + GHSA-g5cg-8x5w-7jpm + GHSA-3qpv-xf3v-mm45 + GHSA-qcj9-wwgw-6gm8 + GHSA-37v6-fxx8-xjmx + GHSA-9q7v-8mr7-g23p + GHSA-g8xp-qx39-9jq9 + GHSA-x2m8-53h4-6hch + GHSA-cqgw-44wg-44rf + GHSA-3xv9-89fm-7h4r + GHSA-9f4w-67g7-mqwv); Apr 1 sync 7 (14 additional advisories patched: GHSA-mhgq-xpfq-6r66 + GHSA-jjw7-3vjf-fg5j + GHSA-89r3-6x4j-v7wf + GHSA-hhq4-97c2-p447 + GHSA-2w79-r9g8-wmcr + GHSA-qcc3-jqwp-5vh2 + GHSA-877v-w3f5-3pcq + GHSA-4g5x-2jfc-xm98 + GHSA-q9w8-cf67-r238 + GHSA-f693-58pc-2gfr + GHSA-3pm9-5j7m-59vc + GHSA-7ggg-pvrf-458v + GHSA-rg8m-3943-vm6q + GHSA-w85g-3h6x-4xh2); Apr 2 batch (14 new advisories, 3 HIGH + 9 MEDIUM + 2 LOW) published 2026-04-02, all pending patch.
 
 ### Advisory Summary
 
@@ -428,6 +428,20 @@
 | [GHSA-42mx-vp8m-j7qh](https://github.com/openclaw/openclaw/security/advisories/GHSA-42mx-vp8m-j7qh) | MEDIUM | OpenShell `mirror` mode can convert untrusted sandbox files into explicitly enabled workspace hooks | - | v2026.3.28 | @tdjackey |
 | [GHSA-h5hg-h7rr-gpf3](https://github.com/openclaw/openclaw/security/advisories/GHSA-h5hg-h7rr-gpf3) | HIGH | Node browser proxy `allowProfiles` bypass through persistent profile mutation and runtime profile selection | - | v2026.3.22 | - |
 | [GHSA-gg9v-mgcp-v6m7](https://github.com/openclaw/openclaw/security/advisories/GHSA-gg9v-mgcp-v6m7) | HIGH | Bootstrap setup codes were not bound to the intended device role and scopes, allowing first-use privilege escalation | - | v2026.3.22 | @tdjackey |
+| [GHSA-846p-hgpv-vphc](https://github.com/openclaw/openclaw/security/advisories/GHSA-846p-hgpv-vphc) | HIGH | QQ Bot structured payloads could read arbitrary local files | - | pending | @feiyang666 |
+| [GHSA-m34q-h93w-vg5x](https://github.com/openclaw/openclaw/security/advisories/GHSA-m34q-h93w-vg5x) | HIGH | OpenShell mirror mode could delete arbitrary remote directories when roots were mis-scoped | - | pending | @jufeng123768 |
+| [GHSA-w6wx-jq6j-6mcj](https://github.com/openclaw/openclaw/security/advisories/GHSA-w6wx-jq6j-6mcj) | HIGH | pnpm dlx approvals did not bind local script operands | - | pending | @Kazamayc |
+| [GHSA-2qrv-rc5x-2g2h](https://github.com/openclaw/openclaw/security/advisories/GHSA-2qrv-rc5x-2g2h) | MEDIUM | Untrusted workspace channel shadows could execute during built-in channel setup | - | pending | @zpbrent |
+| [GHSA-5hff-46vh-rxmw](https://github.com/openclaw/openclaw/security/advisories/GHSA-5hff-46vh-rxmw) | MEDIUM | Read-scoped identity-bearing HTTP clients could kill sessions via /sessions/:sessionKey/kill | - | pending | @EaEa0001 |
+| [GHSA-9jpj-g8vv-j5mf](https://github.com/openclaw/openclaw/security/advisories/GHSA-9jpj-g8vv-j5mf) | MEDIUM | Gemini OAuth exposed the PKCE verifier through the OAuth state parameter | - | pending | @BG0ECV |
+| [GHSA-98ch-45wp-ch47](https://github.com/openclaw/openclaw/security/advisories/GHSA-98ch-45wp-ch47) | MEDIUM | Windows-compatible env override keys could bypass system.run approval binding | - | pending | @wsparks-vc |
+| [GHSA-fvx6-pj3r-5q4q](https://github.com/openclaw/openclaw/security/advisories/GHSA-fvx6-pj3r-5q4q) | MEDIUM | Complex interpreter pipelines could skip exec script preflight validation | - | pending | @wsparks-vc |
+| [GHSA-4p4f-fc8q-84m3](https://github.com/openclaw/openclaw/security/advisories/GHSA-4p4f-fc8q-84m3) | MEDIUM | iOS A2UI bridge trusted generic local-network pages for agent.request dispatch | - | pending | @nexrin |
+| [GHSA-rxmx-g7hr-8mx4](https://github.com/openclaw/openclaw/security/advisories/GHSA-rxmx-g7hr-8mx4) | MEDIUM | Zalo replay dedupe keys could suppress messages across chats or senders | - | pending | @D0ub1e-D |
+| [GHSA-h43v-27wg-5mf9](https://github.com/openclaw/openclaw/security/advisories/GHSA-h43v-27wg-5mf9) | MEDIUM | Forged Nostr DMs could create pairing state before signature verification | - | pending | @smaeljaish771 |
+| [GHSA-wpc6-37g7-8q4w](https://github.com/openclaw/openclaw/security/advisories/GHSA-wpc6-37g7-8q4w) | MEDIUM | Shell init-file options could satisfy exec allowlist script matching | - | pending | @cyjhhh |
+| [GHSA-2f7j-rp58-mr42](https://github.com/openclaw/openclaw/security/advisories/GHSA-2f7j-rp58-mr42) | LOW | Gateway hello snapshots exposed host config and state paths to non-admin clients | - | pending | @topsec-bunney |
+| [GHSA-jj6q-rrrf-h66h](https://github.com/openclaw/openclaw/security/advisories/GHSA-jj6q-rrrf-h66h) | LOW | Shared-secret comparison call sites leaked length information through timing | - | pending | @kexinoh |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -4455,3 +4469,157 @@ The official CVEs were responsibly disclosed through GitHub Security Advisories 
 **Description:** Bootstrap setup codes were not bound to the intended device role and scopes, allowing a first-use attacker to escalate privileges during the pairing flow. Fixed and shipped in v2026.3.22+.
 
 **Fix:** Patched in v2026.3.22.
+
+### GHSA-846p-hgpv-vphc: QQ Bot Structured Payloads Could Read Arbitrary Local Files
+
+**Severity:** HIGH
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @feiyang666
+
+**Description:** QQ Bot's structured payload handler did not restrict local file path references, allowing crafted payloads to read arbitrary files from the host. The vulnerability affects the structured payload processing path in the QQBot extension.
+
+**Fix:** Pending release.
+
+### GHSA-m34q-h93w-vg5x: OpenShell Mirror Mode Could Delete Arbitrary Remote Directories
+
+**Severity:** HIGH
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @jufeng123768
+
+**Description:** OpenShell mirror mode mis-scoped root directory enforcement, allowing mirror sync operations to target and delete arbitrary remote directories outside the intended workspace scope.
+
+**Fix:** Pending release.
+
+### GHSA-w6wx-jq6j-6mcj: pnpm dlx Approvals Did Not Bind Local Script Operands
+
+**Severity:** HIGH
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @Kazamayc
+
+**Description:** Exec approval bindings for `pnpm dlx` did not include the local script operands (the scripts being executed), allowing an approved `pnpm dlx` invocation to execute different scripts than those reviewed during approval.
+
+**Fix:** Pending release.
+
+### GHSA-2qrv-rc5x-2g2h: Untrusted Workspace Channel Shadows Could Execute During Built-in Channel Setup
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @zpbrent
+
+**Description:** During built-in channel setup flows, workspace-defined channel shadows could be loaded and executed before the setup completed, allowing untrusted workspace configuration to interfere with or hijack built-in channel initialization.
+
+**Fix:** Pending release.
+
+### GHSA-5hff-46vh-rxmw: Read-Scoped Identity-Bearing HTTP Clients Could Kill Sessions
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @EaEa0001
+
+**Description:** HTTP clients holding only read-scoped identity tokens were able to invoke the `/sessions/:sessionKey/kill` endpoint, which requires write access. The missing scope check allowed session termination by under-privileged clients.
+
+**Fix:** Pending release.
+
+### GHSA-9jpj-g8vv-j5mf: Gemini OAuth Exposed PKCE Verifier Through OAuth State Parameter
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @BG0ECV
+
+**Description:** The Gemini OAuth flow incorrectly transmitted the PKCE code verifier through the OAuth state parameter, which is visible in browser history, server logs, and referrer headers. This defeats the PKCE replay-attack protection.
+
+**Fix:** Pending release.
+
+### GHSA-98ch-45wp-ch47: Windows-Compatible Env Override Keys Could Bypass system.run Approval Binding
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @wsparks-vc
+
+**Description:** Windows-compatible environment variable override keys (case-insensitive variants of PATH and related variables) were not normalized before exec approval binding checks, allowing approval bypass by using differently-cased env key names on case-insensitive Windows systems.
+
+**Fix:** Pending release.
+
+### GHSA-fvx6-pj3r-5q4q: Complex Interpreter Pipelines Could Skip Exec Script Preflight Validation
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @wsparks-vc
+
+**Description:** Exec commands using complex interpreter pipeline syntax (chained interpreters, shebang-like patterns) bypassed the script preflight validation step, allowing scripts that would be rejected by preflight to execute when wrapped in a pipeline.
+
+**Fix:** Pending release.
+
+### GHSA-4p4f-fc8q-84m3: iOS A2UI Bridge Trusted Generic Local-Network Pages for agent.request Dispatch
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @nexrin
+
+**Description:** The iOS A2UI bridge's `agent.request` dispatch trusted any page served from local network origins, not just explicitly whitelisted OpenClaw UI pages. A locally hosted page could invoke agent.request as if it were the legitimate UI.
+
+**Fix:** Pending release.
+
+### GHSA-rxmx-g7hr-8mx4: Zalo Replay Dedupe Keys Could Suppress Messages Across Chats or Senders
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @D0ub1e-D
+
+**Description:** Zalo's message replay deduplication keys did not include the chat or sender context, meaning a replayed message with the same content hash from a different chat or sender could be silently suppressed as a duplicate.
+
+**Fix:** Pending release.
+
+### GHSA-h43v-27wg-5mf9: Forged Nostr DMs Could Create Pairing State Before Signature Verification
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @smaeljaish771
+
+**Description:** The Nostr DM handler created pairing state upon receipt of a DM before verifying the cryptographic signature. A forged unsigned DM could therefore establish partial pairing state for an attacker-controlled identity.
+
+**Fix:** Pending release.
+
+### GHSA-wpc6-37g7-8q4w: Shell Init-File Options Could Satisfy Exec Allowlist Script Matching
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @cyjhhh
+
+**Description:** Shell invocation flags that load init files (such as `bash --init-file <script>`) were not normalized out of exec allowlist matching, allowing an allowlisted script path to be satisfied by specifying it as a shell init-file argument rather than a positional script argument.
+
+**Fix:** Pending release.
+
+### GHSA-2f7j-rp58-mr42: Gateway Hello Snapshots Exposed Host Config and State Paths to Non-Admin Clients
+
+**Severity:** LOW
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @topsec-bunney
+
+**Description:** The gateway hello handshake snapshot included host configuration paths and internal state paths in its payload, which was accessible to non-admin clients. This information could aid in targeted path traversal or local file read attacks.
+
+**Fix:** Pending release.
+
+### GHSA-jj6q-rrrf-h66h: Shared-Secret Comparison Call Sites Leaked Length Through Timing
+
+**Severity:** LOW
+**Published:** 2026-04-02
+**Patched:** pending
+**Credits:** @kexinoh (Tencent zhuque Lab)
+
+**Description:** Multiple shared-secret comparison call sites used non-constant-time string comparison, leaking the secret length through response timing differences. An attacker with controlled request rates could infer secret length before brute-forcing the value.
+
+**Fix:** Pending release.
