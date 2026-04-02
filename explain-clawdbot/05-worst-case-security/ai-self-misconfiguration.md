@@ -123,7 +123,7 @@ The system prompt example above is one instance of a broader pattern: **OpenClaw
 | System prompt | `src/agents/system-prompt.ts:490` | Soft — model can ignore |
 | SKILL.md instructions | Skill directories | Soft — model can ignore |
 | CLAUDE.md project rules | Project root | Soft — model can ignore |
-| Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:232`) | **Hard — code enforced** |
+| Tool allowlist (`tools.exec.security: "allowlist"`) | Config (`src/config/types.tools.ts:233`) | **Hard — code enforced** |
 | Tool profiles (`"coding"`) | `src/agents/tool-catalog.ts:264-280` | **Hard — code enforced** |
 | `set -euo pipefail` in scripts | Shell | **Hard — shell enforced** |
 | PreToolUse hooks | `.claude/hooks/` | **Hard — hook enforced** |

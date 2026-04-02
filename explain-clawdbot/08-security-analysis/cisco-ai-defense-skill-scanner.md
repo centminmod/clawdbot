@@ -29,7 +29,7 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 
 **What the code actually does:**
 
-1. **Exec approval system** (`src/infra/exec-approvals.ts:699`) — every shell command goes through `requiresExecApproval()` / `evaluateShellAllowlist()` with configurable policies (`deny` / `allowlist` / `full`) and per-agent scoping
+1. **Exec approval system** (`src/infra/exec-approvals.ts:704`) — every shell command goes through `requiresExecApproval()` / `evaluateShellAllowlist()` with configurable policies (`deny` / `allowlist` / `full`) and per-agent scoping
 2. **Environment variable blocklist** (`src/agents/bash-tools.exec-runtime.ts:67-81`) — dangerous env vars (`LD_PRELOAD`, `DYLD_INSERT_LIBRARIES`, `NODE_OPTIONS`, `BASH_ENV`, etc.) are blocked via `isDangerousHostEnvVarName()` (policy in `src/infra/host-env-security-policy.json`), plus prefix-based blocking for `DYLD_*` and `LD_*`
 3. **Sanitization enforcement** (`src/agents/bash-tools.exec-runtime.ts:84-103`) — `validateHostEnv()` throws `Security Violation` errors if blocked vars or PATH modifications are detected
 4. **Sandbox support** — Docker exec args (`buildDockerExecArgs`) provide container-level isolation
@@ -79,8 +79,8 @@ The Cisco blog post identifies four risk categories for OpenClaw deployments and
 2. **Install-time skill scanning** (`src/security/skill-scanner.ts:39-48`) — regex-based scanning of `.js`/`.ts` files at skill install time
 3. **Loopback default** (`src/gateway/server-runtime-config.ts:46`) — gateway binds to 127.0.0.1 by default
 4. **Mandatory auth enforcement** (`src/gateway/server-runtime-config.ts:128`) — throws error if binding to non-loopback without auth credentials
-5. **SSRF protection** (`src/infra/net/ssrf.ts:115-267`) — DNS pinning with private IP blocking (10.x, 127.x, 169.254.x, 172.16-31.x, 192.168.x, 100.64-127.x, special-use CIDRs, IPv6 link-local/ULA including full-form IPv4-mapped IPv6, plus metadata hostnames)
-6. **SSRF policy enforcement** (`src/infra/net/ssrf.ts:310-354`) — `resolvePinnedHostnameWithPolicy()` + `resolvePinnedHostname()` block both hostname-based and resolved-IP-based private network access
+5. **SSRF protection** (`src/infra/net/ssrf.ts:116-310`) — DNS pinning with private IP blocking (10.x, 127.x, 169.254.x, 172.16-31.x, 192.168.x, 100.64-127.x, special-use CIDRs, IPv6 link-local/ULA including full-form IPv4-mapped IPv6, plus metadata hostnames)
+6. **SSRF policy enforcement** (`src/infra/net/ssrf.ts:312-362`) — `resolvePinnedHostnameWithPolicy()` + `resolvePinnedHostname()` block both hostname-based and resolved-IP-based private network access
 7. **RBAC on every call** (`src/gateway/server-methods.ts:100-157`) — `authorizeGatewayMethod()` enforces role + scope checks (operator/node roles, admin/approvals/pairing/read/write scopes) on every gateway method
 
 **Verdict:** FALSE — OpenClaw has extensive built-in security. The blog post appears to have evaluated an older version or did not examine the codebase beyond surface-level claims.
