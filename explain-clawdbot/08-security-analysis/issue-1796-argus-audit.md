@@ -31,7 +31,7 @@ All four AI-generated summaries in this project covered the report. The followin
 | 5 | Insufficient file permission checks | **True, by design** | `0o600` on every write + `openclaw security audit`/`fix` tooling. |
 | 6 | Path traversal in agent dirs | **False** | Paths go through `resolveUserPath()` (`src/agents/agent-paths.ts:9,12`) which calls `path.resolve()` (`src/infra/home-dir.ts:118,120`), normalizing traversal. IDs from env/config, not user input. |
 | 7 | Webhook signature bypass | **True, properly gated** | `skipVerification` in `extensions/voice-call/src/webhook-security.ts` requires explicit param; dev-only, off by default. |
-| 8 | Insufficient token expiry validation | **False** | `Date.now() < cred.expires` checked on every token use via inline checks (`src/agents/auth-profiles/oauth.ts:176,246`) and `tryResolveOAuthProfile()` (`src/agents/auth-profiles/oauth.ts:227`). |
+| 8 | Insufficient token expiry validation | **False** | `Date.now() < cred.expires` checked on every token use via inline checks (`src/agents/auth-profiles/oauth.ts:176,246`) and `tryResolveOAuthProfile()` (`src/agents/auth-profiles/oauth.ts:234`). |
 
 **Result: 0 of 8 CRITICAL claims are actual security vulnerabilities.**
 
