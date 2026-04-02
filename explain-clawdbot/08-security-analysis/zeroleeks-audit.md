@@ -60,7 +60,7 @@ Every item ZeroLeeks claims to have "extracted" is publicly readable TypeScript 
 
 #### Critical context
 
-1. **OpenClaw is open-source software** (MIT license, `github.com/openclaw/openclaw`). Anyone can read `src/agents/system-prompt.ts` (703 lines) and `src/auto-reply/tokens.ts` directly on GitHub.
+1. **OpenClaw is open-source software** (MIT license, `github.com/openclaw/openclaw`). Anyone can read `src/agents/system-prompt.ts` (715 lines) and `src/auto-reply/tokens.ts` directly on GitHub.
 
 2. The system prompt is **dynamically built** from `buildAgentSystemPrompt()` at `src/agents/system-prompt.ts:184-676` (493 lines). It is not a secret -- it is TypeScript code compiled and shipped with every installation.
 
