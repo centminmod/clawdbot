@@ -74,7 +74,7 @@ HTTP-Referer: https://openclaw.ai
 X-OpenRouter-Title: OpenClaw
 ```
 
-**Source:** `src/agents/provider-attribution.ts:182-199`
+**Source:** `src/agents/provider-attribution.ts:282-305`
 ```typescript
 function buildOpenRouterAttributionPolicy() {
   return {
@@ -163,13 +163,13 @@ Accept: */*
 Accept-Language: en-US,en;q=0.9
 ```
 
-**Source:** `src/agents/tools/web-fetch.ts:44-45`
+**Source:** `src/agents/tools/web-fetch.ts:43-44`
 ```typescript
 const DEFAULT_FETCH_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 ```
 
-**Source:** `src/agents/tools/web-fetch.ts:531-535`
+**Source:** `src/agents/tools/web-fetch.ts:394-397`
 ```typescript
 headers: {
   Accept: "text/markdown, text/html;q=0.9, */*;q=0.1",
@@ -184,7 +184,7 @@ headers: {
 - **SSRF guard behavior:** The internal SSRF guard may produce distinctive redirect-following or timing patterns.
 - **Static version:** The hardcoded Chrome 122 version string will become increasingly stale over time, making it detectable via version-age analysis.
 
-**Configurable:** Yes — `tools.web.fetch.userAgent` in the config (`src/config/types.tools.ts:541`).
+**Configurable:** Yes — `tools.web.fetch.userAgent` in the config (`src/config/types.tools.ts:524`).
 
 ---
 
@@ -360,8 +360,8 @@ export type GatewayClientInfo = {
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:189` | Media file downloads |
 | `User-Agent: openclaw` | `src/plugins/signal-cli-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
-| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:195` | OpenRouter/Perplexity |
-| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:196` | OpenRouter/Perplexity |
+| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:295` | OpenRouter/Perplexity |
+| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:296` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw Web Search` | `extensions/perplexity/src/perplexity-web-search-provider.ts:252` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:86` | MiniMax VLM |
 

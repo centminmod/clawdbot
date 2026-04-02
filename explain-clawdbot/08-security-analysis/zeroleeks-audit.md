@@ -123,7 +123,7 @@ These tests describe genuine indirect injection scenarios but deliver them incor
 2. Prepends a security warning instructing the model to IGNORE embedded instructions (`src/security/external-content.ts:247-274`)
 3. Detects suspicious patterns (regex: "ignore previous instructions", "you are now a", etc.) and logs warnings (`src/security/external-content.ts:17-32`)
 4. Sanitizes boundary markers in content to prevent escape (`src/security/external-content.ts:169-218`) including invisible Unicode character stripping (`src/security/external-content.ts:154`) and fullwidth homoglyph folding (`src/security/external-content.ts:108-137`)
-5. Is actively integrated into web search (per-provider in extensions: `extensions/brave/src/brave-web-search-provider.ts:529-530`, `extensions/perplexity/src/perplexity-web-search-provider.ts:591-592`; XAI provider refactored into plugin system), web fetch (`src/agents/tools/web-fetch.ts:333-334`), cron hooks (`src/cron/isolated-agent/run.ts:371`), Discord (`src/discord/monitor/inbound-context.ts:24`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
+5. Is actively integrated into web search (per-provider in extensions: `extensions/brave/src/brave-web-search-provider.ts:529-530`, `extensions/perplexity/src/perplexity-web-search-provider.ts:591-592`; XAI provider refactored into plugin system), web fetch (`src/agents/tools/web-fetch.ts:314-315`), cron hooks (`src/cron/isolated-agent/run.ts:371`), Discord (`src/discord/monitor/inbound-context.ts:24`), and Slack (`src/slack/monitor/room-context.ts:15-19`)
 
 #### Category C: Social Engineering / False Context (Tests 14-21) -- User Messages, Not External Content
 
@@ -201,7 +201,7 @@ ZeroLeeks tested **only** the bottom two tiers and rated the system CRITICAL.
 | Unicode homoglyph normalization | `src/security/external-content.ts:108-137` | Fullwidth character folding to prevent visual spoofing; invisible char stripping at `:154` |
 | Channel metadata isolation | `src/security/channel-metadata.ts:21-45` | Truncation (400 char/entry, 800 total), dedup, wrapping |
 | Web search wrapping | `extensions/brave/src/brave-web-search-provider.ts:529-530`, `extensions/perplexity/src/perplexity-web-search-provider.ts:591-592` | All search snippets wrapped via `externalContent: { untrusted: true }` (XAI provider refactored into plugin system) |
-| Web fetch wrapping | `src/agents/tools/web-fetch.ts:250-271` | All fetched content wrapped with security warnings |
+| Web fetch wrapping | `src/agents/tools/web-fetch.ts:542-546` | All fetched content wrapped with security warnings |
 | Cron/hook wrapping | `src/cron/isolated-agent/run.ts:371` | External hooks wrapped via `buildSafeExternalPrompt()` (defined at `src/security/external-content.ts:280`) with suspicious pattern logging |
 | Discord metadata isolation | `src/discord/monitor/inbound-context.ts:24` | Channel topics wrapped via `buildUntrustedChannelMetadata()` |
 | Slack metadata isolation | `src/slack/monitor/room-context.ts:15-19` | Channel descriptions wrapped via `buildUntrustedChannelMetadata()` |

@@ -432,7 +432,7 @@
 | [GHSA-m34q-h93w-vg5x](https://github.com/openclaw/openclaw/security/advisories/GHSA-m34q-h93w-vg5x) | HIGH | OpenShell mirror mode could delete arbitrary remote directories when roots were mis-scoped | - | pending | @jufeng123768 |
 | [GHSA-w6wx-jq6j-6mcj](https://github.com/openclaw/openclaw/security/advisories/GHSA-w6wx-jq6j-6mcj) | HIGH | pnpm dlx approvals did not bind local script operands | - | pending | @Kazamayc |
 | [GHSA-2qrv-rc5x-2g2h](https://github.com/openclaw/openclaw/security/advisories/GHSA-2qrv-rc5x-2g2h) | MEDIUM | Untrusted workspace channel shadows could execute during built-in channel setup | - | pending | @zpbrent |
-| [GHSA-5hff-46vh-rxmw](https://github.com/openclaw/openclaw/security/advisories/GHSA-5hff-46vh-rxmw) | MEDIUM | Read-scoped identity-bearing HTTP clients could kill sessions via /sessions/:sessionKey/kill | - | pending | @EaEa0001 |
+| [GHSA-5hff-46vh-rxmw](https://github.com/openclaw/openclaw/security/advisories/GHSA-5hff-46vh-rxmw) | MEDIUM | Read-scoped identity-bearing HTTP clients could kill sessions via /sessions/:sessionKey/kill | - | v2026.4.3 | @EaEa0001 |
 | [GHSA-9jpj-g8vv-j5mf](https://github.com/openclaw/openclaw/security/advisories/GHSA-9jpj-g8vv-j5mf) | MEDIUM | Gemini OAuth exposed the PKCE verifier through the OAuth state parameter | - | pending | @BG0ECV |
 | [GHSA-98ch-45wp-ch47](https://github.com/openclaw/openclaw/security/advisories/GHSA-98ch-45wp-ch47) | MEDIUM | Windows-compatible env override keys could bypass system.run approval binding | - | pending | @wsparks-vc |
 | [GHSA-fvx6-pj3r-5q4q](https://github.com/openclaw/openclaw/security/advisories/GHSA-fvx6-pj3r-5q4q) | MEDIUM | Complex interpreter pipelines could skip exec script preflight validation | - | pending | @wsparks-vc |
@@ -441,7 +441,7 @@
 | [GHSA-h43v-27wg-5mf9](https://github.com/openclaw/openclaw/security/advisories/GHSA-h43v-27wg-5mf9) | MEDIUM | Forged Nostr DMs could create pairing state before signature verification | - | pending | @smaeljaish771 |
 | [GHSA-wpc6-37g7-8q4w](https://github.com/openclaw/openclaw/security/advisories/GHSA-wpc6-37g7-8q4w) | MEDIUM | Shell init-file options could satisfy exec allowlist script matching | - | pending | @cyjhhh |
 | [GHSA-2f7j-rp58-mr42](https://github.com/openclaw/openclaw/security/advisories/GHSA-2f7j-rp58-mr42) | LOW | Gateway hello snapshots exposed host config and state paths to non-admin clients | - | pending | @topsec-bunney |
-| [GHSA-jj6q-rrrf-h66h](https://github.com/openclaw/openclaw/security/advisories/GHSA-jj6q-rrrf-h66h) | LOW | Shared-secret comparison call sites leaked length information through timing | - | pending | @kexinoh |
+| [GHSA-jj6q-rrrf-h66h](https://github.com/openclaw/openclaw/security/advisories/GHSA-jj6q-rrrf-h66h) | LOW | Shared-secret comparison call sites leaked length information through timing | - | v2026.4.3 | @kexinoh |
 
 ### CVE-2026-24763: Docker PATH Command Injection
 
@@ -4518,12 +4518,12 @@ The official CVEs were responsibly disclosed through GitHub Security Advisories 
 
 **Severity:** MEDIUM
 **Published:** 2026-04-02
-**Patched:** pending
+**Patched:** v2026.4.3
 **Credits:** @EaEa0001
 
 **Description:** HTTP clients holding only read-scoped identity tokens were able to invoke the `/sessions/:sessionKey/kill` endpoint, which requires write access. The missing scope check allowed session termination by under-privileged clients.
 
-**Fix:** Pending release.
+**Fix:** Commit [`54a0878517`](https://github.com/openclaw/openclaw/commit/54a0878517) (`fix(gateway): enforce session kill HTTP scopes #59128`) added scope enforcement to `src/gateway/session-kill-http.ts`, requiring write-level authorization before accepting `/sessions/:sessionKey/kill` requests. See [Apr 3 sync 2](./post-merge-hardening/2026-04-03-sync-2.md).
 
 ### GHSA-9jpj-g8vv-j5mf: Gemini OAuth Exposed PKCE Verifier Through OAuth State Parameter
 
@@ -4617,9 +4617,9 @@ The official CVEs were responsibly disclosed through GitHub Security Advisories 
 
 **Severity:** LOW
 **Published:** 2026-04-02
-**Patched:** pending
+**Patched:** v2026.4.3
 **Credits:** @kexinoh (Tencent zhuque Lab)
 
 **Description:** Multiple shared-secret comparison call sites used non-constant-time string comparison, leaking the secret length through response timing differences. An attacker with controlled request rates could infer secret length before brute-forcing the value.
 
-**Fix:** Pending release.
+**Fix:** Commit [`be10ecef77`](https://github.com/openclaw/openclaw/commit/be10ecef77) (`fix(compare): reuse shared secret comparison helper #58432`) centralized all webhook secret comparisons across six extensions (BlueBubbles, Feishu, Mattermost, Telegram, Voice Call, Zalo) to use `safeEqualSecret()` from the plugin SDK, eliminating per-extension timing variations. See [Apr 3 sync 2](./post-merge-hardening/2026-04-03-sync-2.md).
