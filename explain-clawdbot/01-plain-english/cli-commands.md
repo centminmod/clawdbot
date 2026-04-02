@@ -54,6 +54,7 @@ openclaw [--dev] [--profile <name>] <command>
   status                             # session health + recipients
   health                             # gateway health check
   sessions                           # list stored conversations
+  tasks                              # inspect durable background task state
   dashboard                          # open web dashboard
   logs                               # tail gateway logs
 
@@ -324,6 +325,29 @@ openclaw sessions --active 60   # only sessions active in last 60 minutes
 | `--verbose` | Extra detail |
 | `--store <path>` | Custom session store path |
 | `--active <minutes>` | Filter to recently active sessions |
+
+---
+
+### `openclaw tasks`
+
+**What it does:** Lists and inspects durable background task state — subagent runs, ACP tasks, cron jobs, and CLI-launched tasks tracked by the Gateway ledger.
+
+**When would I use this?** When you want to check on long-running background tasks, diagnose stale or failed runs, or audit task history.
+
+```bash
+openclaw tasks                            # list all tracked tasks
+openclaw tasks --runtime subagent         # filter by kind
+openclaw tasks --status running           # filter by status
+openclaw tasks audit                      # show stale or broken runs
+openclaw tasks maintenance                # preview ledger cleanup
+openclaw tasks maintenance --apply        # apply cleanup
+```
+
+| Option | What it does |
+|--------|-------------|
+| `--json` | Machine-readable output |
+| `--runtime <name>` | Filter by kind: `subagent`, `acp`, `cron`, `cli` |
+| `--status <name>` | Filter by status: `queued`, `running`, `succeeded`, `failed`, `timed_out`, `cancelled`, `lost` |
 
 ---
 

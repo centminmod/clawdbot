@@ -94,7 +94,7 @@ HTTP-Referer: https://openclaw.ai
 X-Title: OpenClaw Web Search
 ```
 
-**Source:** `extensions/perplexity/src/perplexity-web-search-provider.ts:251` (also at line 299)
+**Source:** `extensions/perplexity/src/perplexity-web-search-provider.ts:252` (also at line 300)
 ```typescript
 "HTTP-Referer": "https://openclaw.ai",
 "X-Title": "OpenClaw Web Search",

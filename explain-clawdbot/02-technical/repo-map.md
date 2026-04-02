@@ -96,9 +96,9 @@ The `src/` directory contains ~50 subdirectories. Key ones beyond the entrypoint
 
 | Directory | Files (approx.) | Purpose |
 |-----------|-----------------|---------|
-| `src/agents/` | ~1005 | Agent framework, tools, sandbox, auth profiles, skills |
-| `src/gateway/` | ~410 | Gateway server, WS runtime, RPC handlers, config validation |
-| `src/auto-reply/` | ~355 | Reply pipeline, agent turn orchestration |
+| `src/agents/` | ~1076 | Agent framework, tools, sandbox, auth profiles, skills |
+| `src/gateway/` | ~441 | Gateway server, WS runtime, RPC handlers, config validation |
+| `src/auto-reply/` | ~374 | Reply pipeline, agent turn orchestration |
 | `src/cli/` | ~331 | CLI command definitions and parsing |
 | `src/commands/` | ~429 | CLI command implementations |
 | `src/infra/` | ~538 | Infrastructure: networking, SSRF guards, exec safety, archiving |

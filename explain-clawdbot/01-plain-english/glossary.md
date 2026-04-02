@@ -53,7 +53,7 @@ Where the Gateway listens:
 - `lan` = your LAN interfaces (requires auth)
 - `tailnet` = bind only to Tailscale IP, 100.x.y.z range (requires Tailscale)
 - `auto` = automatically choose the best bind mode based on environment
-- `custom` = bind to a specific IP address (set via `gateway.customBindHost`)
+- `custom` = bind to a specific IP address (set via `gateway.customBindHost`); if unavailable, falls back to 0.0.0.0
 
 Docs: https://docs.openclaw.ai/gateway/remote and https://docs.openclaw.ai/gateway/tailscale
 
