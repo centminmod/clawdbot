@@ -4,26 +4,44 @@
 
 > **Status:** These PRs in upstream openclaw/openclaw fix or harden security-related code. Monitor merge status and sync locally when merged.
 >
-> **Last checked:** 19-03-2026 (20:58 AEST)
+> **Last checked:** 02-04-2026 (16:47 AEST)
 
 ### OPEN/DRAFT PRs (monitor for merge)
 
 | PR | Status | Category | Summary | Related Issue | Local Impact |
 |----|--------|----------|---------|---------------|--------------|
+| [#59398](https://github.com/openclaw/openclaw/pull/59398) | OPEN | security-fix | Close fail-open bypass in exec script preflight — null parse silently skips shell-bleed validation | — | OPEN/PENDING |
+| [#59392](https://github.com/openclaw/openclaw/pull/59392) | OPEN | security-fix | Expand host-env security blocklist for toolchain injection vectors | — | OPEN/PENDING |
+| [#59383](https://github.com/openclaw/openclaw/pull/59383) | OPEN | security-fix | Prevent OS command injection in Docker exec bootstrap via shell metacharacters in buildDockerExecArgs | — | OPEN/PENDING |
+| [#59292](https://github.com/openclaw/openclaw/pull/59292) | OPEN | security-fix | Loopback rate limit exemption allows unlimited requests (#258) — local DoS vector | — | OPEN/PENDING |
+| [#59156](https://github.com/openclaw/openclaw/pull/59156) | OPEN | security-fix | Prevent symlink and hardlink path traversal in exec script preflight reads (TOCTOU window) | — | OPEN/PENDING |
+| [#58949](https://github.com/openclaw/openclaw/pull/58949) | OPEN | security-fix | Make safeEqualSecret timing-safe for empty/null inputs — early-exit leaks string length | — | OPEN/PENDING |
+| [#58771](https://github.com/openclaw/openclaw/pull/58771) | OPEN | security-fix | Block SSRF redirect bypass in browser via real-time route interception | — | OPEN/PENDING |
+| [#58471](https://github.com/openclaw/openclaw/pull/58471) | OPEN | security-fix | iOS: restrict A2UI action dispatch to trusted canvas URLs | — | OPEN/PENDING |
+| [#58395](https://github.com/openclaw/openclaw/pull/58395) | OPEN | security-fix | Remove wildcard injection in alsoAllow + preserve plugin-only allowlists (two fail-open bugs) | — | OPEN/PENDING |
+| [#58311](https://github.com/openclaw/openclaw/pull/58311) | OPEN | hardening | Eliminate TOCTOU race in security-critical file reads (exec-approvals, device-auth-store, device-identity) | — | OPEN/PENDING |
+| [#57877](https://github.com/openclaw/openclaw/pull/57877) | OPEN | security-fix | Prevent command injection in config.openFile | — | OPEN/PENDING |
+| [#57809](https://github.com/openclaw/openclaw/pull/57809) | OPEN | security-fix | GHSA-2x4x-cc5g-qmmg: add caller permissions validation to node.pair.approve — low-privilege operator can approve malicious nodes | — | OPEN/PENDING |
+| [#56506](https://github.com/openclaw/openclaw/pull/56506) | OPEN | security-fix | Strip provider API keys (OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.) from exec tool child process env | [#56441](https://github.com/openclaw/openclaw/issues/56441) | OPEN/PENDING |
+| [#54990](https://github.com/openclaw/openclaw/pull/54990) | OPEN | security-fix | Sanitize group metadata to prevent prompt injection via group subject | [#54737](https://github.com/openclaw/openclaw/issues/54737) | OPEN/PENDING |
+| [#51807](https://github.com/openclaw/openclaw/pull/51807) | OPEN | security-fix | Gateway: command injection risk in config.openFile (also addressed by #57877) | — | OPEN/PENDING |
+| [#51070](https://github.com/openclaw/openclaw/pull/51070) | OPEN | security-fix | Auth: allow local loopback connections to bypass trusted-proxy auth | — | OPEN/PENDING |
+| [#51039](https://github.com/openclaw/openclaw/pull/51039) | OPEN | security-fix | Block SSRF in nodes-camera writeUrlToFile (new attempt; replaces closed #46533) | — | OPEN/PENDING |
+| [#50754](https://github.com/openclaw/openclaw/pull/50754) | OPEN | security-fix | Sanitize GroupSubject and GroupMembers in system prompt (prompt injection prevention) | — | OPEN/PENDING |
+| [#50645](https://github.com/openclaw/openclaw/pull/50645) | OPEN | security-fix | gateway.auth.mode=none propagates silently to browser control HTTP server (no auth middleware) | — | OPEN/PENDING |
+| [#50515](https://github.com/openclaw/openclaw/pull/50515) | OPEN | hardening | Sanitize control characters in channel error logging | — | OPEN/PENDING |
 | [#50365](https://github.com/openclaw/openclaw/pull/50365) | OPEN | security-fix | Prevent NO_REPLY token leakage during streaming in server-chat | — | OPEN/PENDING |
 | [#50320](https://github.com/openclaw/openclaw/pull/50320) | OPEN | security-fix | Fix priority regressions in export attachments auth and denyCommands | — | OPEN/PENDING |
 | [#50181](https://github.com/openclaw/openclaw/pull/50181) | OPEN | security-fix | Close media trust bypasses | — | OPEN/PENDING |
 | [#50180](https://github.com/openclaw/openclaw/pull/50180) | OPEN | security-fix | Honor empty URL allowlists as deny-all in SSRF policy | — | OPEN/PENDING |
 | [#50171](https://github.com/openclaw/openclaw/pull/50171) | OPEN | security-fix | Discord: gate exec approvals by turn source channel | — | OPEN/PENDING |
-| [#50075](https://github.com/openclaw/openclaw/pull/50075) | OPEN | docs | fix(security): show exact workspaceOnly config command in docs | — | OPEN/PENDING |
+| [#50075](https://github.com/openclaw/openclaw/pull/50075) | CLOSED | docs | fix(security): show exact workspaceOnly config command in docs (closed) | — | NOT AFFECTED |
 | [#50042](https://github.com/openclaw/openclaw/pull/50042) | OPEN | docs | Clarify mention gates are not a trust boundary | — | OPEN/PENDING |
 | [#50041](https://github.com/openclaw/openclaw/pull/50041) | OPEN | docs | Clarify fail-open denyCommands audit warning | — | OPEN/PENDING |
-| [#49582](https://github.com/openclaw/openclaw/pull/49582) | OPEN | security-fix | MSTeams sender allowlist bypass when route allowlist configured + empty sender allowlist (GHSA-g7cr-9h7q-4qxq) | — | OPEN/PENDING |
 | [#49392](https://github.com/openclaw/openclaw/pull/49392) | OPEN | security-fix | Use container IP for browser CDP when gateway runs in Docker (sandbox isolation) | — | OPEN/PENDING |
 | [#49234](https://github.com/openclaw/openclaw/pull/49234) | OPEN | security-fix | Suppress system event injection when hook deliver is false | — | OPEN/PENDING |
 | [#49174](https://github.com/openclaw/openclaw/pull/49174) | OPEN | security-fix | Enforce per-session isolation for cron job visibility and mutations | — | OPEN/PENDING |
 | [#49120](https://github.com/openclaw/openclaw/pull/49120) | OPEN | security-fix | Reject private/internal hosts in cron webhook URLs (SSRF) | — | OPEN/PENDING |
-| [#48971](https://github.com/openclaw/openclaw/pull/48971) | OPEN | security-fix | Harden MIME type sanitization in media pipeline | — | OPEN/PENDING |
 | [#48958](https://github.com/openclaw/openclaw/pull/48958) | OPEN | security-fix | Prevent phantom image injection from memory context into agent prompt | — | OPEN/PENDING |
 | [#48724](https://github.com/openclaw/openclaw/pull/48724) | OPEN | security-fix | Address security findings #134/#135/#139 — token masking, port binding, action SHA pins | — | OPEN/PENDING |
 | [#48339](https://github.com/openclaw/openclaw/pull/48339) | OPEN | hardening | Add Cache-Control: no-store to default gateway security headers | — | OPEN/PENDING |
@@ -36,16 +54,16 @@
 | [#47696](https://github.com/openclaw/openclaw/pull/47696) | OPEN | security-fix | Add /trust and /untrust commands for temporary exec security elevation | — | OPEN/PENDING |
 | [#47082](https://github.com/openclaw/openclaw/pull/47082) | OPEN | security-fix | macOS exec: harden allowlist shell wrapper resolution | — | OPEN/PENDING |
 | [#46970](https://github.com/openclaw/openclaw/pull/46970) | OPEN | security-fix | Add MCP tool call approval system | — | OPEN/PENDING |
-| [#46903](https://github.com/openclaw/openclaw/pull/46903) | OPEN | security-fix | Allow backend self-pairing bypass when auth.mode is none | — | OPEN/PENDING |
-| [#46829](https://github.com/openclaw/openclaw/pull/46829) | OPEN | security-fix | Rewrite skill paths for sandboxed sessions | — | OPEN/PENDING |
+| [#46903](https://github.com/openclaw/openclaw/pull/46903) | CLOSED | security-fix | Allow backend self-pairing bypass when auth.mode is none (closed stale) | — | NOT AFFECTED |
+| [#46829](https://github.com/openclaw/openclaw/pull/46829) | CLOSED | security-fix | Rewrite skill paths for sandboxed sessions (closed stale) | — | NOT AFFECTED |
 | [#46828](https://github.com/openclaw/openclaw/pull/46828) | OPEN | security-fix | Add HTTP/fetch tool approval system | — | OPEN/PENDING |
 | [#46794](https://github.com/openclaw/openclaw/pull/46794) | OPEN | security-fix | Device pairing: bind setup codes to node approvals | — | OPEN/PENDING |
-| [#46756](https://github.com/openclaw/openclaw/pull/46756) | OPEN | security-fix | Pass pinned DNS lookup to ProxyAgent via requestTls (SSRF hardening) | — | OPEN/PENDING |
+| [#46756](https://github.com/openclaw/openclaw/pull/46756) | CLOSED | security-fix | Pass pinned DNS lookup to ProxyAgent via requestTls (SSRF hardening; closed stale) | — | NOT AFFECTED |
 | [#46752](https://github.com/openclaw/openclaw/pull/46752) | OPEN | hardening | Harden tool schemas with maxItems and maximum bounds | — | OPEN/PENDING |
 | [#46713](https://github.com/openclaw/openclaw/pull/46713) | OPEN | security-fix | Fail closed for effective sandbox host | — | OPEN/PENDING |
 | [#46711](https://github.com/openclaw/openclaw/pull/46711) | OPEN | security-fix | Add operator.read scope to loopback auto-pairing | — | OPEN/PENDING |
 | [#41204](https://github.com/openclaw/openclaw/pull/41204) | OPEN | security-fix | Resource exhaustion (lock queue cap) + command injection in skills-install (package name validation) + subagent orphan cleanup | — | OPEN/PENDING |
-| [#46533](https://github.com/openclaw/openclaw/pull/46533) | OPEN | security-fix | Block SSRF in nodes-camera writeUrlToFile (DNS rebinding window at connection time) | — | OPEN/PENDING |
+| [#46533](https://github.com/openclaw/openclaw/pull/46533) | CLOSED | security-fix | Block SSRF in nodes-camera writeUrlToFile (closed; replaced by #51039) | — | NOT AFFECTED |
 | [#46380](https://github.com/openclaw/openclaw/pull/46380) | OPEN | security-fix | Add SSRF guard to MiniMax VLM image understanding endpoint | — | OPEN/PENDING |
 | [#46377](https://github.com/openclaw/openclaw/pull/46377) | OPEN | security-fix | Add SSRF guard to Anthropic/Gemini PDF providers; move Gemini API key to header | — | OPEN/PENDING |
 | [#46359](https://github.com/openclaw/openclaw/pull/46359) | OPEN | security-fix | Add SSRF hostname validation to Ollama/vLLM model discovery and stream | — | OPEN/PENDING |
@@ -75,15 +93,15 @@
 | [#28301](https://github.com/openclaw/openclaw/pull/28301) | OPEN | hardening | Add config to disable Bonjour/mDNS (gateway.mdns.enabled) to reduce network exposure | [#28174](https://github.com/openclaw/openclaw/issues/28174) | OPEN/PENDING |
 | [#27818](https://github.com/openclaw/openclaw/pull/27818) | OPEN | hardening | Sanitize Content-Disposition filenames from remote fetches (path traversal) | — | OPEN/PENDING |
 | [#21588](https://github.com/openclaw/openclaw/pull/21588) | OPEN | security-fix | Decouple external hook trust from session key format | — | OPEN/PENDING |
-| [#21554](https://github.com/openclaw/openclaw/pull/21554) | OPEN | enhancement | Encrypt workspace files and config at rest | — | OPEN/PENDING |
+| [#21554](https://github.com/openclaw/openclaw/pull/21554) | CLOSED | enhancement | Encrypt workspace files and config at rest (closed stale) | — | NOT AFFECTED |
 | [#21476](https://github.com/openclaw/openclaw/pull/21476) | CLOSED | hardening | Include operator.read in default CLI scopes (closed stale) | — | NOT AFFECTED |
 | [#44737](https://github.com/openclaw/openclaw/pull/44737) | CLOSED | hardening | Replace Math.random with crypto.randomUUID for cryptographic safety (closed stale) | — | NOT AFFECTED |
 | [#20177](https://github.com/openclaw/openclaw/pull/20177) | OPEN | security-fix | Block command substitution in unquoted heredoc bodies (Windows CRLF injection) | — | OPEN/PENDING |
 | [#20266](https://github.com/openclaw/openclaw/pull/20266) | CLOSED | enhancement | Skills-audit Phase 1 security scanner for installed skills (closed stale) | — | NOT AFFECTED |
 | [#19756](https://github.com/openclaw/openclaw/pull/19756) | OPEN | hardening | OC-101: Refresh token rotation enforcement (Aether AI Agent) | — | OPEN/PENDING |
 | [#20106](https://github.com/openclaw/openclaw/pull/20106) | CLOSED | hardening | MAESTRO threat mitigations (LM-001, SC-003, AF-005, DI-006, EO-004, AE-001) (closed stale) | — | NOT AFFECTED |
-| [#19675](https://github.com/openclaw/openclaw/pull/19675) | OPEN | security-fix | Prevent zero-width Unicode chars from bypassing boundary marker sanitization | — | OPEN/PENDING |
-| [#19619](https://github.com/openclaw/openclaw/pull/19619) | OPEN | security-fix | Bump fast-xml-parser override to 5.3.6 to fix DoS vulnerability (upstream CVE) | — | OPEN/PENDING |
+| [#19675](https://github.com/openclaw/openclaw/pull/19675) | CLOSED | security-fix | Prevent zero-width Unicode chars from bypassing boundary marker sanitization (closed stale) | — | NOT AFFECTED |
+| [#19619](https://github.com/openclaw/openclaw/pull/19619) | CLOSED | security-fix | Bump fast-xml-parser override to 5.3.6 to fix DoS vulnerability (closed stale) | — | NOT AFFECTED |
 | [#19542](https://github.com/openclaw/openclaw/pull/19542) | CLOSED | hardening | Sandbox dynamic import in hook transforms with symlink validation (closed stale) | — | NOT AFFECTED |
 | [#19539](https://github.com/openclaw/openclaw/pull/19539) | CLOSED | hardening | Strengthen CSRF protection with SameSite cookies (closed stale) | — | NOT AFFECTED |
 | [#19525](https://github.com/openclaw/openclaw/pull/19525) | CLOSED | hardening | Add SSRF validation for external URLs (closed stale) | — | NOT AFFECTED |
@@ -100,7 +118,7 @@
 | [#14098](https://github.com/openclaw/openclaw/pull/14098) | CLOSED | hardening | Sanitize JSON tool-call payload text to prevent leak via Ollama/local providers (closed stale) | — | NOT AFFECTED |
 | [#14224](https://github.com/openclaw/openclaw/pull/14224) | CLOSED | hardening | Telegram member-info action exposes chat administrators (closed stale) | — | NOT AFFECTED |
 | [#14061](https://github.com/openclaw/openclaw/pull/14061) | CLOSED | security-fix | Docker gateway auth bypass via Host header spoofing (closed stale) | — | NOT AFFECTED |
-| [#14689](https://github.com/openclaw/openclaw/pull/14689) | OPEN | hardening | Auto-set `per-channel-peer` dmScope default during multi-channel onboarding | [#14688](https://github.com/openclaw/openclaw/issues/14688) | OPEN/PENDING |
+| [#14689](https://github.com/openclaw/openclaw/pull/14689) | CLOSED | hardening | Auto-set `per-channel-peer` dmScope default during multi-channel onboarding (closed stale) | [#14688](https://github.com/openclaw/openclaw/issues/14688) | NOT AFFECTED |
 | [#13042](https://github.com/openclaw/openclaw/pull/13042) | CLOSED | hardening | Add guard model for prompt injection sanitization (closed stale) | — | NOT AFFECTED |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | CLOSED | security-fix | Require auth for plugin HTTP routes (closed stale) | [#8512](https://github.com/openclaw/openclaw/issues/8512) | NOT AFFECTED |
 
@@ -108,6 +126,35 @@
 
 | PR | Status | Category | Summary | Related Issue | Local Impact |
 |----|--------|----------|---------|---------------|--------------|
+| [#59092](https://github.com/openclaw/openclaw/pull/59092) | MERGED | hardening | fix(gateway): allow silent role upgrades for local loopback clients (merged 2026-04-01) | — | ALREADY SYNCED |
+| [#58895](https://github.com/openclaw/openclaw/pull/58895) | MERGED | security-fix | qqbot: require explicit allowlist for /bot-logs to prevent info disclosure (merged 2026-04-01) | — | ALREADY SYNCED |
+| [#58603](https://github.com/openclaw/openclaw/pull/58603) | MERGED | hardening | fix(gateway): return default scopes when trusted HTTP request has no scope header (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58573](https://github.com/openclaw/openclaw/pull/58573) | MERGED | hardening | fix(sandbox): resolve pinned fs helper python without PATH (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58376](https://github.com/openclaw/openclaw/pull/58376) | MERGED | hardening | fix(matrix): filter fetched room context by sender allowlist (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58371](https://github.com/openclaw/openclaw/pull/58371) | MERGED | security-fix | Gateway: reject mixed trusted-proxy token config (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58369](https://github.com/openclaw/openclaw/pull/58369) | MERGED | security-fix | Exec approvals: reject shell init-file script matches (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58245](https://github.com/openclaw/openclaw/pull/58245) | MERGED | security-fix | fix(discord): gate voice ingress by allowlists (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58229](https://github.com/openclaw/openclaw/pull/58229) | MERGED | security-fix | fix(gateway): enforce trusted-proxy HTTP origin checks (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58224](https://github.com/openclaw/openclaw/pull/58224) | MERGED | security-fix | fix(media): drop auth headers on cross-origin redirects (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58220](https://github.com/openclaw/openclaw/pull/58220) | MERGED | security-fix | fix(agents): reject escaping symlinks in ssh sandbox uploads (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58177](https://github.com/openclaw/openclaw/pull/58177) | MERGED | security-fix | fix(config): redact Nostr privateKey in config views (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58141](https://github.com/openclaw/openclaw/pull/58141) | MERGED | security-fix | Secrets: hard-fail unsupported SecretRef policy and fix gateway restart token drift (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#58044](https://github.com/openclaw/openclaw/pull/58044) | MERGED | security-fix | fix(config): harden SecretRef round-trip handling in Control UI and RPC writes (merged 2026-03-31) | — | ALREADY SYNCED |
+| [#57871](https://github.com/openclaw/openclaw/pull/57871) | MERGED | security-fix | Security: block exec approval shell carrier targets (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57848](https://github.com/openclaw/openclaw/pull/57848) | MERGED | security-fix | Sandbox: sanitize SSH subprocess env (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57842](https://github.com/openclaw/openclaw/pull/57842) | MERGED | security-fix | Exec approvals: detect command carriers in strict inline eval (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57839](https://github.com/openclaw/openclaw/pull/57839) | MERGED | security-fix | fix(exec): harden shell-side approval guardrails (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57838](https://github.com/openclaw/openclaw/pull/57838) | MERGED | hardening | refactor(exec): unify channel approvals and restore routing/auth (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57773](https://github.com/openclaw/openclaw/pull/57773) | MERGED | security-fix | Gateway: tighten HTTP tool invoke authorization (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57772](https://github.com/openclaw/openclaw/pull/57772) | MERGED | security-fix | Exec approvals: prevent interpreter allow-always persistence (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57767](https://github.com/openclaw/openclaw/pull/57767) | MERGED | security-fix | Infra: block auth env vars from workspace dotenv (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57744](https://github.com/openclaw/openclaw/pull/57744) | MERGED | hardening | infra: harden identifier entropy and delay jitter (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57735](https://github.com/openclaw/openclaw/pull/57735) | MERGED | security-fix | Fix Discord native commands bypassing group DM channel allowlist (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57693](https://github.com/openclaw/openclaw/pull/57693) | MERGED | hardening | OpenShell: harden mirror sync boundaries (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57692](https://github.com/openclaw/openclaw/pull/57692) | MERGED | security-fix | gateway: clear unbound scopes for trusted-proxy auth (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57691](https://github.com/openclaw/openclaw/pull/57691) | MERGED | hardening | Gateway: harden node event trust boundaries (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#57686](https://github.com/openclaw/openclaw/pull/57686) | MERGED | security-fix | MS Teams: validate webhook auth before JSON parsing (merged 2026-03-30) | — | ALREADY SYNCED |
+| [#49582](https://github.com/openclaw/openclaw/pull/49582) | MERGED | security-fix | MSTeams sender allowlist bypass when route allowlist configured + empty sender allowlist (GHSA-g7cr-9h7q-4qxq; merged 2026-03-20) | — | ALREADY SYNCED |
 | [#49997](https://github.com/openclaw/openclaw/pull/49997) | MERGED | security-fix | Discord: enforce strict DM component allowlist auth (merged 2026-03-19) | — | ALREADY SYNCED |
 | [#49702](https://github.com/openclaw/openclaw/pull/49702) | MERGED | security-fix | Block build-tool and glibc env injection vectors in host exec sandbox — MAVEN_OPTS, SBT_OPTS, GRADLE_OPTS, ANT_OPTS (merged 2026-03-18) | — | ALREADY SYNCED |
 | [#49025](https://github.com/openclaw/openclaw/pull/49025) | MERGED | security-fix | Block JVM, Python, and .NET env injection vectors in host exec sandbox — JAVA_TOOL_OPTIONS, DOTNET_STARTUP_HOOKS, GLIBC_TUNABLES (merged 2026-03-17) | — | ALREADY SYNCED |
@@ -304,8 +351,10 @@
 | [#3926](https://github.com/openclaw/openclaw/pull/3926) | CLOSED | security-fix | Disable browser.evaluateEnabled by default (closed 2026-02-16-20; ACE via browser evaluate still possible locally) | — | NOT AFFECTED |
 | [#2580](https://github.com/openclaw/openclaw/pull/2580) | CLOSED | security-fix | SSRF, path traversal, shell injection, rate limiting umbrella (closed 2026-02-16-20; superseded by targeted fixes) | — | NOT AFFECTED |
 
-**Total:** 283 tracked PRs (72 merged, 67 open, 0 draft, 144 closed)
+**Total:** 396 tracked PRs (100 merged, 64 open, 0 draft, 232 closed)
 
+> **Status change log (02-04-2026 16:47 AEST):** 11 state changes + 48 new PRs. **1 OPEN → MERGED:** #49582 (GHSA-g7cr-9h7q-4qxq MSTeams allowlist bypass, merged 2026-03-20, ALREADY SYNCED). **9 OPEN → CLOSED** (stale/abandoned): #46533, #46756, #46829, #46903 (security-fix), #14689 (hardening), #19619, #19675 (security-fix), #21554 (enhancement), #50075 (docs). **1 NULL/DELETED:** #48971 (removed from tracking). **28 new MERGED** (all ALREADY SYNCED via Mar 30 – Apr 2 syncs): exec-approvals cluster (#57838, #57839, #57842, #57848, #57871), gateway auth (#57686, #57692, #57691, #57693, #57735, #57744, #57767, #57772, #57773), SecretRef (#58044, #58141), config/redaction (#58177), sandbox (#58220, #58573), media/cross-origin (#58224), trusted-proxy (#58229, #58371, #58603), allowlist (#58245, #58376), exec init-file (#58369), info-disclosure (#58895), role-upgrade (#59092). **20 new OPEN PRs:** 18 security-fix (#57809 [GHSA-2x4x-cc5g-qmmg node.pair.approve], #57877, #58395, #58471, #58771, #58949, #59156, #59292, #59383, #59398, #56506, #54990, #51807, #51070, #51039, #50754, #50645, #59388) + 2 hardening (#58311, #50515). **0 sync actions needed** — all merged PRs confirmed in local git log.
+>
 > **Status change log (19-03-2026 20:58 AEST):** 24 state changes + 42 new PRs. **24 OPEN → CLOSED** (stale/abandoned): #8513, #14061, #14197, #15615, #16990, #16992, #17944, #19507, #45197 (security-fix), #46322 (superseded by #48133), #13042, #14098, #14224, #15296, #15757, #18933, #19525, #19539, #19542, #20106, #21476, #44737, #45959 (hardening), #20266 (enhancement). **8 new MERGED** (all ALREADY SYNCED via Mar 19 sync 5): #49997 Discord DM component allowlist auth, #49702 build-tool+glibc env injection block, #49025 JVM+Python+.NET env injection block, #48197 ACP startup hardening, #47968 Feishu media hardening, #47902 plugin webhook registry pinning, #47794 SecretRef path hardening, #47148 skip Control UI pairing when auth.mode=none. **34 new OPEN PRs:** 28 security-fix (#46711, #46713, #46756, #46794, #46828, #46829, #46903, #46970, #47082, #47696, #47743, #47991, #48133, #48134, #48149, #48724, #48958, #48971, #49120, #49174, #49234, #49392, #49582 [GHSA-g7cr-9h7q-4qxq MSTeams allowlist bypass], #50171, #50180, #50181, #50320, #50365), 3 hardening (#46752, #48336, #48339), 3 docs (#50041, #50042, #50075). **0 sync actions needed** — all merged PRs confirmed in local git log.
 >
 > **Status change log (15-03-2026 09:19 AEST):** 16 state changes detected. **1 CLOSED → MERGED (status correction):** #20856 (timing side-channel safeEqualSecret fix, merged 2026-02-19, ALREADY SYNCED). **15 OPEN → CLOSED** (stale closures): #7616, #10238, #12958, #13144, #13254, #13308, #13321, #13521, #13737, #13817 (DRAFT), #14222, #16963, #18923, #20424, #41117. **39 new PRs added:** 17 MERGED (all ALREADY SYNCED via Mar 10-15 syncs: #46440 secops ownership, #46290 self-pairing+launchd, #45512 control-ui auth, #44639 Telegram SSRF, #44307 workspace handoff, #44173 Zalo rate limit, #44087 Feishu encrypt key, #43759 SecretRef markers, #43686 scope cap, #43478 auth.mode=none, #42672 fail-closed SecretRef, #42554 SecretRef persistence, #42507 token fallback, #42455 SecretRef docs, #40757 workspace access ro, #35983 replaceMarkers hardening, #20856 reclassified). **25 OPEN** (16 security-fix + 9 hardening): CWE-78 fixes (#44892 URL template injection, #45139 splitArgs boundary), SSRF guards (#46533 nodes-camera, #46380 MiniMax, #46377 Anthropic/Gemini PDF, #46359 Ollama/vLLM, #46333 TTS, #46322 Firecrawl, #45288 WebSocket, #45197 DNS rebinding, #45872 config+cache), path traversal (#46324 agentDir), env blocklist (#45174), WhatsApp symlink (#45832), prompt injection (#45383 media, #45921 Prompt Inspector, #43725+#43469 skill scanning), exec hardening (#45611 execFile), session perms (#45901), skill archive (#45526), voice-call flags (#45959), config paths (#43585), Math.random (#44737), gateway network (#44884). **0 sync actions needed** — all merged PRs already synced.
