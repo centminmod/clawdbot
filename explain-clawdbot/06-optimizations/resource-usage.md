@@ -51,7 +51,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 - SHA-256 hashing for content deduplication and caching
 
 **Child process stdout/stderr accumulation:**
-- `src/process/exec.ts:334-338` — unbounded string concatenation of process output
+- `src/process/exec.ts:337-342` — unbounded string concatenation of process output
 - `extensions/memory-core/src/memory/qmd-manager.ts` — QMD process output is capped at `MAX_QMD_OUTPUT_CHARS` (200,000 chars by default). The `resolveSpawnInvocation()` helper at `:72` handles Windows-compatible spawn routing.
 
 **Media fetch buffering:**
@@ -73,7 +73,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | History map | `src/auto-reply/reply/history.ts:7` | 1000 keys LRU | Well bounded |
 | Inbound dedupe | `src/auto-reply/reply/inbound-dedupe.ts:9` | 5000 max, 20min TTL | Well bounded |
 | Gateway dedupe | `src/gateway/server-constants.ts:26-27` | 1000 max, 5min TTL | Well bounded |
-| Browser roleRefs | `extensions/browser/src/browser/pw-session.ts:112-113` | 50 max LRU | Well bounded |
+| Browser roleRefs | `extensions/browser/src/browser/pw-session.ts:114-115` | 50 max LRU | Well bounded |
 | Followup queues | `src/auto-reply/reply/queue/state.ts:19` | 20/queue, no queue count cap; `clearFollowupQueue()` (`queue/cleanup.ts:24`) clears individual queues during session cleanup | **Partially mitigated** — individual queues can be cleared but total queue-map still uncapped |
 | Agent event seqByRun | `src/infra/agent-events.ts:23` | **No cleanup** (`seqByRun` never pruned; `runContextById` now cleaned via `clearAgentRunContext()` at `:49`) | **Partial leak** — `runContextById` fixed, `seqByRun` still leaks |
 | Agent run sequence | `src/gateway/server-runtime-state.ts:234` | Bounded at `AGENT_RUN_SEQ_MAX` = 10,000 (pruned by maintenance timer) | Well bounded |
@@ -90,10 +90,10 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 ### Browser memory
 
-- **Chromium instance** (Playwright CDP): `extensions/browser/src/browser/pw-session.ts:119` — connection cache (`cachedByCdpUrl`), but Chromium itself can consume **200MB to 2GB+**
+- **Chromium instance** (Playwright CDP): `extensions/browser/src/browser/pw-session.ts:121` — connection cache (`cachedByCdpUrl`), but Chromium itself can consume **200MB to 2GB+**
   > *Like having a full web browser running invisibly in the background — it alone can use more memory than everything else combined.*
-- Per-page state caps: console (500), errors (200), network requests (500) — `extensions/browser/src/browser/pw-session.ts:115-117`
-- WeakMaps used for page/context state (GC-friendly): `extensions/browser/src/browser/pw-session.ts:105-106`
+- Per-page state caps: console (500), errors (200), network requests (500) — `extensions/browser/src/browser/pw-session.ts:117-120`
+- WeakMaps used for page/context state (GC-friendly): `extensions/browser/src/browser/pw-session.ts:107-108`
 
 ### Model context accumulation
 
