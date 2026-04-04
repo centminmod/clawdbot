@@ -411,7 +411,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 - `src/security/secret-equal.ts:3-16` - `safeEqualSecret` uses `timingSafeEqual` (correct)
 - `src/gateway/server-http.ts:512` - hook token now uses `safeEqualSecret()` (fixed in Feb 13 sync 4, commit `113ebfd6a`)
 - `src/infra/node-pairing.ts:260` - node token uses `verifyPairingToken()` which calls `safeEqualSecret()` (constant-time, mitigated)
-- `src/infra/device-pairing.ts:679` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
+- `src/infra/device-pairing.ts:665` - device token verification uses `verifyPairingToken()` (wraps `safeEqualSecret()`, fixed in Feb 13 sync 4, commit `113ebfd6a`)
 
 ### #6606: Telegram Webhook Binds to 0.0.0.0 with Optional Secret
 
@@ -439,7 +439,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Local status:** NOT FIXED — the 0o600 fix was applied in `ae0b110e4` but accidentally reverted by `9f261f592 revert: PR 18288 accidental merge`. Three sites remain unpatched:
 - ~~`src/auto-reply/reply/session-fork.ts:58`~~ — refactored to `src/auto-reply/reply/session-fork.runtime.ts:43`; now writes with `mode: 0o600` (FIXED in Mar 22 sync 2)
 - `src/agents/pi-embedded-runner/session-manager-init.ts` - no mode on session file reset
-- `src/gateway/server-methods/sessions.ts:1188` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
+- `src/gateway/server-methods/sessions.ts:1200` - `fs.writeFileSync(filePath, ..., "utf-8")` (no mode)
 
 ### #8516: Browser Download/Trace Endpoints Arbitrary File Write
 
