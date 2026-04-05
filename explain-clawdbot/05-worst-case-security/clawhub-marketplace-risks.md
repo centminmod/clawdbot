@@ -488,7 +488,7 @@ OpenClaw includes a built-in pattern-based static code scanner that runs locally
 **Important: Warnings only.** The local scanner shows warnings but does **not** block installation, even for critical findings. You must decide whether to proceed.
 
 Code: `src/security/skill-scanner.ts` (rule definitions, core scanner, directory scanner)
-Integration: `src/agents/skills-install.ts:424-447` (install-time scan), `src/security/audit-extra.async.ts:1150-1325` (security audit deep scan)
+Integration: `src/agents/skills-install.ts:427-449` (install-time scan), `src/security/audit-extra.async.ts:1150-1325` (security audit deep scan)
 
 ### Comprehensive Limitations (What Scanning Cannot Catch)
 
@@ -595,7 +595,7 @@ After any suspected compromise, rotate ALL credentials:
 | Plugin loading | `src/plugins/loader.ts` | In-process execution, no sandbox |
 | Install flow | `src/commands/install-plugin.ts` | Runs npm install in plugin dir |
 | Local skill scanner | `src/security/skill-scanner.ts` | Rule definitions, core scanner, directory scanner |
-| Install-time scan integration | `src/agents/skills-install.ts:424-447` | Collects scan warnings during skill install |
+| Install-time scan integration | `src/agents/skills-install.ts:427-449` | Collects scan warnings during skill install |
 | Security audit deep scan | `src/security/audit-extra.async.ts:1150-1325` | Plugin code safety findings for `--deep` audit |
 | Skill registry | External (ClawHub) | Not in OpenClaw codebase |
 

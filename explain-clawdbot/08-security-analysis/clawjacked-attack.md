@@ -76,12 +76,14 @@ function shouldAllowSilentLocalPairing(params: {
 }
 ```
 
-Before the fix, a browser WebSocket connection from localhost set `isLocalClient: true` but did not set `hasBrowserOriginHeader` in the path that reached this check — so silent pairing was allowed. When `pairing.request.silent === true`, the gateway immediately auto-approves without any user prompt (`src/gateway/server/ws-connection/message-handler.ts:829-838`):
+Before the fix, a browser WebSocket connection from localhost set `isLocalClient: true` but did not set `hasBrowserOriginHeader` in the path that reached this check — so silent pairing was allowed. When `pairing.request.silent === true`, the gateway immediately auto-approves without any user prompt (`src/gateway/server/ws-connection/message-handler.ts:848`):
 
 ```typescript
 if (pairing.request.silent === true) {
-  const approved = await approveDevicePairing(pairing.request.requestId);
-  if (approved) {
+  approved = await approveDevicePairing(pairing.request.requestId, {
+    callerScopes: scopes,
+  });
+  if (approved?.status === "approved") {
     logGateway.info(
       `device pairing auto-approved device=${approved.device.deviceId} role=${approved.device.role ?? "unknown"}`,
     );
