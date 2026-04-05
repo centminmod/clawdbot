@@ -19,7 +19,7 @@
 | [#4949](https://github.com/openclaw/openclaw/issues/4949) | HIGH (WONTFIX) | Browser control server DNS rebinding | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `extensions/browser/src/server.ts:69`; no Host header validation |
 | [#4950](https://github.com/openclaw/openclaw/issues/4950) | HIGH (WONTFIX) | Arbitrary JS execution via browser evaluate (default on) | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `extensions/browser/src/browser/constants.ts:2` - `DEFAULT_BROWSER_EVALUATE_ENABLED = true` |
 | [#4995](https://github.com/openclaw/openclaw/issues/4995) | HIGH (WONTFIX) | iMessage dmPolicy auto-responds with pairing codes | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/imessage/monitor/monitor-provider.ts:120,247-278` |
-| [#5052](https://github.com/openclaw/openclaw/issues/5052) | ~~HIGH~~ FIXED | Config validation fail-open returns `{}` | Fixed upstream (COMPLETED 2026-03-07); commit `f53e10e3f` — `src/config/io.ts:1874` now throws `INVALID_CONFIG` error instead of returning `{}`; fail-closed behavior confirmed locally |
+| [#5052](https://github.com/openclaw/openclaw/issues/5052) | ~~HIGH~~ FIXED | Config validation fail-open returns `{}` | Fixed upstream (COMPLETED 2026-03-07); commit `f53e10e3f` — `src/config/io.ts:1869` now throws `INVALID_CONFIG` error instead of returning `{}`; fail-closed behavior confirmed locally |
 | [#5255](https://github.com/openclaw/openclaw/issues/5255) | HIGH (WONTFIX) | Browser file upload arbitrary read | Closed upstream as NOT_PLANNED (2026-02-17); still affects local code at `extensions/browser/src/browser/pw-tools-core.interactions.ts:656` |
 | [#5995](https://github.com/openclaw/openclaw/issues/5995) | HIGH (WONTFIX) | Secrets exposed in session transcripts | Closed upstream as NOT_PLANNED (2026-03-01); `config.get` redacted via `redactConfigSnapshot()` (PR #9858); by-design transcript exposure |
 | [#6606](https://github.com/openclaw/openclaw/issues/6606) | HIGH (WONTFIX) | Telegram webhook binds to 0.0.0.0 with optional secret | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/telegram/webhook.ts:107,118,119-125` |
@@ -35,8 +35,8 @@
 | [#9512](https://github.com/openclaw/openclaw/issues/9512) | ~~HIGH~~ FIXED | Skill download archive path traversal | Fixed upstream (COMPLETED 2026-02-14); `src/agents/skills-install-extract.ts:155,166` — now calls `extractArchiveSafe()` |
 | [#9517](https://github.com/openclaw/openclaw/issues/9517) | ~~HIGH~~ FIXED | Gateway canvas host auth bypass | Fixed in PR [#9518](https://github.com/openclaw/openclaw/pull/9518) — `authorizeCanvasRequest()` at `src/gateway/server/http-auth.ts:57` |
 | [#9627](https://github.com/openclaw/openclaw/issues/9627) | ~~HIGH~~ FIXED | Config secrets exposed in JSON after update/doctor | Fixed upstream (COMPLETED 2026-02-25); `src/config/io.ts` — resolved by `redactConfigSnapshot()` + env var reference preservation; root cause addressed |
-| [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:2080` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
-| [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:2080` |
+| [#9813](https://github.com/openclaw/openclaw/issues/9813) | ~~HIGH~~ FIXED (DUP #9627) | Gateway expands ${ENV_VAR} on meta writeback | Closed upstream as COMPLETED (2026-02-13); `src/config/io.ts:2075` — partially mitigated by `redactConfigSnapshot()` (PR #9858) + env var reference preservation (commit `f59df9589`); root cause still open in #9627 |
+| [#11126](https://github.com/openclaw/openclaw/issues/11126) | HIGH (DUP #9627, WONTFIX) | Config write paths resolve ${VAR} to cleartext | Closed upstream as NOT_PLANNED (2026-02-13); same as #9627/#9813 — `src/config/io.ts:2075` |
 | [#9795](https://github.com/openclaw/openclaw/issues/9795) | LOW | sanitizeMimeType regex not end-anchored (by design) | `src/media-understanding/apply.ts:72-82` |
 | [#9792](https://github.com/openclaw/openclaw/issues/9792) | INVALID (CLOSED) | validateHostEnv skips baseEnv (by design) | Closed upstream as COMPLETED (2026-03-01); `src/agents/bash-tools.exec-runtime.ts:84` + `src/agents/bash-tools.exec.ts:1380`; by-design behavior confirmed |
 | [#9791](https://github.com/openclaw/openclaw/issues/9791) | INVALID (CLOSED) | Fullwidth marker bypass (fold is length-preserving) | Closed upstream (COMPLETED 2026-02-15); `src/security/external-content.ts:127-167` |
@@ -204,7 +204,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 
 **Vulnerability:** When config validation fails, the entire config including `dmPolicy`, `allowFrom`, and all security settings are silently reset to `{}`. The bot will respond to ANY sender.
 
-**Affected code:** `src/config/io.ts:1874`
+**Affected code:** `src/config/io.ts:1869`
 
 **Detection aid (sync 10):** The forensic config write audit (`748d6821d`) flags writes where `hasMetaBefore` is false or `gatewayModeAfter` is null when it was previously set — both indicators that config was silently replaced with `{}`. The `suspicious` field in `$STATE_DIR/logs/config-audit.jsonl` will contain `"missing-meta-before-write"` or `"gateway-mode-removed"` when this fail-open triggers during a subsequent write.
 
@@ -542,7 +542,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Severity:** LOW (partially affected)
 **CWE:** CWE-276 (Incorrect Default Permissions)
 
-**Vulnerability:** Code correctly uses `mode: 0o700` for directory creation (`src/config/io.ts:2158`), but when installed via `sudo`, the directory inherits root ownership. Subsequent user-space operations may create group-writable files.
+**Vulnerability:** Code correctly uses `mode: 0o700` for directory creation (`src/config/io.ts:2153`), but when installed via `sudo`, the directory inherits root ownership. Subsequent user-space operations may create group-writable files.
 
 **Note:** This is an operational issue (sudo usage), not a code bug. `src/security/audit.ts:252-267` already detects group-writable state directories.
 
@@ -565,7 +565,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** When `openclaw doctor` or `openclaw config set` writes the config file, environment variable references (`${VAR}`) are resolved to plaintext values. The write-back serializes resolved secrets to disk in cleartext JSON, destroying the original `${VAR}` references.
 
 **Affected code:**
-- `src/config/io.ts:2080` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), but resolved values still leak for paths that change
+- `src/config/io.ts:2075` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), but resolved values still leak for paths that change
 - `src/config/env-substitution.ts:88` - `substituteString` is a one-way transformation
 - `src/commands/doctor.ts:357` - `writeConfigFile(cfg)` writes env-resolved config back to disk
 
@@ -581,7 +581,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Vulnerability:** Same root cause as #9627. When the gateway updates `meta.lastTouchedAt` in the config file, the writeback path resolves `${ENV_VAR}` references to plaintext values, destroying the original references.
 
 **Affected code:**
-- `src/config/io.ts:2080` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), partially mitigating meta writeback expansion
+- `src/config/io.ts:2075` - `writeConfigFile` now preserves env var references for unchanged paths (commit `f59df9589`), partially mitigating meta writeback expansion
 
 **Our analysis:** This is the same `writeConfigFile` code path documented in #9627. The trigger differs (gateway meta writeback vs `doctor`/`config set`), but the underlying bug — env var expansion on write — is identical. Closed as COMPLETED upstream on 2026-02-13 (duplicate closed, root cause tracked in #9627 which remains OPEN).
 
