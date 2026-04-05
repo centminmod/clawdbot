@@ -187,7 +187,7 @@ The security analysis in this guide is based on verified source code review:
 | File permissions | `src/config/io.ts:2153,2311` | 0o700 directories, 0o600 files |
 | SSRF protection | `src/infra/net/ssrf.ts:310-354` | DNS pinning (Mac/VPS only) |
 | Shell execution | `src/agents/bash-tools.exec.ts` | Allowlist and human approval |
-| Security audit | `src/security/audit.ts:1168-1297` | Critical flag detection |
+| Security audit | `src/security/audit.ts:1372-1501` | Critical flag detection |
 
 ---
 

@@ -83,7 +83,7 @@ This is not a problem with one specific model. It's a class of problem:
 - **Large models** (Opus, GPT-5, Sonnet) hallucinate less but can still confidently set dangerous-but-valid values
 - **All models** follow instructions — if a prompt injection says "fix the config," they will try
 
-OpenClaw's security audit warns about small/older models with tool access (`src/security/audit-extra.sync.ts:1195-1288`), but this risk exists at every model tier.
+OpenClaw's security audit warns about small/older models with tool access (`src/security/audit-extra.sync.ts:1192-1285`), but this risk exists at every model tier.
 
 ### Why "Secure by Default" Doesn't Help Here
 
@@ -286,7 +286,7 @@ openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth false
 openclaw config set gateway.controlUi.allowInsecureAuth false
 ```
 
-**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:586-612`).
+**Does `openclaw security audit` catch this?** Yes — `dangerouslyDisableDeviceAuth=true` is flagged as severity "critical" and `allowInsecureAuth=true` is flagged as severity "warn" (`src/security/audit.ts:585-606`).
 
 ---
 
@@ -1006,7 +1006,7 @@ openclaw security audit --deep  # Extended checks
 openclaw security audit --fix   # Auto-fix common issues
 ```
 
-Source: `src/security/audit.ts:1375-1504`
+Source: `src/security/audit.ts:1372-1501`
 
 ### `openclaw doctor`
 
@@ -1046,7 +1046,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:57-524` |
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:78,312-319` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:67-81` |
-| **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1195-1288` |
+| **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1192-1285` |
 | **ALLOWED_FILE_NAMES** | Restricts which agent bootstrap files can be modified via `agents.files.set` | `src/gateway/server-methods/agents.ts:100` |
 | **File permissions** | Config files created with `0o600`, directories with `0o700` | `src/config/io.ts:2153,2311` |
 | **Tool profiles** | `"coding"` profile excludes the gateway tool entirely | `src/agents/tool-catalog.ts:264-280` |
