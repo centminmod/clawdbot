@@ -13,6 +13,7 @@ const allowedNonExtensionTests = new Set<string>([
   "src/agents/pi-embedded-runner-extraparams.test.ts",
   "src/channels/plugins/contracts/dm-policy.contract.test.ts",
   "src/channels/plugins/contracts/group-policy.contract.test.ts",
+  "src/plugins/interactive.test.ts",
   "src/plugins/contracts/discovery.contract.test.ts",
 ]);
 
@@ -70,6 +71,15 @@ function findPluginSdkImports(source: string): string[] {
     ...source.matchAll(/from\s+["']((?:\.\.\/)+plugin-sdk\/[^"']+)["']/g),
     ...source.matchAll(/import\(\s*["']((?:\.\.\/)+plugin-sdk\/[^"']+)["']\s*\)/g),
   ].map((match) => match[1]);
+}
+
+function findBundledPluginPublicSurfaceImports(source: string): string[] {
+  return [
+    ...source.matchAll(/from\s+["'](?:\.\.\/)+test-utils\/bundled-plugin-public-surface\.js["']/g),
+    ...source.matchAll(
+      /import\(\s*["'](?:\.\.\/)+test-utils\/bundled-plugin-public-surface\.js["']\s*\)/g,
+    ),
+  ].map((match) => match[0]);
 }
 
 function getImportBasename(importPath: string): string {
@@ -141,6 +151,23 @@ describe("non-extension test boundaries", () => {
     );
 
     expect(imports).toEqual([]);
+  });
+
+  it("keeps bundled plugin public-surface imports on an explicit core allowlist", () => {
+    const allowed = new Set([
+      "src/auto-reply/reply.triggers.trigger-handling.test-harness.ts",
+      "src/channels/plugins/contracts/slack-outbound-harness.ts",
+      "src/commands/channel-test-registry.ts",
+      "src/plugin-sdk/testing.ts",
+    ]);
+    const files = walkCode(path.join(repoRoot, "src"));
+
+    const offenders = files.filter((file) => {
+      const source = fs.readFileSync(path.join(repoRoot, file), "utf8");
+      return findBundledPluginPublicSurfaceImports(source).length > 0 && !allowed.has(file);
+    });
+
+    expect(offenders).toEqual([]);
   });
 
   it("keeps bundled plugin sync test-api loaders out of core tests", () => {

@@ -192,7 +192,7 @@ describe("telegramSetupWizard.dmPolicy", () => {
   });
 
   it("uses configured defaultAccount for omitted DM policy account context", () => {
-    const cfg = {
+    const cfg: OpenClawConfig = {
       channels: {
         telegram: {
           defaultAccount: "alerts",
@@ -220,22 +220,20 @@ describe("telegramSetupWizard.dmPolicy", () => {
   });
 
   it('writes open policy state to the named account and preserves inherited allowFrom with "*"', () => {
-    const next = telegramSetupWizard.dmPolicy?.setPolicy(
-      {
-        channels: {
-          telegram: {
-            allowFrom: ["123"],
-            accounts: {
-              alerts: {
-                botToken: "tok",
-              },
+    const cfg: OpenClawConfig = {
+      channels: {
+        telegram: {
+          allowFrom: ["123"],
+          accounts: {
+            alerts: {
+              botToken: "tok",
             },
           },
         },
       },
-      "open",
-      "alerts",
-    );
+    };
+
+    const next = telegramSetupWizard.dmPolicy?.setPolicy(cfg, "open", "alerts");
 
     expect(next?.channels?.telegram?.dmPolicy).toBeUndefined();
     expect(next?.channels?.telegram?.accounts?.alerts?.dmPolicy).toBe("open");

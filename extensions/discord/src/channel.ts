@@ -33,6 +33,7 @@ import {
   type ResolvedDiscordAccount,
 } from "./accounts.js";
 import { getDiscordApprovalCapability } from "./approval-native.js";
+import { discordMessageActions as discordMessageActionsImpl } from "./channel-actions.js";
 import {
   listDiscordDirectoryGroupsFromConfig,
   listDiscordDirectoryPeersFromConfig,
@@ -43,6 +44,11 @@ import {
   resolveDiscordGroupRequireMention,
   resolveDiscordGroupToolPolicy,
 } from "./group-policy.js";
+import {
+  createThreadBindingManager,
+  setThreadBindingIdleTimeoutBySessionKey,
+  setThreadBindingMaxAgeBySessionKey,
+} from "./monitor/thread-bindings.js";
 import {
   looksLikeDiscordTargetId,
   normalizeDiscordMessagingTarget,
@@ -63,17 +69,17 @@ import {
   type OpenClawConfig,
 } from "./runtime-api.js";
 import { getDiscordRuntime } from "./runtime.js";
+import { collectDiscordSecurityAuditFindings } from "./security-audit.js";
 import { fetchChannelPermissionsDiscord, sendMessageDiscord, sendPollDiscord } from "./send.js";
 import { normalizeExplicitDiscordSessionKey } from "./session-key-normalization.js";
 import { discordSetupAdapter } from "./setup-core.js";
 import { createDiscordPluginBase, discordConfigAdapter } from "./shared.js";
 import { collectDiscordStatusIssues } from "./status-issues.js";
 import { parseDiscordTarget } from "./targets.js";
+import { DiscordUiContainer } from "./ui.js";
 
 type DiscordSendFn = typeof sendMessageDiscord;
-type DiscordUiModule = typeof import("./ui.js");
 type DiscordCarbonModule = typeof import("@buape/carbon");
-type DiscordChannelActionsModule = typeof import("./channel-actions.js");
 type DiscordTextDisplay = InstanceType<DiscordCarbonModule["TextDisplay"]>;
 type DiscordSeparator = InstanceType<DiscordCarbonModule["Separator"]>;
 
@@ -82,9 +88,7 @@ let discordProviderRuntimePromise:
   | undefined;
 let discordProbeRuntimePromise: Promise<typeof import("./probe.runtime.js")> | undefined;
 let discordAuditModulePromise: Promise<typeof import("./audit.js")> | undefined;
-let discordUiModuleCache: DiscordUiModule | null = null;
 let discordCarbonModuleCache: DiscordCarbonModule | null = null;
-let discordChannelActionsModuleCache: DiscordChannelActionsModule | null = null;
 
 const require = createRequire(import.meta.url);
 
@@ -106,17 +110,6 @@ async function loadDiscordAuditModule() {
 function loadDiscordCarbonModule() {
   discordCarbonModuleCache ??= require("@buape/carbon") as DiscordCarbonModule;
   return discordCarbonModuleCache;
-}
-
-function loadDiscordUiModule() {
-  discordUiModuleCache ??= require("./ui.js") as DiscordUiModule;
-  return discordUiModuleCache;
-}
-
-function loadDiscordChannelActionsModule() {
-  discordChannelActionsModuleCache ??=
-    require("./channel-actions.js") as DiscordChannelActionsModule;
-  return discordChannelActionsModuleCache;
 }
 
 const meta = getChatChannelMeta("discord");
@@ -152,13 +145,13 @@ const discordMessageActions = {
     ctx: Parameters<NonNullable<ChannelMessageActionAdapter["describeMessageTool"]>>[0],
   ): ChannelMessageToolDiscovery | null =>
     resolveRuntimeDiscordMessageActions()?.describeMessageTool?.(ctx) ??
-    loadDiscordChannelActionsModule().discordMessageActions.describeMessageTool?.(ctx) ??
+    discordMessageActionsImpl.describeMessageTool?.(ctx) ??
     null,
   extractToolSend: (
     ctx: Parameters<NonNullable<ChannelMessageActionAdapter["extractToolSend"]>>[0],
   ) =>
     resolveRuntimeDiscordMessageActions()?.extractToolSend?.(ctx) ??
-    loadDiscordChannelActionsModule().discordMessageActions.extractToolSend?.(ctx) ??
+    discordMessageActionsImpl.extractToolSend?.(ctx) ??
     null,
   handleAction: async (
     ctx: Parameters<NonNullable<ChannelMessageActionAdapter["handleAction"]>>[0],
@@ -167,11 +160,10 @@ const discordMessageActions = {
     if (runtimeHandleAction) {
       return await runtimeHandleAction(ctx);
     }
-    const { discordMessageActions } = loadDiscordChannelActionsModule();
-    if (!discordMessageActions.handleAction) {
+    if (!discordMessageActionsImpl.handleAction) {
       throw new Error("Discord message actions not available");
     }
-    return await discordMessageActions.handleAction(ctx);
+    return await discordMessageActionsImpl.handleAction(ctx);
   },
 };
 
@@ -221,7 +213,6 @@ function buildDiscordCrossContextComponents(params: {
   accountId?: string | null;
 }) {
   const { Separator, TextDisplay } = loadDiscordCarbonModule();
-  const { DiscordUiContainer } = loadDiscordUiModule();
   const trimmed = params.message.trim();
   const components: Array<DiscordTextDisplay | DiscordSeparator> = [];
   if (trimmed) {
@@ -353,6 +344,42 @@ function resolveDiscordCommandConversation(params: {
   return conversationId ? { conversationId } : null;
 }
 
+function resolveDiscordInboundConversation(params: {
+  from?: string;
+  to?: string;
+  conversationId?: string;
+  isGroup: boolean;
+}) {
+  const rawSender = params.from?.trim() || "";
+  if (!params.isGroup && rawSender) {
+    const senderTarget = parseDiscordTarget(rawSender, { defaultKind: "user" });
+    if (senderTarget?.kind === "user") {
+      return { conversationId: `user:${senderTarget.id}` };
+    }
+  }
+  const rawTarget = params.to?.trim() || params.conversationId?.trim() || "";
+  if (!rawTarget) {
+    return null;
+  }
+  const target = parseDiscordTarget(rawTarget, { defaultKind: "channel" });
+  return target ? { conversationId: `${target.kind}:${target.id}` } : null;
+}
+
+function toConversationLifecycleBinding(binding: {
+  boundAt: number;
+  lastActivityAt?: number;
+  idleTimeoutMs?: number;
+  maxAgeMs?: number;
+}) {
+  return {
+    boundAt: binding.boundAt,
+    lastActivityAt:
+      typeof binding.lastActivityAt === "number" ? binding.lastActivityAt : binding.boundAt,
+    idleTimeoutMs: typeof binding.idleTimeoutMs === "number" ? binding.idleTimeoutMs : undefined,
+    maxAgeMs: typeof binding.maxAgeMs === "number" ? binding.maxAgeMs : undefined,
+  };
+}
+
 function parseDiscordExplicitTarget(raw: string) {
   try {
     const target = parseDiscordTarget(raw, { defaultKind: "channel" });
@@ -401,6 +428,8 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
       },
       messaging: {
         normalizeTarget: normalizeDiscordMessagingTarget,
+        resolveInboundConversation: ({ from, to, conversationId, isGroup }) =>
+          resolveDiscordInboundConversation({ from, to, conversationId, isGroup }),
         normalizeExplicitSessionKey: ({ sessionKey, ctx }) =>
           normalizeExplicitDiscordSessionKey(sessionKey, ctx),
         resolveSessionTarget: ({ id }) => normalizeDiscordMessagingTarget(`channel:${id}`),
@@ -490,6 +519,29 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
             commandTo,
             fallbackTo,
           }),
+      },
+      conversationBindings: {
+        supportsCurrentConversationBinding: true,
+        defaultTopLevelPlacement: "child",
+        createManager: ({ cfg, accountId }) =>
+          createThreadBindingManager({
+            cfg,
+            accountId: accountId ?? undefined,
+            persist: false,
+            enableSweeper: false,
+          }),
+        setIdleTimeoutBySessionKey: ({ targetSessionKey, accountId, idleTimeoutMs }) =>
+          setThreadBindingIdleTimeoutBySessionKey({
+            targetSessionKey,
+            accountId: accountId ?? undefined,
+            idleTimeoutMs,
+          }).map(toConversationLifecycleBinding),
+        setMaxAgeBySessionKey: ({ targetSessionKey, accountId, maxAgeMs }) =>
+          setThreadBindingMaxAgeBySessionKey({
+            targetSessionKey,
+            accountId: accountId ?? undefined,
+            maxAgeMs,
+          }).map(toConversationLifecycleBinding),
       },
       status: createComputedAccountStatusAdapter<ResolvedDiscordAccount, DiscordProbe, unknown>({
         defaultRuntime: createDefaultChannelRuntimeState(DEFAULT_ACCOUNT_ID, {
@@ -718,6 +770,7 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
     security: {
       resolveDmPolicy: resolveDiscordDmPolicy,
       collectWarnings: collectDiscordSecurityWarnings,
+      collectAuditFindings: collectDiscordSecurityAuditFindings,
     },
     threading: {
       scopedAccountReplyToMode: {

@@ -3,6 +3,7 @@ import {
   getExecApprovalReplyMetadata,
   isChannelExecApprovalClientEnabledFromConfig,
   isChannelExecApprovalTargetRecipient,
+  matchesApprovalRequestFilters,
   resolveApprovalRequestChannelAccountId,
   resolveApprovalApprovers,
 } from "openclaw/plugin-sdk/approval-runtime";
@@ -29,26 +30,50 @@ function resolveMatrixExecApprovalConfig(params: {
   cfg: OpenClawConfig;
   accountId?: string | null;
 }) {
-  const config = resolveMatrixAccount(params).config.execApprovals;
+  const account = resolveMatrixAccount(params);
+  const config = account.config.execApprovals;
   if (!config) {
-    return { enabled: false } as const;
+    return undefined;
   }
   return {
     ...config,
-    enabled: config.enabled === true,
+    enabled: account.enabled && account.configured ? config.enabled : false,
   };
 }
 
-function countMatrixExecApprovalHandlerAccounts(cfg: OpenClawConfig): number {
-  return listMatrixAccountIds(cfg).filter((accountId) => {
-    const account = resolveMatrixAccount({ cfg, accountId });
+function countMatrixExecApprovalEligibleAccounts(params: {
+  cfg: OpenClawConfig;
+  request: ApprovalRequest;
+}): number {
+  return listMatrixAccountIds(params.cfg).filter((accountId) => {
+    const account = resolveMatrixAccount({ cfg: params.cfg, accountId });
     if (!account.enabled || !account.configured) {
       return false;
     }
-    return isChannelExecApprovalClientEnabledFromConfig({
-      enabled: resolveMatrixExecApprovalConfig({ cfg, accountId }).enabled,
-      approverCount: getMatrixExecApprovalApprovers({ cfg, accountId }).length,
+    const config = resolveMatrixExecApprovalConfig({
+      cfg: params.cfg,
+      accountId,
     });
+    const filters = config?.enabled
+      ? {
+          agentFilter: config.agentFilter,
+          sessionFilter: config.sessionFilter,
+        }
+      : {
+          agentFilter: undefined,
+          sessionFilter: undefined,
+        };
+    return (
+      isChannelExecApprovalClientEnabledFromConfig({
+        enabled: config?.enabled,
+        approverCount: getMatrixExecApprovalApprovers({ cfg: params.cfg, accountId }).length,
+      }) &&
+      matchesApprovalRequestFilters({
+        request: params.request.request,
+        agentFilter: filters.agentFilter,
+        sessionFilter: filters.sessionFilter,
+      })
+    );
   }).length;
 }
 
@@ -64,7 +89,12 @@ function matchesMatrixRequestAccount(params: {
     channel: "matrix",
   });
   if (turnSourceChannel && turnSourceChannel !== "matrix" && !boundAccountId) {
-    return countMatrixExecApprovalHandlerAccounts(params.cfg) <= 1;
+    return (
+      countMatrixExecApprovalEligibleAccounts({
+        cfg: params.cfg,
+        request: params.request,
+      }) <= 1
+    );
   }
   return (
     !boundAccountId ||
