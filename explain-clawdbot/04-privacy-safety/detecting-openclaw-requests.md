@@ -74,7 +74,7 @@ HTTP-Referer: https://openclaw.ai
 X-OpenRouter-Title: OpenClaw
 ```
 
-**Source:** `src/agents/provider-attribution.ts:282-305`
+**Source:** `src/agents/provider-attribution.ts:277-304`
 ```typescript
 function buildOpenRouterAttributionPolicy() {
   return {
