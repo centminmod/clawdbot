@@ -4623,3 +4623,58 @@ The official CVEs were responsibly disclosed through GitHub Security Advisories 
 **Description:** Multiple shared-secret comparison call sites used non-constant-time string comparison, leaking the secret length through response timing differences. An attacker with controlled request rates could infer secret length before brute-forcing the value.
 
 **Fix:** Commit [`be10ecef77`](https://github.com/openclaw/openclaw/commit/be10ecef77) (`fix(compare): reuse shared secret comparison helper #58432`) centralized all webhook secret comparisons across six extensions (BlueBubbles, Feishu, Mattermost, Telegram, Voice Call, Zalo) to use `safeEqualSecret()` from the plugin SDK, eliminating per-extension timing variations. See [Apr 3 sync 2](./post-merge-hardening/2026-04-03-sync-2.md).
+
+### GHSA-qm77-8qjp-4vcm: Slack Thread Context Could Include Messages From Non-Allowlisted Senders
+
+**Severity:** MEDIUM
+**Published:** 2026-04-02
+**Patched:** v2026.4.2
+**Credits:** @AntAISecurityLab
+
+**Description:** Before OpenClaw 2026.4.2, Slack thread starter and thread-history context fetched through the API was not filtered by the effective sender allowlist. Messages from non-allowlisted senders could still enter the agent context when an allowlisted user replied in the same thread. This was a sender-access-control bypass on Slack thread context, not a direct channel-auth bypass.
+
+**Fix:** Commit [`ac5bc4fb37`](https://github.com/openclaw/openclaw/commit/ac5bc4fb37becc64a2ec314864cca1565e921f2d) filters Slack thread context by the effective allowlist before feeding it to the agent. See [Apr 5 sync 17](./post-merge-hardening/2026-04-06-sync-17.md).
+
+### GHSA-wwfp-w96m-c6x8: Pairing Pending-Request Caps Were Enforced Per Channel Instead of Per Account
+
+**Severity:** LOW
+**Published:** 2026-04-02
+**Patched:** v2026.3.31
+**Credits:** @smaeljaish771
+
+**Description:** Before OpenClaw 2026.3.31, pending pairing-request caps were enforced per channel file instead of per account. On multi-account channel setups, requests from other accounts could fill the shared pending window and block new pairing challenges on an unaffected account. This was an availability-only issue; it did not allow cross-account approval, data access, or authorization bypass.
+
+**Fix:** Commit [`9bc1f896c8`](https://github.com/openclaw/openclaw/commit/9bc1f896c8cd325dd4761681e9bdb8c425f69785) scopes pending request caps per account. See [Apr 5 sync 17](./post-merge-hardening/2026-04-06-sync-17.md).
+
+### GHSA-fqrj-m88p-qf3v: Zalo Replay Dedupe Cache Could Suppress Events Across Authenticated Webhook Targets
+
+**Severity:** LOW
+**Published:** 2026-04-02
+**Patched:** v2026.3.31
+**Credits:** @nexrin
+
+**Description:** Before OpenClaw 2026.3.31, the Zalo webhook replay-dedupe cache was shared across authenticated webhook targets and keyed too broadly. In multi-account deployments, a replay seen on one account could suppress a legitimate event on another account if `event_name` and `message_id` matched. An attacker controlling one authenticated Zalo webhook path could cause silent message suppression on a different Zalo account sharing that gateway. This was an availability issue; it did not provide cross-account authentication or data access.
+
+**Fix:** Commit [`4d038bb242`](https://github.com/openclaw/openclaw/commit/4d038bb242c11f39e45f6a4bde400e5fd42e4ebf) scopes webhook replay dedupe per target, with follow-up hardening in [`7cea7c2970`](https://github.com/openclaw/openclaw/commit/7cea7c29705b188b464cc9cdc107c275b94b2a72) scoping by path and account. See [Apr 5 sync 17](./post-merge-hardening/2026-04-06-sync-17.md).
+
+### GHSA-fh32-73r9-rgh5: Trailing-Dot Localhost CDP Hosts Could Bypass Remote Loopback Protections
+
+**Severity:** LOW
+**Published:** 2026-04-02
+**Patched:** v2026.4.2
+**Credits:** @smaeljaish771
+
+**Description:** Before OpenClaw 2026.4.2, remote CDP discovery could return a trailing-dot localhost host such as `localhost.` and bypass OpenClaw's loopback-host normalization. That let a non-loopback remote CDP profile pivot the follow-up connection back onto localhost, potentially exposing localhost-backed browser state.
+
+**Fix:** Commit [`9c22d63669`](https://github.com/openclaw/openclaw/commit/9c22d636697336a6b22b0ae24798d8b8325d7828) normalizes localhost absolute-form CDP hosts before loopback checks. See [Apr 5 sync 17](./post-merge-hardening/2026-04-06-sync-17.md).
+
+### GHSA-83f3-hh45-vfw9: Android Accepted Cleartext Remote Gateway Endpoints and Sent Stored Credentials Over ws://
+
+**Severity:** LOW
+**Published:** 2026-04-02
+**Patched:** v2026.4.2
+**Credits:** @zsxsoft
+
+**Description:** Before OpenClaw 2026.4.2, Android accepted non-loopback cleartext `ws://` gateway endpoints and would send stored gateway credentials over that connection. Discovery beacons or setup codes could steer the client onto a cleartext remote endpoint, disclosing stored gateway credentials in plaintext.
+
+**Fix:** Commit [`a941a4fef9`](https://github.com/openclaw/openclaw/commit/a941a4fef9bc43b2973c92d0dcff5b8a426210c5) requires TLS for remote Android gateway endpoints. See [Apr 5 sync 17](./post-merge-hardening/2026-04-06-sync-17.md).
