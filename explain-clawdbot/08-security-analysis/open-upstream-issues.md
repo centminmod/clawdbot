@@ -11,7 +11,7 @@
 | [#8512](https://github.com/openclaw/openclaw/issues/8512) | ~~CRITICAL~~ WONTFIX | Plugin HTTP routes bypass gateway authentication | Closed upstream as NOT_PLANNED (2026-03-07); opt-in auth added via `matchedPluginRoutesRequireGatewayAuth()` (`route.auth==="gateway"`) but not enforced by default; still affects plugin routes without explicit auth config at `src/gateway/server/plugins-http.ts:79-83` |
 | [#20683](https://github.com/openclaw/openclaw/issues/20683) | ~~HIGH~~ FIXED | Control UI allows token-only auth over HTTP (allowInsecureAuth bypass) | Fixed upstream (COMPLETED); `src/gateway/server/ws-connection/connect-policy.ts:22-34` |
 | [#50022](https://github.com/openclaw/openclaw/issues/50022) | ~~HIGH~~ FIXED | WS scope stripping on missing Origin header bypasses dangerouslyDisableDeviceAuth | Fixed by PR [#50101](https://github.com/openclaw/openclaw/pull/50101) (COMPLETED 2026-03-18); `clearUnboundScopes()` no longer strips scopes for valid-token connections with absent Origin; local commit `7b61ca1b06` |
-| [#50640](https://github.com/openclaw/openclaw/issues/50640) | ~~HIGH~~ FIXED LOCALLY | Silent auto-approval of scope-upgrade pairing requests for local Control UI | FIXED locally by commit `81ebc7e034` (Mar 26 sync 5): `src/gateway/server/ws-connection/message-handler.ts:807-809` now forces `silent: false` for scope-upgrade reasons via `reason === "scope-upgrade" ? false : allowSilentLocalPairing`; previously `shouldAllowSilentLocalPairing()` returned `true` for scope-upgrade on local Control UI/Webchat connections, allowing silent privilege escalation |
+| [#50640](https://github.com/openclaw/openclaw/issues/50640) | ~~HIGH~~ FIXED LOCALLY | Silent auto-approval of scope-upgrade pairing requests for local Control UI | FIXED locally by commit `81ebc7e034` (Mar 26 sync 5): `src/gateway/server/ws-connection/message-handler.ts:825-828` now forces `silent: false` for scope-upgrade reasons via `reason === "scope-upgrade" ? false : allowSilentLocalPairing`; previously `shouldAllowSilentLocalPairing()` returned `true` for scope-upgrade on local Control UI/Webchat connections, allowing silent privilege escalation |
 | [#17936](https://github.com/openclaw/openclaw/issues/17936) | HIGH | message/sendAttachment exfiltrates local files when sandbox disabled | `src/infra/outbound/message-action-params.ts:279-280` — `normalizeSandboxMediaParams()` skips path validation when `sandboxRoot` absent; default sandbox-off mode is affected |
 | [#50626](https://github.com/openclaw/openclaw/issues/50626) | HIGH | IDOR: device.token.rotate — any operator.pairing client can rotate another device's token | `src/gateway/server-methods/devices.ts:180-268` — handler checks device exists and caller scopes, but no `client.connect.deviceId === params.deviceId` ownership check; any device with `operator.pairing` scope can rotate any other device's token and receive plaintext credential |
 | [#20305](https://github.com/openclaw/openclaw/issues/20305) | ~~HIGH~~ WONTFIX | message tool cross-user sends in multi-tenant deployments (no per-agent scoping) | Closed upstream as NOT_PLANNED (2026-03-24); `src/infra/outbound/message-action-runner.ts` — no `allowedRecipients` or per-agent channel filtering; affects deployments with `dmScope: "per-channel-peer"` and 200+ agents |
@@ -62,7 +62,7 @@
 | [#10331](https://github.com/openclaw/openclaw/issues/10331) | ~~MEDIUM~~ FIXED | Session store stale cache inside write lock | Fixed upstream (COMPLETED 2026-02-14); `src/config/sessions/store.ts:835,801` |
 | [#10333](https://github.com/openclaw/openclaw/issues/10333) | ~~MEDIUM~~ FIXED | BlueBubbles filename multipart header injection | Fixed in PR [#11093](https://github.com/openclaw/openclaw/pull/11093) — `sanitizeFilename()` at `extensions/bluebubbles/src/attachments.ts:38` |
 | [#10646](https://github.com/openclaw/openclaw/issues/10646) | ~~HIGH~~ FIXED | Weak UUID: Math.random() fallback + tool call IDs | Closed upstream as NOT_PLANNED (2026-02-24); `ui/src/ui/uuid.ts:23-33` (fallback, low-risk) remains; **tool call ID fixed** by commit `265386cd6b` (Mar 22 sync 1) — `src/auto-reply/reply/get-reply-inline-actions.ts:246` now uses `generateSecureToken(8)` |
-| [#7139](https://github.com/openclaw/openclaw/issues/7139) | ~~MEDIUM~~ FIXED | Default config: sandbox off, plaintext creds | Fixed upstream (COMPLETED); `src/agents/sandbox/config.ts:244` — sandbox default changed |
+| [#7139](https://github.com/openclaw/openclaw/issues/7139) | ~~MEDIUM~~ FIXED | Default config: sandbox off, plaintext creds | Fixed upstream (COMPLETED); `src/agents/sandbox/config.ts:249` — sandbox default changed |
 | [#9875](https://github.com/openclaw/openclaw/issues/9875) | MEDIUM (WONTFIX) | Orphaned tool_use blocks from backgrounded exec | Closed upstream as NOT_PLANNED (2026-03-01); still affects local code at `src/agents/session-transcript-repair.ts:355` (reactive repair, not proactive) |
 | [#11900](https://github.com/openclaw/openclaw/issues/11900) | ~~MEDIUM~~ WONTFIX | Context files (USER.md, SOUL.md) loaded for all senders | Closed upstream as NOT_PLANNED (2026-03-25); `src/agents/bootstrap-files.ts:64-96` — no `senderIsOwner` check; `attempt.ts:377` calls unconditionally |
 | [#50628](https://github.com/openclaw/openclaw/issues/50628) | MEDIUM | Browser control server installs no authentication when gateway auth mode is trusted-proxy | `extensions/browser/src/browser/control-auth.ts:65-67` — `ensureBrowserControlAuth()` returns empty auth object for `trusted-proxy` mode; `installBrowserAuthMiddleware` skips when token+password both undefined; browser automation API accessible to any loopback process without auth |
@@ -86,7 +86,7 @@
 | [#11434](https://github.com/openclaw/openclaw/issues/11434) | CRITICAL (WONTFIX) | CWD .env → arbitrary dynamic import via OPENCLAW_BROWSER_CONTROL_MODULE | Closed upstream as NOT_PLANNED (2026-02-24); still affects local code at `src/gateway/server-browser.ts:13-14` — raw `await import(override)` |
 | [#11431](https://github.com/openclaw/openclaw/issues/11431) | ~~CRITICAL~~ FIXED | Hook/plugin npm install runs lifecycle scripts (no --ignore-scripts) | Fixed in PRs: `92702af7a` (plugins+hooks, Feb 12 sync 1) + [#14659](https://github.com/openclaw/openclaw/pull/14659) (skills, Feb 13 sync 1) — `--ignore-scripts` added to all install commands |
 | [#11023](https://github.com/openclaw/openclaw/issues/11023) | HIGH (WONTFIX) | Sandbox browser bridge started without auth token | Closed upstream as NOT_PLANNED (2026-02-13); `startBrowserBridgeServer` called at `src/agents/sandbox/browser.ts:355-366` WITH `authToken` and `authPassword` (line ref updated Mar 1 sync 1; auth IS present); relates to #6609 |
-| [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH (WONTFIX) | config.patch bypasses commands.restart restriction | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-methods/config.ts:464` |
+| [#11945](https://github.com/openclaw/openclaw/issues/11945) | HIGH (WONTFIX) | config.patch bypasses commands.restart restriction | Closed upstream as NOT_PLANNED (2026-02-13); still affects local code at `src/gateway/server-methods/config.ts:570` |
 | [#13683](https://github.com/openclaw/openclaw/issues/13683) | ~~HIGH~~ FIXED | CLI `config get` returns unredacted secrets to sandboxed agents | Fixed upstream (COMPLETED 2026-02-14); `src/cli/config-cli.ts:1168-1169` |
 | [#13786](https://github.com/openclaw/openclaw/issues/13786) | ~~HIGH~~ FIXED | BlueBubbles webhook auth bypass via loopback proxy trust | Fixed in PR [#13787](https://github.com/openclaw/openclaw/pull/13787) — loopback bypass removed; all requests require password auth |
 | [#13718](https://github.com/openclaw/openclaw/issues/13718) | ~~HIGH~~ FIXED | Unauthenticated Nostr profile API allows remote config tampering | Fixed in PR [#13719](https://github.com/openclaw/openclaw/pull/13719) — gateway-auth required for `/api/channels/` plugin routes (`server-http.ts:337-397`) |
@@ -118,7 +118,7 @@
 | [#45740](https://github.com/openclaw/openclaw/issues/45740) | MEDIUM | gh-issues skill: untrusted issue body injected into sub-agent prompt | `skills/gh-issues/SKILL.md:369` — `Body: {body}` injected verbatim into fix sub-agent prompt with full shell access; XML tag injection bypasses any prompt-level fence; exploitable in `--cron --yes` unattended mode |
 | [#45502](https://github.com/openclaw/openclaw/issues/45502) | MEDIUM | Multi-vuln report: eval in browser context + SSRF Azure hostname gap | `extensions/browser/src/browser/pw-tools-core.interactions.ts:354-376` — `eval("(" + fnBody + ")")` in browser context (by design for Playwright automation); `src/infra/net/ssrf.ts:41-45` — `metadata.azure.internal` NOT in BLOCKED_HOSTNAMES (IP-based blocking covers 169.254.169.254 + 100.100.100.200); exec() claim at `src/gateway/server-methods/config.ts:524` invalid (JSON.stringify escaping) |
 | [#46457](https://github.com/openclaw/openclaw/issues/46457) | MEDIUM | WhatsApp self-reply bypasses pattern-based mention gating in groups | `extensions/whatsapp/src/auto-reply/monitor/group-gating.ts:148-155` — `implicitMention = identitiesOverlap(self, replyContext?.sender)` triggers on self-reply (JIDs, LIDs, and E.164 compared); `src/channels/mention-gating.ts:31-35` — implicit mention makes `effectiveWasMentioned=true`, bypassing `requireMention` gate |
-| [#45153](https://github.com/openclaw/openclaw/issues/45153) | MEDIUM | Sandbox browser ignores top-level browser.ssrfPolicy — always strictest | `src/agents/sandbox/browser.ts:64-97` — `buildSandboxBrowserResolvedConfig` omits `ssrfPolicy` from returned config; `extensions/browser/src/browser/config.ts:101-128` — `resolveBrowserSsrFPolicy()` never called for sandbox; fails secure (more restrictive than configured) |
+| [#45153](https://github.com/openclaw/openclaw/issues/45153) | MEDIUM | Sandbox browser ignores top-level browser.ssrfPolicy — always strictest | `src/agents/sandbox/browser.ts:64-97` — `buildSandboxBrowserResolvedConfig` omits `ssrfPolicy` from returned config; `extensions/browser/src/browser/config.ts:102-132` — `resolveBrowserSsrFPolicy()` never called for sandbox; fails secure (more restrictive than configured) |
 | [#29829](https://github.com/openclaw/openclaw/issues/29829) | ~~MEDIUM~~ FIXED | EXEC_SECRET_REF_ID_PATTERN allows path traversal sequences | Fixed by `d30dc28b8` — `validateExecSecretRefId()` now splits by `/` and rejects `.` and `..` segments (`src/secrets/ref-contract.ts:86-95`); JSON schema pattern has negative lookahead rejecting `../`; confirmed COMPLETED upstream (2026-03-13) |
 | [#9325](https://github.com/openclaw/openclaw/issues/9325) | N/A (CLOSED) | Skill removal without notification | Closed upstream as NOT_PLANNED (2026-03-01); ClawHub platform moderation issue |
 | [#11879](https://github.com/openclaw/openclaw/issues/11879) | N/A (CLOSED) | Malicious ClawHub skill exfiltrating to Feishu | Closed upstream as NOT_PLANNED (2026-03-07); ecosystem/marketplace issue; 13,981 installs |
@@ -179,7 +179,7 @@
 
 ### #7139: Default Config — Sandbox Disabled, Plaintext Credentials
 
-**Sandbox defaults to "off"** at `src/agents/sandbox/config.ts:244`:
+**Sandbox defaults to "off"** at `src/agents/sandbox/config.ts:249`:
 
 ```
 mode: agentSandbox?.mode ?? agent?.mode ?? "off"
@@ -654,7 +654,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 **Affected code:**
 - `src/agents/sandbox/context.ts:39-46` - `workspaceAccess === "rw"` uses `agentWorkspaceDir` as sandbox root
 - `src/agents/sandbox-paths.ts:44-58` - path escape protection only, no sensitive dir exclusion
-- `src/agents/sandbox/config.ts:248` - default `workspaceAccess: "none"` (safe)
+- `src/agents/sandbox/config.ts:252` - default `workspaceAccess: "none"` (safe)
 
 **Cross-ref:** [PR #16929](https://github.com/openclaw/openclaw/pull/16929) (OPEN) — block sensitive dirs in sandbox
 
@@ -822,7 +822,7 @@ A Docker sandbox implementation exists with proper isolation (`--network none`, 
 All changes take effect immediately via automatic restart.
 
 **Affected code:**
-- `src/gateway/server-methods/config.ts:464,524` — writes config then calls `scheduleGatewaySigusr1Restart()` with NO `commands.restart` check
+- `src/gateway/server-methods/config.ts:570,637` — config.patch and config.apply call `scheduleGatewaySigusr1Restart()` with NO `commands.restart` check
 - `src/infra/restart.ts:155` — `authorizeGatewaySigusr1Restart(delayMs)` pre-authorizes the SIGUSR1 signal
 - `src/cli/gateway-cli/run-loop.ts:190` — `consumeGatewaySigusr1RestartAuthorization()` returns true (pre-authorized), bypassing `isGatewaySigusr1RestartExternallyAllowed()`
 - **Contrast:** `src/agents/tools/gateway-tool.ts:153` — the explicit `restart` action correctly checks `commands.restart`
@@ -859,7 +859,7 @@ All changes take effect immediately via automatic restart.
 - `src/cli/config-cli.ts:1163-1191` — output paths (`defaultRuntime.log`) emit unredacted values
 
 **Correct implementation (for comparison):**
-- `src/gateway/server-methods/config.ts:308` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
+- `src/gateway/server-methods/config.ts:380` — RPC handler calls `redactConfigSnapshot(snapshot)` before `respond()`
 - `src/config/redact-snapshot.ts:378-380` — `redactConfigObject()` is exported and available for use in CLI
 
 **Relationship to existing issues:**
@@ -1069,7 +1069,7 @@ All changes take effect immediately via automatic restart.
 **Severity:** MEDIUM
 **CWE:** CWE-22 (Path Traversal)
 
-**Vulnerability:** `resolvePatchPath()` has two code paths. When `sandboxRoot` is set, it calls `assertSandboxPath()` (secure). When `sandboxRoot` is `undefined` (gateway/non-sandboxed mode), it falls through to `resolvePathFromCwd()` which accepts absolute paths and normalizes `../` via `path.resolve()` with zero containment checks. Default sandbox mode is "off" (`src/agents/sandbox/config.ts:166`).
+**Vulnerability:** `resolvePatchPath()` has two code paths. When `sandboxRoot` is set, it calls `assertSandboxPath()` (secure). When `sandboxRoot` is `undefined` (gateway/non-sandboxed mode), it falls through to `resolvePathFromCwd()` which accepts absolute paths and normalizes `../` via `path.resolve()` with zero containment checks. Default sandbox mode is "off" (`src/agents/sandbox/config.ts:249`).
 
 **Affected code:**
 - `src/agents/apply-patch.ts:311-352` — `resolvePatchPath()` function
@@ -1190,7 +1190,7 @@ All changes take effect immediately via automatic restart.
 **Affected code:**
 - `src/gateway/server/ws-connection/connect-policy.ts:22-34` — `allowInsecureAuthConfigured` + `allowBypass` flags resolved via `resolveControlUiAuthPolicy()`
 - `src/gateway/server/ws-connection/connect-policy.ts:104-146` — `evaluateMissingDeviceIdentity()` handles device identity check; HTTPS enforcement skipped when `allowBypass = true`
-- `src/gateway/server/ws-connection/message-handler.ts:531` — `handleMissingDeviceIdentity()`: device pairing requirement skipped when `allowInsecureAuth` configured
+- `src/gateway/server/ws-connection/message-handler.ts:545` — `handleMissingDeviceIdentity()`: device pairing requirement skipped when `allowInsecureAuth` configured
 - `src/security/audit.ts:565-577` — security audit detects and flags as `severity: "warn"` (checkId: `gateway.control_ui.insecure_auth`), but audit is advisory only
 
 **Exploit conditions:** Admin must set `allowInsecureAuth: true` (opt-in). Once enabled, passive MITM on the local network can capture the auth token and gain full `operator.admin + operator.approvals + operator.pairing` access.

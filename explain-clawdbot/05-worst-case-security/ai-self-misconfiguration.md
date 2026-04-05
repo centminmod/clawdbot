@@ -333,7 +333,7 @@ openclaw config set tools.elevated false
 **Severity:** 🟠 HIGH
 **Applicability:** Self-hosted
 
-OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config.ts:82-128`). But every hardened default can be overridden via config — meaning an AI (or a human) can systematically dismantle the sandbox one setting at a time.
+OpenClaw's Docker sandbox ships with strong defaults (`src/agents/sandbox/config.ts:82-126`). But every hardened default can be overridden via config — meaning an AI (or a human) can systematically dismantle the sandbox one setting at a time.
 
 #### 4a. Network Isolation Removal
 
@@ -454,7 +454,7 @@ Source: `src/agents/sandbox/docker.ts:459-465` — workspace mount with optional
 - `/:/host:rw` — mounts the **entire host filesystem** read-write into the container. Complete host compromise.
 - `/var/run/docker.sock` — gives the container access to the Docker daemon. The sandboxed agent can now create new privileged containers, escape the sandbox entirely, and control the host.
 
-Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:97`), so per-agent overrides add to — not replace — the global list.
+Any bind mount widens the attack surface. Agent-level binds are **concatenated** with global binds (`src/agents/sandbox/config.ts:98`), so per-agent overrides add to — not replace — the global list.
 
 Source: `src/agents/sandbox/docker.ts:421-425` — iterates `binds` array to build `-v` flags
 
@@ -1043,7 +1043,7 @@ OpenClaw has several built-in protections. Understanding them helps you build on
 | Protection | What It Does | Source |
 |-----------|-------------|--------|
 | **Config backup rotation** | Keeps 5 `.bak` files before each config write | `src/config/backup-rotation.ts:12` |
-| **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:57-524` |
+| **baseHash optimistic locking** | Prevents concurrent config overwrites (not a security control — AI reads the hash first) | `src/gateway/server-methods/config.ts:62-104` |
 | **Credential redaction** | API keys replaced with `__OPENCLAW_REDACTED__` in `config.get` responses | `src/config/redact-snapshot.ts:78,312-319` |
 | **Dangerous env var blocklist** | Blocks `LD_PRELOAD`, `NODE_OPTIONS`, etc. from being set via exec tools | `src/agents/bash-tools.exec-runtime.ts:67-81` |
 | **Small model risk audit** | Warns when small/older models have tool access | `src/security/audit-extra.sync.ts:1192-1285` |
