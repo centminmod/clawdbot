@@ -4,7 +4,7 @@
 
 > **Source:** [github.com/openclaw/openclaw/security](https://github.com/openclaw/openclaw/security)
 >
-> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (22 new advisories, 4 HIGH + 15 MEDIUM + 3 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (30 new advisories, 1 HIGH + 25 MEDIUM + 4 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (26 new advisories, 1 CRITICAL + 11 HIGH + 14 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 patched in Mar 27 sync 2 (02cf12371f); GHSA-fqw4-mph7-2vr8 pending; Mar 27 late batch (9 new advisories, 4 HIGH + 5 MEDIUM) published 2026-03-27, GHSA-68f8-9mhj-h2mp patched in Mar 28 sync 1 (2d80dbfeba); 8 remaining pending; Mar 29 batch (24 new advisories, 3 CRITICAL + 13 HIGH + 7 MEDIUM + 1 LOW) published 2026-03-29, all patched in v2026.3.22–v2026.3.28; Mar 31 batch (59 new advisories, 1 CRITICAL + 14 HIGH + 29 MEDIUM + 15 LOW) published 2026-03-31, 9 patched in v2026.3.22–v2026.3.28, 50 pending; Apr 1 sync 3 (12 advisories patched: GHSA-rfqg-qgf8-xr9x + GHSA-6p8r-6m93-557f + GHSA-g5cg-8x5w-7jpm + GHSA-3qpv-xf3v-mm45 + GHSA-qcj9-wwgw-6gm8 + GHSA-37v6-fxx8-xjmx + GHSA-9q7v-8mr7-g23p + GHSA-g8xp-qx39-9jq9 + GHSA-x2m8-53h4-6hch + GHSA-cqgw-44wg-44rf + GHSA-3xv9-89fm-7h4r + GHSA-9f4w-67g7-mqwv); Apr 1 sync 7 (14 additional advisories patched: GHSA-mhgq-xpfq-6r66 + GHSA-jjw7-3vjf-fg5j + GHSA-89r3-6x4j-v7wf + GHSA-hhq4-97c2-p447 + GHSA-2w79-r9g8-wmcr + GHSA-qcc3-jqwp-5vh2 + GHSA-877v-w3f5-3pcq + GHSA-4g5x-2jfc-xm98 + GHSA-q9w8-cf67-r238 + GHSA-f693-58pc-2gfr + GHSA-3pm9-5j7m-59vc + GHSA-7ggg-pvrf-458v + GHSA-rg8m-3943-vm6q + GHSA-w85g-3h6x-4xh2); Apr 2 batch (14 new advisories, 3 HIGH + 9 MEDIUM + 2 LOW) published 2026-04-02, all pending patch.
+> These are officially disclosed vulnerabilities with assigned CVE/GHSA identifiers. Earlier advisories were patched in v2026.1.29-1.30; Feb 14 batch (5 new advisories) patched in v2026.2.1-2.6; Feb 15 batch (26 new advisories, 10 HIGH + 10 MEDIUM + 6 previously tracked) patched in v2026.2.1-2.2+; Feb 16 batch (16 new advisories, 9 HIGH + 4 MEDIUM + 3 LOW) published 2026-02-15/16; Feb 15/16/18/19 supplemental (8 additional advisories, 4 HIGH + 4 MEDIUM); Feb 20 batch (4 new advisories, 2 MEDIUM + 2 LOW) published 2026-02-20, patched in v2026.2.18; Feb 21 batch (27 new advisories, 5 HIGH + 18 MEDIUM + 4 LOW) + GHSA-82g8-464f-2mv7 (CRITICAL, patched v2026.2.21) published 2026-02-21; Feb 23 batch (32 new advisories, 1 HIGH + 26 MEDIUM + 5 LOW) published 2026-02-23, 2 patched in Feb 23 sync 16 (GHSA-f6h3-846h-2r8w + GHSA-wpph-cjgr-7c39); Feb 24 batch (16 new advisories, 2 HIGH + 13 MEDIUM + 1 LOW) published 2026-02-24, 3 patched in Feb 25 sync 2 (GHSA-q6qf-4p5j-r25g + GHSA-3c6h-g97w-fg78 + GHSA-2ww6-868g-2c56); Feb 25 batch (12 new advisories, 1 HIGH + 10 MEDIUM + 1 LOW) published 2026-02-25, 1 patched in Feb 25 sync 5 (GHSA-ccg8-46r6-9qgj by 57c9a1818); Feb 26 batch (18 new advisories, 4 HIGH + 11 MEDIUM + 3 LOW) published 2026-02-26, 12 patched in Feb 26 sync 1; GHSA-56pc-6hvp-4gv4 (arbitrary file read via $include) patched in Feb 26 sync 6 (9925ac6a2 + 242188b7b); Feb 26 late batch (15 new advisories, 5 HIGH + 4 MEDIUM + 4 LOW + 2 pending-classification) published 2026-02-26T22:40; GHSA-8j2w-6fmm-m587 (boundary path canonicalization mismatch) patched in Feb 27 sync 5 (7dad7cc2c); Mar 2 batch (11 new advisories, 4 HIGH + 7 MEDIUM) published 2026-03-02, 7 patched in Mar 2 sync 4 (GHSA-jr6x-2q95-fh2g + GHSA-392f-ggf5-fp3c + GHSA-p7gr-f84w-hqg5 + GHSA-7xmq-g46g-f8pv + GHSA-x82f-27x3-q89c + GHSA-6f6j-wx9w-ff4j + GHSA-g99v-8hwm-g76g), GHSA-q399-23r3-hfx4 (PATH-token executable identity) patched in Mar 3 sync 6 (dded56962); GHSA-mwxv-35wr-4vvj (plugin auth path traversal bypass, HIGH) patched in Mar 3 sync 3 (93b072402); GHSA-7vwx-582j-j332 (MS Teams bearer token leak, HIGH) + GHSA-7qf6-h84j-8fq4 (MS Teams media SSRF, MEDIUM) patched in Mar 3 sync 8 (4a414c5e5 + 8937c10f1 + cceecc8bd); Mar 3 batch (11 new advisories, 2 HIGH + 9 MEDIUM) published 2026-03-03, patched >= v2026.3.2; Mar 8 batch (10 new advisories, 2 HIGH + 8 MEDIUM) published 2026-03-08, GHSA-rchv-x836-w7xp patched in Mar 10 sync 1 (f2f561fab); Mar 10-11 batch (3 new advisories, 0 HIGH + 3 MEDIUM) published 2026-03-10/11; Mar 12 batch (13 new advisories, 6 HIGH + 4 MEDIUM + 1 LOW + 1 CRITICAL + 1 HIGH CVE) published 2026-03-12, all patched in v2026.3.11; Mar 13 batch (12 new advisories, 5 HIGH + 4 MEDIUM + 2 CRITICAL) published 2026-03-13, all patched in v2026.3.12; Mar 14 batch (5 new advisories, 2 HIGH + 3 MEDIUM) published 2026-03-14, all patched in v2026.3.13; Mar 24 batch (28 new advisories, 1 CRITICAL + 12 HIGH + 15 MEDIUM) published 2026-03-24, pending patch; Mar 26 batch (19 new advisories, 2 CRITICAL + 5 HIGH + 12 MEDIUM) published 2026-03-26, 17 patched in Mar 27 sync 1 (GHSA-3h52-cx59-c456 + GHSA-4hmj-39m8-jwc7 + GHSA-52q4-3xjc-6778 + GHSA-5jvj-hxmh-6h6j + GHSA-77w2-crqv-cmv3 + GHSA-9hjh-fr4f-gxc4 + GHSA-9wqx-g2cw-vc7r + GHSA-h4jx-hjr3-fhgc + GHSA-j4c9-w69r-cw33 + GHSA-mf5g-6r6f-ghhm + GHSA-mw7w-g3mg-xqm7 + GHSA-q2qc-744p-66r2 + GHSA-qm2m-28pf-hgjw + GHSA-rf6h-5gpw-qrgq + GHSA-rhfg-j8jq-7v2h + GHSA-vcx4-4qxg-mfp4 + GHSA-xq8g-hgh6-87hv); GHSA-9p93-7j67-5pc2 patched in Mar 27 sync 2 (02cf12371f); GHSA-fqw4-mph7-2vr8 pending; Mar 27 late batch (9 new advisories, 4 HIGH + 5 MEDIUM) published 2026-03-27, GHSA-68f8-9mhj-h2mp patched in Mar 28 sync 1 (2d80dbfeba); 8 remaining pending; Mar 29 batch (24 new advisories, 3 CRITICAL + 13 HIGH + 7 MEDIUM + 1 LOW) published 2026-03-29, all patched in v2026.3.22–v2026.3.28; Mar 31 batch (59 new advisories, 1 CRITICAL + 14 HIGH + 29 MEDIUM + 15 LOW) published 2026-03-31, 9 patched in v2026.3.22–v2026.3.28, 50 pending; Apr 1 sync 3 (12 advisories patched: GHSA-rfqg-qgf8-xr9x + GHSA-6p8r-6m93-557f + GHSA-g5cg-8x5w-7jpm + GHSA-3qpv-xf3v-mm45 + GHSA-qcj9-wwgw-6gm8 + GHSA-37v6-fxx8-xjmx + GHSA-9q7v-8mr7-g23p + GHSA-g8xp-qx39-9jq9 + GHSA-x2m8-53h4-6hch + GHSA-cqgw-44wg-44rf + GHSA-3xv9-89fm-7h4r + GHSA-9f4w-67g7-mqwv); Apr 1 sync 7 (14 additional advisories patched: GHSA-mhgq-xpfq-6r66 + GHSA-jjw7-3vjf-fg5j + GHSA-89r3-6x4j-v7wf + GHSA-hhq4-97c2-p447 + GHSA-2w79-r9g8-wmcr + GHSA-qcc3-jqwp-5vh2 + GHSA-877v-w3f5-3pcq + GHSA-4g5x-2jfc-xm98 + GHSA-q9w8-cf67-r238 + GHSA-f693-58pc-2gfr + GHSA-3pm9-5j7m-59vc + GHSA-7ggg-pvrf-458v + GHSA-rg8m-3943-vm6q + GHSA-w85g-3h6x-4xh2); Apr 2 batch (14 new advisories, 3 HIGH + 9 MEDIUM + 2 LOW) published 2026-04-02, all pending patch.
 
 ### Advisory Summary
 
@@ -93,6 +93,11 @@
 | [GHSA-cxpw-2g23-2vgw](https://github.com/openclaw/openclaw/security/advisories/GHSA-cxpw-2g23-2vgw) | LOW | OC-53: ACP prompt-size checks missing in local stdio bridge | CWE-400 | v2026.2.18 | @aether-ai-agent |
 | [GHSA-w45g-5746-x9fp](https://github.com/openclaw/openclaw/security/advisories/GHSA-w45g-5746-x9fp) | MEDIUM | Harden cron webhook delivery against SSRF | CWE-918 | v2026.2.18 | @Adam55A-code |
 | [GHSA-82g8-464f-2mv7](https://github.com/openclaw/openclaw/security/advisories/GHSA-82g8-464f-2mv7) | CRITICAL | Environment Variable Injection via Host Exec Env | CWE-78 | v2026.2.21 | @aether-ai-agent |
+| [GHSA-65rx-fvh6-r4h2](https://github.com/openclaw/openclaw/security/advisories/GHSA-65rx-fvh6-r4h2) | HIGH | Shell command injection in exec allowlist mode via unquoted heredoc expansion | CWE-78, CWE-116, CWE-183 | >= v2026.2.21 | @torturado |
+| [GHSA-74xj-763f-264w](https://github.com/openclaw/openclaw/security/advisories/GHSA-74xj-763f-264w) | MEDIUM | ACP resource_link metadata prompt interpolation allowed prompt-injection content via title/URI fields | CWE-20, CWE-94 | >= v2026.2.21 | @aether-ai-agent |
+| [GHSA-2prf-9cw7-fq62](https://github.com/openclaw/openclaw/security/advisories/GHSA-2prf-9cw7-fq62) | MEDIUM | OC-91: WhatsApp reaction action bypasses JID authorization for allowFrom-restricted targets | CWE-20, CWE-862 | >= v2026.2.21 | - |
+| [GHSA-xwcr-v472-8hhr](https://github.com/openclaw/openclaw/security/advisories/GHSA-xwcr-v472-8hhr) | MEDIUM | TTS model directives allowed provider switching by default | CWE-20, CWE-94 | >= v2026.2.21 | - |
+| [GHSA-x2g4-7mj7-2hhj](https://github.com/openclaw/openclaw/security/advisories/GHSA-x2g4-7mj7-2hhj) | LOW | OC-65: overflow compaction retry counter reset after truncation amplifies bounded retry/cost cycles | CWE-400 | >= v2026.2.21 | @aether-ai-agent |
 | [GHSA-vvjh-f6p9-5vcf](https://github.com/openclaw/openclaw/security/advisories/GHSA-vvjh-f6p9-5vcf) | HIGH | ZDI-CAN-29311: Canvas Authentication Bypass | CWE-291 | pending | @zdi-disclosures |
 | [GHSA-vffc-f7r7-rx2w](https://github.com/openclaw/openclaw/security/advisories/GHSA-vffc-f7r7-rx2w) | HIGH | Line Break Injection in systemd Unit Generation Enables Local Command Execution | CWE-77 | pending | @tdjackey |
 | [GHSA-w7j5-j98m-w679](https://github.com/openclaw/openclaw/security/advisories/GHSA-w7j5-j98m-w679) | HIGH | Multiple E2E/test Dockerfiles run all processes as root | CWE-250 | pending | @TerminalsandCoffee |
@@ -153,6 +158,8 @@
 | [GHSA-4cqv-h74h-93j4](https://github.com/openclaw/openclaw/security/advisories/GHSA-4cqv-h74h-93j4) | MEDIUM | Discord allowFrom slug-collision authorization bypass | - | >= v2026.2.22 | @tdjackey |
 | [GHSA-jxrq-8fm4-9p58](https://github.com/openclaw/openclaw/security/advisories/GHSA-jxrq-8fm4-9p58) | MEDIUM | Zip extraction symlink traversal could write outside destination | - | >= v2026.2.22 | @tdjackey |
 | [GHSA-4gc7-qcvf-38wg](https://github.com/openclaw/openclaw/security/advisories/GHSA-4gc7-qcvf-38wg) | MEDIUM | Non-default configuration: manually adding sort to tools.exec.safeBins could bypass allowlist approval via --compress-program | - | >= v2026.2.22 | @tdjackey |
+| [GHSA-v3j7-34xh-6g3w](https://github.com/openclaw/openclaw/security/advisories/GHSA-v3j7-34xh-6g3w) | MEDIUM | Loopback CDP probe can leak Gateway token to local listener | CWE-290, CWE-306 | >= v2026.2.22 | @tdjackey |
+| [GHSA-5f9p-f3w2-fwch](https://github.com/openclaw/openclaw/security/advisories/GHSA-5f9p-f3w2-fwch) | LOW | macOS companion app (beta): allowlist parsing mismatch for system.run shell chains | CWE-184, CWE-285 | >= v2026.2.22 | @tdjackey |
 | [GHSA-8j9w-9pm5-pv8m](https://github.com/openclaw/openclaw/security/advisories/GHSA-8j9w-9pm5-pv8m) | MEDIUM | DUPLICATE: safeBins denied flags bypass via GNU long-option abbreviations | - | pending | @jiseoung |
 | [GHSA-7jx5-9fjg-hp4m](https://github.com/openclaw/openclaw/security/advisories/GHSA-7jx5-9fjg-hp4m) | MEDIUM | ACP permission auto-approval bypass via untrusted tool metadata | - | pending | @nedlir |
 | [GHSA-796m-2973-wc5q](https://github.com/openclaw/openclaw/security/advisories/GHSA-796m-2973-wc5q) | HIGH | exec allowlist/safeBins policy-runtime mismatch via env -S wrapper interpretation | - | pending | @jiseoung |
@@ -316,6 +323,8 @@
 | [GHSA-8883-9w57-vwv6](https://github.com/openclaw/openclaw/security/advisories/GHSA-8883-9w57-vwv6) | MEDIUM | Mattermost callback dispatch allowed non-allowlisted sender actions | - | pending | - |
 | [GHSA-xhq5-45pm-2gjr](https://github.com/openclaw/openclaw/security/advisories/GHSA-xhq5-45pm-2gjr) | MEDIUM | Nextcloud Talk room allowlist matched colliding room names instead of stable room tokens | - | pending | - |
 | [GHSA-pw7h-9g6p-c378](https://github.com/openclaw/openclaw/security/advisories/GHSA-pw7h-9g6p-c378) | MEDIUM | Tlon settings empty-allowlist reconciliation bypassed intended revocation | - | pending | - |
+| [GHSA-3w6x-gv34-mqpf](https://github.com/openclaw/openclaw/security/advisories/GHSA-3w6x-gv34-mqpf) | HIGH | Mutating internal ACP chat commands missed operator.admin scope enforcement | CWE-862 | >= v2026.3.22 | @tdjackey |
+| [GHSA-vfg3-pqpq-93m4](https://github.com/openclaw/openclaw/security/advisories/GHSA-vfg3-pqpq-93m4) | MEDIUM | Tlon cite expansion happened before channel and DM authorization completed | CWE-863 | >= v2026.3.22 | @zpbrent |
 | [GHSA-9hjh-fr4f-gxc4](https://github.com/openclaw/openclaw/security/advisories/GHSA-9hjh-fr4f-gxc4) | CRITICAL | Gateway Backend Reconnect lets Non-Admin Operator Scopes Self-Claim operator.admin | - | Mar 27 sync 1 (d3d8e316bd) | - |
 | [GHSA-fqw4-mph7-2vr8](https://github.com/openclaw/openclaw/security/advisories/GHSA-fqw4-mph7-2vr8) | CRITICAL | Gateway local shared-auth reconnect silently widens paired device scope from operator.read to operator.admin and reach node RCE | - | pending | - |
 | [GHSA-9p93-7j67-5pc2](https://github.com/openclaw/openclaw/security/advisories/GHSA-9p93-7j67-5pc2) | HIGH | Gateway HTTP /sessions/:sessionKey/kill Reaches Admin Kill Path Without Caller Scope Binding | - | Mar 27 sync 2 (02cf12371f) | - |
@@ -1638,6 +1647,102 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** Unauthorized cross-user canvas route access in mixed-trust configurations.
 
 **Fix:** Pending.
+
+### GHSA-65rx-fvh6-r4h2: Shell Command Injection in Exec Allowlist Mode via Unquoted Heredoc Expansion
+
+**Severity:** HIGH
+**Published:** 2026-02-21
+**Patched:** >= v2026.2.21
+**Credits:** @torturado
+**CVE:** CVE-2026-27209
+
+**Description:** The shell allowlist analyzer accepted unquoted heredoc bodies without enforcing expansion-token checks. In unquoted heredocs, the shell evaluates `$(...)`, `${...}`, and backtick expansions, which could execute unexpected commands while passing allowlist analysis. Only affects deployments using `security=allowlist` exec policy (non-default).
+
+**Impact:** In `security=allowlist` deployments, an allowlisted binary invocation could carry an unquoted heredoc body performing command/variable expansion at execution time.
+
+**Fix:** Commits `92cada2aca` + `f23da067f6` — parser now tracks quoted/unquoted heredoc delimiters, rejects unquoted heredoc expansion tokens in body lines, and requires explicit approval for allowlisted heredoc execution.
+
+### GHSA-74xj-763f-264w: ACP resource_link Metadata Prompt Interpolation Allowed Prompt-Injection Content
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+**Patched:** >= v2026.2.21
+**Credits:** @aether-ai-agent
+**CVE:** CVE-2026-27165
+
+**Description:** `src/acp/event-mapper.ts` previously interpolated ACP `resource_link` metadata (`title` and `uri`) directly into prompt text without escaping control/delimiter characters. Attackers who can influence ACP `resource_link` metadata could inject attacker-controlled prompt text into the LLM context.
+
+**Impact:** Prompt injection via crafted ACP resource_link title/URI fields — attacker-controlled content enters the LLM context, potentially altering model behavior.
+
+**Fix:** Patched in v2026.2.21.
+
+### GHSA-2prf-9cw7-fq62: WhatsApp Reaction Action Bypasses JID Authorization for allowFrom-Restricted Targets
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+**Patched:** >= v2026.2.21
+**Credits:** -
+**CVE:** CVE-2026-27158
+
+**Description:** The WhatsApp `reaction` action validated message ownership but did not enforce the same `allowFrom` JID authorization used by other outbound send paths. In `allowFrom`-restricted setups, an authenticated caller with tool access could attempt reactions to non-allowlisted chats by providing a forged `chatJid` with a valid `messageId`.
+
+**Impact:** Authorization bypass for reaction targeting in `allowFrom`-restricted WhatsApp workflows — reactions could be sent to non-allowlisted JIDs.
+
+**Fix:** Patched in v2026.2.21.
+
+### GHSA-xwcr-v472-8hhr: TTS Model Directives Allowed Provider Switching by Default
+
+**Severity:** MEDIUM
+**Published:** 2026-02-21
+**Patched:** >= v2026.2.21
+**Credits:** -
+**CVE:** CVE-2026-27159
+
+**Description:** Model-driven TTS directives accepted provider overrides by default. A reply containing `[[tts:provider=...]]` could switch the TTS provider for that reply, allowing prompt-injected or otherwise influenced model output to trigger unexpected provider hops and increase TTS spend when multiple providers were configured.
+
+**Impact:** Prompt-injected content could trigger TTS provider switches and increase spend in multi-provider TTS deployments.
+
+**Fix:** Provider override is now opt-in (`messages.tts.modelOverrides.allowProvider=false` by default). Voice/style overrides remain available.
+
+### GHSA-x2g4-7mj7-2hhj: Overflow Compaction Retry Counter Reset Amplifies Bounded Retry/Cost Cycles
+
+**Severity:** LOW
+**Published:** 2026-02-21
+**Patched:** >= v2026.2.21
+**Credits:** @aether-ai-agent
+**CVE:** CVE-2026-27164
+
+**Description:** `overflowCompactionAttempts` could be reset after successful tool-result truncation, allowing additional overflow recovery retries beyond the intended global budget. The loop is bounded, but the reset still increases retry/cost amplification in worst-case overflow scenarios.
+
+**Impact:** Increased retry/cost amplification in worst-case overflow recovery scenarios. Does not allow unbounded retries but increases spend beyond intended limits.
+
+**Fix:** Patched in v2026.2.21.
+
+### GHSA-v3j7-34xh-6g3w: Loopback CDP Probe Can Leak Gateway Token to Local Listener
+
+**Severity:** MEDIUM
+**Published:** 2026-02-23
+**Patched:** >= v2026.2.22
+**Credits:** @tdjackey
+
+**Description:** A local process can capture the OpenClaw Gateway auth token from Chrome CDP probe traffic on loopback. Affected versions inject `x-openclaw-relay-token` for loopback CDP URLs, and CDP reachability probes send that header to `/json/version`. If an attacker controls the probed loopback port, they can read that token and reuse it as Gateway bearer auth. Relevant code paths (pre-fix): `src/browser/extension-relay.ts`, `src/browser/cdp.helpers.ts`, `src/browser/chrome.ts`.
+
+**Impact:** Local credential disclosure affecting non-standard shared-user/shared-host installs where an untrusted local user/process can race/bind the loopback relay port. Does not affect standard single-owner installs.
+
+**Fix:** Commit `afa22acc4a` — gateway token no longer sent in CDP probe headers.
+
+### GHSA-5f9p-f3w2-fwch: macOS Companion App (Beta): Allowlist Parsing Mismatch for system.run Shell Chains
+
+**Severity:** LOW
+**Published:** 2026-02-23
+**Patched:** >= v2026.2.22
+**Credits:** @tdjackey
+
+**Description:** In the macOS companion app (currently beta), a parsing mismatch in exec approvals could let shell-chain payloads pass allowlist checks in `system.run` under specific settings. Requires all of: authenticated caller with `operator.write`, paired macOS beta node host, exec approvals set to `security=allowlist` and `ask=on-miss`. Default installs are not affected.
+
+**Impact:** Under specific non-default conditions, a shell-chain command could be approved from an incomplete command view and executed on the paired macOS host.
+
+**Fix:** Patched in v2026.2.22.
 
 ### GHSA-8j9w-9pm5-pv8m: safeBins Denied Flags Bypass via GNU Long-Option Abbreviations (DUPLICATE)
 
@@ -3192,6 +3297,32 @@ See [Post-merge hardening (Feb 21 sync 7)](./post-merge-hardening/2026-02-21-syn
 **Impact:** Allowlist revocation bypass in Tlon channel — clearing the allowlist via settings update does not take effect.
 
 **Fix:** Pending patch.
+
+### GHSA-3w6x-gv34-mqpf: Mutating Internal ACP Chat Commands Missed operator.admin Scope Enforcement
+
+**Severity:** HIGH
+**Published:** 2026-03-24
+**Patched:** >= v2026.3.22
+**Credits:** @tdjackey
+
+**Description:** Mutating internal ACP chat commands missed the `operator.admin` gate that separates read-only and mutating control-plane actions. `src/auto-reply/reply/commands-acp.ts` did not require `operator.admin` for mutating internal ACP actions, allowing callers with lower operator scopes to trigger mutating operations.
+
+**Impact:** Authenticated callers with operator scopes below `operator.admin` could invoke mutating internal ACP chat commands without the required elevated privilege.
+
+**Fix:** Commit `229426a257` — `commands-acp.ts` now requires `operator.admin` for mutating internal ACP actions. Regression coverage added in `commands-acp.test.ts`.
+
+### GHSA-vfg3-pqpq-93m4: Tlon Cite Expansion Happened Before Channel and DM Authorization Completed
+
+**Severity:** MEDIUM
+**Published:** 2026-03-24
+**Patched:** >= v2026.3.22
+**Credits:** @zpbrent
+
+**Description:** Tlon cite expansion happened before channel and DM authorization completed, allowing cite work and content handling before the final auth decision. `extensions/tlon/src/monitor/index.ts` performed cite expansion ahead of the authorization flow.
+
+**Impact:** Cite expansion and content handling could occur before authorization rejected the request, potentially exposing content or causing unintended side effects for unauthorized senders.
+
+**Fix:** Commits `3cbf932413` + `ebee4e2210` — cite expansion is now deferred until after authorization completes. Empty-allowlist revocation semantics also preserved (`extensions/tlon/src/monitor/utils.ts`, `extensions/tlon/src/security.test.ts`).
 
 ### GHSA-9hjh-fr4f-gxc4: Gateway Backend Reconnect Self-Claim of operator.admin
 

@@ -74,7 +74,7 @@ HTTP-Referer: https://openclaw.ai
 X-OpenRouter-Title: OpenClaw
 ```
 
-**Source:** `src/agents/provider-attribution.ts:277-304`
+**Source:** `src/agents/provider-attribution.ts:322-339`
 ```typescript
 function buildOpenRouterAttributionPolicy() {
   return {
@@ -360,8 +360,8 @@ export type GatewayClientInfo = {
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:189` | Media file downloads |
 | `User-Agent: openclaw` | `src/plugins/signal-cli-install.ts:221` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
-| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:295` | OpenRouter/Perplexity |
-| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:296` | OpenRouter/Perplexity |
+| `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:335` | OpenRouter/Perplexity |
+| `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:336` | OpenRouter/Perplexity |
 | `X-Title: OpenClaw Web Search` | `extensions/perplexity/src/perplexity-web-search-provider.ts:252` | Perplexity search |
 | `MM-API-Source: OpenClaw` | `src/agents/minimax-vlm.ts:86` | MiniMax VLM |
 
@@ -559,7 +559,7 @@ When placing Cloudflare in front of the Gateway, configure these settings:
 | Auth | `gateway.auth.token` or `gateway.auth.password` | Must be set | Gateway **refuses to start** on non-loopback without auth (`src/gateway/server-runtime-config.ts:128`), unless `auth.mode="trusted-proxy"` |
 | Trusted proxies | `gateway.trustedProxies` | Cloudflare IP ranges | Gateway trusts `X-Forwarded-For` / `X-Real-IP` from these IPs for client IP resolution (`src/gateway/net.ts:136-180`) |
 
-**Source:** `src/config/types.gateway.ts:427`
+**Source:** `src/config/types.gateway.ts:432`
 ```typescript
 /**
  * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection
