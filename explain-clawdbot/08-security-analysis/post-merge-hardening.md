@@ -372,6 +372,7 @@
 - [Apr 6 sync 2 (51 commits, 0 security)](./post-merge-hardening/2026-04-06-sync-2.md)
 - [Apr 6 sync 4 (51 commits, 6 security)](./post-merge-hardening/2026-04-06-sync-4.md)
 - [Apr 6 sync 6 (51 commits, 3 security)](./post-merge-hardening/2026-04-06-sync-6.md)
+- [Apr 6 sync 8 (51 commits, 2 security)](./post-merge-hardening/2026-04-06-sync-8.md)
 
 ## Post-Merge Security Hardening
 

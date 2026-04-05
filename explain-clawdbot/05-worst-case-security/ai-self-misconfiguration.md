@@ -1006,7 +1006,7 @@ openclaw security audit --deep  # Extended checks
 openclaw security audit --fix   # Auto-fix common issues
 ```
 
-Source: `src/security/audit.ts:1372-1501`
+Source: `src/security/audit.ts:1380-1517`
 
 ### `openclaw doctor`
 
