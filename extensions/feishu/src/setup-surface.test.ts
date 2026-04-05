@@ -5,6 +5,7 @@ import {
   createPluginSetupWizardStatus,
   createTestWizardPrompter,
   runSetupWizardConfigure,
+  type WizardPrompter,
 } from "../../../test/helpers/plugins/setup-wizard.js";
 
 vi.mock("./probe.js", () => ({
@@ -60,6 +61,16 @@ const feishuGetStatus = createPluginSetupWizardStatus(feishuPlugin);
 type FeishuConfigureRuntime = Parameters<typeof feishuConfigure>[0]["runtime"];
 
 describe("feishu setup wizard", () => {
+  it("setup adapter preserves a selected named account id", () => {
+    expect(
+      feishuPlugin.setup?.resolveAccountId?.({
+        cfg: {} as never,
+        accountId: "work",
+        input: {},
+      } as never),
+    ).toBe("work");
+  });
+
   it("does not throw when config appId/appSecret are SecretRef objects", async () => {
     const text = vi
       .fn()
@@ -89,6 +100,56 @@ describe("feishu setup wizard", () => {
         runtime: createNonExitingTypedRuntimeEnv<FeishuConfigureRuntime>(),
       }),
     ).resolves.toBeTruthy();
+  });
+
+  it("writes selected-account credentials instead of overwriting the channel root", async () => {
+    const prompter = createTestWizardPrompter({
+      text: vi.fn(async ({ message }: { message: string }) => {
+        if (message === "Enter Feishu App Secret") {
+          return "work-secret"; // pragma: allowlist secret
+        }
+        if (message === "Enter Feishu App ID") {
+          return "work-app";
+        }
+        if (message === "Group chat allowlist (chat_ids)") {
+          return "";
+        }
+        throw new Error(`Unexpected prompt: ${message}`);
+      }) as WizardPrompter["text"],
+      select: vi.fn(
+        async ({ initialValue }: { initialValue?: string }) => initialValue ?? "websocket",
+      ) as never,
+    });
+
+    const result = await runSetupWizardConfigure({
+      configure: feishuConfigure,
+      cfg: {
+        channels: {
+          feishu: {
+            appId: "top-level-app",
+            appSecret: "top-level-secret", // pragma: allowlist secret
+            accounts: {
+              work: {
+                appId: "",
+              },
+            },
+          },
+        },
+      } as never,
+      prompter,
+      accountOverrides: {
+        feishu: "work",
+      },
+      runtime: createNonExitingTypedRuntimeEnv<FeishuConfigureRuntime>(),
+    });
+
+    expect(result.cfg.channels?.feishu?.appId).toBe("top-level-app");
+    expect(result.cfg.channels?.feishu?.appSecret).toBe("top-level-secret");
+    expect(result.cfg.channels?.feishu?.accounts?.work).toMatchObject({
+      enabled: true,
+      appId: "work-app",
+      appSecret: "work-secret",
+    });
   });
 });
 
@@ -132,6 +193,31 @@ describe("feishu setup wizard status", () => {
     });
 
     expect(status.configured).toBe(false);
+  });
+
+  it("setup status honors the selected named account", async () => {
+    const status = await feishuGetStatus({
+      cfg: {
+        channels: {
+          feishu: {
+            appId: "top_level_app",
+            appSecret: "top-level-secret", // pragma: allowlist secret
+            accounts: {
+              work: {
+                appId: "",
+                appSecret: "work-secret", // pragma: allowlist secret
+              },
+            },
+          },
+        },
+      } as never,
+      accountOverrides: {
+        feishu: "work",
+      },
+    });
+
+    expect(status.configured).toBe(false);
+    expect(status.statusLines).toEqual(["Feishu: needs app credentials"]);
   });
 
   it("treats env SecretRef appId as not configured when env var is missing", async () => {
