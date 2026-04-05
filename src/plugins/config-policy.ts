@@ -197,6 +197,10 @@ export function resolvePluginActivationState(params: {
     config: params.sourceConfig ?? params.config,
     rootConfig: params.sourceRootConfig ?? params.rootConfig,
   });
+  const explicitlyConfiguredBundledChannel =
+    params.origin === "bundled" &&
+    explicitSelection.explicitlyEnabled &&
+    explicitSelection.reason === "channel enabled in config";
 
   if (!params.config.enabled) {
     return {
@@ -245,7 +249,7 @@ export function resolvePluginActivationState(params: {
       reason: "selected memory slot",
     };
   }
-  if (params.config.allow.length > 0 && !explicitlyAllowed) {
+  if (params.config.allow.length > 0 && !explicitlyAllowed && !explicitlyConfiguredBundledChannel) {
     return {
       enabled: false,
       activated: false,
@@ -382,6 +386,9 @@ export function resolveEffectiveEnableState(params: {
   config: NormalizedPluginsConfig;
   rootConfig?: OpenClawConfig;
   enabledByDefault?: boolean;
+  sourceConfig?: NormalizedPluginsConfig;
+  sourceRootConfig?: OpenClawConfig;
+  autoEnabledReason?: string;
 }): { enabled: boolean; reason?: string } {
   const state = resolveEffectivePluginActivationState(params);
   return state.enabled ? { enabled: true } : { enabled: false, reason: state.reason };
