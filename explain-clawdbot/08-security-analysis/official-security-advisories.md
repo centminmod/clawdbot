@@ -256,7 +256,7 @@
 | [GHSA-77hf-7fqf-f227](https://github.com/openclaw/openclaw/security/advisories/GHSA-77hf-7fqf-f227) | MEDIUM | skills-install-download: tar.bz2 extraction bypassed archive safety parity checks (local DoS) | - | >= v2026.3.2 | @GCXWLP |
 | [GHSA-rchv-x836-w7xp](https://github.com/openclaw/openclaw/security/advisories/GHSA-rchv-x836-w7xp) | HIGH | Dashboard leaked gateway auth material via browser URL/query and localStorage | - | Mar 10 sync 1 (f2f561fab) | - |
 | [GHSA-6rmx-gvvg-vh6j](https://github.com/openclaw/openclaw/security/advisories/GHSA-6rmx-gvvg-vh6j) | MEDIUM | hooks count non-POST requests toward auth lockout | - | pending | - |
-| [GHSA-6mgf-v5j7-45cr](https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr) | HIGH | fetch-guard forwards custom authorization headers across cross-origin redirects | - | pending | - |
+| [GHSA-6mgf-v5j7-45cr](https://github.com/openclaw/openclaw/security/advisories/GHSA-6mgf-v5j7-45cr) | HIGH | fetch-guard forwards custom authorization headers across cross-origin redirects | - | Apr 6 sync 16 (42ffdf882f) | - |
 | [GHSA-pjvx-rx66-r3fg](https://github.com/openclaw/openclaw/security/advisories/GHSA-pjvx-rx66-r3fg) | MEDIUM | Cross-account sender authorization expansion in `/allowlist ... --store` account scoping | - | pending | - |
 | [GHSA-hfpr-jhpq-x4rm](https://github.com/openclaw/openclaw/security/advisories/GHSA-hfpr-jhpq-x4rm) | MEDIUM | `operator.write` chat.send could reach admin-only config writes | - | pending | - |
 | [GHSA-j425-whc4-4jgc](https://github.com/openclaw/openclaw/security/advisories/GHSA-j425-whc4-4jgc) | MEDIUM | `system.run` env override filtering allowed dangerous helper-command pivots | - | pending | - |

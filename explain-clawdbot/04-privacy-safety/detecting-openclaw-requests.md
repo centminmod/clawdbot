@@ -40,7 +40,7 @@ User-Agent: openclaw
 Accept: application/vnd.github+json
 ```
 
-**Source:** `src/plugins/signal-cli-install.ts:221`
+**Source:** `extensions/signal/src/install-signal-cli.ts:222`
 ```typescript
 headers: {
   "User-Agent": "openclaw",
@@ -358,7 +358,7 @@ export type GatewayClientInfo = {
 | Header | Where it's set | Notes |
 |---|---|---|
 | `User-Agent: OpenClaw-Gateway/1.0` | `src/media/input-files.ts:189` | Media file downloads |
-| `User-Agent: openclaw` | `src/plugins/signal-cli-install.ts:221` | Signal CLI installation |
+| `User-Agent: openclaw` | `extensions/signal/src/install-signal-cli.ts:222` | Signal CLI installation |
 | `User-Agent: openclaw` | `src/infra/provider-usage.fetch.claude.ts:125` | Anthropic usage check |
 | `HTTP-Referer: https://openclaw.ai` | `src/agents/provider-attribution.ts:335` | OpenRouter/Perplexity |
 | `X-OpenRouter-Title: OpenClaw` | `src/agents/provider-attribution.ts:336` | OpenRouter/Perplexity |
