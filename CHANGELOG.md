@@ -21,6 +21,7 @@ Docs: https://docs.openclaw.ai
 - Tests/runtime: trim local unit-test import/runtime fan-out across browser, WhatsApp, cron, task, and reply flows so owner suites start faster with lower shared-worker overhead while preserving the same focused behavior coverage. (#60249) Thanks @shakkernerd.
 - Tests/secrets runtime: restore split secrets suite cache and env isolation cleanup so broader runs do not leak stale plugin or provider snapshot state. (#60395) Thanks @shakkernerd.
 - Memory/dreaming (experimental): add opt-in weighted short-term recall promotion to `MEMORY.md`, managed dreaming modes (`off|core|rem|deep`), and a `/dreaming` command plus Dreams UI so durable memory promotion can run on background cadence without manual scheduling. (#60569) Thanks @vignesh07.
+- Agents/system prompts: add an internal cache-prefix boundary across Anthropic-family, OpenAI-family, Google, and CLI transport shaping so stable system-prompt prefixes stay reusable without leaking internal cache markers to provider payloads. (#59054) Thanks @coletebou and @vincentkoc.
 
 ### Fixes
 
@@ -121,6 +122,7 @@ Docs: https://docs.openclaw.ai
 - Plugins/marketplace: block remote marketplace symlink escapes without rewriting ordinary local marketplace install paths. (#60556) Thanks @eleqtrizit.
 - Plugins/Kimi Coding: keep native Anthropic tool payloads on the Kimi coding endpoint while still parsing tagged tool-call text on the response path, so tool calls execute again instead of echoing raw markup. (#60391) Thanks @Eric-Guo.
 - Plugins/install: preserve `--dangerously-force-unsafe-install` across linked plugin probes and linked hook-pack fallback probes so local `--link` installs honor the documented unsafe override. (#60624) Thanks @JerrettDavis.
+- Auto-reply/reasoning: preserve reasoning and compaction markers while coalescing adjacent reply blocks so hidden reasoning does not leak when mixed with visible text on channels like WhatsApp. Thanks @mcaxtr.
 
 ## 2026.4.2
 
