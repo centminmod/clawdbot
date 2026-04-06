@@ -16,7 +16,7 @@ All four AI-generated summaries in this project covered the report. The followin
 | [Gemini 3.0 Pro](../../explain-clawdbot-gemini-3.0-pro/README.md) | Brief index entry only; lists "race conditions" as a key risk | **Inaccurate on race conditions** -- code uses `withFileLock()` from `src/infra/file-lock.ts` with PID-based stale detection; no race exists |
 | [Kimi K2.5](../../explain-clawdbot-kilocode-kimi-k2.5/security-analysis.md#github-issue-1796-argus-security-audit) | Detailed 8-claim breakdown with code snippets, scanner statistics, remediation advice | **Inaccurate** -- accepts all 8 CRITICAL claims at face value; does not verify against source code; presents "plaintext storage" and "hardcoded secrets" as vulnerabilities rather than standard CLI practice per RFC 8252 |
 
-**Key disagreement resolved:** Gemini 3.0 Pro accepted the race condition claim at face value. Code review (`src/agents/auth-profiles/oauth.ts:162` for `refreshOAuthTokenWithLock()`, config in `constants.ts:12`) confirms locking is correctly implemented. The other three models correctly identified this as a false positive.
+**Key disagreement resolved:** Gemini 3.0 Pro accepted the race condition claim at face value. Code review (`src/agents/auth-profiles/oauth.ts:166` for `refreshOAuthTokenWithLock()`, config in `constants.ts:12`) confirms locking is correctly implemented. The other three models correctly identified this as a false positive.
 
 **Additional disagreement (Kimi K2.5):** Kimi K2.5 presents all 8 CRITICAL findings as actual vulnerabilities requiring remediation, including recommending keychain integration for token storage and disabling `config.patch` entirely. Code review confirms: (1) token storage with `0o600` permissions is standard CLI practice per RFC 8252, (2) `config.patch` executes inside Docker containers with `no-new-privileges`, (3) DNS pinning (`src/infra/net/ssrf.ts:310-354`) prevents the SSRF chain Kimi K2.5 describes, and (4) RBAC (`src/gateway/server-methods.ts:100-157`) prevents agent self-approval. The remediation advice in Kimi K2.5 is well-intentioned but addresses non-existent vulnerabilities.
 
@@ -27,11 +27,11 @@ All four AI-generated summaries in this project covered the report. The followin
 | 1 | Plaintext OAuth token storage | **True, by design** | `src/infra/json-file.ts:22` sets `0o600` on every write. Standard for CLI tools (`gh`, `gcloud`). |
 | 2 | Missing CSRF in OAuth state | **False** | `extensions/google-gemini-cli-auth/oauth.ts:690` performs strict `state !== verifier` check. |
 | 3 | Hardcoded OAuth client secret | **True, standard practice** | [RFC 8252 Sections 8.4-8.5](https://datatracker.ietf.org/doc/html/rfc8252#section-8.4): CLI apps are "public clients." |
-| 4 | Token refresh race condition | **False** | `withFileLock()` from `src/infra/file-lock.ts` with PID-based stale detection, lock held throughout refresh+save (`src/agents/auth-profiles/oauth.ts:162`). |
+| 4 | Token refresh race condition | **False** | `withFileLock()` from `src/infra/file-lock.ts` with PID-based stale detection, lock held throughout refresh+save (`src/agents/auth-profiles/oauth.ts:166`). |
 | 5 | Insufficient file permission checks | **True, by design** | `0o600` on every write + `openclaw security audit`/`fix` tooling. |
 | 6 | Path traversal in agent dirs | **False** | Paths go through `resolveUserPath()` (`src/agents/agent-paths.ts:9,12`) which calls `path.resolve()` (`src/infra/home-dir.ts:118,120`), normalizing traversal. IDs from env/config, not user input. |
 | 7 | Webhook signature bypass | **True, properly gated** | `skipVerification` in `extensions/voice-call/src/webhook-security.ts` requires explicit param; dev-only, off by default. |
-| 8 | Insufficient token expiry validation | **False** | `Date.now() < cred.expires` checked on every token use via inline checks (`src/agents/auth-profiles/oauth.ts:176,246`) and `tryResolveOAuthProfile()` (`src/agents/auth-profiles/oauth.ts:234`). |
+| 8 | Insufficient token expiry validation | **False** | `Date.now() < cred.expires` checked on every token use via inline checks (`src/agents/auth-profiles/oauth.ts:180,282`) and `tryResolveOAuthProfile()` (`src/agents/auth-profiles/oauth.ts:263`). |
 
 **Result: 0 of 8 CRITICAL claims are actual security vulnerabilities.**
 
