@@ -17,6 +17,7 @@ import {
   createChannelDirectoryAdapter,
   createRuntimeDirectoryLiveAdapter,
 } from "openclaw/plugin-sdk/directory-runtime";
+import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
 import {
   createRuntimeOutboundDelegates,
   resolveOutboundSendDep,
@@ -35,9 +36,15 @@ import {
 import { getDiscordApprovalCapability } from "./approval-native.js";
 import { discordMessageActions as discordMessageActionsImpl } from "./channel-actions.js";
 import {
-  listDiscordDirectoryGroupsFromConfig,
-  listDiscordDirectoryPeersFromConfig,
-} from "./directory-config.js";
+  buildTokenChannelStatusSummary,
+  type ChannelPlugin,
+  DEFAULT_ACCOUNT_ID,
+  getChatChannelMeta,
+  PAIRING_APPROVED_MESSAGE,
+  projectCredentialSnapshotFields,
+  resolveConfiguredFromCredentialStatuses,
+  type OpenClawConfig,
+} from "./channel-api.js";
 import { shouldSuppressLocalDiscordExecApprovalPrompt } from "./exec-approvals.js";
 import {
   resolveDiscordGroupRequireMention,
@@ -55,20 +62,7 @@ import {
 } from "./normalize.js";
 import { resolveDiscordOutboundSessionRoute } from "./outbound-session-route.js";
 import type { DiscordProbe } from "./probe.js";
-import { resolveDiscordChannelAllowlist } from "./resolve-channels.js";
-import { resolveDiscordUserAllowlist } from "./resolve-users.js";
-import {
-  buildTokenChannelStatusSummary,
-  type ChannelPlugin,
-  DEFAULT_ACCOUNT_ID,
-  getChatChannelMeta,
-  PAIRING_APPROVED_MESSAGE,
-  projectCredentialSnapshotFields,
-  resolveConfiguredFromCredentialStatuses,
-  type OpenClawConfig,
-} from "./runtime-api.js";
 import { getDiscordRuntime } from "./runtime.js";
-import { collectDiscordSecurityAuditFindings } from "./security-audit.js";
 import { normalizeExplicitDiscordSessionKey } from "./session-key-normalization.js";
 import { discordSetupAdapter } from "./setup-core.js";
 import { createDiscordPluginBase, discordConfigAdapter } from "./shared.js";
@@ -89,6 +83,17 @@ let discordAuditModulePromise: Promise<typeof import("./audit.js")> | undefined;
 let discordSendModulePromise: Promise<typeof import("./send.js")> | undefined;
 let discordDirectoryLiveModulePromise: Promise<typeof import("./directory-live.js")> | undefined;
 let discordCarbonModuleCache: DiscordCarbonModule | null = null;
+
+const loadDiscordDirectoryConfigModule = createLazyRuntimeModule(
+  () => import("./directory-config.js"),
+);
+const loadDiscordSecurityAuditModule = createLazyRuntimeModule(
+  () => import("./security-audit.runtime.js"),
+);
+const loadDiscordResolveChannelsModule = createLazyRuntimeModule(
+  () => import("./resolve-channels.js"),
+);
+const loadDiscordResolveUsersModule = createLazyRuntimeModule(() => import("./resolve-users.js"));
 
 const require = createRequire(import.meta.url);
 
@@ -122,7 +127,9 @@ function loadDiscordCarbonModule() {
   return discordCarbonModuleCache;
 }
 
-const meta = getChatChannelMeta("discord");
+const meta = {
+  ...getChatChannelMeta("discord"),
+};
 const REQUIRED_DISCORD_PERMISSIONS = ["ViewChannel", "SendMessages"] as const;
 const DISCORD_ACCOUNT_STARTUP_STAGGER_MS = 10_000;
 
@@ -245,7 +252,8 @@ const resolveDiscordAllowlistGroupOverrides = createNestedAllowlistOverrideResol
 const resolveDiscordAllowlistNames = createAccountScopedAllowlistNameResolver({
   resolveAccount: resolveDiscordAccount,
   resolveToken: (account: ResolvedDiscordAccount) => account.token,
-  resolveNames: ({ token, entries }) => resolveDiscordUserAllowlist({ token, entries }),
+  resolveNames: async ({ token, entries }) =>
+    (await loadDiscordResolveUsersModule()).resolveDiscordUserAllowlist({ token, entries }),
 });
 
 const collectDiscordSecurityWarnings =
@@ -454,12 +462,14 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
       },
       approvalCapability: getDiscordApprovalCapability(),
       directory: createChannelDirectoryAdapter({
-        listPeers: async (params) => listDiscordDirectoryPeersFromConfig(params),
-        listGroups: async (params) => listDiscordDirectoryGroupsFromConfig(params),
+        listPeers: async (params) =>
+          (await loadDiscordDirectoryConfigModule()).listDiscordDirectoryPeersFromConfig(params),
+        listGroups: async (params) =>
+          (await loadDiscordDirectoryConfigModule()).listDiscordDirectoryGroupsFromConfig(params),
         ...createRuntimeDirectoryLiveAdapter({
           getRuntime: loadDiscordDirectoryLiveModule,
-          listPeersLive: (runtime) => runtime.listDirectoryPeersLive,
-          listGroupsLive: (runtime) => runtime.listDirectoryGroupsLive,
+          listPeersLive: (runtime) => runtime.listDiscordDirectoryPeersLive,
+          listGroupsLive: (runtime) => runtime.listDiscordDirectoryGroupsLive,
         }),
       }),
       resolver: {
@@ -470,8 +480,11 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
               token: account.token,
               inputs,
               missingTokenNote: "missing Discord token",
-              resolveWithToken: ({ token, inputs }) =>
-                resolveDiscordChannelAllowlist({ token, entries: inputs }),
+              resolveWithToken: async ({ token, inputs }) =>
+                (await loadDiscordResolveChannelsModule()).resolveDiscordChannelAllowlist({
+                  token,
+                  entries: inputs,
+                }),
               mapResolved: (entry) => ({
                 input: entry.input,
                 resolved: entry.resolved,
@@ -488,8 +501,11 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
             token: account.token,
             inputs,
             missingTokenNote: "missing Discord token",
-            resolveWithToken: ({ token, inputs }) =>
-              resolveDiscordUserAllowlist({ token, entries: inputs }),
+            resolveWithToken: async ({ token, inputs }) =>
+              (await loadDiscordResolveUsersModule()).resolveDiscordUserAllowlist({
+                token,
+                entries: inputs,
+              }),
             mapResolved: (entry) => ({
               input: entry.input,
               resolved: entry.resolved,
@@ -779,7 +795,8 @@ export const discordPlugin: ChannelPlugin<ResolvedDiscordAccount, DiscordProbe> 
     security: {
       resolveDmPolicy: resolveDiscordDmPolicy,
       collectWarnings: collectDiscordSecurityWarnings,
-      collectAuditFindings: collectDiscordSecurityAuditFindings,
+      collectAuditFindings: async (params) =>
+        (await loadDiscordSecurityAuditModule()).collectDiscordSecurityAuditFindings(params),
     },
     threading: {
       scopedAccountReplyToMode: {
